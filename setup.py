@@ -16,6 +16,5 @@ setup(name="ivy",
       url="http://www.reelab.net/ivy",
       license="LICENSE.txt",
       platforms="All",
-      packages=packages,
-      scripts=scripts)
+      packages=packages)
 
