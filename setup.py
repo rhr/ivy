@@ -17,6 +17,5 @@ setup(name="ivy",
       license="LICENSE.txt",
       platforms="All",
       packages=packages,
-      data_files=data_files,
       scripts=scripts)
 
