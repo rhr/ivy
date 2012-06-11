@@ -54,6 +54,3 @@ if __name__ == "__main__":
     
     for k, v in PIC(n, char1).items():
         print k.label or k.id, v
-
-    import ascii
-    print ascii.render(n, scaled=True)

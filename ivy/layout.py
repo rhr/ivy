@@ -3,6 +3,7 @@ layout nodes in 2d space
 
 The function of interest is `calc_node_positions` (aka nodepos)
 """
+import numpy
 
 class Coordinates:
     def __init__(self, x=0, y=0):
@@ -11,6 +12,9 @@ class Coordinates:
 
     def __repr__(self):
         return "Coordinates(%g, %g)" % (self.x, self.y)
+
+    def point(self):
+        return (self.x, self.y)
 
 def smooth_xpos(node, n2coords):
     if not node.isleaf:
@@ -111,8 +115,8 @@ def calc_node_positions(node, width, height,
 
 nodepos = calc_node_positions
 
-def cartesian(node, xscale=1.0, hvect=None, scaled=True, n2coords=None):
-    import numpy
+def cartesian(node, xscale=1.0, leafspace=None, scaled=True, n2coords=None,
+              smooth=0, array=numpy.array, ones=numpy.ones, yunit=None):
     
     if n2coords is None:
         n2coords = {}
@@ -121,15 +125,17 @@ def cartesian(node, xscale=1.0, hvect=None, scaled=True, n2coords=None):
     leaves = node.leaves()
     nleaves = len(leaves)
 
-    if hvect is None:
-        hvect = numpy.ones((nleaves,))
+    # leafspace is a vector that should sum to nleaves
+    if leafspace is None:
+        leafspace = ones((nleaves,))
     else:
-        assert len(hvect) == nleaves
-        hvect = numpy.array(hvect)/(sum(hvect)/nleaves)
+        assert len(leafspace) == nleaves
+        leafspace = array(leafspace)/(sum(leafspace)/nleaves)
     
     maxdepth = max([ n2coords[lf].depth for lf in leaves ])
     depth = maxdepth * xscale
-    yunit = 1.0/nleaves
+    if not yunit: yunit = 1.0/nleaves
+    ## yunit = 1.0
 
     if scaled:
         maxlen = max([ n2coords[lf].length_to_root for lf in leaves ])
@@ -138,7 +144,7 @@ def cartesian(node, xscale=1.0, hvect=None, scaled=True, n2coords=None):
     y = 0
     for i, lf in enumerate(leaves):
         c = n2coords[lf]
-        yoff = hvect[i] * yunit
+        yoff = leafspace[i] * yunit
         c.y = y + yoff*0.5
         y += yoff
         if not scaled:
@@ -160,7 +166,7 @@ def cartesian(node, xscale=1.0, hvect=None, scaled=True, n2coords=None):
                 c.x = c.length_to_root
 
     if not scaled:
-        for i in range(10):
+        for i in range(smooth):
             smooth_xpos(node, n2coords)
 
     return n2coords

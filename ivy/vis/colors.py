@@ -1,5 +1,6 @@
 from matplotlib import cm as mpl_colormap
 from matplotlib import colors as mpl_colors
+from itertools import cycle
 
 tango_colors = {
     'Aluminium1': (0.933, 0.933, 0.925, 1),
@@ -32,13 +33,9 @@ tango_colors = {
     }
 
 def tango():
-    names = ("ScarletRed3", "SkyBlue3", "Chameleon3", "Plum3",
-             "Orange3", "Butter3", "Chocolate3", "Aluminium6",
-             "ScarletRed1", "SkyBlue1", "Chameleon1", "Plum1",
-             "Orange1", "Butter1", "Chocolate1", "Aluminium4")
-    N = len(names)
-    i = 0
-    for n in range(10000):
-        yield tuple(tango_colors[names[i]])
-        i += 1
-        if i == N: i = 0
+    c = cycle(map(tango_colors.get,
+                  ("ScarletRed3", "SkyBlue3", "Chameleon3", "Plum3",
+                   "Orange3", "Butter3", "Chocolate3", "Aluminium6",
+                   "ScarletRed1", "SkyBlue1", "Chameleon1", "Plum1",
+                   "Orange1", "Butter1", "Chocolate1", "Aluminium4")))
+    return c

@@ -9,6 +9,8 @@ import os, types
 from storage import Storage
 from copy import copy as _copy
 from matrix import vcv
+import newick
+from itertools import izip_longest
 
 ## class Tree(object):
 ##     """
@@ -28,14 +30,21 @@ from matrix import vcv
 ##         except AttributeError:
 ##             return object.__getattribute__(self, a)
         
+def traverse(node):
+    "recursive preorder iterator based solely on .children attribute"
+    yield node
+    for child in node.children:
+        for descendant in traverse(child):
+            yield descendant
 
 class Node(object):
     """
     A basic Node class with attributes and references to child nodes
     ('children', a list) and 'parent'.
     """
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.id = None
+        self.li = None # leaf index
         self.isroot = False
         self.isleaf = False
         self.label = None
@@ -45,7 +54,15 @@ class Node(object):
         self.parent = None
         self.children = []
         self.nchildren = 0
-        self.treename = None
+        self.left = None
+        self.right = None
+        self.treename = ""
+        self.comment = ""
+        self.length_comment = ""
+        self.label_comment = ""
+        if kwargs:
+            for k, v in kwargs.items():
+                setattr(self, k, v)
 
     def __copy__(self):
         return self.copy()
@@ -63,9 +80,9 @@ class Node(object):
         s = ", ".join(v)
 
         if s:
-            s = "Node(%s, %s)" % (self.id, s)
+            s = "Node(%s, %s)" % (self.ni, s)
         else:
-            s = "Node(%s)" % self.id
+            s = "Node(%s)" % self.ni
         return s
 
     def __contains__(self, other):
@@ -91,13 +108,16 @@ class Node(object):
         for n in self:
             i += 1
         return i
+
+    def __nonzero__(self):
+        return True
             
     def __getitem__(self, x):
         """
         x is a Node, Node.id (int) or a Node.label (string)
         """
         for n in self:
-            if n==x or n.id==x or (n.label and n.label==x):
+            if n==x or n.id==x or n.ni == x or (n.label and n.label==x):
                 return n
         raise IndexError(str(x))
 
@@ -157,7 +177,7 @@ class Node(object):
         Find most recent common ancestor of *nodes*
         """
         if len(nodes) == 1:
-            nodes = list(nodes[0])
+            nodes = tuple(nodes[0])
         if len(nodes) == 1:
             return nodes[0]
         ## assert len(nodes) > 1, (
@@ -171,16 +191,16 @@ class Node(object):
         nodes = map(f, nodes)
         assert all(filter(lambda x: isinstance(x, Node), nodes))
 
-        v = [ list(n.rootpath()) for n in nodes if n in self ]
+        #v = [ list(n.rootpath()) for n in nodes if n in self ]
+        v = [ list(x) for x in izip_longest(*[ reversed(list(n.rootpath()))
+                                               for n in nodes if n in self ]) ]
         if len(v) == 1:
             return v[0][0]
         anc = None
-        while 1:
-            s = set([ x.pop() for x in v if x ])
-            if len(s) == 1:
-                anc = list(s)[0]
-            else:
-                break
+        for x in v:
+            s = set(x)
+            if len(s) == 1: anc = list(s)[0]
+            else: break
         return anc
 
     def ismono(self, *leaves):
@@ -238,8 +258,16 @@ class Node(object):
     def labeled(self):
         return [ n for n in self if n.label ]
 
-    def leaves(self):
+    def leaves(self, f=None):
+        if f: return [ n for n in self if (n.isleaf and f(n)) ]
         return [ n for n in self if n.isleaf ]
+
+    def internals(self, f=None):
+        if f: return [ n for n in self if (n.children and f(n)) ]
+        return [ n for n in self if n.children ]
+
+    def clades(self):
+        return [ n for n in self if not n.isleaf ]
 
     def iternodes(self, f=None):
         """
@@ -253,16 +281,18 @@ class Node(object):
                     if (f and f(n)) or (not f):
                         yield n
 
-    def preiter(self):
-        for n in self.iternodes():
+    def preiter(self, f=None):
+        for n in self.iternodes(f=f):
             yield n
 
-    def postiter(self):
+    def postiter(self, f=None):
         if not self.isleaf:
             for child in self.children:
                 for n in child.postiter():
-                    yield n
-        yield self
+                    if (f and f(n)) or (not f):
+                        yield n
+        if (f and f(self)) or (not f):
+            yield self
 
     def descendants(self, order="pre", v=None, f=None):
         """
@@ -286,7 +316,11 @@ class Node(object):
         """
         Return the first node found by node.find()
         """
-        return self.find(f, *args, **kwargs).next()
+        v = self.find(f, *args, **kwargs)
+        try:
+            return v.next()
+        except StopIteration:
+            return None
 
     def grep(self, s, ignorecase=True):
         """
@@ -350,39 +384,68 @@ class Node(object):
         n.add_child(node)
         parent.add_child(n)
 
-    def leaf_distances(self, store=None):
-        """
-        for each internal node, calculate the distance to each leaf,
-        measured in branch length or internodes
-        """
-        if store is None:
-            store = {}
-        leaf2len = {}
-        if self.children:
-            for child in self.children:
-                dist = child.length
-                child.leaf_distances(store)
-                if child.isleaf:
-                    leaf2len[child] = dist
-                else:
-                    for k, v in store[child].items():
-                        leaf2len[k] = v + dist
-        else:
-            leaf2len[self] = {self: 0}
-        store[self] = leaf2len
+    ## def leaf_distances(self, store=None, measure="length"):
+    ##     """
+    ##     for each internal node, calculate the distance to each leaf,
+    ##     measured in branch length or internodes
+    ##     """
+    ##     if store is None:
+    ##         store = {}
+    ##     leaf2len = {}
+    ##     if self.children:
+    ##         for child in self.children:
+    ##             if measure == "length":
+    ##                 dist = child.length
+    ##             elif measure == "nodes":
+    ##                 dist = 1
+    ##             child.leaf_distances(store, measure)
+    ##             if child.isleaf:
+    ##                 leaf2len[child] = dist
+    ##             else:
+    ##                 for k, v in store[child].items():
+    ##                     leaf2len[k] = v + dist
+    ##     else:
+    ##         leaf2len[self] = {self: 0}
+    ##     store[self] = leaf2len
+    ##     return store
+
+    def leaf_distances(self, measure="length"):
+        from collections import defaultdict
+        store = defaultdict(lambda:defaultdict(lambda:0))
+        nodes = [ x for x in self if x.children ]
+        for lf in self.leaves():
+            x = lf.length
+            for n in lf.rootpath(self):
+                store[n][lf] = x
+                x += (n.length or 0)
         return store
 
-    def rootpath(self, end=None):
+    def rootpath(self, end=None, stop=None):
         """
         Iterate over parent nodes toward the root, or node *end* if
         encountered.
         """
-        n = self
+        n = self.parent
         while 1:
+            if n is None: raise StopIteration
             yield n
-            if n.isroot or (end and n == end): break
-            if n.parent: n = n.parent
-            else: break
+            if n.isroot or (end and n == end) or (stop and stop(n)):
+                raise StopIteration
+            n = n.parent
+
+    def rootpath_length(self, end=None):
+        v = [self.length]+[ x.length for x in self.rootpath(end) if x.parent ]
+        assert None not in v
+        return sum(v)
+
+    def max_tippath(self, first=True):
+        v = 0
+        if self.children:
+            v = max([ c.max_tippath(False) for c in self.children ])
+        if not first:
+            if self.length is None: v += 1
+            else: v += self.length
+        return v
 
     def subtree_mapping(self, labels, clean=False):
         """
@@ -451,7 +514,7 @@ class Node(object):
             
         return d
 
-    def reroot(self, newroot):
+    def reroot_orig(self, newroot):
         assert newroot in self
         self.isroot = False
         newroot.isroot = True
@@ -470,7 +533,54 @@ class Node(object):
             cp.length = node.length
         return newroot
 
+    def reroot(self, newroot):
+        newroot = self[newroot]
+        assert newroot in self
+        self.isroot = False
+        n = newroot
+        v = list(n.rootpath())
+        v.reverse()
+        for node in (v+[n])[1:]:
+            # node is current node; cp is current parent
+            cp = node.parent
+            cp.remove_child(node)
+            node.add_child(cp)
+            cp.length = node.length
+            cp.label = node.label
+        newroot.isroot = True
+        return newroot
+
+    def write(self, outfile=None, format="newick", length_fmt=":%g", end=True,
+              clobber=False):
+        if format=="newick":
+            s = write_newick(self, outfile, length_fmt, True, clobber)
+            if not outfile:
+                return s
+
+
 reroot = Node.reroot
+
+def index(node, n=0, d=0):
+    """
+    recursively attach 'next', 'back', (and 'left', 'right'), 'ni',
+    'ii', 'pi', and 'node_depth' attributes to nodes
+    """
+    node.next = node.left = n
+    if not node.parent:
+        node.node_depth = d
+    else:
+        node.node_depth = node.parent.node_depth + 1
+    n += 1
+    for i, c in enumerate(node.children):
+        if i > 0:
+            n = node.children[i-1].back + 1
+        index(c, n)
+
+    if node.children:
+        node.back = node.right = node.children[-1].back + 1
+    else:
+        node.back = node.right = n
+    return node.back
 
 def remove_singletons(root, add=True):
     "Remove descendant nodes that are the sole child of their parent"
@@ -485,7 +595,7 @@ def cls(root):
         if node.isleaf:
             results[node] = 1
         else:
-            results[node] = sum(results[child] for child in root.children)
+            results[node] = sum(results[child] for child in node.children)
     return results
 
 def clade_sizes(node, results={}):
@@ -498,16 +608,23 @@ def clade_sizes(node, results={}):
     results[node] = size
     return results
 
-def write(node, outfile=None, format="newick", length_fmt=":%g"):
-    if format=="newick":
-        return write_newick(node, outfile, length_fmt, end=True)
+def write(node, outfile=None, format="newick", length_fmt=":%g",
+          clobber=False):
+    if format=="newick" or ((type(outfile) in types.StringTypes) and
+                            (outfile.endswith(".newick") or
+                             outfile.endswith(".new"))):
+        s = write_newick(node, outfile, length_fmt, True, clobber)
+        if not outfile:
+            return s
     
-def write_newick(node, outfile=None, length_fmt=":%g", end=True):
+def write_newick(node, outfile=None, length_fmt=":%g", end=False,
+                 clobber=False):
     if not node.isleaf:
         node_str = "(%s)%s" % \
-                   (",".join([ write_newick(child, outfile, length_fmt, False)
+                   (",".join([ write_newick(child, outfile, length_fmt,
+                                            False, clobber)
                                for child in node.children ]),
-                    node.label or ""
+                    (node.label or "")
                     )
     else:
         node_str = "%s" % node.label
@@ -524,7 +641,8 @@ def write_newick(node, outfile=None, length_fmt=":%g", end=True):
     if end and outfile:
         flag = False
         if type(outfile) in types.StringTypes:
-            assert (not os.path.isfile(outfile)), "File '%s' exists!"
+            if not clobber:
+                assert not os.path.isfile(outfile), "File '%s' exists! (Set clobber=True to overwrite)" % outfile
             flag = True
             outfile = file(outfile, "w")
         outfile.write(s)
@@ -532,7 +650,7 @@ def write_newick(node, outfile=None, length_fmt=":%g", end=True):
             outfile.close()
     return s
     
-def read(data, format="newick", treename=None, ttable=None):
+def read(data, format=None, treename=None, ttable=None):
     """
     Read a single tree from *data*, which can be a Newick string, a
     file name, or a file-like object with `tell` and 'read`
@@ -542,17 +660,30 @@ def read(data, format="newick", treename=None, ttable=None):
     Returns: *root*, the root node.
     """
     import newick
+    StringTypes = types.StringTypes
     
     def strip(s):
         fname = os.path.split(s)[-1]
         head, tail = os.path.splitext(fname)
-        if tail in (".nwk", ".tre", ".tree", ".newick"):
+        tail = tail.lower()
+        if tail in (".nwk", ".tre", ".tree", ".newick", ".nex"):
             return head
         else:
             return fname
 
+    if (not format):
+        if (type(data) in StringTypes) and os.path.isfile(data):
+            s = data.lower()
+            for tail in ".nex", ".nexus", ".tre":
+                if s.endswith(tail):
+                    format="nexus"
+                    break
+
+    if (not format):
+        format = "newick"
+
     if format == "newick":
-        if type(data) in types.StringTypes:
+        if type(data) in StringTypes:
             if os.path.isfile(data):
                 treename = strip(data)
                 return newick.parse(file(data), treename=treename,
@@ -563,12 +694,100 @@ def read(data, format="newick", treename=None, ttable=None):
         elif (hasattr(data, "tell") and hasattr(data, "read")):
             treename = strip(getattr(data, "name", None))
             return newick.parse(data, treename=treename, ttable=ttable)
+    elif format == "nexus-dendropy":
+        import dendropy
+        if type(data) in StringTypes:
+            if os.path.isfile(data):
+                treename = strip(data)
+                return newick.parse(
+                    str(dendropy.Tree.get_from_path(data, "nexus")),
+                    treename=treename
+                    )
+            else:
+                return newick.parse(
+                    str(dendropy.Tree.get_from_string(data, "nexus"))
+                    )
+
+        elif (hasattr(data, "tell") and hasattr(data, "read")):
+            treename = strip(getattr(data, "name", None))
+            return newick.parse(
+                str(dendropy.Tree.get_from_stream(data, "nexus")),
+                treename=treename
+                )
+        else:
+            pass
+
+    elif format == "nexus":
+        if type(data) in StringTypes:
+            if os.path.isfile(data):
+                with open(data) as infile:
+                    rec = newick.nexus_iter(infile).next()
+                    if rec: return rec.parse()
+            else:
+                rec = newick.nexus_iter(StringIO(data)).next()
+                if rec: return rec.parse()
+        else:
+            rec = newick.nexus_iter(data).next()
+            if rec: return rec.parse()
     else:
         # implement other tree formats here (nexus, nexml etc.)
         raise IOError, "format '%s' not implemented yet" % format
 
     raise IOError, "unable to read tree from '%s'" % data
 
-def readmulti(data, format="newick"):
+def readmany(data, format="newick"):
     "Iterate over trees from a source."
-    pass
+    if type(data) in types.StringTypes:
+        if os.path.isfile(data):
+            data = open(data)
+        else:
+            data = StringIO(data)
+    
+    if format == "newick":
+        for line in data:
+            yield newick.parse(line)
+    elif format == "nexus":
+        for rec in newick.nexus_iter(data):
+            yield rec.parse()
+    else:
+        raise Exception, "format '%s' not recognized" % format
+    data.close()
+
+def randomly_resolve(n):
+    assert len(n.children)>2
+    
+## def leaf_mrcas(root):
+##     from itertools import product, izip, tee
+##     from collections import OrderedDict
+##     from numpy import empty
+##     mrca = OrderedDict()
+##     def pairwise(iterable, tee=tee, izip=izip):
+##         a, b = tee(iterable)
+##         next(b, None)
+##         return izip(a, b)
+##     def f(n):
+##         if n.isleaf:
+##             od = OrderedDict(); od[n] = n.length
+##             return od
+##         d = [ f(c) for c in n.children ]
+##         for i, j in pairwise(xrange(len(d))):
+##             di = d[i]; dj =d[j]
+##             for ni, niv in di.iteritems():
+##                 for nj, njv in dj.iteritems():
+##                     mrca[(ni,nj)] = n
+##             d[j].update(di)
+##         return d[j]
+##     f(root)
+##     return mrca
+        
+def C(leaves, internals):
+    from scipy.sparse import lil_matrix
+    m = lil_matrix((len(internals), len(leaves)))
+    for lf in leaves:
+        v = lf.length if lf.length is not None else 1
+        for n in lf.rootpath():
+            m[n.ii,lf.li] = v
+            v += n.length if n.length is not None else 1
+    return m.tocsc()
+    
+        

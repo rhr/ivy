@@ -9,8 +9,8 @@ def traverse(node, t=0, results=[]):
     nodes split and how many lineages are added by its splitting.
     """
     if node.children:
-        if not node.label:
-            node.label = str(node.id)
+        ## if not node.label:
+        ##     node.label = str(node.id)
         results.append((t, len(node.children)-1))
         for child in node.children:
             traverse(child, t+child.length, results)
@@ -29,7 +29,7 @@ def ltt(node):
     # for plotting, it is easiest if x and y values are in separate
     # sequences, so we create a transposed array from v
     times, diversity = numpy.array(v).transpose()
-    return times, diversity
+    return times, diversity.cumsum()
 
 def test():
     import newick, ascii

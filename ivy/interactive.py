@@ -5,11 +5,14 @@ Adds to the interactive IPython/pylab environment
 """
 import sys, os, re
 import ivy
+from ivy.vis import symbols
 
-def readtree(data): return ivy.tree.read(data)
+def readtree(data, *args, **kwargs): return ivy.tree.read(data, *args, **kwargs)
+
+def readaln(data, *args, **kwargs): return ivy.align.read(data, *args, **kwargs)
 
 def treefig(*args, **kwargs):
-    from ivy.vis.matplot import TreeFigure, MultiTreeFigure
+    from ivy.vis import TreeFigure, MultiTreeFigure
     if len(args) == 1:
         fig = TreeFigure(args[0], **kwargs)
     else:
@@ -20,8 +23,12 @@ def treefig(*args, **kwargs):
     fig.show()
     return fig
 
+def alnfig(*args, **kwargs):
+    from ivy.vis import AlignmentFigure
+    return AlignmentFigure(*args, **kwargs)
+
 def __maketree(self, s):
-    import os, IPython
+    import os#, IPython
     words = s.split()
     treename = "root"
     fname = None
@@ -45,17 +52,13 @@ def __maketree(self, s):
         fname = fname[:-1]
     if fname:
         try:
-            root = ivy.tree.read(fname)
-            IPython.ipapi.get().to_user_ns({treename:root})
+            ## root = ivy.tree.read(fname)
+            ## IPython.ipapi.get().to_user_ns({treename:root})
+            cmd = "%s = ivy.tree.read('%s')" % (treename, fname)
+            get_ipython().ex(cmd)
             print "Tree parsed and assigned to variable '%s'" % treename
         except:
             print "Unable to parse tree file '%s'" % fname
-        ## if os.path.isfile(fname):
-        ##     root = tree.read(fname)
-        ##     IPython.ipapi.get().to_user_ns({treename:root})
-        ##     print "Tree parsed and assigned to variable '%s'" % treename
-        ## else:
-        ##     print "Unable to parse tree file '%s'" % fname
     else:
         print "Cancelled"
 
@@ -80,28 +83,38 @@ def __node_completer(self, event):
     obj = None
     if base:
         obj = self._ofind(base).get("obj")
+    ## print '\n'
+    ## print 'base', base
+    ## print 'obj', obj
     if obj and isinstance(obj, ivy.tree.Node):
         completions = ["'"]
         if quote:
             completions = sorted([ x.label for x in obj.labeled() ])
         return completions
 
-    raise IPython.ipapi.TryNext
+    raise IPython.core.error.TryNext()
 
 try:
-    import IPython
-    IP = IPython.ipapi.get()
+    ## import IPython
+    IP = get_ipython() #IPython.ipapi.get()
     if IP:
-        IP.expose_magic("maketree", __maketree)
+        #IP.expose_magic("maketree", __maketree)
+        IP.define_magic("maketree", __maketree)
+        ## IP.set_hook(
+        ##     "complete_command", __node_completer, re_key=r'\[*'
+        ##     )
         IP.set_hook(
-            "complete_command", __node_completer, re_key=r'\[*'
+            "complete_command", __node_completer,
+            re_key='.+[[]([\']|["])*\w*$'
             )
+
 except:
-    sys.stderr.write("Cannot expose magic commands and completers\n")
+    print sys.exc_info()[0]
+    sys.stderr.write("Magic commands and completers requires IPython >= 0.11\n")
     
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        for fname in sys.argv[1:]:
-            if os.path.isfile(fname):
-                execfile(fname)
+## if __name__ == "__main__":
+##     if len(sys.argv) > 1:
+##         for fname in sys.argv[1:]:
+##             if os.path.isfile(fname):
+##                 execfile(fname)
 

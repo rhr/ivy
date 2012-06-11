@@ -12,7 +12,7 @@ def compare(node1, node2):
         return True
     return False
 
-class JuxtaposerFigure(ivy.matplot.MultiTreeFigure):
+class JuxtaposerFigure(ivy.vis.MultiTreeFigure):
     def on_nodes_selected(self, treeplot):
         for p in self.plots:
             p.highlight()
@@ -40,6 +40,7 @@ class JuxtaposerFigure(ivy.matplot.MultiTreeFigure):
                 p.figure.canvas.draw_idle()
 
 fig = JuxtaposerFigure()
-fig.add("/home/rree/Dropbox/Pedicularis-NSF/phylo/RAxML_bipartitions.its")
-fig.add("/home/rree/Dropbox/Pedicularis-NSF/phylo/RAxML_bipartitions.matk")
+fig.add("its.newick")
+fig.add("matk.newick")
 fig.ladderize()
+fig.show()

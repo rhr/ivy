@@ -7,8 +7,8 @@ environment for phylogenetics.  It is built on a powerful foundation
 of open-source software components, including numpy, scipy,
 matplotlib, and IPython.
 
-Early development efforts have focused on interactive, exploratory
-visualization of phylogenetic trees.  For example::
+``ivy`` emphasizes interactive, exploratory visualization of
+phylogenetic trees.  For example::
 
     #!/usr/bin/env ipython
     from ivy.interactive import *
