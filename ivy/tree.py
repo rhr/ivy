@@ -44,6 +44,7 @@ class Node(object):
     """
     def __init__(self, **kwargs):
         self.id = None
+        self.ni = None # node index
         self.li = None # leaf index
         self.isroot = False
         self.isleaf = False
@@ -63,6 +64,7 @@ class Node(object):
         if kwargs:
             for k, v in kwargs.items():
                 setattr(self, k, v)
+        if self.id is None: self.id = id(self)
 
     def __copy__(self):
         return self.copy()
@@ -79,11 +81,14 @@ class Node(object):
 
         s = ", ".join(v)
 
+        nid = ((self.id if (self.id is not None) else self.ni) or
+               '<%s>' % id(self))
         if s:
-            s = "Node(%s, %s)" % (self.ni, s)
+            s = "Node(%s, %s)" % (nid, s)
         else:
-            s = "Node(%s)" % self.ni
+            s = "Node(%s)" % nid
         return s
+        
 
     def __contains__(self, other):
         otype = type(other)
@@ -180,28 +185,47 @@ class Node(object):
             nodes = tuple(nodes[0])
         if len(nodes) == 1:
             return nodes[0]
-        ## assert len(nodes) > 1, (
-        ##     "Need more than one node for mrca(), got %s" % nodes
-        ##     )
-        def f(x):
-            if isinstance(x, Node):
-                return x
-            elif type(x) in types.StringTypes:
-                return self.find(x)
-        nodes = map(f, nodes)
-        assert all(filter(lambda x: isinstance(x, Node), nodes))
+        nodes = set([ self[n] for n in nodes ])
+        anc = []
+        def f(n):
+            seen = set()
+            for c in n.children: seen.update(f(c))
+            if n in nodes: seen.add(n)
+            if seen == nodes and (not anc): anc.append(n)
+            return seen
+        f(self)
+        return anc[0]
 
-        #v = [ list(n.rootpath()) for n in nodes if n in self ]
-        v = [ list(x) for x in izip_longest(*[ reversed(list(n.rootpath()))
-                                               for n in nodes if n in self ]) ]
-        if len(v) == 1:
-            return v[0][0]
-        anc = None
-        for x in v:
-            s = set(x)
-            if len(s) == 1: anc = list(s)[0]
-            else: break
-        return anc
+    ## def mrca(self, *nodes):
+    ##     """
+    ##     Find most recent common ancestor of *nodes*
+    ##     """
+    ##     if len(nodes) == 1:
+    ##         nodes = tuple(nodes[0])
+    ##     if len(nodes) == 1:
+    ##         return nodes[0]
+    ##     ## assert len(nodes) > 1, (
+    ##     ##     "Need more than one node for mrca(), got %s" % nodes
+    ##     ##     )
+    ##     def f(x):
+    ##         if isinstance(x, Node):
+    ##             return x
+    ##         elif type(x) in types.StringTypes:
+    ##             return self.find(x)
+    ##     nodes = map(f, nodes)
+    ##     assert all(filter(lambda x: isinstance(x, Node), nodes))
+
+    ##     #v = [ list(n.rootpath()) for n in nodes if n in self ]
+    ##     v = [ list(x) for x in izip_longest(*[ reversed(list(n.rootpath()))
+    ##                                            for n in nodes if n in self ]) ]
+    ##     if len(v) == 1:
+    ##         return v[0][0]
+    ##     anc = None
+    ##     for x in v:
+    ##         s = set(x)
+    ##         if len(s) == 1: anc = list(s)[0]
+    ##         else: break
+    ##     return anc
 
     def ismono(self, *leaves):
         "Test if leaf descendants are monophyletic"
@@ -229,6 +253,7 @@ class Node(object):
 
     def ladderize(self, reverse=False):
         self.order_subtrees_by_size(recurse=True, reverse=reverse)
+        return self
 
     def add_child(self, child):
         assert child not in self.children
@@ -434,7 +459,9 @@ class Node(object):
             n = n.parent
 
     def rootpath_length(self, end=None):
-        v = [self.length]+[ x.length for x in self.rootpath(end) if x.parent ]
+        f = lambda x:x.parent==end
+        v = [self.length]+[ x.length for x in self.rootpath(stop=f)
+                            if x.parent ]
         assert None not in v
         return sum(v)
 
