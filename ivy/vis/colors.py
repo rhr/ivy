@@ -1,5 +1,5 @@
-from matplotlib import cm as mpl_colormap
-from matplotlib import colors as mpl_colors
+## from matplotlib import cm as mpl_colormap
+## from matplotlib import colors as mpl_colors
 from itertools import cycle
 
 tango_colors = {

@@ -17,6 +17,7 @@ class TreeFigure:
                  branch_width=1, branch_color="black",
                  highlight_support=True,
                  branchlabels=True, leaflabels=True, decorators=[],
+                 xoff=0, yoff=0,
                  xlim=None, ylim=None):
         self.root = root
         self.relwidth = relwidth
@@ -33,6 +34,8 @@ class TreeFigure:
         self.branchlabels = branchlabels
         self.leaflabels = leaflabels
         self.decorators = decorators
+        self.xoff = xoff
+        self.yoff = yoff
 
         nleaves = len(root.leaves())
         self.dpi = 72.0
@@ -57,6 +60,7 @@ class TreeFigure:
                           leaflabels=self.leaflabels,
                           interactive=False,
                           decorators=self.decorators,
+                          xoff=self.xoff, yoff=self.yoff,
                           name=self.name).plot_tree(self.root)
             )
         self.axes.spines["top"].set_visible(False)
