@@ -1,4 +1,4 @@
-import os, requests, math, cPickle
+import os, requests, math, cPickle, logging
 from collections import defaultdict, Counter, namedtuple
 from functools import cmp_to_key
 from itertools import ifilter
@@ -26,48 +26,6 @@ def get_or_create_ep(g, name, ptype):
         p = g.new_edge_property(ptype)
         g.ep[name] = p
     return p
-
-def fetch_stree(stree_id, cache=True, cache_dir='stree', taxonomy='ott',
-                host='reelab.net', prune_to_ingroup=True, db=None):
-    print 'fetching', stree_id
-    if cache and os.path.isfile('%s/%s.newick' % (cache_dir, stree_id)):
-        root = tree.read('%s/%s.newick' % (cache_dir, stree_id))
-    else:
-        u = 'http://%s/phylografter/stree/newick.txt/%s' % (host, stree_id)
-        lfmt='snode.id,ottol_name.accepted_uid,otu.label'
-        if taxonomy == 'ncbi':
-            lfmt='snode.id,ottol_name.ncbi_taxid,otu.label'
-        p = dict(lfmt=lfmt, ifmt='snode.id')
-        resp = requests.get(u, params=p)
-        root = tree.read(resp.content)
-        if cache and not prune_to_ingroup:
-            root.write('%s/%s.newick' % (cache_dir, stree_id), clobber=1)
-    tree.index(root)
-    for n in root:
-        if n.isleaf:
-            v = n.label.split('_')
-            n.snode_id = int(v[0])
-            n.taxid = int(v[1]) if (len(v)>1 and
-                                    v[1] and v[1] != 'None') else None
-            #n.label = '_'.join(v[2:])
-        else:
-            n.snode_id = int(n.label)
-
-    if prune_to_ingroup:
-        t = db.snode
-        rows = db((t.tree==stree_id) & (t.ingroup==True)).select(t.id)
-        v = []
-        for r in rows:
-            for n in root.findall(lambda x:x.snode_id==r.id): v.append(n)
-        if v:
-            if len(v)>1:# root = root.mrca(*v)
-                v.sort(key=lambda x:x.node_depth)
-            root = v[0]
-            root.prune()
-        if cache:
-            root.write('%s/%s.newick' % (cache_dir, stree_id), clobber=1)
-    root.stree = stree_id
-    return root
 
 class Traverser(gt.DFSVisitor):
     def __init__(self, pre=None, post=None):
@@ -103,6 +61,7 @@ def index_graph(g, reindex=False):
     create a vertex property map with hierarchical (left, right)
     indices
     '''
+    logging.info('indexing graph (left-right and depth values)')
     if 'hindex' in g.vp and 'depth' in g.vp and not reindex:
         return g
     v = g.vertex(0) # root
@@ -126,18 +85,11 @@ def index_graph(g, reindex=False):
         return lr
     g.hindex = hindex
     traverse(v, 1, 0)
-    print 'done'
+    logging.info('...done')
 
-def create_taxonomy_graph(taxonomy='ott', version='2.1'):
-    assert taxonomy in ('ott','ncbi')
-    if taxonomy == 'ott':
-        return _create_ott_taxonomy_graph(version)
-    if taxonomy == 'ncbi':
-        return _create_ncbi_taxonomy_graph('ncbi')
-
-def _create_ncbi_taxonomy_graph(basepath='ncbi'):
+def create_ncbi_taxonomy_graph(basepath='ncbi'):
     '''
-    TODO: incorporate removal code
+    create a graph containing the NCBI taxonomic hierarchy
     '''
     node_fields = ["taxid", "parent_taxid", "rank", "embl_code", "division_id",
                    "inherited_div_flag", "genetic_code_id", "inherited_gc_flag",
@@ -145,6 +97,7 @@ def _create_ncbi_taxonomy_graph(basepath='ncbi'):
                    "hidden_subtree_root_flag", "comments"]
     name_fields = ["taxid", "name", "unique_name", "name_class"]
     def process_nodes(f):
+        logging.info('...processing nodes')
         n = {}
         c = defaultdict(list)
         i = 0
@@ -166,6 +119,7 @@ def _create_ncbi_taxonomy_graph(basepath='ncbi'):
         return n, c
 
     def process_names(f):
+        logging.info('...processing names')
         seen = set()
         synonyms = defaultdict(list)
         accepted = {}
@@ -209,6 +163,8 @@ def _create_ncbi_taxonomy_graph(basepath='ncbi'):
     nnodes = len(nodes)
     viter = G.add_vertex(nnodes)
 
+    logging.info('...creating graph vertices')
+
     i = 0
     for tid, d in nodes.iteritems():
         v = G.vertex(i)
@@ -225,6 +181,7 @@ def _create_ncbi_taxonomy_graph(basepath='ncbi'):
         print '%s           \r' % (nnodes-i),
     print
 
+    logging.info('...creating graph vertices')
     i = 0; n = len(ptid2ctid)
     for tid, child_tids in ptid2ctid.iteritems():
         pv = G.taxid_vertex[tid]
@@ -236,6 +193,12 @@ def _create_ncbi_taxonomy_graph(basepath='ncbi'):
         print '%s           \r' % (n-i),
     print
 
+    G.edge_strees = get_or_create_ep(G, 'stree', 'vector<int>')
+    G.vertex_snode = get_or_create_vp(G, 'snode', 'int')
+    G.vertex_strees = get_or_create_vp(G, 'stree', 'vector<int>')
+    G.vertex_stem_cdef = get_or_create_vp(G, 'stem_cdef', 'vector<int>')
+    G.stem_cdef_vertex = defaultdict(lambda: G.add_vertex())
+
     _filter(G)
     index_graph(G)
     _attach_funcs(G)
@@ -244,63 +207,62 @@ def _create_ncbi_taxonomy_graph(basepath='ncbi'):
 
     return G
 
-def _create_ott_taxonomy_graph(version='2.1'):
-    g = gt.Graph()
-    g.vertex_name = get_or_create_vp(g, 'name', 'string')
-    g.vertex_taxid = get_or_create_vp(g, 'taxid', 'int')
-    g.edge_in_taxonomy = get_or_create_ep(g, 'istaxon', 'bool')
-    g.vertex_in_taxonomy = get_or_create_vp(g, 'istaxon', 'bool')
-    g.dubious = get_or_create_vp(g, 'dubious', 'bool')
-    g.incertae_sedis = get_or_create_vp(g, 'incertae_sedis', 'bool')
-    g.collapsed = get_or_create_vp(g, 'collapsed', 'bool')
-    g.taxid_vertex = {}
+## def _create_ott_taxonomy_graph(version='2.1'):
+##     g = gt.Graph()
+##     g.vertex_name = get_or_create_vp(g, 'name', 'string')
+##     g.vertex_taxid = get_or_create_vp(g, 'taxid', 'int')
+##     g.edge_in_taxonomy = get_or_create_ep(g, 'istaxon', 'bool')
+##     g.vertex_in_taxonomy = get_or_create_vp(g, 'istaxon', 'bool')
+##     g.dubious = get_or_create_vp(g, 'dubious', 'bool')
+##     g.incertae_sedis = get_or_create_vp(g, 'incertae_sedis', 'bool')
+##     g.collapsed = get_or_create_vp(g, 'collapsed', 'bool')
+##     g.taxid_vertex = {}
 
-    #N = 2644684
-    taxid2vid = {}
-    data = []
-    n = 0
-    split = lambda s: (
-        [ x.strip() or None for x in s.split('|')][:-1] if s[-2]=='\t'
-        else [ x.strip() or None for x in s.split('|')]
-    )
-    with open('ott-%s/taxonomy' % version) as f:
-        f.readline()
-        for v in map(split, f):
-            for i in 0,1: v[i] = int(v[i] or 0)
-            taxid = v[0]
-            taxid2vid[taxid] = n
-            data.append(v)
-            print n, '\r',
-            n += 1
-        print 'done'
+##     #N = 2644684
+##     taxid2vid = {}
+##     data = []
+##     n = 0
+##     split = lambda s: (
+##         [ x.strip() or None for x in s.split('|')][:-1] if s[-2]=='\t'
+##         else [ x.strip() or None for x in s.split('|')]
+##     )
+##     with open('ott-%s/taxonomy' % version) as f:
+##         f.readline()
+##         for v in map(split, f):
+##             for i in 0,1: v[i] = int(v[i] or 0)
+##             taxid = v[0]
+##             taxid2vid[taxid] = n
+##             data.append(v)
+##             print n, '\r',
+##             n += 1
+##         print 'done'
 
-    g.add_vertex(n)
-    for i, row in enumerate(data):
-        taxid = row[0]
-        parent = row[1]
-        name = row[2]
-        v = g.vertex(i)
-        g.vertex_in_taxonomy[v] = 1
-        g.vertex_taxid[v] = taxid
-        g.vertex_name[v] = name
-        g.taxid_vertex[taxid] = v
+##     g.add_vertex(n)
+##     for i, row in enumerate(data):
+##         taxid = row[0]
+##         parent = row[1]
+##         name = row[2]
+##         v = g.vertex(i)
+##         g.vertex_in_taxonomy[v] = 1
+##         g.vertex_taxid[v] = taxid
+##         g.vertex_name[v] = name
+##         g.taxid_vertex[taxid] = v
 
-        if row[-1] and 'D' in row[-1]: g.dubious[v] = 1
+##         if row[-1] and 'D' in row[-1]: g.dubious[v] = 1
 
-        if parent:
-            pv = g.vertex(taxid2vid[parent])
-            e = g.add_edge(pv, v)
-            g.edge_in_taxonomy[e] = 1
-        print i, '\r',
-    print 'done'
+##         if parent:
+##             pv = g.vertex(taxid2vid[parent])
+##             e = g.add_edge(pv, v)
+##             g.edge_in_taxonomy[e] = 1
+##         print i, '\r',
+##     print 'done'
 
-    _filter(g)
-    index_graph(g)
-    _attach_funcs(g)
+##     _filter(g)
+##     index_graph(g)
+##     _attach_funcs(g)
 
-    g.root = g.vertex(0)
-    return g
-
+##     g.root = g.vertex(0)
+##     return g
 
 def graph_json(g, dist=None, pos=None, ecolor=None, ewidth=None,
                vcolor=None, vsize=None, vtext=None, fp=None):
@@ -356,6 +318,11 @@ def graph_view(g, vfilt=None, efilt=None):
     view.incertae_sedis = g.incertae_sedis
     view.taxid_vertex = g.taxid_vertex
     view.hindex = g.hindex
+    view.edge_strees = g.edge_strees
+    view.vertex_snode = g.vertex_snode
+    view.vertex_strees = g.vertex_strees
+    view.vertex_stem_cdef = g.vertex_stem_cdef
+    view.stem_cdef_vertex = g.stem_cdef_vertex
     _attach_funcs(view)
     r = [ x for x in view.vertices() if x.in_degree()==0 ]
     ## assert len(r)==1
@@ -396,6 +363,17 @@ def load_taxonomy_graph(source):
     for v in g.vertices():
         tid = g.vertex_taxid[v]
         g.taxid_vertex[tid] = v
+    g.set_vertex_filter(None)
+
+    g.edge_strees = get_or_create_ep(g, 'stree', 'vector<int>')
+    g.vertex_snode = get_or_create_vp(g, 'snode', 'int')
+    g.vertex_strees = get_or_create_vp(g, 'stree', 'vector<int>')
+    g.vertex_stem_cdef = get_or_create_vp(g, 'stem_cdef', 'vector<int>')
+    g.stem_cdef_vertex = defaultdict(lambda: g.add_vertex())
+    g.set_vertex_filter(g.vertex_in_taxonomy, inverted=True)
+    for v in g.vertices():
+        cdef = g.vertex_stem_cdef[v]
+        if cdef: g.stem_cdef_vertex[tuple(cdef)] = v
     g.set_vertex_filter(None)
 
     _attach_funcs(g)
@@ -446,6 +424,11 @@ def taxid_new_subgraph(g, taxids):
     newg.dubious = newg.vp['dubious']
     newg.incertae_sedis = newg.vp['incertae_sedis']
     newg.hindex = newg.vp['hindex']
+    newg.edge_strees = newg.ep['stree']
+    newg.vertex_snode = newg.vp['snode']
+    newg.vertex_strees = newg.vp['stree']
+    newg.vertex_stem_cdef = newg.vp['stem_cdef']
+    newg.stem_cdef_vertex = defaultdict(lambda: newg.add_vertex())
     newg.taxid_vertex = {}
     ovi2nvi = {}
     for x in taxids:
@@ -784,10 +767,10 @@ def map_stree(G, root):
 def merge_stree(G, root, stree, verts=None, edges=None):
     if verts is None: verts = G.new_vertex_property('bool')
     if edges is None: edges = G.new_edge_property('bool')
-    G.edge_strees = get_or_create_ep(G, 'stree', 'vector<int>')
-    G.vertex_snode = get_or_create_ep(G, 'snode', 'int')
-    G.vertex_strees = get_or_create_vp(G, 'stree', 'vector<int>')
-    G.vertex_stem_cdef = get_or_create_vp(G, 'stem_cdef', 'vector<int>')
+    ## G.edge_strees = get_or_create_ep(G, 'stree', 'vector<int>')
+    ## G.vertex_snode = get_or_create_ep(G, 'snode', 'int')
+    ## G.vertex_strees = get_or_create_vp(G, 'stree', 'vector<int>')
+    ## G.vertex_stem_cdef = get_or_create_vp(G, 'stem_cdef', 'vector<int>')
     ## G.stem_cdef_vertex = defaultdict(lambda: G.add_vertex())
     ## stree = root.rec.tree
     for node in root:
@@ -876,7 +859,7 @@ def _filter(g):
     # higher taxa that should be removed along with all of their children
     remove_keywords = ['viroids','virus','viruses','viral','artificial']
 
-    print 'removing'
+    logging.info('removing vertices that are not real taxa (clades)')
     rm = g.collapsed
     def f(x): rm[x] = 1
     T = Traverser(post=f)
@@ -919,148 +902,6 @@ def _filter(g):
     for v in g.vertices():
         if int(v): assert v.in_degree()==1
     
-StreeMap = namedtuple('stree_map',
-                      'root taxg gv pos ecolor ewidth vcolor vsize vtext')
-def map_single_stree(g, stree, host='reelab.net', taxonomy='ott'):
-    """
-    g is a taxonomy graph containing all taxids present in stree
-    """
-    u = 'http://%s/phylografter/stree/newick.txt/%s' % (host, stree)
-    lfmt='snode.id,ottol_name.accepted_uid,otu.label'
-    if taxonomy == 'ncbi':
-        lfmt='snode.id,ottol_name.ncbi_taxid,otu.label'
-    p = dict(lfmt=lfmt, ifmt='snode.id')
-    resp = requests.get(u, params=p)
-    r = tree.read(resp.content)
-    r.ladderize()
-    tree.index(r)
-    for n in r:
-        if n.isleaf:
-            v = n.label.split('_')
-            n.snode_id = int(v[0])
-            n.taxid = int(v[1]) if (len(v)>1 and
-                                    v[1] and v[1] != 'None') else None
-            #n.label = '_'.join(v[2:])
-        else:
-            n.snode_id = int(n.label)
-    r.stree = stree
-
-    map_stree(g, r)
-    taxids = set()
-    for lf in r.leaves():
-        taxids.update(lf.taxid_rootpath)
-    taxg = taxid_new_subgraph(g, taxids)
-    # taxg is a new graph containing only the taxids in stree
-    
-    verts = taxg.new_vertex_property('bool')
-    edges = taxg.new_edge_property('bool')
-    # add stree's nodes and branches into taxg
-    merge_stree(taxg, r, stree, verts, edges)
-    # verts and edges now filter the paths traced by stree in taxg
-
-    # next, add taxonomy edges to taxg connecting 'incertae sedis'
-    # leaves in stree to their containing taxa
-    for lf in r.leaves():
-        if lf.taxid and lf.incertae_sedis:
-            taxv = taxg.taxid_vertex[lf.taxid]
-            ev = taxg.edge(taxv, lf.v, True)
-            if ev:
-                assert len(ev)==1
-                e = ev[0]
-            else:
-                e = taxg.add_edge(taxv, lf.v)
-            taxg.edge_in_taxonomy[e] = 1
-
-    gv = graph_view(taxg, vfilt=verts, efilt=edges)
-    gv.vertex_strees = taxg.vertex_strees
-    gv.edge_strees = taxg.edge_strees
-
-    ecolor = taxg.new_edge_property('string')
-    for e in taxg.edges():
-        est = taxg.edge_strees[e]
-        eit = taxg.edge_in_taxonomy[e]
-        if len(est) and not eit: ecolor[e] = 'blue'
-        elif len(est) and eit: ecolor[e] = 'green'
-        else: ecolor[e] = 'yellow'
-
-    ewidth = taxg.new_edge_property('int')
-    for e in taxg.edges():
-        est = taxg.edge_strees[e]
-        if len(est): ewidth[e] = 3
-        else: ewidth[e] = 1
-
-    vcolor = taxg.new_vertex_property('string')
-    for v in taxg.vertices():
-        if not taxg.vertex_in_taxonomy[v]: vcolor[v] = 'blue'
-        else: vcolor[v] = 'green'
-
-    vsize = taxg.new_vertex_property('int')
-    for v in taxg.vertices():
-        if taxg.vertex_in_taxonomy[v] or v.out_degree()==0:
-            vsize[v] = 4
-        else: vsize[v] = 2
-
-    vtext = taxg.new_vertex_property('string')
-    for v in taxg.vertices():
-        if v.out_degree():
-            vtext[v] = taxg.vertex_name[v]
-
-    pos, pin = layout(taxg, gv, gv.root, sfdp=True, deg0=195.0,
-                      degspan=150.0, radius=400)
-
-    for v in gv.vertices(): pin[v] = 1
-
-    for e in taxg.edges():
-        src = e.source()
-        tgt = e.target()
-        if not verts[src]:
-            verts[src] = 1
-            pos[src] = [0.0, 0.0]
-            vcolor[src] = 'red'
-            vtext[src] = taxg.vertex_name[src]
-        if not verts[tgt]:
-            verts[tgt] = 1
-            pos[tgt] = [0.0, 0.0]
-            vcolor[tgt] = 'red'
-            vtext[tgt] = taxg.vertex_name[tgt]
-        ## if tgt.out_degree()==0:
-        ##     taxid = taxg.vertex_taxid[tgt]
-        ##     if taxid in r.conflicts:
-        ##         for n in r.conflicts[taxid]:
-        ##             ne = gv.add_edge(tgt, n.v)
-        ##             ecolor[ne] = 'red'
-        ##             ewidth[ne] = 1.0
-        ##             gv.wt[ne] = 1.0
-        ##             edges[ne] = 1
-        if not edges[e]:
-            edges[e] = 1
-            ecolor[e] = 'red'
-            ewidth[e] = 1.0
-            gv.wt[e] = 1.0
-    
-    pos = gt.sfdp_layout(gv, pos=pos, pin=pin,
-                         ## C=10, p=3,# theta=2,
-                         ## K=0.1,
-                         eweight=gv.wt, 
-                         ## mu=0.0,
-                         multilevel=False)
-
-
-    gt.interactive_window(
-        gv, pos=pos, pin=True,
-        vertex_fill_color=vcolor,
-        vertex_text_position=3.1415,
-        ## vertex_text=vtext,
-        vertex_text=taxg.vertex_name,
-        vertex_size=vsize,
-        edge_color=ecolor,
-        edge_pen_width=ewidth,
-        update_layout=False
-        )
-
-    return StreeMap(r, taxg, gv, pos, ecolor, ewidth, vcolor, vsize, vtext)
-
-
 def layout(G, g, rootv, sfdp=True, deg0=-45.0, degspan=90.0, radius=100):
     isouter = lambda x: not bool([ v for v in x.out_neighbours() if v != x ])
     ## isouter = lambda x: x.out_degree()==0
