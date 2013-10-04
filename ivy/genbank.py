@@ -1,4 +1,4 @@
-import re, sys
+import re, sys, logging
 from collections import defaultdict
 from itertools import izip_longest, ifilter
 from Bio import Entrez, SeqIO
@@ -236,3 +236,38 @@ def trimpos(rec):
     first = __FIRST.search(s).start()
     last = __LAST.search(s).start()-1
     return (first, last)
+
+def fetch_DNA_seqs(terms, maxn=10000, batchsize=1000):
+    """
+    terms: sequence of search terms, quoted appropriately, with Entrez
+           specifiers, e.g. ['"Mus musculus"[organism]']
+    maxn: maximum number of sequences to return
+    returns list of SeqRecord objects
+    """
+    global email
+    assert email, "set email!"
+    Entrez.email = email
+    h = Entrez.esearch(db="nucleotide", term=" OR ".join(terms), usehistory="y")
+    d = Entrez.read(h)
+    env = d['WebEnv']; key = d['QueryKey']
+    N = int(d['Count'])
+    if maxn: N = min(N, maxn)
+    logging.info('fetching %s sequences', N)
+    retstart = 0
+    seqs = []
+    n = 0
+    while n < N:
+        h = Entrez.efetch(
+            db="nucleotide", rettype='gb', webenv=env, query_key=key,
+            retstart=retstart, retmax=batchsize
+            )
+        v = list(SeqIO.parse(h, "genbank"))
+        n += len(v)
+        logging.info('...fetched %s', n)
+        seqs.extend(v)
+        retstart += batchsize
+    logging.info('...done')
+    return seqs
+    
+
+    
