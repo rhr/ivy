@@ -8,10 +8,15 @@ from . import newick
 from . import tree
 newick.add_label_chars('/#&-')
 
-color20 = ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a",
-           "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94",
-           "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d",
-           "#17becf", "#9edae5"]
+## color20 = ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a",
+##            "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94",
+##            "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d",
+##            "#17becf", "#9edae5"]
+
+color20 = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+           '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+           '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5',
+           '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d', '#9edae5']
 
 def get_or_create_vp(g, name, ptype):
     p = g.vp.get(name)
@@ -89,7 +94,11 @@ def index_graph(g, reindex=False):
 
 def create_ncbi_taxonomy_graph(basepath='ncbi'):
     '''
-    create a graph containing the NCBI taxonomic hierarchy
+    create a graph containing the NCBI taxonomic hierarchy using files from:
+
+    ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
+
+    which are assumed to be unpacked in the directory ``basepath``
     '''
     node_fields = ["taxid", "parent_taxid", "rank", "embl_code", "division_id",
                    "inherited_div_flag", "genetic_code_id", "inherited_gc_flag",
@@ -767,12 +776,6 @@ def map_stree(G, root):
 def merge_stree(G, root, stree, verts=None, edges=None):
     if verts is None: verts = G.new_vertex_property('bool')
     if edges is None: edges = G.new_edge_property('bool')
-    ## G.edge_strees = get_or_create_ep(G, 'stree', 'vector<int>')
-    ## G.vertex_snode = get_or_create_ep(G, 'snode', 'int')
-    ## G.vertex_strees = get_or_create_vp(G, 'stree', 'vector<int>')
-    ## G.vertex_stem_cdef = get_or_create_vp(G, 'stem_cdef', 'vector<int>')
-    ## G.stem_cdef_vertex = defaultdict(lambda: G.add_vertex())
-    ## stree = root.rec.tree
     for node in root:
         if node.taxids and not node.incertae_sedis: # node represents 1+ taxa
             it = iter(node.taxids)
