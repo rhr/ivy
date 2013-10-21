@@ -270,7 +270,7 @@ def nexus_iter(infile):
     ##                      CaselessKeyword("endblock")) + ";")
     comment = Optional(Suppress("[&") + Regex(r'[^]]+') + Suppress("]"))
     ## translate = CaselessKeyword("translate").suppress()
-    name = Word(string.letters+string.digits+"_") | QuotedString("'")
+    name = Word(string.letters+string.digits+"_.") | QuotedString("'")
     ## ttrec = Group(Word(string.digits).setResultsName("number") +
     ##               name.setResultsName("name") +
     ##               Optional(",").suppress())
@@ -294,6 +294,7 @@ def nexus_iter(infile):
         ttable = {}
         while True:
             s = f.next().strip()
+            if not s: continue
             if s.lower() == ";": break
             if s[-1] == ",": s = s[:-1]
             k, v = s.split()
@@ -311,6 +312,7 @@ def nexus_iter(infile):
     while True:
         try: s = f.next().strip()
         except StopIteration: break
+        if not s: continue
         if s.lower() == "translate":
             ttable = parse_ttable(f)
             print "ttable: %s" % len(ttable)
