@@ -295,7 +295,7 @@ def nexus_iter(infile):
         while True:
             s = f.next().strip()
             if s.lower() == ";": break
-            if s[-1] in ",;": s = s[:-1]
+            if s[-1] == ",": s = s[:-1]
             k, v = s.split()
             ttable[k] = v
             if s[-1] == ";": break
