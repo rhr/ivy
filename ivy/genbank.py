@@ -63,12 +63,13 @@ def ac2gi(ac):
     h.close()
     return d
 
-def fetch_aclist(aclist):
+def fetch_aclist(aclist, batchsize=1000):
     global email
     assert email, "set email!"
     Entrez.email = email
     results = {}
-    for v in batch(aclist, 100):
+    n = 0
+    for v in batch(aclist, batchsize):
         v = list(v)
         h = Entrez.esearch(
             db="nucleotide",
@@ -88,6 +89,8 @@ def fetch_aclist(aclist):
             except:
                 pass
         h.close()
+        n += len(v)
+        logging.info('fetched %s sequences', N)
     return results
 
 def fetch_gilist(gilist, batchsize=1000):
@@ -195,17 +198,18 @@ def blast_closest(fasta, e=10):
 def blast(query, e=10, n=100, entrez_query=""):
     f = NCBIWWW.qblast("blastn", "nr", query, expect=e, hitlist_size=n,
                        entrez_query=entrez_query)
-    rec = NCBIXML.read(f)
-    v = []
-    for d in rec.descriptions:
-        result = Storage()
-        gi = re.findall(r'gi[|]([0-9]+)', d.title) or None
-        if gi: result.gi = int(gi[0])
-        ac = re.findall(r'gb[|]([^|]+)', d.title) or None
-        if ac: result.ac = ac[0].split(".")[0]
-        result.title = d.title.split("|")[-1].strip()
-        v.append(result)
-    return v
+    recs = NCBIXML.parse(f)
+    return recs
+    ## v = []
+    ## for d in rec.descriptions:
+    ##     result = Storage()
+    ##     gi = re.findall(r'gi[|]([0-9]+)', d.title) or None
+    ##     if gi: result.gi = int(gi[0])
+    ##     ac = re.findall(r'gb[|]([^|]+)', d.title) or None
+    ##     if ac: result.ac = ac[0].split(".")[0]
+    ##     result.title = d.title.split("|")[-1].strip()
+    ##     v.append(result)
+    ## return v
 
 def start_codons(seq):
     i = seq.find('ATG')
