@@ -316,7 +316,7 @@ def nexus_iter(infile):
         if s.lower() == "translate":
             ttable = parse_ttable(f)
             print "ttable: %s" % len(ttable)
-        else:
+        elif s.split()[0].lower()=='tree':
             match = tree.parseString(s)
             yield nexus.Newick(match, ttable)
 
