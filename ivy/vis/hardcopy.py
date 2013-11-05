@@ -77,9 +77,13 @@ class TreeFigure:
         ##     func(self.axes, *args, **kwargs)
 
         self.canvas.draw()
-        self.axes.home()
-        adjust_limits(self.axes)
+        ## self.axes.home()
+        ## adjust_limits(self.axes)
         self.axes.set_position([0.05,0.05,0.95,0.95])
         
     def savefig(self, fname):
         self.figure.savefig(fname)
+
+    def set_relative_width(self, relwidth):
+        w, h = self.figure.get_size_inches()
+        self.figure.set_figwidth(h*relwidth)

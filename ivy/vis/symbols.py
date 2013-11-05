@@ -163,6 +163,7 @@ def circles(plot, p, colors='g', size=15, xoff=0, yoff=0):
 
     plot.add_collection(col)
     plot.figure.canvas.draw_idle()
+    return col
 
 def legend(plot, colors, labels, shape='rectangle', loc='upper left'):
     if shape == 'circle':

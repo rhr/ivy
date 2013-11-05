@@ -967,7 +967,7 @@ class Tree(Axes):
             p = node.parent
             pcoords = self.n2c[p]
             px = pcoords.x; py = y
-            if self.app.radial:
+            if self.app and self.app.radial:
                 pc = self.n2c[node.parent]; theta2 = pc.angle
                 px = math.cos(math.radians(coords.angle))*pc.depth
                 py = math.sin(math.radians(coords.angle))*pc.depth
