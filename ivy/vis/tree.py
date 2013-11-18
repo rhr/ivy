@@ -603,6 +603,7 @@ class Tree(Axes):
         self.xoff = kwargs.pop("xoff", 0)
         self.yoff = kwargs.pop("yoff", 0)
         self.highlight_support = kwargs.pop("highlight_support", True)
+        self.smooth_xpos = kwargs.pop("smooth_xpos", 0)
         Axes.__init__(self, fig, rect, *args, **kwargs)
         self.nleaves = 0
         self.highlighted = None
@@ -1281,7 +1282,8 @@ class Tree(Axes):
                          
 
     def layout(self):
-        self.n2c = cartesian(self.root, scaled=self.scaled, yunit=1.0)
+        self.n2c = cartesian(self.root, scaled=self.scaled, yunit=1.0,
+                             smooth=self.smooth_xpos)
         for c in self.n2c.values():
             c.x += self.xoff; c.y += self.yoff
         sv = sorted([
