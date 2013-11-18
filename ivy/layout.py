@@ -127,15 +127,15 @@ def cartesian(node, xscale=1.0, leafspace=None, scaled=True, n2coords=None,
 
     # leafspace is a vector that should sum to nleaves
     if leafspace is None:
-        leafspace = ones((nleaves,))
-    else:
-        assert len(leafspace) == nleaves
-        leafspace = array(leafspace)/(sum(leafspace)/nleaves)
+        try: leafspace = [ float(x.leafspace) for x in leaves ]
+        except: leafspace = numpy.zeros((nleaves,))
+    assert len(leafspace) == nleaves
+    #leafspace = array(leafspace)/(sum(leafspace)/float(nleaves))
     
     maxdepth = max([ n2coords[lf].depth for lf in leaves ])
     depth = maxdepth * xscale
-    if not yunit: yunit = 1.0/nleaves
-    ## yunit = 1.0
+    #if not yunit: yunit = 1.0/nleaves
+    yunit = 1.0
 
     if scaled:
         maxlen = max([ n2coords[lf].length_to_root for lf in leaves ])
@@ -144,7 +144,7 @@ def cartesian(node, xscale=1.0, leafspace=None, scaled=True, n2coords=None,
     y = 0
     for i, lf in enumerate(leaves):
         c = n2coords[lf]
-        yoff = leafspace[i] * yunit
+        yoff = 1 + (leafspace[i] * yunit)
         c.y = y + yoff*0.5
         y += yoff
         if not scaled:
