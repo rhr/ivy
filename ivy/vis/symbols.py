@@ -5,10 +5,13 @@ import Image
 from numpy import pi
 from matplotlib.collections import RegularPolyCollection, CircleCollection
 from matplotlib.transforms import offset_copy
-from matplotlib.patches import Rectangle, Wedge, Circle
+from matplotlib.patches import Rectangle, Wedge, Circle, PathPatch
 from matplotlib.offsetbox import DrawingArea
 from itertools import izip_longest
 from matplotlib.axes import Axes
+from numpy import array
+from matplotlib.path import Path
+
 
 try:
     from matplotlib.offsetbox import OffsetImage, AnnotationBbox
@@ -174,3 +177,27 @@ def legend(plot, colors, labels, shape='rectangle', loc='upper left'):
         
     Axes.legend(plot, shapes, labels, loc=loc)
 
+def leafspace_triangles(plot, color='black', rca=0.5):
+    """
+    rca = relative crown age
+    """
+    leaves = plot.root.leaves()
+    leafspace = [ float(x.leafspace) for x in leaves ]
+    #leafspace = array(raw_leafspace)/(sum(raw_leafspace)/float(len(leaves)))
+    pv = []
+    for i, n in enumerate(leaves):
+        if leafspace[i] > 0:
+            p = plot.n2c[n]
+            pp = plot.n2c[n.parent]
+            spc = leafspace[i]
+            yoff = spc/2.0
+            x0 = pp.x + (p.x - pp.x)*rca
+            verts = [(x0, p.y),
+                     (p.x, p.y-yoff),
+                     (p.x, p.y+yoff),
+                     (x0, p.y)]
+            codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            path = Path(verts, codes)
+            patch = PathPatch(path, fc=color, lw=0)
+            pv.append(plot.add_patch(patch))
+    return pv
