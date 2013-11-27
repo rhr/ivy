@@ -420,7 +420,7 @@ def taxid_subgraph(g, taxids):
     sg.taxid_vertex = {}
     for v in sg.vertices():
         taxid = g.vertex_taxid[v]
-        sg.taxid_vertex[v] = taxid
+        sg.taxid_vertex[taxid] = v
     _attach_funcs(sg)
     return sg
 
