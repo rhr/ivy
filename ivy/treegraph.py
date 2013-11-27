@@ -417,6 +417,20 @@ def taxid_subgraph(g, taxids):
             print '!!! root? vertex', int(x), g.vertex_name[x]
     assert len(r)==1
     sg.root = r[0]
+
+    sg.vertex_name = sg.vp['name']
+    sg.vertex_taxid = sg.vp['taxid']
+    sg.edge_in_taxonomy = sg.ep['istaxon']
+    sg.vertex_in_taxonomy = sg.vp['istaxon']
+    sg.dubious = sg.vp['dubious']
+    sg.incertae_sedis = sg.vp['incertae_sedis']
+    sg.hindex = sg.vp['hindex']
+    sg.edge_strees = sg.ep['stree']
+    sg.vertex_snode = sg.vp['snode']
+    sg.vertex_strees = sg.vp['stree']
+    sg.vertex_stem_cdef = sg.vp['stem_cdef']
+    sg.stem_cdef_vertex = defaultdict(lambda: sg.add_vertex())
+
     sg.taxid_vertex = {}
     for v in sg.vertices():
         taxid = g.vertex_taxid[v]
