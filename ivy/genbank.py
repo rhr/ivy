@@ -90,7 +90,7 @@ def fetch_aclist(aclist, batchsize=1000):
                 pass
         h.close()
         n += len(v)
-        logging.info('fetched %s sequences', N)
+        logging.info('fetched %s sequences', n)
     return results
 
 def fetch_gilist(gilist, batchsize=1000):

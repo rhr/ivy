@@ -216,62 +216,68 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
 
     return G
 
-## def _create_ott_taxonomy_graph(version='2.1'):
-##     g = gt.Graph()
-##     g.vertex_name = get_or_create_vp(g, 'name', 'string')
-##     g.vertex_taxid = get_or_create_vp(g, 'taxid', 'int')
-##     g.edge_in_taxonomy = get_or_create_ep(g, 'istaxon', 'bool')
-##     g.vertex_in_taxonomy = get_or_create_vp(g, 'istaxon', 'bool')
-##     g.dubious = get_or_create_vp(g, 'dubious', 'bool')
-##     g.incertae_sedis = get_or_create_vp(g, 'incertae_sedis', 'bool')
-##     g.collapsed = get_or_create_vp(g, 'collapsed', 'bool')
-##     g.taxid_vertex = {}
+def create_opentree_taxonomy_graph(basepath='ott2.2'):
+    g = gt.Graph()
+    g.vertex_name = get_or_create_vp(g, 'name', 'string')
+    g.vertex_taxid = get_or_create_vp(g, 'taxid', 'int')
+    g.edge_in_taxonomy = get_or_create_ep(g, 'istaxon', 'bool')
+    g.vertex_in_taxonomy = get_or_create_vp(g, 'istaxon', 'bool')
+    g.dubious = get_or_create_vp(g, 'dubious', 'bool')
+    g.incertae_sedis = get_or_create_vp(g, 'incertae_sedis', 'bool')
+    g.collapsed = get_or_create_vp(g, 'collapsed', 'bool')
+    g.taxid_vertex = {}
 
-##     #N = 2644684
-##     taxid2vid = {}
-##     data = []
-##     n = 0
-##     split = lambda s: (
-##         [ x.strip() or None for x in s.split('|')][:-1] if s[-2]=='\t'
-##         else [ x.strip() or None for x in s.split('|')]
-##     )
-##     with open('ott-%s/taxonomy' % version) as f:
-##         f.readline()
-##         for v in map(split, f):
-##             for i in 0,1: v[i] = int(v[i] or 0)
-##             taxid = v[0]
-##             taxid2vid[taxid] = n
-##             data.append(v)
-##             print n, '\r',
-##             n += 1
-##         print 'done'
+    taxid2vid = {}
+    data = []
+    n = 0
+    split = lambda s: (
+        [ x.strip() or None for x in s.split('|')][:-1] if s[-2]=='\t'
+        else [ x.strip() or None for x in s.split('|')]
+    )
+    pth = os.path.join(basepath, 'taxonomy')
+    with open(pth) as f:
+        f.readline()
+        for v in map(split, f):
+            for i in 0,1: v[i] = int(v[i] or 0)
+            taxid = v[0]
+            taxid2vid[taxid] = n
+            data.append(v)
+            print n, '\r',
+            n += 1
+        print 'done'
 
-##     g.add_vertex(n)
-##     for i, row in enumerate(data):
-##         taxid = row[0]
-##         parent = row[1]
-##         name = row[2]
-##         v = g.vertex(i)
-##         g.vertex_in_taxonomy[v] = 1
-##         g.vertex_taxid[v] = taxid
-##         g.vertex_name[v] = name
-##         g.taxid_vertex[taxid] = v
+    g.add_vertex(n)
+    for i, row in enumerate(data):
+        taxid = row[0]
+        parent = row[1]
+        name = row[2]
+        v = g.vertex(i)
+        g.vertex_in_taxonomy[v] = 1
+        g.vertex_taxid[v] = taxid
+        g.vertex_name[v] = name
+        g.taxid_vertex[taxid] = v
 
-##         if row[-1] and 'D' in row[-1]: g.dubious[v] = 1
+        if row[-1] and 'D' in row[-1]: g.dubious[v] = 1
 
-##         if parent:
-##             pv = g.vertex(taxid2vid[parent])
-##             e = g.add_edge(pv, v)
-##             g.edge_in_taxonomy[e] = 1
-##         print i, '\r',
-##     print 'done'
+        if parent:
+            pv = g.vertex(taxid2vid[parent])
+            e = g.add_edge(pv, v)
+            g.edge_in_taxonomy[e] = 1
+        print i, '\r',
+    print 'done'
 
-##     _filter(g)
-##     index_graph(g)
-##     _attach_funcs(g)
+    g.edge_strees = get_or_create_ep(g, 'stree', 'vector<int>')
+    g.vertex_snode = get_or_create_vp(g, 'snode', 'int')
+    g.vertex_strees = get_or_create_vp(g, 'stree', 'vector<int>')
+    g.vertex_stem_cdef = get_or_create_vp(g, 'stem_cdef', 'vector<int>')
+    g.stem_cdef_vertex = defaultdict(lambda: g.add_vertex())
 
-##     g.root = g.vertex(0)
-##     return g
+    _filter(g)
+    index_graph(g)
+    _attach_funcs(g)
+
+    g.root = g.vertex(0)
+    return g
 
 def graph_json(g, dist=None, pos=None, ecolor=None, ewidth=None,
                vcolor=None, vsize=None, vtext=None, fp=None):
@@ -411,10 +417,24 @@ def taxid_subgraph(g, taxids):
             print '!!! root? vertex', int(x), g.vertex_name[x]
     assert len(r)==1
     sg.root = r[0]
+
+    sg.vertex_name = sg.vp['name']
+    sg.vertex_taxid = sg.vp['taxid']
+    sg.edge_in_taxonomy = sg.ep['istaxon']
+    sg.vertex_in_taxonomy = sg.vp['istaxon']
+    sg.dubious = sg.vp['dubious']
+    sg.incertae_sedis = sg.vp['incertae_sedis']
+    sg.hindex = sg.vp['hindex']
+    sg.edge_strees = sg.ep['stree']
+    sg.vertex_snode = sg.vp['snode']
+    sg.vertex_strees = sg.vp['stree']
+    sg.vertex_stem_cdef = sg.vp['stem_cdef']
+    sg.stem_cdef_vertex = defaultdict(lambda: sg.add_vertex())
+
     sg.taxid_vertex = {}
     for v in sg.vertices():
         taxid = g.vertex_taxid[v]
-        sg.taxid_vertex[v] = taxid
+        sg.taxid_vertex[taxid] = v
     _attach_funcs(sg)
     return sg
 

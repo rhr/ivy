@@ -35,5 +35,5 @@ except ImportError:
     pass
 
 import chars, align, sequtil
-try: import vis
-except RuntimeError: pass
+## try: import vis
+## except RuntimeError: pass
