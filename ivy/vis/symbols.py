@@ -118,16 +118,16 @@ def hbars(plot, p, values, colors=None, height=16,
         hbar(plot, x, v, colors, height, xoff, yoff, halign, valign,
              xycoords, boxcoords)
 
-def squares(plot, p, colors='r', size=15, xoff=0, yoff=0):
+def squares(plot, p, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
+            zorder=1000):
     points = _xy(plot, p)
     trans = offset_copy(
-        plot.transData, fig=plot.figure, x=xoff, y=yoff, units='points'
-        )
+        plot.transData, fig=plot.figure, x=xoff, y=yoff, units='points')
 
     col = RegularPolyCollection(
         numsides=4, rotation=pi*0.25, sizes=(size*size,),
         offsets=points, facecolors=colors, transOffset=trans,
-        edgecolors='none'
+        edgecolors='none', alpha=alpha, zorder=zorder
         )
 
     plot.add_collection(col)
@@ -201,3 +201,19 @@ def leafspace_triangles(plot, color='black', rca=0.5):
             patch = PathPatch(path, fc=color, lw=0)
             pv.append(plot.add_patch(patch))
     return pv
+
+def text(plot, x, y, s, color='black', xoff=0, yoff=0, valign='center',
+         halign='left', fontsize=10):
+    txt = plot.annotate(
+        s, xy=(x, y),
+        xytext=(xoff, yoff),
+        textcoords="offset points",
+        verticalalignment=valign,
+        horizontalalignment=halign,
+        fontsize=fontsize,
+        clip_on=True,
+        picker=True
+    )
+    txt.set_visible(True)
+    return txt
+    
