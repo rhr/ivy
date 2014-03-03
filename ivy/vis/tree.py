@@ -143,6 +143,7 @@ class TreeFigure(object):
             tp = RadialTreePlot(
                 self.figure, 111, app=self, name=self.name,
                 scaled=self.scaled, branchlabels=self.branchlabels,
+                highlight_support=self.highlight_support,
                 leaflabels=self.leaflabels, mark_named=self.mark_named
                 )
             ax2 = self.figure.add_subplot(tp)
@@ -954,6 +955,7 @@ class Tree(Axes):
 
         M = Path.MOVETO; L = Path.LINETO
 
+        verts = []; codes = []
         segments = []
         def f(n):
             if n.isleaf or not n.parent: return False
@@ -974,10 +976,17 @@ class Tree(Axes):
                 py = math.sin(math.radians(coords.angle))*pc.depth
             
             ## segments.append([(x, y),(px, y)])
+            verts.append((x,y)); codes.append(M)
+            verts.append((px,py)); codes.append(L)
 
-            self.add_artist(Line2D(
-                [x,px], [y,py], lw=3, solid_capstyle="butt", color="black"
-                ))
+        if verts:
+            patch = PathPatch(Path(verts, codes), fill=False,
+                              linewidth=3, edgecolor='black')
+            self.add_patch(patch)
+
+            ## self.add_artist(Line2D(
+            ##     [x,px], [y,py], lw=3, solid_capstyle="butt", color="black"
+            ##     ))
                 
     def hl(self, s):
         nodes = self.root.findall(s)
