@@ -26,9 +26,7 @@ http://www.reelab.net/ivy
 Installation
 ============
 
-0. Install `virtualenv <http://pypi.python.org/pypi/virtualenv>`_.
-
-1. Install ivy: ``pip install ivy``
-
+Recommended: clone this repo and run ``setup.py install`` in a virtual
+environment
 
 
