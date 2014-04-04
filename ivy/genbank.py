@@ -279,7 +279,9 @@ def seqrec_taxid(seqrec):
         if ft.type == 'source':
             break
     try:
-        return int(ft.qualifiers['db_xref'][0].split(':')[1])
+        for x in ft.qualifiers['db_xref']:
+            if x.startswith('taxon:'):
+                return int(x.split(':')[1])
     except:
         pass
 
