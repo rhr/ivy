@@ -273,5 +273,14 @@ def fetch_DNA_seqs(terms, maxn=10000, batchsize=1000):
     logging.info('...done')
     return seqs
     
+def seqrec_taxid(seqrec):
+    "extract the NCBI taxon id from a sequence record"
+    for ft in seqrec.features:
+        if ft.type == 'source':
+            break
+    try:
+        return int(ft.qualifiers['db_xref'][0].split(':')[1])
+    except:
+        pass
 
     
