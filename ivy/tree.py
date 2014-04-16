@@ -300,11 +300,12 @@ class Node(object):
         """
         if (f and f(self)) or (not f):
             yield self
-        if not self.isleaf:
-            for child in self.children:
-                for n in child.iternodes():
-                    if (f and f(n)) or (not f):
-                        yield n
+        for child in self.children:
+            for n in child.iternodes(f):
+                yield n
+
+    def iterleaves(self):
+        return self.iternodes(lambda x:x.isleaf)
 
     def preiter(self, f=None):
         for n in self.iternodes(f=f):
