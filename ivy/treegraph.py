@@ -390,7 +390,9 @@ def load_taxonomy_graph(source):
         cdef = g.vertex_stem_cdef[v]
         if cdef: g.stem_cdef_vertex[tuple(cdef)] = v
     g.set_vertex_filter(None)
-
+    if g.vp.get('collapsed'):
+        g.collapsed = g.vp['collapsed']
+        g.set_vertex_filter(g.collapsed, inverted=True)
     _attach_funcs(g)
 
     g.root = g.vertex(0)
@@ -403,6 +405,7 @@ def load_taxonomy_graph(source):
     return g
 
 def taxid_subgraph(g, taxids):
+    ## BROKEN, do not use
     vfilt = g.new_vertex_property('bool')
     for x in taxids:
         v = g.taxid_vertex[x]
@@ -452,6 +455,7 @@ def taxid_new_subgraph(g, taxids):
     newg.vertex_in_taxonomy = newg.vp['istaxon']
     newg.dubious = newg.vp['dubious']
     newg.incertae_sedis = newg.vp['incertae_sedis']
+    newg.collapsed = newg.vp['collapsed']
     newg.hindex = newg.vp['hindex']
     newg.edge_strees = newg.ep['stree']
     newg.vertex_snode = newg.vp['snode']
@@ -483,6 +487,7 @@ def taxid_new_subgraph(g, taxids):
             print '!!! root? vertex', int(x), tid, newg.vertex_name[x]
     #assert len(r)==1, r
     newg.root = r[0]
+    newg.set_vertex_filter(newg.collapsed, inverted=True)
     _attach_funcs(newg)
     return newg
 
@@ -593,7 +598,7 @@ def rootpath_mrca(rootpaths, i=-1):
     return p.pop()
 
 def map_stree(G, root):
-    print 'mapping', root.stree
+    ## print 'mapping', root.stree
     ## root = fetch_stree(stree_id, cache=cache,
     ##                    prune_to_ingroup=prune_to_ingroup)
     ## print '  tree built'
@@ -619,8 +624,8 @@ def map_stree(G, root):
             lf.incertae_sedis = True
             lf.taxid_rootpath = []
         elif lf.taxid not in G.taxid_vertex:
-            print '!!! [%s] taxid not in taxonomy:' % \
-                  root.stree, lf.snode_id, lf.label
+            print '!!! [{}] taxid {} not in taxonomy (node {})'.format(
+                  root.stree, lf.taxid, lf.label)
             lf.incertae_sedis = True
             lf.taxid_rootpath = []
         else:
@@ -891,11 +896,13 @@ def _filter(g):
         s = name.split()
         for kw in remove_keywords:
             if kw in s:
+                print 'remove:', name
                 gt.dfs_search(g, v, T)
                 break
 
         for kw in incertae_keywords:
             if kw in s:
+                print 'incertae sedis:', name
                 rm[v] = 1
                 for c in v.out_neighbours():
                     g.incertae_sedis[c] = 1
@@ -904,6 +911,7 @@ def _filter(g):
         s = name.replace('-', ' ')
         for w in collapse_keywords:
             if s.startswith(w):
+                print 'collapse:', name
                 rm[v] = 1
                 break
 

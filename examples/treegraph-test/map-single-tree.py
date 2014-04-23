@@ -42,7 +42,7 @@ tg.merge_stree(taxg, r, stree, verts, edges)
 # next, add taxonomy edges to taxg connecting 'incertae sedis'
 # leaves in stree to their containing taxa
 for lf in r.leaves():
-    if lf.taxid and lf.incertae_sedis:
+    if lf.taxid and lf.taxid in taxg.taxid_vertex and lf.incertae_sedis:
         taxv = taxg.taxid_vertex[lf.taxid]
         ev = taxg.edge(taxv, lf.v, True)
         if ev:
