@@ -152,7 +152,7 @@ class TreeFigure(object):
             self.detail = ax2
 
     def __get_selected_nodes(self):
-        return self.detail.selected_nodes
+        return list(self.detail.selected_nodes)
 
     def __set_selected_nodes(self, nodes):
         self.detail.select_nodes(nodes)
@@ -1481,6 +1481,7 @@ class Tree(Axes):
                     clip_on=True,
                     picker=True
                 )
+                txt.node = node
                 txt.set_visible(False)
                 self.node2label[node] = txt
 
@@ -1498,6 +1499,7 @@ class Tree(Axes):
                     picker=True
                 )
                 ## txt.set_visible(False)
+                txt.node = node
                 self.node2label[node] = txt
         ## print "leave: create_label_artists"
 
