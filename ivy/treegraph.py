@@ -92,6 +92,53 @@ def index_graph(g, reindex=False):
     traverse(v, 1, 0)
     logging.info('...done')
 
+def create_generic_taxonomy_graph(r):
+    """r is a root ivy.tree.Node"""
+    G = gt.Graph()
+    G.vertex_name = get_or_create_vp(G, 'name', 'string')
+    G.vertex_rank = get_or_create_vp(G, 'rank', 'string')
+    G.vertex_taxid = get_or_create_vp(G, 'taxid', 'int')
+    G.edge_in_taxonomy = get_or_create_ep(G, 'istaxon', 'bool')
+    G.vertex_in_taxonomy = get_or_create_vp(G, 'istaxon', 'bool')
+    G.dubious = get_or_create_vp(G, 'dubious', 'bool')
+    G.incertae_sedis = get_or_create_vp(G, 'incertae_sedis', 'bool')
+    G.collapsed = get_or_create_vp(G, 'collapsed', 'bool')
+    G.taxid_vertex = {}
+
+    nnodes = len(r)
+    viter = G.add_vertex(nnodes)
+
+    logging.info('...creating graph vertices')
+
+    i = 0
+    for n in r:
+        n.vid = i
+        v = G.vertex(i)
+        G.vertex_in_taxonomy[v] = 1
+        G.taxid_vertex[n.tid] = v
+        G.vertex_taxid[v] = n.tid
+        G.vertex_rank[v] = n.rank
+        G.vertex_name[v] = n.name
+        if n.parent:
+            e = G.add_edge(G.vertex(n.parent.vid), G.vertex(n.vid))
+            G.edge_in_taxonomy[e] = 1
+        i += 1
+        print '%s           \r' % (nnodes-i),
+
+    G.edge_strees = get_or_create_ep(G, 'stree', 'vector<int>')
+    G.vertex_snode = get_or_create_vp(G, 'snode', 'int')
+    G.vertex_strees = get_or_create_vp(G, 'stree', 'vector<int>')
+    G.vertex_stem_cdef = get_or_create_vp(G, 'stem_cdef', 'vector<int>')
+    G.stem_cdef_vertex = defaultdict(lambda: G.add_vertex())
+
+    _filter(G)
+    index_graph(G)
+    _attach_funcs(G)
+
+    G.root = G.vertex(0)
+
+    return G
+
 def create_ncbi_taxonomy_graph(basepath='ncbi'):
     '''
     create a graph containing the NCBI taxonomic hierarchy using files from:
