@@ -580,8 +580,9 @@ class Node(object):
 
     def makeroot(self, shift_labels=False):
         """
-        shift_labels: flag to shift parent-child node labels when
-        internode polarity changes
+        shift_labels: flag to shift internal parent-child node labels
+        when internode polarity changes; suitable e.g. if internal node
+        labels indicate unrooted bipartition support
         """
         v = list(self.rootpath())
         v[-1].isroot = False
