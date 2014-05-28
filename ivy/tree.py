@@ -578,6 +578,20 @@ class Node(object):
         newroot.isroot = True
         return newroot
 
+    def makeroot(self):
+        v = list(self.rootpath())
+        v.reverse()
+        for node in v[1:] + [self]:
+            # node is current node; cp is current parent
+            cp = node.parent
+            cp.remove_child(node)
+            node.add_child(cp)
+            cp.length = node.length
+            ## if not cp.label:
+            ##     cp.label = node.label
+        self.isroot = True
+        return self
+
     def write(self, outfile=None, format="newick", length_fmt=":%g", end=True,
               clobber=False):
         if format=="newick":
