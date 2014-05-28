@@ -578,8 +578,13 @@ class Node(object):
         newroot.isroot = True
         return newroot
 
-    def makeroot(self):
+    def makeroot(self, shift_labels=False):
+        """
+        shift_labels: flag to shift parent-child node labels when
+        internode polarity changes
+        """
         v = list(self.rootpath())
+        v[-1].isroot = False
         v.reverse()
         for node in v[1:] + [self]:
             # node is current node; cp is current parent
@@ -587,8 +592,8 @@ class Node(object):
             cp.remove_child(node)
             node.add_child(cp)
             cp.length = node.length
-            ## if not cp.label:
-            ##     cp.label = node.label
+            if shift_labels:
+                cp.label = node.label
         self.isroot = True
         return self
 
