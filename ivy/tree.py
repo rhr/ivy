@@ -259,6 +259,7 @@ class Node(object):
         assert child not in self.children
         self.children.append(child)
         child.parent = self
+        child.isroot = False
         self.nchildren += 1
 
     def bisect_branch(self):
