@@ -18,7 +18,8 @@ class TreeFigure:
                  highlight_support=True,
                  branchlabels=True, leaflabels=True, decorators=[],
                  xoff=0, yoff=0,
-                 xlim=None, ylim=None):
+                 xlim=None, ylim=None,
+                 height=None, width=None):
         self.root = root
         self.relwidth = relwidth
         self.leafpad = leafpad
@@ -40,10 +41,12 @@ class TreeFigure:
         nleaves = len(root.leaves())
         self.dpi = 72.0
         self.leaf_fontsize = 10.0
-        self.height = (nleaves*self.leaf_fontsize*self.leafpad)/self.dpi
-        self.width = self.height*self.relwidth
-        self.height += 2
-        self.width += 2
+        h = height or (nleaves*self.leaf_fontsize*self.leafpad)/self.dpi
+        self.height = h
+        self.width = width or self.height*self.relwidth
+        ## p = min(self.width, self.height)*0.1
+        ## self.height += p
+        ## self.width += p
         self.figure = Figure(figsize=(self.width, self.height), dpi=self.dpi)
         self.canvas = FigureCanvas(self.figure)
         self.axes = self.figure.add_axes(
@@ -87,3 +90,11 @@ class TreeFigure:
     def set_relative_width(self, relwidth):
         w, h = self.figure.get_size_inches()
         self.figure.set_figwidth(h*relwidth)
+
+    def autoheight(self):
+        "adjust figure height to show all leaf labels"
+        nleaves = len(self.root.leaves())
+        h = (nleaves*self.leaf_fontsize*self.leafpad)/self.dpi
+        self.height = h
+        self.figure.set_size_inches(self.width, self.height)
+        self.axes.set_ylim(-2, nleaves+2)
