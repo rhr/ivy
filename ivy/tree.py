@@ -461,11 +461,19 @@ class Node(object):
             n = n.parent
 
     def rootpath_length(self, end=None):
-        f = lambda x:x.parent==end
-        v = [self.length]+[ x.length for x in self.rootpath(stop=f)
-                            if x.parent ]
-        assert None not in v
-        return sum(v)
+        n = self
+        x = 0.0
+        while n.parent:
+            x += n.length
+            if n.parent == end:
+                break
+            n = n.parent
+        return x
+        ## f = lambda x:x.parent==end
+        ## v = [self.length]+[ x.length for x in self.rootpath(stop=f)
+        ##                     if x.parent ]
+        ## assert None not in v
+        ## return sum(v)
 
     def max_tippath(self, first=True):
         v = 0
