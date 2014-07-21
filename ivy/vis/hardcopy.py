@@ -98,3 +98,6 @@ class TreeFigure:
         self.height = h
         self.figure.set_size_inches(self.width, self.height)
         self.axes.set_ylim(-2, nleaves+2)
+
+    def home(self):
+        self.axes.home()
