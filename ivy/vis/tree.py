@@ -168,6 +168,10 @@ class TreeFigure(object):
     ## def selected_nodes(self):
     ##     return self.detail.selected_nodes
 
+    @property
+    def axes(self):
+        return self.detail
+
     def add(self, data, name=None, support=70,
             branchlabels=False, leaflabels=True):
         newfig = MultiTreeFigure()

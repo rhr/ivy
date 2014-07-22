@@ -83,6 +83,10 @@ class TreeFigure:
         ## self.axes.home()
         ## adjust_limits(self.axes)
         self.axes.set_position([0.05,0.05,0.95,0.95])
+
+    @property
+    def detail(self):
+        return self.axes
         
     def savefig(self, fname):
         self.figure.savefig(fname)
