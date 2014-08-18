@@ -403,6 +403,19 @@ class Node(object):
             p.remove_child(self)
         return p
 
+    def excise(self):
+        "for 'knees': remove self from between parent and single child"
+        assert self.parent
+        assert len(self.children)==1
+        p = self.parent
+        c = self.children[0]
+        if c.length is not None and self.length is not None:
+            c.length += self.length
+        c.prune()
+        self.prune()
+        p.add_child(c)
+        return p
+
     def graft(self, node):
         parent = self.parent
         parent.remove_child(self)
