@@ -40,7 +40,6 @@ class TreeFigure:
 
         nleaves = len(root.leaves())
         self.dpi = 72.0
-        self.leaf_fontsize = 10.0
         h = height or (nleaves*self.leaf_fontsize*self.leafpad)/self.dpi
         self.height = h
         self.width = width or self.height*self.relwidth
