@@ -61,6 +61,26 @@ def taxid_cmp(g, t1, t2):
 
 taxid_key = cmp_to_key(taxid_cmp)
 
+def prune_to_clade(g, v):
+    """
+    reduce taxonomy graph g to tid and its descendants
+
+    important: g is assumed to be *unfiltered*
+    (create_*_taxonomy_graph now returns an unfiltered graph)
+    """
+    p = g.new_vertex_property('bool')
+    def f(x): p[x]=1
+    class T(gt.DFSVisitor):
+        def discover_vertex(self, u):
+            p[u] = 1
+    gt.dfs_search(g, v, T())
+    g.set_vertex_filter(p)
+    g.purge_vertices()
+    g.purge_edges()
+    g.clear_filters()
+    index_graph(g, reindex=True)
+    g.taxid_vertex = dict([ (g.vertex_taxid[x],x) for x in g.vertices() ])
+
 def index_graph(g, reindex=False):
     '''
     create a vertex property map with hierarchical (left, right)
@@ -258,6 +278,7 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
     _filter(G)
     index_graph(G)
     _attach_funcs(G)
+    g.taxid_vertex = dict([ (g.vertex_taxid[x],x) for x in g.vertices() ])
 
     G.root = G.vertex(0)
 
@@ -968,15 +989,23 @@ def _filter(g):
               if int(v) and v.in_degree()==0 ]
     g.set_vertex_filter(None)
 
-    for v in outer:
+    print 'connecting nodes orphaned from collapsing'
+    while outer:
+        v = outer.pop()
+        print len(outer), '\r',
         p = v.in_neighbours().next()
         while rm[p]:
-            p = p.in_neighbours().next()
+            q = p.in_neighbours().next()
+            assert int(q) != int(p)
+            p = q
         g.edge_in_taxonomy[g.add_edge(p, v)] = 1
     print 'done'
 
     g.set_vertex_filter(rm, inverted=True)
-
+    g.purge_vertices()
+    g.purge_edges()
+    g.clear_filters()
+    
     for v in g.vertices():
         if int(v): assert v.in_degree()==1
     
