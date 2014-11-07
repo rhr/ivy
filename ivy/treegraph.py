@@ -284,6 +284,136 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
 
     return G
 
+def create_ncbi_taxonomy_grapheekdb(basepath='ncbi'):
+    '''
+    create a graph containing the NCBI taxonomic hierarchy using files from:
+
+    ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
+
+    which are assumed to be unpacked in the directory ``basepath``
+    '''
+    from grapheekdb.backends.data.kyotocab import KyotoCabinetGraph
+    from datetime import date
+    outfname = 'ncbi/ncbi.{}.kch'.format(date.today().strftime('%Y%m%d'))
+    
+    node_fields = ["taxid", "parent_taxid", "rank", "embl_code", "division_id",
+                   "inherited_div_flag", "genetic_code_id", "inherited_gc_flag",
+                   "mt_gc_id", "inherited_mgc_flag", "genbank_hidden_flag",
+                   "hidden_subtree_root_flag", "comments"]
+    name_fields = ["taxid", "name", "unique_name", "name_class"]
+    def process_nodes(f):
+        logging.info('...processing nodes')
+        n = {}
+        c = defaultdict(list)
+        i = 0
+        for line in f:
+            v = [ x.strip() or None for x in line.split("|") ]
+            s = dict(zip(node_fields, v[:-1]))
+            for k, v in s.items():
+                if k.endswith('_flag'):
+                    s[k] = bool(int(v))
+                else:
+                    try: s[k] = int(v)
+                    except: pass
+            tid = s['taxid']
+            n[tid] = s
+            if tid > 1: c[s['parent_taxid']].append(tid)
+            i += 1
+            print '%s           \r' % i,
+        print
+        return n, c
+
+    def process_names(f):
+        logging.info('...processing names')
+        seen = set()
+        synonyms = defaultdict(list)
+        accepted = {}
+        i = 0
+        for line in f:
+            v = [ x.strip() or None for x in line.split("|") ]
+            v[0] = int(v[0])
+            s = dict(zip(name_fields, v[:-1]))
+            name = s['name']; uname = s['unique_name']; taxid = s['taxid']
+            s['type'] = 'taxonomic_name'
+            s['source'] = 'ncbi'
+            if uname or name in seen: s['homonym_flag'] = True
+            if s['name_class'] == 'scientific name' and (uname or name) not in seen:
+                s['primary'] = True
+                accepted[taxid] = s
+            else:
+                s['primary'] = False
+                synonyms[taxid].append(s)
+            seen.add(uname or name)
+            i += 1
+            print '%s           \r' % i,
+        print
+        return accepted, synonyms
+
+    with open(os.path.join(basepath, 'nodes.dmp')) as f:
+        nodes, ptid2ctid = process_nodes(f)
+    with open(os.path.join(basepath, 'names.dmp')) as f:
+        accepted, synonyms = process_names(f)
+
+    G = KyotoCabinetGraph(outfname)
+        
+    G.vertex_name = get_or_create_vp(G, 'name', 'string')
+    G.vertex_rank = get_or_create_vp(G, 'rank', 'string')
+    G.vertex_taxid = get_or_create_vp(G, 'taxid', 'int')
+    G.edge_in_taxonomy = get_or_create_ep(G, 'istaxon', 'bool')
+    G.vertex_in_taxonomy = get_or_create_vp(G, 'istaxon', 'bool')
+    G.dubious = get_or_create_vp(G, 'dubious', 'bool')
+    G.incertae_sedis = get_or_create_vp(G, 'incertae_sedis', 'bool')
+    G.collapsed = get_or_create_vp(G, 'collapsed', 'bool')
+    G.taxid_vertex = {}
+
+    nnodes = len(nodes)
+    viter = G.add_vertex(nnodes)
+
+    logging.info('...creating graph vertices')
+
+    i = 0
+    for tid, d in nodes.iteritems():
+        v = G.vertex(i)
+        G.vertex_in_taxonomy[v] = 1
+        G.taxid_vertex[tid] = v
+        G.vertex_taxid[v] = tid
+        G.vertex_rank[v] = d['rank']
+        try:
+            name = accepted[tid]['name'] # !! should deal with unique_name
+            G.vertex_name[v] = name
+        except KeyError:
+            print tid
+        i += 1
+        print '%s           \r' % (nnodes-i),
+    print
+
+    logging.info('...creating graph vertices')
+    i = 0; n = len(ptid2ctid)
+    for tid, child_tids in ptid2ctid.iteritems():
+        pv = G.taxid_vertex[tid]
+        for ctid in child_tids:
+            cv = G.taxid_vertex[ctid]
+            e = G.add_edge(pv, cv)
+            G.edge_in_taxonomy[e] = 1
+        i += 1
+        print '%s           \r' % (n-i),
+    print
+
+    G.edge_strees = get_or_create_ep(G, 'stree', 'vector<int>')
+    G.vertex_snode = get_or_create_vp(G, 'snode', 'int')
+    G.vertex_strees = get_or_create_vp(G, 'stree', 'vector<int>')
+    G.vertex_stem_cdef = get_or_create_vp(G, 'stem_cdef', 'vector<int>')
+    G.stem_cdef_vertex = defaultdict(lambda: G.add_vertex())
+
+    _filter(G)
+    index_graph(G)
+    _attach_funcs(G)
+    g.taxid_vertex = dict([ (g.vertex_taxid[x],x) for x in g.vertices() ])
+
+    G.root = G.vertex(0)
+
+    return G
+
 def create_opentree_taxonomy_graph(basepath='ott2.2'):
     g = gt.Graph()
     g.vertex_name = get_or_create_vp(g, 'name', 'string')
