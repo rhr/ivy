@@ -318,6 +318,7 @@ def create_ncbi_taxonomy_grapheekdb(basepath='ncbi'):
             tid = s['taxid']
             n[tid] = s
             if tid > 1: c[s['parent_taxid']].append(tid)
+            s['type'] = 'taxnode'
             i += 1
             print '%s           \r' % i,
         print
@@ -333,11 +334,13 @@ def create_ncbi_taxonomy_grapheekdb(basepath='ncbi'):
             v = [ x.strip() or None for x in line.split("|") ]
             v[0] = int(v[0])
             s = dict(zip(name_fields, v[:-1]))
-            name = s['name']; uname = s['unique_name']; taxid = s['taxid']
+            name = s['name']; uname = s['unique_name']
+            taxid = int(s['taxid'])
             s['type'] = 'taxonomic_name'
             s['source'] = 'ncbi'
             if uname or name in seen: s['homonym_flag'] = True
-            if s['name_class'] == 'scientific name' and (uname or name) not in seen:
+            if ((s['name_class'] == 'scientific name') and
+                (uname or name) not in seen):
                 s['primary'] = True
                 accepted[taxid] = s
             else:
@@ -354,50 +357,36 @@ def create_ncbi_taxonomy_grapheekdb(basepath='ncbi'):
     with open(os.path.join(basepath, 'names.dmp')) as f:
         accepted, synonyms = process_names(f)
 
+    for d in nodes.itervalues():
+        d['name'] = accepted[d['taxid']]['name']
+
     G = KyotoCabinetGraph(outfname)
+    gnodes = G.bulk_add_node(nodes.values())
+    tid2gnode = dict([ (n['taxid'], gn) for n, gn in
+                       zip(nodes.itervalues(), gnodes) ])
+    G.add_node_index('taxid')
+    ## G.add_node_index('name')
         
-    G.vertex_name = get_or_create_vp(G, 'name', 'string')
-    G.vertex_rank = get_or_create_vp(G, 'rank', 'string')
-    G.vertex_taxid = get_or_create_vp(G, 'taxid', 'int')
-    G.edge_in_taxonomy = get_or_create_ep(G, 'istaxon', 'bool')
-    G.vertex_in_taxonomy = get_or_create_vp(G, 'istaxon', 'bool')
-    G.dubious = get_or_create_vp(G, 'dubious', 'bool')
-    G.incertae_sedis = get_or_create_vp(G, 'incertae_sedis', 'bool')
-    G.collapsed = get_or_create_vp(G, 'collapsed', 'bool')
-    G.taxid_vertex = {}
-
-    nnodes = len(nodes)
-    viter = G.add_vertex(nnodes)
-
     logging.info('...creating graph vertices')
-
-    i = 0
-    for tid, d in nodes.iteritems():
-        v = G.vertex(i)
-        G.vertex_in_taxonomy[v] = 1
-        G.taxid_vertex[tid] = v
-        G.vertex_taxid[v] = tid
-        G.vertex_rank[v] = d['rank']
-        try:
-            name = accepted[tid]['name'] # !! should deal with unique_name
-            G.vertex_name[v] = name
-        except KeyError:
-            print tid
-        i += 1
-        print '%s           \r' % (nnodes-i),
-    print
-
-    logging.info('...creating graph vertices')
-    i = 0; n = len(ptid2ctid)
-    for tid, child_tids in ptid2ctid.iteritems():
-        pv = G.taxid_vertex[tid]
-        for ctid in child_tids:
-            cv = G.taxid_vertex[ctid]
-            e = G.add_edge(pv, cv)
-            G.edge_in_taxonomy[e] = 1
-        i += 1
-        print '%s           \r' % (n-i),
-    print
+    ev = []
+    d = dict(type='taxonomy', rel='parentOf')
+    for x,y in ptid2ctid.iteritems():
+        pgn = tid2gnode[x]
+        for ctid in y:
+            ev.append((pgn, tid2gnode[ctid], d))
+    gedges = G.bulk_add_edge(ev)
+    G.add_edge_index('rel')
+    
+    ## i = 0; n = len(ptid2ctid)
+    ## for tid, child_tids in ptid2ctid.iteritems():
+    ##     pv = G.taxid_vertex[tid]
+    ##     for ctid in child_tids:
+    ##         cv = G.taxid_vertex[ctid]
+    ##         e = G.add_edge(pv, cv)
+    ##         G.edge_in_taxonomy[e] = 1
+    ##     i += 1
+    ##     print '%s           \r' % (n-i),
+    ## print
 
     G.edge_strees = get_or_create_ep(G, 'stree', 'vector<int>')
     G.vertex_snode = get_or_create_vp(G, 'snode', 'int')
