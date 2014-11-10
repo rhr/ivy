@@ -284,13 +284,13 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
 
     return G
 
-def create_opentree_taxonomy_graph(basepath='ott2.2'):
+def create_opentree_taxonomy_graph(basepath='ott'):
     g = gt.Graph()
     g.vertex_name = get_or_create_vp(g, 'name', 'string')
     g.vertex_taxid = get_or_create_vp(g, 'taxid', 'int')
     g.edge_in_taxonomy = get_or_create_ep(g, 'istaxon', 'bool')
     g.vertex_in_taxonomy = get_or_create_vp(g, 'istaxon', 'bool')
-    g.dubious = get_or_create_vp(g, 'dubious', 'bool')
+    ## g.dubious = get_or_create_vp(g, 'dubious', 'bool')
     g.incertae_sedis = get_or_create_vp(g, 'incertae_sedis', 'bool')
     g.collapsed = get_or_create_vp(g, 'collapsed', 'bool')
     g.taxid_vertex = {}
@@ -302,7 +302,7 @@ def create_opentree_taxonomy_graph(basepath='ott2.2'):
         [ x.strip() or None for x in s.split('|')][:-1] if s[-2]=='\t'
         else [ x.strip() or None for x in s.split('|')]
     )
-    pth = os.path.join(basepath, 'taxonomy')
+    pth = os.path.join(basepath, 'taxonomy.tsv')
     with open(pth) as f:
         f.readline()
         for v in map(split, f):
@@ -325,7 +325,20 @@ def create_opentree_taxonomy_graph(basepath='ott2.2'):
         g.vertex_name[v] = name
         g.taxid_vertex[taxid] = v
 
-        if row[-1] and 'D' in row[-1]: g.dubious[v] = 1
+        if row[4] and not row[4].startswith('http'): # sourceinfo
+            for x in row[4].split(','):
+                k,t = x.split(':')
+                p = get_or_create_vp(g, k+'_taxid',
+                                     'int' if k != 'silva' else 'string')
+                if k != 'silva':
+                    p[v] = int(t)
+                else:
+                    p[v] = t
+
+        if row[-1]: # flags
+            for flag in row[-1].split(','):
+                p = get_or_create_vp(g, flag, 'bool')
+                p[v] = 1
 
         if parent:
             pv = g.vertex(taxid2vid[parent])
@@ -946,14 +959,16 @@ def _filter(g):
     incertae_keywords = [
         'endophyte','scgc','libraries','samples','metagenome','unclassified',
         'other','unidentified','mitosporic','uncultured','incertae',
-        'environmental']
+        'environmental', 'other', 'mixed', 'libraries']
 
     # taxa that are not clades, and should be removed (collapsed) -
     # children linked to parent of collapsed node
     collapse_keywords = ['basal ','stem ','early diverging ']
 
     # higher taxa that should be removed along with all of their children
-    remove_keywords = ['viroids','virus','viruses','viral','artificial']
+    remove_keywords = ['viroids','virus','viruses','viral','artificial',
+                       'phage', 'plasmid', 'plasmids', 'vector', 'vectors',
+                       'recombinant', 'synthetic', 'cloning']
 
     logging.info('removing vertices that are not real taxa (clades)')
     rm = g.collapsed
@@ -982,6 +997,11 @@ def _filter(g):
                 print 'collapse:', name
                 rm[v] = 1
                 break
+
+    p = g.vp.get('hidden')
+    if p:
+        for i in p.a.nonzero()[0]:
+            rm[g.vertex(i)] = 1
 
     g.set_vertex_filter(rm, inverted=True)
     # assume root == vertex 0
@@ -1105,3 +1125,11 @@ def bicomp_tree(g, rootv, arts, traversed):
     for v in verts:
         r.add_child(bicomp_tree2(g, v, arts, traversed))
     return r
+
+def lineage(g, v):
+    taxid = g.vp['taxid']
+    name = g.vp['name']
+    yield v, taxid[v], name[v]
+    while v:
+        v = v.in_neighbours().next()
+        yield v, taxid[v], name[v]
