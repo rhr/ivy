@@ -683,6 +683,7 @@ def map_stree(G, root):
     ## root = fetch_stree(stree_id, cache=cache,
     ##                    prune_to_ingroup=prune_to_ingroup)
     ## print '  tree built'
+    treename = getattr(root, 'stree', getattr(root, 'treename', '<tree>'))
     for n in root:
         if n.children: n.taxid = None
         n.taxids = set() # taxa represented by the node
@@ -701,12 +702,12 @@ def map_stree(G, root):
     leafcounts = Counter()
     for lf in lvs:
         if not lf.taxid:
-            print '!!! [%s] no taxid:' % root.stree, lf.snode_id, lf.label
+            print '!!! [%s] no taxid:' % treename, lf.snode_id, lf.label
             lf.incertae_sedis = True
             lf.taxid_rootpath = []
         elif lf.taxid not in G.taxid_vertex:
             print '!!! [{}] taxid {} not in taxonomy (node {})'.format(
-                  root.stree, lf.taxid, lf.label)
+                  treename, lf.taxid, lf.label)
             lf.incertae_sedis = True
             lf.taxid_rootpath = []
         else:
