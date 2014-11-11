@@ -120,7 +120,7 @@ def create_generic_taxonomy_graph(r):
     G.vertex_taxid = get_or_create_vp(G, 'taxid', 'int')
     G.edge_in_taxonomy = get_or_create_ep(G, 'istaxon', 'bool')
     G.vertex_in_taxonomy = get_or_create_vp(G, 'istaxon', 'bool')
-    G.dubious = get_or_create_vp(G, 'dubious', 'bool')
+    ## G.dubious = get_or_create_vp(G, 'dubious', 'bool')
     G.incertae_sedis = get_or_create_vp(G, 'incertae_sedis', 'bool')
     G.collapsed = get_or_create_vp(G, 'collapsed', 'bool')
     G.taxid_vertex = {}
@@ -231,7 +231,7 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
     G.vertex_taxid = get_or_create_vp(G, 'taxid', 'int')
     G.edge_in_taxonomy = get_or_create_ep(G, 'istaxon', 'bool')
     G.vertex_in_taxonomy = get_or_create_vp(G, 'istaxon', 'bool')
-    G.dubious = get_or_create_vp(G, 'dubious', 'bool')
+    ## G.dubious = get_or_create_vp(G, 'dubious', 'bool')
     G.incertae_sedis = get_or_create_vp(G, 'incertae_sedis', 'bool')
     G.collapsed = get_or_create_vp(G, 'collapsed', 'bool')
     G.taxid_vertex = {}
@@ -410,7 +410,7 @@ def graph_view(g, vfilt=None, efilt=None):
     view.vertex_taxid = g.vertex_taxid
     view.edge_in_taxonomy = g.edge_in_taxonomy
     view.vertex_in_taxonomy = g.vertex_in_taxonomy
-    view.dubious = g.dubious
+    ## view.dubious = g.dubious
     view.incertae_sedis = g.incertae_sedis
     view.taxid_vertex = g.taxid_vertex
     view.hindex = g.hindex
@@ -433,10 +433,10 @@ def _attach_funcs(g):
         if v: return g.vertex_name[v]
     g.taxid_name = taxid_name
 
-    def taxid_dubious(taxid):
-        v = g.taxid_vertex.get(taxid)
-        if v: return g.dubious[v]
-    g.taxid_dubious = taxid_dubious
+    ## def taxid_dubious(taxid):
+    ##     v = g.taxid_vertex.get(taxid)
+    ##     if v: return g.dubious[v]
+    ## g.taxid_dubious = taxid_dubious
 
     def taxid_hindex(taxid):
         v = g.taxid_vertex.get(taxid)
@@ -451,7 +451,7 @@ def load_taxonomy_graph(source):
     g.vertex_taxid = g.vp['taxid']
     g.edge_in_taxonomy = g.ep['istaxon']
     g.vertex_in_taxonomy = g.vp['istaxon']
-    g.dubious = g.vp['dubious']
+    ## g.dubious = g.vp['dubious']
     g.incertae_sedis = g.vp['incertae_sedis']
     g.hindex = g.vp['hindex']
     g.taxid_vertex = {}
@@ -506,7 +506,7 @@ def taxid_subgraph(g, taxids):
     sg.vertex_taxid = sg.vp['taxid']
     sg.edge_in_taxonomy = sg.ep['istaxon']
     sg.vertex_in_taxonomy = sg.vp['istaxon']
-    sg.dubious = sg.vp['dubious']
+    ## sg.dubious = sg.vp['dubious']
     sg.incertae_sedis = sg.vp['incertae_sedis']
     sg.hindex = sg.vp['hindex']
     sg.edge_strees = sg.ep['stree']
@@ -534,7 +534,7 @@ def taxid_new_subgraph(g, taxids):
     newg.vertex_taxid = newg.vp['taxid']
     newg.edge_in_taxonomy = newg.ep['istaxon']
     newg.vertex_in_taxonomy = newg.vp['istaxon']
-    newg.dubious = newg.vp['dubious']
+    ## newg.dubious = newg.vp['dubious']
     newg.incertae_sedis = newg.vp['incertae_sedis']
     newg.collapsed = newg.vp['collapsed']
     newg.hindex = newg.vp['hindex']
@@ -578,7 +578,7 @@ def taxonomy_subtree(G, v):
     g.edge_in_taxonomy = get_or_create_ep(g, 'istaxon', 'bool')
     g.vertex_taxid = get_or_create_vp(g, 'taxid', 'int')
     g.vertex_name = get_or_create_vp(g, 'name', 'string')
-    g.dubious = get_or_create_vp(g, 'dubious','bool')
+    ## g.dubious = get_or_create_vp(g, 'dubious','bool')
     g.incertae_sedis = get_or_create_vp(g, 'incertae_sedis','bool')
     g.taxid_vertex = {}
 
