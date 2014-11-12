@@ -399,9 +399,9 @@ def graph_json(g, dist=None, pos=None, ecolor=None, ewidth=None,
         if ewidth: d['width'] = ewidth[e]
         links.append(d)
     if fp:
-        simplejson.dump(dict(nodes=nodes, links=links), fp)
+        simplejson.dump(dict(nodes=nodes, links=links), fp, indent='  ')
     else:
-        return simplejson.dumps(dict(nodes=nodes, links=links))
+        return simplejson.dumps(dict(nodes=nodes, links=links), indent='  ')
 
 
 def graph_view(g, vfilt=None, efilt=None):
