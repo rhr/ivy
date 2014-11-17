@@ -30,7 +30,6 @@ import treebase
 try:
     import ltt as _ltt
     ltt = _ltt.ltt
-    import graph
 except ImportError:
     pass
 
