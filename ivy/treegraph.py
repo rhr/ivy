@@ -287,6 +287,7 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
 def create_opentree_taxonomy_graph(basepath='ott'):
     g = gt.Graph()
     g.vertex_name = get_or_create_vp(g, 'name', 'string')
+    g.vertex_uniqname = get_or_create_vp(g, 'unique_name', 'string')
     g.vertex_taxid = get_or_create_vp(g, 'taxid', 'int')
     g.edge_in_taxonomy = get_or_create_ep(g, 'istaxon', 'bool')
     g.vertex_in_taxonomy = get_or_create_vp(g, 'istaxon', 'bool')
@@ -304,25 +305,29 @@ def create_opentree_taxonomy_graph(basepath='ott'):
     )
     pth = os.path.join(basepath, 'taxonomy.tsv')
     with open(pth) as f:
-        f.readline()
+        fields = f.readline().split('\t|\t')[:-1]
+        UNIQNAME = fields.index('uniqname')
         for v in map(split, f):
             for i in 0,1: v[i] = int(v[i] or 0)
             taxid = v[0]
             taxid2vid[taxid] = n
             data.append(v)
-            print n, '\r',
+            if n % 1000 == 0: print 'reading taxonomy:', n, '\r',
             n += 1
-        print 'done'
+        print '\ndone'
 
     g.add_vertex(n)
     for i, row in enumerate(data):
         taxid = row[0]
         parent = row[1]
         name = row[2]
+        uniqname = row[UNIQNAME]
         v = g.vertex(i)
         g.vertex_in_taxonomy[v] = 1
         g.vertex_taxid[v] = taxid
         g.vertex_name[v] = name
+        if uniqname:
+            g.vertex_uniqname[v] = uniqname
         g.taxid_vertex[taxid] = v
 
         if row[4] and not row[4].startswith('http'): # sourceinfo
@@ -344,8 +349,8 @@ def create_opentree_taxonomy_graph(basepath='ott'):
             pv = g.vertex(taxid2vid[parent])
             e = g.add_edge(pv, v)
             g.edge_in_taxonomy[e] = 1
-        print i, '\r',
-    print 'done'
+        if i % 1000 == 0: print 'creating graph:', i, '\r',
+    print '\ndone'
 
     g.edge_strees = get_or_create_ep(g, 'stree', 'vector<int>')
     g.vertex_snode = get_or_create_vp(g, 'snode', 'int')
@@ -432,6 +437,13 @@ def _attach_funcs(g):
         v = g.taxid_vertex.get(taxid)
         if v: return g.vertex_name[v]
     g.taxid_name = taxid_name
+
+    p = g.vp.get('unique_name')
+    if p:
+        def f(taxid):
+            v = g.taxid_vertex.get(taxid)
+            if v: return p[v] or g.vertex_name[v]
+        g.taxid_unique_name = f
 
     ## def taxid_dubious(taxid):
     ##     v = g.taxid_vertex.get(taxid)
