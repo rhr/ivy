@@ -1,6 +1,6 @@
 #!/bin/bash
 
-base=ott2.2
+base=ott2.8
 mkdir $base
 cd $base
 wget http://files.opentreeoflife.org/ott/$base.tgz
