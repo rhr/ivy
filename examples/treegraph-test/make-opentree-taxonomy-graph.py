@@ -1,8 +1,8 @@
 from ivy import treegraph as tg
 
 # this may take a few minutes
-g = tg.create_opentree_taxonomy_graph(basepath='ott2.2')
+g = tg.create_opentree_taxonomy_graph(basepath='ott')
 
 # save the graph to a GraphML file
-g.save('ott2.2/ott2.2.xml.gz')
+g.save('ott/ott2.8.gt.gz')
 
