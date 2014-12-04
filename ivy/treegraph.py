@@ -747,6 +747,8 @@ def map_stree(G, root):
             if vtx.out_degree()>0:
                 # higher taxon at leaf
                 print '!!! higher taxon %s at lf %s' % (lf.taxid, lf.label)
+                if lf.taxid == root.taxid:
+                    lf.incertae_sedis = True
                 lf.leaf_is_higher_taxon = True
 
     def taxid_cmp(t1, t2):
