@@ -4,12 +4,12 @@ download trees from www.phylografter.net in Newick format
 import ivy, requests
 
 #taxid_field = 'ncbi_taxid' # NCBI taxon id
-taxid_field = 'accepted_uid' # OTT taxon id
+taxid_field = 'id' # OTT taxon id
 
 def fetch_stree(stree_id):
     print 'fetching stree', stree_id, '...',
     u = 'http://reelab.net/phylografter/stree/newick.txt/%s' % stree_id
-    lfmt='snode.id,ottol_name.{},otu.label'.format(taxid_field)
+    lfmt='snode.id,ott_node.{},otu.label'.format(taxid_field)
     p = dict(lfmt=lfmt, ifmt='snode.id')
     resp = requests.get(u, params=p)
     r = ivy.tree.read(resp.content)
