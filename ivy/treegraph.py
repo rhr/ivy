@@ -534,7 +534,7 @@ def taxid_subgraph(g, taxids):
     _attach_funcs(sg)
     return sg
 
-def taxid_new_subgraph(g, taxids):
+def taxid_new_subgraph_old(g, taxids):
     newg = gt.Graph()
     for pname, p in g.vp.items():
         newp = newg.new_vertex_property(p.value_type())
@@ -581,6 +581,39 @@ def taxid_new_subgraph(g, taxids):
     #assert len(r)==1, r
     newg.root = r[0]
     newg.set_vertex_filter(newg.collapsed, inverted=True)
+    _attach_funcs(newg)
+    return newg
+
+def taxid_new_subgraph(g, taxids):
+    vp = g.new_vertex_property('bool')
+    for tid in taxids:
+        vp[g.taxid_vertex[tid]] = True
+    g.set_vertex_filter(vp)
+    newg = gt.Graph(g=g, prune=True)
+    g.set_vertex_filter(None)
+
+    newg.vertex_name = newg.vp['name']
+    newg.vertex_taxid = newg.vp['taxid']
+    newg.edge_in_taxonomy = newg.ep['istaxon']
+    newg.vertex_in_taxonomy = newg.vp['istaxon']
+    ## newg.dubious = newg.vp['dubious']
+    newg.incertae_sedis = newg.vp['incertae_sedis']
+    newg.collapsed = newg.vp['collapsed']
+    newg.hindex = newg.vp['hindex']
+    newg.edge_strees = newg.ep['stree']
+    newg.vertex_snode = newg.vp['snode']
+    newg.vertex_strees = newg.vp['stree']
+    newg.vertex_stem_cdef = newg.vp['stem_cdef']
+    newg.stem_cdef_vertex = defaultdict(lambda: newg.add_vertex())
+    newg.taxid_vertex = dict((newg.vertex_taxid[v], v) for v in newg.vertices())
+    r = [ x for x in newg.vertices() if x.in_degree()==0 ]
+    if len(r)>1:
+        for x in r:
+            tid = newg.vertex_taxid[x]
+            print '!!! root? vertex', int(x), tid, newg.vertex_name[x]
+    #assert len(r)==1, r
+    newg.root = r[0]
+    ## newg.set_vertex_filter(newg.collapsed, inverted=True)
     _attach_funcs(newg)
     return newg
 
