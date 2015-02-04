@@ -952,6 +952,8 @@ def merge_stree(G, root, stree, verts=None, edges=None):
             if node.taxids and not node.incertae_sedis:
                 v = G.taxid_vertex[node.taxids[-1]]
             p = node.parent
+            assert v, node
+            assert p.v, node
             e = G.edge(p.v, v) or G.add_edge(p.v, v)
             if p.v == v:
                 print '!! LOOP:', node.snode_id, v
