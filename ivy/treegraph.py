@@ -278,8 +278,7 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
     _filter(G)
     index_graph(G)
     _attach_funcs(G)
-    g.taxid_vertex = dict([ (g.vertex_taxid[x],x) for x in g.vertices() ])
-
+    G.taxid_vertex = dict([ (G.vertex_taxid[x],x) for x in G.vertices() ])
     G.root = G.vertex(0)
 
     return G
