@@ -482,9 +482,10 @@ def load_taxonomy_graph(source):
         cdef = g.vertex_stem_cdef[v]
         if cdef: g.stem_cdef_vertex[tuple(cdef)] = v
     g.set_vertex_filter(None)
-    if g.vp.get('collapsed'):
-        g.collapsed = g.vp['collapsed']
-        g.set_vertex_filter(g.collapsed, inverted=True)
+    ## # collapsed nodes are now purged on graph creation
+    ## if g.vp.get('collapsed'):
+    ##     g.collapsed = g.vp['collapsed']
+    ##     g.set_vertex_filter(g.collapsed, inverted=True)
     _attach_funcs(g)
 
     g.root = g.vertex(0)
