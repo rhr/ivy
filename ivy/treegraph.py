@@ -68,8 +68,8 @@ def prune_to_clade(g, v):
     important: g is assumed to be *unfiltered*
     (create_*_taxonomy_graph now returns an unfiltered graph)
     """
+    tid = g.vertex_taxid[v]
     p = g.new_vertex_property('bool')
-    def f(x): p[x]=1
     class T(gt.DFSVisitor):
         def discover_vertex(self, u):
             p[u] = 1
@@ -80,6 +80,7 @@ def prune_to_clade(g, v):
     g.clear_filters()
     index_graph(g, reindex=True)
     g.taxid_vertex = dict([ (g.vertex_taxid[x],x) for x in g.vertices() ])
+    g.root = g.taxid_vertex[tid]
 
 def index_graph(g, reindex=False):
     '''
