@@ -1019,7 +1019,8 @@ def _filter(g):
     remove_keywords = ['viroids','virus','viruses','viral','artificial',
                        'phage','plasmid','plasmids','vector','vectors',
                        'recombinant','synthetic','cloning','EST','mixed',
-                       'library','libraries']
+                       'library','libraries','transposons','midivariant',
+                       'sequences','enrichment','miscellaneous']
 
     logging.info('removing vertices that are not real taxa (clades)')
     rm = g.collapsed
