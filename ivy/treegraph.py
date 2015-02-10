@@ -1007,9 +1007,9 @@ def _filter(g):
     # immmediate children flagged incertae sedis and linked back to
     # the parent of collapsed node
     incertae_keywords = [
-        'endophyte','scgc','libraries','samples','metagenome','unclassified',
-        'other','unidentified','mitosporic','uncultured','incertae',
-        'environmental', 'other', 'mixed', 'libraries']
+        'endophyte','scgc','samples','metagenome',
+        'unclassified', 'other','unidentified','mitosporic','uncultured',
+        'incertae','environmental','other']
 
     # taxa that are not clades, and should be removed (collapsed) -
     # children linked to parent of collapsed node
@@ -1017,8 +1017,9 @@ def _filter(g):
 
     # higher taxa that should be removed along with all of their children
     remove_keywords = ['viroids','virus','viruses','viral','artificial',
-                       'phage', 'plasmid', 'plasmids', 'vector', 'vectors',
-                       'recombinant', 'synthetic', 'cloning']
+                       'phage','plasmid','plasmids','vector','vectors',
+                       'recombinant','synthetic','cloning','EST','mixed',
+                       'library','libraries']
 
     logging.info('removing vertices that are not real taxa (clades)')
     rm = g.collapsed
