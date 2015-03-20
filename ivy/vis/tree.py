@@ -248,6 +248,21 @@ class TreeFigure(object):
         self.set_positions()
         self.figure.canvas.draw_idle()
 
+    def add_dataplot(self):
+        np = 3 if self.overview else 2
+        try:
+            self.figure.delaxes(self.dataplot)
+        except AttributeError:
+            pass
+        self.dataplot = self.figure.add_subplot(1, np, np, sharey=self.detail)
+        # left, bottom, width, height (proportions)
+        dleft, dbottom, dwidth, dheight = self.detail.get_position().bounds
+        # give the dataplot one-quarter the width of the detail axes
+        w = dwidth * 0.25
+        self.detail.set_position([dleft, dbottom, dwidth-w, dheight])
+        self.dataplot.set_position([1-w, dbottom, w, dheight])
+        self.figure.canvas.draw_idle()
+
     def redraw(self):
         self.detail.redraw()
         if self.overview: self.overview.redraw()
