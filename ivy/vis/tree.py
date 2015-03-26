@@ -82,8 +82,10 @@ class TreeFigure(object):
                  highlight_support=True, xoff=0, yoff=0,
                  overview=True, radial=False):
         self.overview = None
+        self.overview_width = div
+        self.dataplot = None
+        self.dataplot_width = 0.25
         self.name = name
-        self.div_value = div
         self.scaled = scaled
         self.branchlabels = branchlabels
         self.leaflabels = leaflabels
@@ -233,27 +235,35 @@ class TreeFigure(object):
         self.figure.show()
 
     def set_positions(self):
-        p = self.overview
-        if p: p.set_position([0, p.xoffset(), self.div_value, 1.0-p.xoffset()])
+        ov = self.overview
         p = self.detail
-        p.set_position(
-            [self.div_value, p.xoffset(),
-             1.0-self.div_value, 1.0-p.xoffset()]
-            )
+        dp = self.dataplot
+        height = 1.0-p.xoffset()
+        if ov:
+            box = [0, p.xoffset(), self.overview_width, height]
+            ov.set_position(box)
+        w = 1.0
+        if ov:
+            w -= self.overview_width
+        if dp:
+            w -= self.dataplot_width
+        p.set_position([self.overview_width, p.xoffset(), w, height])
+        if dp:
+            box = [1.0-self.dataplot_width, p.xoffset(),
+                   self.dataplot_width, height]
+            dp.set_position(box)
         self.figure.canvas.draw_idle()
 
-    def div(self, v=0.3):
-        assert 0 <= v < 1
-        self.div_value = v
-        self.set_positions()
-        self.figure.canvas.draw_idle()
+    ## def div(self, v=0.3):
+    ##     assert 0 <= v < 1
+    ##     self.overview_width = v
+    ##     self.set_positions()
+    ##     self.figure.canvas.draw_idle()
 
     def add_dataplot(self):
         np = 3 if self.overview else 2
-        try:
+        if self.dataplot:
             self.figure.delaxes(self.dataplot)
-        except AttributeError:
-            pass
         self.dataplot = self.figure.add_subplot(1, np, np, sharey=self.detail)
         # left, bottom, width, height (proportions)
         dleft, dbottom, dwidth, dheight = self.detail.get_position().bounds
@@ -261,7 +271,12 @@ class TreeFigure(object):
         w = dwidth * 0.25
         self.detail.set_position([dleft, dbottom, dwidth-w, dheight])
         self.dataplot.set_position([1-w, dbottom, w, dheight])
+        self.dataplot.xaxis.set_visible(False)
+        self.dataplot.yaxis.set_visible(False)
+        for x in self.dataplot.spines.values():
+            x.set_visible(False)
         self.figure.canvas.draw_idle()
+        return self.dataplot
 
     def redraw(self):
         self.detail.redraw()
@@ -385,11 +400,11 @@ class TreeFigure(object):
     def decorate(self, func, *args, **kwargs):
         self.detail.decorate(func, *args, **kwargs)
 
-    def dataplot(self):
-        ax = self.figure.add_subplot(133, sharey=self.detail)
-        ax.yaxis.set_visible(False)
-        self.dataplot = ax
-        return ax
+    ## def dataplot(self):
+    ##     ax = self.figure.add_subplot(133, sharey=self.detail)
+    ##     ax.yaxis.set_visible(False)
+    ##     self.dataplot = ax
+    ##     return ax
 
     def attach_alignment(self, aln, overview=True):
         "leaf labels expected to be sequence ids"
@@ -1765,6 +1780,8 @@ class OverviewTree(Tree):
         kwargs["leaflabels"] = False
         kwargs["branchlabels"] = False
         Tree.__init__(self, *args, **kwargs)
+        self.xaxis.set_visible(False)
+        self.spines["bottom"].set_visible(False)
         self.add_overview_rect()
         
     def set_target(self, target):
