@@ -823,8 +823,8 @@ def readmany(data, format="newick"):
         raise Exception, "format '%s' not recognized" % format
     data.close()
 
-def randomly_resolve(n):
-    assert len(n.children)>2
+## def randomly_resolve(n):
+##     assert len(n.children)>2
     
 ## def leaf_mrcas(root):
 ##     from itertools import product, izip, tee

@@ -2,7 +2,6 @@ import os, requests, math, cPickle, logging
 from collections import defaultdict, Counter, namedtuple
 from functools import cmp_to_key
 from itertools import ifilter
-from functools import cmp_to_key
 import graph_tool.all as gt
 from . import newick
 from . import tree
