@@ -73,7 +73,6 @@ class TreeFigure(object):
     * fig.toggle_overview() - toggle visibility of the overview pane
     * fig.toggle_branchlabels() - ditto for branch labels
     * fig.toggle_leaflabels() - ditto for leaf labels
-    * fig.div(n) - set the relative width of the overview pane (0 < *n* < 1)
     * fig.decorate(func) - decorate the tree with a function (see
       :ref:`decorating TreeFigures <decorating-trees>`)
     """
@@ -198,16 +197,17 @@ class TreeFigure(object):
         if val is None:
             if self.overview.get_visible():
                 self.overview.set_visible(False)
-                self.div(0.001)
+                self.overview_width = 0.001
             else:
                 self.overview.set_visible(True)
-                self.div(0.25)
+                self.overview_width = 0.25
         elif val:
             self.overview.set_visible(True)
-            self.div(0.25)
+            self.overview_width = val
         else:
             self.overview.set_visible(False)
-            self.div(0.001)
+            self.overview_width = 0.001
+        self.set_positions()
 
     def set_scaled(self, scaled):
         for p in self.overview, self.detail:
