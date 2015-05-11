@@ -14,7 +14,7 @@ def compare(node1, node2):
 
 class JuxtaposerFigure(ivy.vis.MultiTreeFigure):
     def on_nodes_selected(self, treeplot):
-        for p in self.plots:
+        for p in self.plot:
             p.highlight()
         nodes = treeplot.selected_nodes
         if not nodes:
@@ -29,7 +29,7 @@ class JuxtaposerFigure(ivy.vis.MultiTreeFigure):
         else:
             leaves = [anc]
 
-        other_plots = [ x for x in self.plots if x != treeplot ]
+        other_plots = [ x for x in self.plot if x != treeplot ]
         for p in other_plots:
             other_leaves = p.root.leaves()
             hits = []
