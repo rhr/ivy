@@ -35,7 +35,10 @@ from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import symbols, colors
 import hardcopy as HC
-import Image
+try:
+    import Image
+except ImportError:
+    from PIL import Image
 
 #matplotlib.rcParams['path.simplify'] = False
 
