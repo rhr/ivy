@@ -1,7 +1,10 @@
 """
 Convenience functions for drawing shapes on TreePlots.
 """
-import Image
+try:
+    import Image
+except ImportError:
+    from PIL import Image
 from numpy import pi
 from matplotlib.collections import RegularPolyCollection, CircleCollection
 from matplotlib.transforms import offset_copy
