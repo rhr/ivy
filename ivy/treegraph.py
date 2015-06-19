@@ -1081,7 +1081,7 @@ def _filter(g):
     for v in g.vertices():
         if int(v): assert v.in_degree()==1
     
-def layout(G, g, rootv, sfdp=True, deg0=-45.0, degspan=90.0, radius=100):
+def layout(g, rootv, sfdp=True, deg0=-45.0, degspan=90.0, radius=100):
     isouter = lambda x: not bool([ v for v in x.out_neighbours() if v != x ])
     ## isouter = lambda x: x.out_degree()==0
     outer_vertices = [ int(x) for x in g.vertices() if isouter(x) ]
@@ -1103,7 +1103,7 @@ def layout(G, g, rootv, sfdp=True, deg0=-45.0, degspan=90.0, radius=100):
 
     wt = g.new_edge_property('float')
     for e in g.edges():
-        strees = G.edge_strees[e]
+        strees = g.edge_strees[e]
         if len(strees) > 0: wt[e] = 1.0
         else: wt[e] = 0.01
     for iv in outer_vertices:
