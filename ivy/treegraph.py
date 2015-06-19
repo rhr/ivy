@@ -426,9 +426,13 @@ def graph_view(g, vfilt=None, efilt=None):
     _attach_funcs(view)
     r = [ x for x in view.vertices() if x.in_degree()==0 ]
     ## assert len(r)==1
-    assert r
-    if len(r) > 1: print '!!! disconnected view'
+    ## assert r
+    if not r:
+        print '!!! no root?'
+    if len(r) > 1:
+        print '!!! disconnected view'
     view.root = r[0]
+    view.rootv = r
     return view
 
 def _attach_funcs(g):
