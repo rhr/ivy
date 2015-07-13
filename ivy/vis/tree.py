@@ -855,6 +855,7 @@ class Tree(Axes):
                       linewidth=width, edgecolor=color)
         self.add_patch(p)
         self.figure.canvas.draw_idle()
+        return p
 
     def highlight_selected_nodes(self, color="green"):
         xlim = self.get_xlim()
