@@ -89,7 +89,7 @@ def pie(plot, p, values, colors=None, size=16, norm=True,
                          boxcoords=boxcoords)
     plot.add_artist(box)
     plot.figure.canvas.draw_idle()
-    
+    return box
 
 def hbar(plot, p, values, colors=None, height=16,
          xoff=0, yoff=0,
@@ -171,14 +171,14 @@ def circles(plot, p, colors='g', size=15, xoff=0, yoff=0):
     plot.figure.canvas.draw_idle()
     return col
 
-def legend(plot, colors, labels, shape='rectangle', loc='upper left'):
+def legend(plot, colors, labels, shape='rectangle', loc='upper left', **kwargs):
     if shape == 'circle':
         shapes = [ Circle((0.5,0.5), radius=1, fc=c) for c in colors ]
         #shapes = [ CircleCollection([10],facecolors=[c]) for c in colors ]
-    ## else:
-    ##     shapes = [ Rectangle((0,0),1,1,fc=c) for c in colors ]
+    else:
+        shapes = [ Rectangle((0,0),1,1,fc=c,ec='none') for c in colors ]
         
-    Axes.legend(plot, shapes, labels, loc=loc)
+    return Axes.legend(plot, shapes, labels, loc=loc, **kwargs)
 
 def leafspace_triangles(plot, color='black', rca=0.5):
     """
