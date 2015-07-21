@@ -1291,11 +1291,12 @@ class Tree(Axes):
                     txt.set_visible(False)
             self.figure.canvas.draw_idle()
 
-    def redraw(self, home=False):
+    def redraw(self, home=False, layout=True):
         xlim = self.get_xlim()
         ylim = self.get_ylim()
         self.cla()
-        self.layout()
+        if layout:
+            self.layout()
         self.plot_tree()
         if self.interactive:
             self.callbacks.connect("ylim_changed", self.draw_labels)
