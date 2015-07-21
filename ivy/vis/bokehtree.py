@@ -2,7 +2,9 @@
 Viewer for trees using Bokeh
 """
 import bokeh
-from bokeh.plotting import figure, output_file, show, ColumnDataSource
+import ivy
+import types
+from bokeh.plotting import figure, output_file, show, ColumnDataSource, reset_output
 from bokeh.models import Range1d, HoverTool, BoxZoomTool, WheelZoomTool, ResizeTool, ResetTool, PanTool, PreviewSaveTool
 from ivy.layout import cartesian
 
@@ -51,6 +53,8 @@ class BokehTree(object):
 
 	def makehovertool(self):
 		self.hovertool = HoverTool(tooltips=[("name","@desc")])
+
+
 	def connectors(self):
 		'''This method draws branches between nodes'''
 		self.layout()
@@ -75,6 +79,7 @@ class BokehTree(object):
 
 		self.plot.multi_line(self.xLineCoords, self.yLineCoords)
 		self.plot.circle('x', 'y', size=8, source = self.source)
+
 	def drawlabels(self):
 		'''This method generates and draws labels for tips and internal nodes'''
 		if self.nodelabels:
@@ -124,6 +129,47 @@ class BokehTree(object):
 	
 		if self.showplot:
 			show(self.plot) # Creating the plot
+
+	def highlight(self, x = None, color = "red", width=3):
+		'''Highlight the branch(es) above selected clade(s)'''
+		if x:
+			nodes = set()
+			if type(x) in types.StringTypes:
+				nodes = self.root.findall(x)
+			elif isinstance(x, tree.Node):
+				nodes = set(x)
+			else:
+				for n in x:
+					if type(n) in types.StringTypes:
+						found = self.root.findall(n)
+						if found:
+							nodes |= set(found)
+						elif isinstance(n, tree.Node):
+							nodes.add(n)
+                
+			self.highlighted = nodes
+		else:
+			self.highlighted = set()
+
+		self.xHighCoords = [] # Coordinates for highlighted lines
+		self.yHighCoords = [] #
+
+		for node in self.highlighted:
+			if node.parent:
+				highParx = node.parent.xval # Parent coordinates
+				highPary = node.parent.yval #
+				
+				highChix = node.xval # Child coordinares
+				highChiy = node.yval #
+			
+				# Storing coordinates
+				self.xHighCoords.extend([[highParx, highParx], [highParx, highChix]])	
+				self.yHighCoords.extend([[highChiy, highPary], [highChiy, highChiy]])
+
+		self.plot.multi_line(self.xHighCoords, self.yHighCoords, color=color, line_width = width)
+		self.plot.circle([ i[1] for i in self.xHighCoords ], [ i[1] for i in self.yHighCoords ], color = color, size = 8)
+		show(self.plot)
+		
 
 if __name__ == "__main__":
 	r = ivy.tree.read("/home/cziegler/src/ivy/examples/primates.newick")
