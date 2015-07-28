@@ -59,13 +59,15 @@ def parse(data, ttable=None, treename=None):
     """
     Parse a newick string.
 
-    *data* is any file-like object that can be coerced into shlex, or
-    a string (converted to StringIO)
+    Args:
+        data: Any file-like object that can be coerced into shlex, or
+            a string (converted to StringIO)
 
-    *ttable* is a dictionary mapping node labels in the newick string
-     to other values.
+        ttable: A dictionary mapping node labels in the newick string
+            to other values.
 
-    Returns: the root node.
+    Returns:
+        The root node.
     """
     from tree import Node
     

@@ -1,23 +1,17 @@
 """
-Calculate independent contrasts
+independent contrasts
 
 TODO: include utilities for transforming data, etc.
 """
 def PIC(node, data, results={}):
-        """
+    """
     Phylogenetic independent contrasts.
 
     Recursively calculate independent contrasts of a bifurcating node
-    given a dictionary of trait values.
+    given a dictionary of trait values.  The dictionary 'results' maps
+    internal nodes to tuples containing the ancestral state, its
+    variance (error), the contrast, and the contrast's variance.
 
-    Args:
-        node: A node object
-        data: A dict mapping leaf names to character values
-        
-    Returns:
-        A dict mapping internal nodes to tuples containing ancestral
-        state, its variance (error), the contrast, and the contrasts's variance. 
-    
     TODO: modify to accommodate polytomies.
     """
     X = []; v = []
