@@ -5,7 +5,16 @@ The function of interest is `ages2lengths`
 """
 
 def ages2lengths(node, node_ages, results={}):
-    "convert node ages to branch lengths"
+    """
+    Convert node ages to branch lengths
+
+    Args: 
+        node: Node object
+        node_ages: Dict mapping nodes to agest
+    Returns:
+        A dict mapping nodes to lengths
+        
+    """
     for d in node.descendants():
         age = node_ages[d]
         if d.parent:

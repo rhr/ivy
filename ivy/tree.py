@@ -127,10 +127,18 @@ class Node(object):
         raise IndexError(str(x))
 
     def ascii(self, *args, **kwargs):
+        """
+        Create ascii tree to be shown with print()
+        """
         from ascii import render
         return render(self, *args, **kwargs)
 
     def collapse(self, add=False):
+        """
+        Remove self and collapse children to polytomy
+
+        Returns: parent of self
+        """
         assert self.parent
         p = self.prune()
         for c in self.children:
@@ -256,6 +264,12 @@ class Node(object):
         return self
 
     def add_child(self, child):
+		"""
+        Add child as sister to self
+
+        Args:
+            child: A node object
+        """
         assert child not in self.children
         self.children.append(child)
         child.parent = self
@@ -274,6 +288,12 @@ class Node(object):
         return n
 
     def remove_child(self, child):
+        """
+        Remove child.
+
+        Args:
+            child: A node object that is a child of self
+        """
         assert child in self.children
         self.children.remove(child)
         child.parent = None
@@ -309,10 +329,16 @@ class Node(object):
         return self.iternodes(lambda x:x.isleaf)
 
     def preiter(self, f=None):
+        """
+        Return a generator of nodes in preorder sequence
+        """
         for n in self.iternodes(f=f):
             yield n
 
     def postiter(self, f=None):
+        """
+        Return a generator of nodes in postorder sequence
+        """
         if not self.isleaf:
             for child in self.children:
                 for n in child.postiter():
@@ -398,6 +424,13 @@ class Node(object):
         return list(self.find(f, *args, **kwargs))
 
     def prune(self):
+        """
+        Remove self if self is not root.
+
+        Returns:
+            Parent of self. If parent had only two children,
+            parent is now a 'knee' and can be removed with excise.
+        """
         p = self.parent
         if p:
             p.remove_child(self)
@@ -417,6 +450,9 @@ class Node(object):
         return p
 
     def graft(self, node):
+        """
+        Add node as sister to self.
+        """
         parent = self.parent
         parent.remove_child(self)
         n = Node()
