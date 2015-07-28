@@ -5,7 +5,15 @@ The function of interest is `ages2lengths`
 """
 
 def ages2lengths(node, node_ages, results={}):
-    "convert node ages to branch lengths"
+    """
+    Convert node ages to branch lengths
+
+    Args:
+        node: A node object
+        node_ages: A dict mapping nodes to ages
+    Returns:
+        A dict mapping nodes to branch lengths
+    """
     for d in node.descendants():
         age = node_ages[d]
         if d.parent:
@@ -14,7 +22,9 @@ def ages2lengths(node, node_ages, results={}):
     return results
 
 def min_ages(node, leaf_ages, results={}):
-    "calculate minimum ages given fixed ages in leaf_ages"
+    """
+    calculate minimum ages given fixed ages in leaf_ages
+    """
     v = []
     for child in node.children:
         if child.label and (child.label in leaf_ages):
