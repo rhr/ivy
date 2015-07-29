@@ -43,6 +43,25 @@ class Node(object):
     ('children', a list) and 'parent'.
     """
     def __init__(self, **kwargs):
+        """
+        Kwargs:
+            id: ID of the node. If not provided, is set using
+                builtin id function
+            ni: Int. Node index.
+            li: Int. Leaf index
+            isroot: Bool. Is the node a root.
+            isleaf: Bool. Is the node a leaf.
+            label: Str. Node label.
+            length: Float. Branch length from node to parent
+            support: RR: Does this attribute have any purpose? -CZ
+            age: Float. Age of the node in time units.
+            parent: Node object. Parent of the ndoe.
+            children: List of node objects. Children of node
+            nchildren: Int. # of children
+            left: RR: Not actually sure what these ints mean -CZ
+            treename: Name of tree
+            comment: Comments for tree
+        """
         self.id = None
         self.ni = None # node index
         self.li = None # leaf index
@@ -109,6 +128,9 @@ class Node(object):
             yield node
 
     def __len__(self):
+        """
+        Return number of nodes descended frmo self (including self)
+        """
         i = 0
         for n in self:
             i += 1
@@ -236,7 +258,7 @@ class Node(object):
     ##     return anc
 
     def ismono(self, *leaves):
-        "Test if leaf descendants are monophyletic"
+        """Test if leaf descendants are monophyletic"""
         if len(leaves) == 1:
             leaves = list(leaves)[0]
         assert len(leaves) > 1, (
@@ -282,6 +304,12 @@ class Node(object):
         self.nchildren += 1
 
     def bisect_branch(self):
+        """
+        Add new node as parent to self in the middle of branch to parent.
+
+        Returns:
+            A new node.
+        """
         assert self.parent
         parent = self.prune()
         n = Node()
@@ -314,7 +342,7 @@ class Node(object):
 
     def leaves(self, f=None):
         """
-        Return a list of leaves. Can be filtered with f
+        Return a list of leaves. Can be filtered with f.
 
         Args:
             f: A function that evaluates to true if called with desired
@@ -326,10 +354,23 @@ class Node(object):
         return [ n for n in self if n.isleaf ]
 
     def internals(self, f=None):
+        """
+        Return a list nodes that have children (internal nodes)
+
+        Args:
+            f: A function that evaluates to true if called with desired
+               node as the first input
+        Returns:
+            A list of internal nodes that are true for f (if f is given)
+        """
         if f: return [ n for n in self if (n.children and f(n)) ]
         return [ n for n in self if n.children ]
 
     def clades(self):
+        """
+        Return a list of leaves descended from self
+
+        """
         return [ n for n in self if not n.isleaf ]
 
     def iternodes(self, f=None):
@@ -344,20 +385,20 @@ class Node(object):
 
     def iterleaves(self):
         """
-        Return a generator of leaves descendant from self
+        Yield leaves descendant from self
         """
         return self.iternodes(lambda x:x.isleaf)
 
     def preiter(self, f=None):
         """
-        Return a generator of nodes in preorder sequence
+        Yield nodes in preorder sequence
         """
         for n in self.iternodes(f=f):
             yield n
 
     def postiter(self, f=None):
         """
-        Return a generator of nodes in postorder sequence
+        Yield nodes in postorder sequence
         """
         if not self.isleaf:
             for child in self.children:
@@ -372,7 +413,10 @@ class Node(object):
         Return a list of nodes descendant from self - but _not_
         including self!
 
-        f = filtering function
+        Args:
+            order: String, optional, defaults to "pre". Indicates wether to
+                   return nodes in preorder or postorder sequence.
+            f: filtering function
         """
         v = v or []
         for child in self.children:
@@ -398,6 +442,12 @@ class Node(object):
     def grep(self, s, ignorecase=True):
         """
         Find nodes by regular-expression search of labels
+
+        Args:
+            s: Str. String to search.
+            ignorecase: Bool. Indicates to ignore case. Defaults to true.
+        Returns:
+            A list of node objects whose labels were matched by s.
         """
         import re
         if ignorecase:
@@ -411,6 +461,12 @@ class Node(object):
     def lgrep(self, s, ignorecase=True):
         """
         Find leaves by regular-expression search of labels
+
+        Args:
+            s: Str. String to search.
+            ignorecase: Bool. Indicates to ignore case. Defaults to true.
+        Returns:
+            A list of node objects whose labels were matched by s.
         """
         return [ x for x in self.grep(s) if x.isleaf ]
 
@@ -418,6 +474,12 @@ class Node(object):
         """
         Find branches (internal nodes) by regular-expression search of
         labels
+
+        Args:
+            s: Str. String to search.
+            ignorecase: Bool. Indicates to ignore case. Defaults to true.
+        Returns:
+            A list of node objects whose labels were matched by s.
         """
         return [ x for x in self.grep(s) if (not x.isleaf) ]
 
@@ -434,7 +496,8 @@ class Node(object):
             *args* and *kwargs* are additional unnamed and named
             parameters, respectively.
 
-        Returns: a generator yielding found nodes in preorder sequence.
+       Yields:
+            Found nodes in preorder sequence.
         """
         if not f: return
         if type(f) in types.StringTypes:
@@ -446,7 +509,7 @@ class Node(object):
                 yield n
 
     def findall(self, f, *args, **kwargs):
-        "Return a list of found nodes."
+        """Return a list of found nodes."""
         return list(self.find(f, *args, **kwargs))
 
     def prune(self):
@@ -463,7 +526,9 @@ class Node(object):
         return p
 
     def excise(self):
-        "for 'knees': remove self from between parent and single child"
+        """
+        For 'knees': remove self from between parent and single child
+        """
         assert self.parent
         assert len(self.children)==1
         p = self.parent
@@ -512,6 +577,10 @@ class Node(object):
     ##     return store
 
     def leaf_distances(self, measure="length"):
+        """
+        RR: I don't quite understand the structure of the output. Also,
+            I can't figure out what "measure" does.-CZ
+        """
         from collections import defaultdict
         store = defaultdict(lambda:defaultdict(lambda:0))
         nodes = [ x for x in self if x.children ]
@@ -536,6 +605,15 @@ class Node(object):
             n = n.parent
 
     def rootpath_length(self, end=None):
+        """
+        Get length from self to root(if end is None) or length
+        from self to an ancestor node (if end is an ancestor to self)
+
+        Args:
+            end: A node object
+        Returns:
+            A float that is the length from self to root/end
+        """
         n = self
         x = 0.0
         while n.parent:
@@ -551,6 +629,9 @@ class Node(object):
         ## return sum(v)
 
     def max_tippath(self, first=True):
+        """
+        Get the maximum length from self to a leaf node
+        """
         v = 0
         if self.children:
             v = max([ c.max_tippath(False) for c in self.children ])
@@ -646,6 +727,9 @@ class Node(object):
         return newroot
 
     def reroot(self, newroot):
+        """
+        RR: I can't get this to work properly -CZ
+        """
         newroot = self[newroot]
         assert newroot in self
         self.isroot = False
@@ -722,6 +806,13 @@ def remove_singletons(root, add=True):
                 n.collapse(add)
 
 def cls(root):
+    """
+    Get clade sizes of whole tree
+    Args:
+        root: A root node
+    Returns:
+        A dict mapping nodes to clade sizes
+    """
     results = {}
     for node in root.postiter():
         if node.isleaf:
@@ -868,7 +959,7 @@ def read(data, format=None, treename=None, ttable=None):
     raise IOError, "unable to read tree from '%s'" % data
 
 def readmany(data, format="newick"):
-    "Iterate over trees from a source."
+    """Iterate over trees from a source."""
     if type(data) in types.StringTypes:
         if os.path.isfile(data):
             data = open(data)
