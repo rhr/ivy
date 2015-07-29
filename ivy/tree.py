@@ -248,7 +248,9 @@ class Node(object):
 
     def order_subtrees_by_size(self, n2s=None, recurse=False, reverse=False):
         """
-        
+        Order interal clades by size
+
+        RR: What is n2s?
         """
         if n2s is None:
             n2s = clade_sizes(self)
@@ -267,7 +269,7 @@ class Node(object):
         return self
 
     def add_child(self, child):
-		"""
+        """
         Add child as sister to self
 
         Args:
@@ -305,9 +307,21 @@ class Node(object):
             self.isleaf = True
 
     def labeled(self):
+        """
+        Return a list of all descendant nodes that are labeled
+        """
         return [ n for n in self if n.label ]
 
     def leaves(self, f=None):
+        """
+        Return a list of leaves. Can be filtered with f
+
+        Args:
+            f: A function that evaluates to true if called with desired
+               node as the first input
+        Returns:
+            A list of leaves that are true for f (if f is given)
+        """
         if f: return [ n for n in self if (n.isleaf and f(n)) ]
         return [ n for n in self if n.isleaf ]
 
@@ -320,7 +334,7 @@ class Node(object):
 
     def iternodes(self, f=None):
         """
-        generate a list of nodes descendant from self - including self
+        Return a generator of nodes descendant from self - including self
         """
         if (f and f(self)) or (not f):
             yield self
@@ -329,6 +343,9 @@ class Node(object):
                 yield n
 
     def iterleaves(self):
+        """
+        Return a generator of leaves descendant from self
+        """
         return self.iternodes(lambda x:x.isleaf)
 
     def preiter(self, f=None):
@@ -392,7 +409,9 @@ class Node(object):
         return [ x for x in self if x.label and search(x.label) ]
 
     def lgrep(self, s, ignorecase=True):
-        "Find leaves by regular-expression search of labels"
+        """
+        Find leaves by regular-expression search of labels
+        """
         return [ x for x in self.grep(s) if x.isleaf ]
 
     def bgrep(self, s, ignorecase=True):
@@ -404,12 +423,16 @@ class Node(object):
 
     def find(self, f, *args, **kwargs):
         """
-        Find descendant nodes. *f* can be a function or a string.  If
-        a string, it is converted to a function for finding *f* as a
-        substring in node labels.  Otherwise, *f* should evaluate to
-        True if called with a desired node as the first parameter, and
-        *args* and *kwargs* as additional unnamed and named
-        parameters, respectively.
+        Find descendant nodes.
+
+        Args:
+            f: Function or a string.  If a string, it is converted to a
+            function for finding *f* as a substring in node labels.
+            Otherwise, *f* should evaluate to True if called with a desired
+            node as the first parameter.
+
+            *args* and *kwargs* are additional unnamed and named
+            parameters, respectively.
 
         Returns: a generator yielding found nodes in preorder sequence.
         """
