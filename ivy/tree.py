@@ -29,7 +29,7 @@ from itertools import izip_longest
 ##             return object.__getattribute__(r, a)
 ##         except AttributeError:
 ##             return object.__getattribute__(self, a)
-        
+
 def traverse(node):
     "recursive preorder iterator based solely on .children attribute"
     yield node
@@ -88,7 +88,7 @@ class Node(object):
         else:
             s = "Node(%s)" % nid
         return s
-        
+
 
     def __contains__(self, other):
         otype = type(other)
@@ -116,7 +116,7 @@ class Node(object):
 
     def __nonzero__(self):
         return True
-            
+
     def __getitem__(self, x):
         """
         x is a Node, Node.id (int) or a Node.label (string)
@@ -152,7 +152,7 @@ class Node(object):
         """
         Return a copy of the node, but not copies of children, parent,
         or any attribute that is a Node.
-        
+
         If `recurse` is True, recursively copy child nodes.
 
         TODO: test this function.
@@ -245,8 +245,11 @@ class Node(object):
         anc = self.mrca(leaves)
         if anc:
             return bool(len(anc.leaves())==len(leaves))
-        
+
     def order_subtrees_by_size(self, n2s=None, recurse=False, reverse=False):
+        """
+        
+        """
         if n2s is None:
             n2s = clade_sizes(self)
         if not self.isleaf:
@@ -579,7 +582,7 @@ class Node(object):
                     n = child
                 else:
                     break
-                    
+
             for tip in oldtips:
                 newnode = d[tip]
                 while 1:
@@ -597,7 +600,7 @@ class Node(object):
                         del d[oldnode]; del d[newnode]
                     if not newnode.parent:
                         break
-            
+
         return d
 
     def reroot_orig(self, newroot):
@@ -722,7 +725,7 @@ def write(node, outfile=None, format="newick", length_fmt=":%g",
         s = write_newick(node, outfile, length_fmt, True, clobber)
         if not outfile:
             return s
-    
+
 def write_newick(node, outfile=None, length_fmt=":%g", end=False,
                  clobber=False):
     if not node.isleaf:
@@ -755,7 +758,7 @@ def write_newick(node, outfile=None, length_fmt=":%g", end=False,
         if flag:
             outfile.close()
     return s
-    
+
 def read(data, format=None, treename=None, ttable=None):
     """
     Read a single tree from *data*, which can be a Newick string, a
@@ -767,7 +770,7 @@ def read(data, format=None, treename=None, ttable=None):
     """
     import newick
     StringTypes = types.StringTypes
-    
+
     def strip(s):
         fname = os.path.split(s)[-1]
         head, tail = os.path.splitext(fname)
@@ -848,7 +851,7 @@ def readmany(data, format="newick"):
             data = open(data)
         else:
             data = StringIO(data)
-    
+
     if format == "newick":
         for line in data:
             yield newick.parse(line)
@@ -861,7 +864,7 @@ def readmany(data, format="newick"):
 
 ## def randomly_resolve(n):
 ##     assert len(n.children)>2
-    
+
 ## def leaf_mrcas(root):
 ##     from itertools import product, izip, tee
 ##     from collections import OrderedDict
@@ -885,7 +888,7 @@ def readmany(data, format="newick"):
 ##         return d[j]
 ##     f(root)
 ##     return mrca
-        
+
 def C(leaves, internals):
     from scipy.sparse import lil_matrix
     m = lil_matrix((len(internals), len(leaves)))
@@ -895,5 +898,3 @@ def C(leaves, internals):
             m[n.ii,lf.li] = v
             v += n.length if n.length is not None else 1
     return m.tocsc()
-    
-        
