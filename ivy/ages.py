@@ -8,12 +8,12 @@ def ages2lengths(node, node_ages, results={}):
     """
     Convert node ages to branch lengths
 
-    Args: 
+    Args:
         node: Node object
-        node_ages: Dict mapping nodes to agest
+        node_ages: Dict mapping nodes to ages
     Returns:
         A dict mapping nodes to lengths
-        
+
     """
     for d in node.descendants():
         age = node_ages[d]
@@ -23,7 +23,15 @@ def ages2lengths(node, node_ages, results={}):
     return results
 
 def min_ages(node, leaf_ages, results={}):
-    "calculate minimum ages given fixed ages in leaf_ages"
+    """
+    Calculate minimum ages given fixed ages in leaf_ages
+
+    Args:
+        node: A node object
+        leaf_ages: A dict mapping leaf nodes to ages
+    Returns:
+        Dict mapping nodes to ages
+    """
     v = []
     for child in node.children:
         if child.label and (child.label in leaf_ages):
@@ -40,6 +48,7 @@ def min_ages(node, leaf_ages, results={}):
 def smooth(node, node_ages, results={}):
     """
     adjust ages of internal nodes by smoothing
+    RR: I don't actually know what this function does -CZ
     """
     if node.parent:
         parent_age = node_ages[node.parent]

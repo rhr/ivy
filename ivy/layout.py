@@ -6,6 +6,9 @@ The function of interest is `calc_node_positions` (aka nodepos)
 import numpy
 
 class Coordinates:
+    """
+    Coordinates class for storing xy coordinates
+    """
     def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
@@ -21,14 +24,18 @@ def smooth_xpos(node, n2coords):
         children = node.children
         for ch in children:
             smooth_xpos(ch, n2coords)
-        
+
         if node.parent:
             px = n2coords[node.parent].x
             cx = min([ n2coords[ch].x for ch in children ])
             n2coords[node].x = (px + cx)/2.0
 
 def depth_length_preorder_traversal(node, n2coords=None, isroot=False):
-    "calculate node depth (root = depth 0) and length to root"
+    """
+    Calculate node depth (root = depth 0) and length to root
+    
+    Returns: Dict mapping nodes to coordinate objects
+    """
     if n2coords is None:
         n2coords = {}
     coords = n2coords.get(node) or Coordinates()
@@ -56,7 +63,21 @@ def depth_length_preorder_traversal(node, n2coords=None, isroot=False):
 def calc_node_positions(node, width, height,
                         lpad=0, rpad=0, tpad=0, bpad=0,
                         scaled=True, smooth=True, n2coords=None):
-    "origin is at upper left"
+    """
+    Calculate where nodes should be positioned in 2d space
+
+    Args:
+        node: A (root) node
+        width: Float. The width of the canvas
+        height: Float. The height of the canvas
+        lpad, rpad, tpad, bpad: Float. Padding on the edges of the canvas
+        scaled: Bool. Whether or not the tree is scaled
+        smooth: Bool. Whether or not to smooth the tree
+    Returns:
+        Dict mapping nodes to Coordinates object
+    Notes:
+        Origin is at upper left
+    """
     width -= (lpad + rpad)
     height -= (tpad + bpad)
 
@@ -117,7 +138,7 @@ nodepos = calc_node_positions
 
 def cartesian(node, xscale=1.0, leafspace=None, scaled=True, n2coords=None,
               smooth=0, array=numpy.array, ones=numpy.ones, yunit=None):
-    
+
     if n2coords is None:
         n2coords = {}
 
@@ -131,7 +152,7 @@ def cartesian(node, xscale=1.0, leafspace=None, scaled=True, n2coords=None,
         except: leafspace = numpy.zeros((nleaves,))
     assert len(leafspace) == nleaves
     #leafspace = array(leafspace)/(sum(leafspace)/float(nleaves))
-    
+
     maxdepth = max([ n2coords[lf].depth for lf in leaves ])
     depth = maxdepth * xscale
     #if not yunit: yunit = 1.0/nleaves

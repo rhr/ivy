@@ -40,7 +40,7 @@ def sum_to_root(node, internodes=True, length=False):
 def smooth_cpos(node, n2c):
     for ch in node.children:
         smooth_cpos(ch, n2c)
-        
+
     if node.parent and not node.isleaf:
         px = n2c[node.parent].c
         cx = min([ n2c[ch].c for ch in node.children ])
@@ -70,6 +70,9 @@ def set_rpos(node, n2c):
 
 def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
            show_internal_labels=True):
+    """
+    Create the ascii tree to be shown with print()
+    """
     n2c = depth_length_preorder_traversal(root)
     leaves = root.leaves(); nleaves = len(leaves)
     maxdepth = max([ n2c[lf].depth for lf in leaves ])
@@ -78,7 +81,7 @@ def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
     root_offset = 0
     if root.label and show_internal_labels:
         root_offset = len(root.label)
-        
+
     width = maxdepth*unitlen + max_labelwidth + 2 + root_offset
     height = 2*nleaves - 1
 
@@ -129,13 +132,13 @@ def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
                 buf.putstr(nc.r, nc.c-len(node.label), node.label)
 
         buf.putstr(nc.r, nc.c, "+")
-        
+
     return str(buf)
 
 if __name__ == "__main__":
     import random, tree
     rand = random.Random()
-    
+
     t = tree.read(
         "(foo,((bar,(dog,cat)dc)dcb,(shoe,(fly,(cow, bowwow)cowb)cbf)X)Y)Z;"
         )
