@@ -1,5 +1,7 @@
 """
 Equations from Magallon and Sanderson 2001
+
+RR: Are my descriptions of these equations correct? -CZ
 """
 from scipy import exp, sqrt, log
 from scipy.misc.common import comb
@@ -8,19 +10,42 @@ from scipy.misc.common import comb
 ##     return epsilon*beta(epsilon, r, t)
 
 def Beta(epsilon, r, t):
+    """
+    Calculate beta
+
+    Args:
+        epsilon: Float. Relative extinction rate(d/b)
+        r: Float. Net diversification rate (b-d).
+        t: Float. Elapsed time.
+    Returns:
+        Float. Beta
+    """
     exprt = exp(r*t)
     return (exprt - 1)/(exprt - epsilon)
 
 def Alpha(epsilon, r, t):
+    """
+    Calculate alpha
+
+    Args:
+        epsilon: Float. Relative extinction rate(d/b)
+        r: Float. Net diversification rate (b-d).
+        t: Float. Elapsed time
+    Returns:
+        Float. Alpha
+    """
     return epsilon*Beta(epsilon, r, t)
 
 def prN(i, t, a, r, epsilon):
     """
-    i = number of extant species
-    t = elapsed time
-    a = number of lineages at t=0
-    r = net diversification rate (b-d)
-    epsilon = relative extinction (d/b)
+    Probability of observing i species after time t
+
+    Args:
+        i: Int. Number of extant species
+        t: Float. Elapsed time
+        a: Int. Number of lineages at t=0
+        r: Float. Net diversification rate (b-d)
+        epsilon: Float. Relative extinction (d/b)
     """
     beta = Beta(epsilon, r, t)
     alpha = epsilon*beta
@@ -31,23 +56,55 @@ def prN(i, t, a, r, epsilon):
 
 def condPrN(i, t, a, r, epsilon):
     """
-    conditional probability of i species after time t, given the
+    Conditional probability of i species after time t, given the
     probability of survival
+
+    Args:
+        i: Int. Number of extant species
+        t: Float. Elapsed time
+        a: Int. Number of lineages at t=0
+        r: Float. Net diversification rate (b-d)
+        epsilon: Float. Relative extinction (d/b)
     """
     return prN(i, t, a, r, epsilon)/(1 - pow(Alpha(epsilon, r, t), a))
-    
+
 def Nbar(t, a, r, epsilon):
+    """
+    Mean clade size conditional on survival of the clade
+
+    Args:
+        t: Float. Elapsed time
+        a: Int. Number of lineages at t=0
+        r: Float. Net diversification rate (b-d)
+        epsilon: Float. Relative extinction (d/b)
+    """
     return (a*exp(r*t)) / (1 - pow(Alpha(epsilon, r, t), a))
 
 def Kendall1948(i, t, r, epsilon):
     """
-    prob of i species given single ancestor after time t
+    Probability of observing i species given single ancestor after time t
+
+    Args:
+        i: Int. Number of extant species
+        t: Float. Elapsed time
+        r: Float. Net diversification rate (b-d)
+        epsilon: Float. Relative extinction (d/b)
     """
     beta = Beta(epsilon, r, t)
     alpha = epsilon*beta
     return (1 - alpha)*(1 - beta)*pow(beta, i-1)
 
 def condKendall1948(i, t, r, epsilon):
+    """
+    Probability of observing i species given a single ancestor after time t
+    conditional on the clade surviving to time t
+
+    Args:
+        i: Int. Number of extant species
+        t: Float. Elapsed time
+        r: Float. Net diversification rate (b-d)
+        epsilon: Float. Relative extinction (d/b)
+    """
     beta = Beta(epsilon, r, t)
     return (1 - beta)*pow(beta, i-1)
 

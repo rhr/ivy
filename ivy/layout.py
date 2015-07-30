@@ -20,6 +20,9 @@ class Coordinates:
         return (self.x, self.y)
 
 def smooth_xpos(node, n2coords):
+    """
+    RR: What does smoothing do? -CZ
+    """
     if not node.isleaf:
         children = node.children
         for ch in children:
@@ -33,8 +36,9 @@ def smooth_xpos(node, n2coords):
 def depth_length_preorder_traversal(node, n2coords=None, isroot=False):
     """
     Calculate node depth (root = depth 0) and length to root
-    
-    Returns: Dict mapping nodes to coordinate objects
+
+    Returns: Dict mapping nodes to coordinate objects. Coordinate
+             objects have attributes "depth" and "length_to_root"
     """
     if n2coords is None:
         n2coords = {}
@@ -64,15 +68,18 @@ def calc_node_positions(node, width, height,
                         lpad=0, rpad=0, tpad=0, bpad=0,
                         scaled=True, smooth=True, n2coords=None):
     """
-    Calculate where nodes should be positioned in 2d space
+    Calculate where nodes should be positioned in 2d space for drawing a tree
 
     Args:
         node: A (root) node
         width: Float. The width of the canvas
         height: Float. The height of the canvas
-        lpad, rpad, tpad, bpad: Float. Padding on the edges of the canvas
-        scaled: Bool. Whether or not the tree is scaled
-        smooth: Bool. Whether or not to smooth the tree
+        lpad, rpad, tpad, bpad: Float. Padding on the edges of the canvas.
+                                Optional, defaults to 0.
+        scaled: Bool. Whether or not the tree is scaled. Optional, defaults to
+                True.
+        smooth: Bool. Whether or not to smooth the tree. Optional, defaults to
+                True.
     Returns:
         Dict mapping nodes to Coordinates object
     Notes:
@@ -138,6 +145,10 @@ nodepos = calc_node_positions
 
 def cartesian(node, xscale=1.0, leafspace=None, scaled=True, n2coords=None,
               smooth=0, array=numpy.array, ones=numpy.ones, yunit=None):
+    """
+    RR: What is the difference between this function and calc_node_positions?
+        Is it being used anywhere? -CZ
+    """
 
     if n2coords is None:
         n2coords = {}

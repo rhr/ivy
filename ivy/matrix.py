@@ -4,7 +4,14 @@ Functions for dealing with trees as matrices.
 from collections import defaultdict
 
 def vcv(root):
-    "leaf variances and covariances"
+    """
+    Leaf variances and covariances
+    Args:
+        root: A node object
+    Returns:
+        var: A defaultdict mapping pairs of nodes to variances
+        cov: A defaultdict mapping pairs of nodes to covariances
+    """
     leafdists = root.leaf_distances()
     var = defaultdict(float)
     cov = defaultdict(float)
@@ -55,6 +62,6 @@ if __name__ == "__main__":
         if not x.label: x.label = str(x.length or "")
         else: x.label = "%s %s" % (x.length, x.label)
     print ascii.render(n, scaled=1)
-    
+
     for k, v in var.items():
         print [ x.label.split()[-1] for x in k ], v, covar[k]

@@ -13,7 +13,7 @@ def smooth_xpos(node, n2coords):
         children = node.children
         for ch in children:
             smooth_xpos(ch, n2coords)
-        
+
         if node.parent:
             px = n2coords[node.parent].x
             cx = min([ n2coords[ch].x for ch in children ])
@@ -22,7 +22,12 @@ def smooth_xpos(node, n2coords):
     #print "scaled", node.label, node.x, node.y
 
 def depth_length_preorder_traversal(node, n2coords=None):
-    "calculate node depth (root = depth 0) and length to root"
+    """
+    Calculate node depth (root = depth 0) and length to root
+
+    Returns: Dict mapping nodes to coordinates instances. Coordinate
+             instances have attributes "depth" and "length_to_root"
+    """
     if n2coords is None:
         n2coords = {}
     coords = n2coords.get(node) or Coordinates()
@@ -52,6 +57,24 @@ def calc_node_positions(node, radius=1.0, pole=None,
                         start=0, end=None,
                         direction=COUNTERCLOCKWISE,
                         scaled=False, n2coords=None):
+    """
+    Calculate where nodes should be positioned in 2d space for drawing a
+    polar tree
+
+    Args:
+        node: A (root) node
+        radius: Float. The radius of the tree. Optional, defaults to 1
+        pole: Tuple of floats.. The cartesian coordinate of the pole.
+              Optional, defaults to None.
+        end: Float. Where the tree ends. For best results, between 0 and 360.
+             Optional, defaults to None.
+        direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is
+                   drawn. Optional, defaults to COUNTERCLOCKWISE
+        scaled: Bool. Whether or not the tree is scaled. Optional, defaults
+                to False.
+    Returns:
+        Dict mapping nodes to Coordinates object
+    """
     leaves = node.leaves()
     nleaves = len(leaves)
 
@@ -59,12 +82,12 @@ def calc_node_positions(node, radius=1.0, pole=None,
         pole = (0,0) # Cartesian coordinate of pole
     if end is None:
         end = 360.0
-    
+
     unitwidth = float(end)/nleaves
 
     if n2coords is None:
         n2coords = {}
-        
+
     depth_length_preorder_traversal(node, n2coords)
 
     c = n2coords[node]
@@ -160,5 +183,3 @@ def test():
     a.set_xlim((-100,100))
     a.set_ylim((-100,100))
     f.show()
-
-    
