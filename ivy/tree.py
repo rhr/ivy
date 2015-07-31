@@ -41,27 +41,26 @@ class Node(object):
     """
     A basic Node class with attributes and references to child nodes
     ('children', a list) and 'parent'.
+
+    Kwargs:
+        * id: ID of the node. If not provided, is set using
+            builtin id function
+        * ni: Int. Node index.
+        * li: Int. Leaf index.
+        * isroot: Bool. Is the node a root.
+        * isleaf: Bool. Is the node a leaf.
+        * label: Str. Node label.
+        * length: Float. Branch length from node to parent
+        * support: RR: Are these bootstrap support values? -CZ
+        * age: Float. Age of the node in time units.
+        * parent: Node object. Parent of the ndoe.
+        * children: List of node objects. Children of node
+        * nchildren: Int. # of children
+        * left: RR: Unsure what left and right mean -CZ
+        * treename: Name of tree
+        * comment: Comments for tree
     """
     def __init__(self, **kwargs):
-        """
-        Kwargs:
-            id: ID of the node. If not provided, is set using
-                builtin id function
-            ni: Int. Node index.
-            li: Int. Leaf index
-            isroot: Bool. Is the node a root.
-            isleaf: Bool. Is the node a leaf.
-            label: Str. Node label.
-            length: Float. Branch length from node to parent
-            support: RR: Does this attribute have any purpose? -CZ
-            age: Float. Age of the node in time units.
-            parent: Node object. Parent of the ndoe.
-            children: List of node objects. Children of node
-            nchildren: Int. # of children
-            left: RR: Not actually sure what these ints mean -CZ
-            treename: Name of tree
-            comment: Comments for tree
-        """
         self.id = None
         self.ni = None # node index
         self.li = None # leaf index
@@ -295,7 +294,7 @@ class Node(object):
         Add child as sister to self
 
         Args:
-            child: A node object
+            * child: A node object
         """
         assert child not in self.children
         self.children.append(child)
@@ -325,7 +324,7 @@ class Node(object):
         Remove child.
 
         Args:
-            child: A node object that is a child of self
+            * child: A node object that is a child of self
         """
         assert child in self.children
         self.children.remove(child)
@@ -345,7 +344,7 @@ class Node(object):
         Return a list of leaves. Can be filtered with f.
 
         Args:
-            f: A function that evaluates to true if called with desired
+            * f: A function that evaluates to true if called with desired
                node as the first input
         Returns:
             A list of leaves that are true for f (if f is given)
@@ -358,7 +357,7 @@ class Node(object):
         Return a list nodes that have children (internal nodes)
 
         Args:
-            f: A function that evaluates to true if called with desired
+            * f: A function that evaluates to true if called with desired
                node as the first input
         Returns:
             A list of internal nodes that are true for f (if f is given)
@@ -414,9 +413,9 @@ class Node(object):
         including self!
 
         Args:
-            order: String, optional, defaults to "pre". Indicates wether to
-                   return nodes in preorder or postorder sequence.
-            f: filtering function
+            * order: String, optional, defaults to "pre". Indicates wether to
+            return nodes in preorder or postorder sequence.
+            * f: filtering function
         """
         v = v or []
         for child in self.children:
@@ -444,8 +443,8 @@ class Node(object):
         Find nodes by regular-expression search of labels
 
         Args:
-            s: Str. String to search.
-            ignorecase: Bool. Indicates to ignore case. Defaults to true.
+            * s: Str. String to search.
+            * ignorecase: Bool. Indicates to ignore case. Defaults to true.
         Returns:
             A list of node objects whose labels were matched by s.
         """
@@ -463,8 +462,8 @@ class Node(object):
         Find leaves by regular-expression search of labels
 
         Args:
-            s: Str. String to search.
-            ignorecase: Bool. Indicates to ignore case. Defaults to true.
+            * s: Str. String to search.
+            * ignorecase: Bool. Indicates to ignore case. Defaults to true.
         Returns:
             A list of node objects whose labels were matched by s.
         """
@@ -476,8 +475,8 @@ class Node(object):
         labels
 
         Args:
-            s: Str. String to search.
-            ignorecase: Bool. Indicates to ignore case. Defaults to true.
+            * s: Str. String to search.
+            * ignorecase: Bool. Indicates to ignore case. Defaults to true.
         Returns:
             A list of node objects whose labels were matched by s.
         """
@@ -488,15 +487,15 @@ class Node(object):
         Find descendant nodes.
 
         Args:
-            f: Function or a string.  If a string, it is converted to a
+            * f: Function or a string.  If a string, it is converted to a
             function for finding *f* as a substring in node labels.
             Otherwise, *f* should evaluate to True if called with a desired
             node as the first parameter.
 
-            *args* and *kwargs* are additional unnamed and named
+            * *args* and *kwargs* are additional unnamed and named
             parameters, respectively.
 
-       Yields:
+        Yields:
             Found nodes in preorder sequence.
         """
         if not f: return
@@ -610,7 +609,7 @@ class Node(object):
         from self to an ancestor node (if end is an ancestor to self)
 
         Args:
-            end: A node object
+            * end: A node object
         Returns:
             A float that is the length from self to root/end
         """
@@ -809,7 +808,7 @@ def cls(root):
     """
     Get clade sizes of whole tree
     Args:
-        root: A root node
+        * root: A root node
     Returns:
         A dict mapping nodes to clade sizes
     """

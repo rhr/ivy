@@ -62,7 +62,7 @@ class TreeFigure(object):
     * scroll up/down with 'd' key: pan view up/down
     * scroll up/down with 'e' key: pan view left/right
     * click on overview will center the detail pane on that region
-    
+
     Default keybindings:
 
     * t: zoom out to full extent
@@ -178,6 +178,17 @@ class TreeFigure(object):
 
     def add(self, data, name=None, support=70,
             branchlabels=False, leaflabels=True):
+        """
+        Add a new tree in a new window
+
+        Args:
+            * data: A node object or tree file.
+            * name: Name of the plot. Defaults to None
+            * branchlabels: Bool. Whether or not to draw branch labels.
+              Defaults to False
+            * leaflabels: Bool. Whether or not to draw leaf labels.
+              Defaults to True
+        """
         newfig = MultiTreeFigure()
         ## newfig.add(self.root, name=self.name, support=self.support,
         ##            branchlabels=self.branchlabels)
@@ -187,16 +198,25 @@ class TreeFigure(object):
         return newfig
 
     def toggle_leaflabels(self):
+        """
+        Toggle leaf labels and redraw tree
+        """
         self.leaflabels = not self.leaflabels
         self.detail.leaflabels = self.leaflabels
         self.redraw()
 
     def toggle_branchlabels(self):
+        """
+        Toggle branch labels and redraw tree
+        """
         self.branchlabels = not self.branchlabels
         self.detail.branchlabels = self.branchlabels
         self.redraw()
 
     def toggle_overview(self, val=None):
+        """
+        Toggle overview
+        """
         if val is None:
             if self.overview.get_visible():
                 self.overview.set_visible(False)
@@ -213,6 +233,14 @@ class TreeFigure(object):
         self.set_positions()
 
     def set_scaled(self, scaled):
+        """
+        RR: Using this method gives the error:
+            redraw takes exactly 1 argument(2 given)-CZ
+        Define whether or not the tree is scaled and redraw tree
+
+        Args:
+            * scaled. Bool. Whether or not the tree is scaled.
+        """
         for p in self.overview, self.detail:
             p.redraw(p.set_scaled(scaled))
         self.set_positions()
@@ -229,12 +257,18 @@ class TreeFigure(object):
                 sys.stdout.flush()
         except:
             pass
-    
+
     def ladderize(self, rev=False):
+        """
+        Ladderize and redraw the tree
+        """
         self.root.ladderize(rev)
         self.redraw()
 
     def show(self):
+        """
+        Plot the figure in a new window
+        """
         self.figure.show()
 
     def set_positions(self):
@@ -264,6 +298,9 @@ class TreeFigure(object):
     ##     self.figure.canvas.draw_idle()
 
     def add_dataplot(self):
+        """
+        Add new plot to the side of existing plot
+        """
         np = 3 if self.overview else 2
         if self.dataplot:
             self.figure.delaxes(self.dataplot)
@@ -282,22 +319,51 @@ class TreeFigure(object):
         return self.dataplot
 
     def redraw(self):
+        """
+        Replot the figure and overview
+        """
         self.detail.redraw()
         if self.overview: self.overview.redraw()
         self.highlight()
         self.set_positions()
         self.figure.canvas.draw_idle()
-        
+
     def find(self, x):
+        """
+        Find nodes
+
+        Args:
+            * x: A string
+        Returns:
+            A list of node objects found with the Node findall() method
+        """
         return self.root.findall(x)
- 
+
     def hlines(self, nodes, width=5, color="red", xoff=0, yoff=0):
+        """
+        Highlight nodes
+
+        Args:
+            * nodes: A list of node objects
+            * width: Float. Width of highlighted lines. Defaults to 5
+            * color: Str. Color of highlighted lines. Defaults to red
+            * xoff: Float. Number of units to offset lines by. Defaults to 0
+            * yoff: Float. Number of units to offset lines by. Defaults to 0
+        """
         self.overview.hlines(nodes, width=width, color=color,
                              xoff=xoff, yoff=yoff)
         self.detail.hlines(nodes, width=width, color=color,
                            xoff=xoff, yoff=yoff)
 
     def highlight(self, x=None, width=5, color="red"):
+        """
+        Highlight nodes
+
+        Args:
+            * x: Str or list of Strs or Node or list of Nodes
+            * width: Float. Width of highlighted lines. Defaults to 5
+            * color: Str. Color of highlighted lines. Defaults to red
+        """
         if x:
             nodes = set()
             if type(x) in types.StringTypes:
@@ -312,7 +378,7 @@ class TreeFigure(object):
                             nodes |= set(found)
                     elif isinstance(n, tree.Node):
                         nodes.add(n)
-                
+
             self.highlighted = nodes
         else:
             self.highlighted = set()
@@ -322,12 +388,18 @@ class TreeFigure(object):
         self.figure.canvas.draw_idle()
 
     def home(self):
+        """
+        Return plot to initial size and location.
+        """
         if self.overview: self.overview.home()
         self.detail.home()
 
     def zoom_clade(self, x):
         """
         Zoom to fit a node *x* and all its descendants in the view.
+
+        Args:
+            * x: Node or str that matches the label of a node
         """
         if not isinstance(x, tree.Node):
             x = self.root[x]
@@ -352,14 +424,16 @@ class TreeFigure(object):
         """
         Decorate the tree.
 
-        *func* is a function that takes a TreePlot instance as the
-        first parameter, and *args* and *kwargs* as additional
-        parameters.  It adds boxes, circles, etc to the TreePlot.
+        Args:
+            * func: A function that takes a TreePlot instance as the
+              first parameter, and *args* and *kwargs* as additional
+              parameters.  It adds boxes, circles, etc to the TreePlot.
 
-        If *kwargs* contains the key-value pair ('store', *name*),
-        then the function is stored as *name* and re-called every time
-        the TreePlot is redrawn, i.e., the decoration is persistent.
-        Use ``rmdec(name)`` to remove the decorator from the treeplot.
+        Notes:
+            If *kwargs* contains the key-value pair ('store', *name*),
+            then the function is stored as *name* and re-called every time
+            the TreePlot is redrawn, i.e., the decoration is persistent.
+            Use ``rmdec(name)`` to remove the decorator from the treeplot.
         """
         self.detail.decorate(func, *args, **kwargs)
 
@@ -376,6 +450,9 @@ class TreeFigure(object):
         self.detail.unclutter()
 
     def trace_branches(self, nodes, width=4, color="blue"):
+        """
+        RR: What is the difference between this and highlight? -CZ
+        """
         for p in self.overview, self.detail:
             p.trace_branches(nodes, width, color)
 
@@ -398,6 +475,16 @@ class TreeFigure(object):
         return f
 
     def select_nodes(self, nodes=None):
+        """
+        Select nodes on the plot
+
+        Args:
+            nodes: A node or list of ndoes
+        Notes:
+            If only one node is given, all of the node's ancestors are
+            also selected. If a list of nodes is given (even if it has only
+            one node), only the given node(s) are selected.
+        """
         self.detail.select_nodes(nodes)
 
     def decorate(self, func, *args, **kwargs):
@@ -457,7 +544,7 @@ class TreeFigure(object):
         xoff = self.detail.xoffset()
         self.detail.set_position([0, xoff, 0.3, 1.0-xoff])
         p.set_position([0.3, xoff, 0.7, 1.0-xoff])
-        
+
 
 class MultiTreeFigure(object):
     """
@@ -526,10 +613,10 @@ class MultiTreeFigure(object):
             root = tree.read(data)
         if not root:
             raise IOError, "cannot coerce data into tree.Node"
-        
+
         name = name or root.treename
         self.root.append(root)
-            
+
         fig = self.figure
         N = len(self.plot)+1
         for i, p in enumerate(self.plot):
@@ -571,13 +658,23 @@ class MultiTreeFigure(object):
         for p in self.plot:
             p.redraw()
         self.figure.canvas.draw_idle()
-        
+
     def ladderize(self, reverse=False):
         for n in self.root:
             n.ladderize(reverse)
         self.redraw()
 
     def highlight(self, s=None, add=False, width=5, color="red"):
+        """
+        Highlight nodes
+
+        Args:
+            * s: Str or list of Strs or Node or list of Nodes
+            * add: Bool. Whether to add to existing highlighted nodes or
+              overwrite them.
+            * width: Float. Width of highlighted lines. Defaults to 5
+            * color: Str. Color of highlighted lines. Defaults to red
+        """
         if not s:
             self.highlighted = set()
         if not add:
@@ -599,7 +696,7 @@ class MultiTreeFigure(object):
         ##             if node.label and (s in node.label):
         ##                 self.highlighted.add(node)
         ## self.highlight()
-                
+
     def home(self):
         for p in self.plot: p.home()
 
@@ -689,7 +786,7 @@ class Tree(Axes):
         "Convert a single display point to y-units"
         transform = self.transData.inverted().transform
         return transform([0,0])[1] - transform([1,0])[1]
-    
+
     def decorate(self, func, *args, **kwargs):
         """
         Decorate the tree with function *func*.  If *kwargs* contains
@@ -733,7 +830,7 @@ class Tree(Axes):
             return self.xoffset_value
         else:
             return 0
-    
+
     def save_newick(self, filename):
         if os.path.exists(filename):
             s = raw_input("File %s exists, enter 'y' to overwrite ").strip()
@@ -776,7 +873,7 @@ class Tree(Axes):
             assert spec in self.root
             label = label or spec.label
             leaves = spec.leaves()
-            
+
         else:
             leaves = nodes
 
@@ -817,7 +914,7 @@ class Tree(Axes):
                 clip_on=True,
                 picker=False
                 )
-        
+
         self.set_xlim(xlim); self.set_ylim(ylim)
 
     def anctrace(self, anc, descendants=None, width=4, color="blue"):
@@ -826,7 +923,7 @@ class Tree(Axes):
         else:
             for d in descendants:
                 assert d in anc
-            
+
         nodes = []
         for d in descendants:
             v = d.rootpath(anc)
@@ -1015,7 +1112,7 @@ class Tree(Axes):
                 pc = self.n2c[node.parent]; theta2 = pc.angle
                 px = math.cos(math.radians(coords.angle))*pc.depth
                 py = math.sin(math.radians(coords.angle))*pc.depth
-            
+
             ## segments.append([(x, y),(px, y)])
             verts.append((x,y)); codes.append(M)
             verts.append((px,py)); codes.append(L)
@@ -1028,7 +1125,7 @@ class Tree(Axes):
             ## self.add_artist(Line2D(
             ##     [x,px], [y,py], lw=3, solid_capstyle="butt", color="black"
             ##     ))
-                
+
     def hl(self, s):
         nodes = self.root.findall(s)
         if nodes:
@@ -1330,7 +1427,7 @@ class Tree(Axes):
         ## return [PathPatch(Path(verts, codes), fill=False,
         ##                   linewidth=width or self.branch_width,
         ##                   edgecolor=color or self.branch_color)]
-                         
+
 
     def layout(self):
         self.n2c = cartesian(self.root, scaled=self.scaled, yunit=1.0,
@@ -1430,7 +1527,7 @@ class Tree(Axes):
         for n, (x0, x1, y0, y1) in d.items():
             h[n] = (y1-y0)/ypp
         return h
-        
+
     def _decimate_nodes(self, n=500):
         leaves = self.leaves
         nleaves = len(leaves)
@@ -1471,7 +1568,7 @@ class Tree(Axes):
         ##     line.set_visible(False)
         ##     Axes.add_artist(self, line)
         ##     self.node2branch[node] = line
-            
+
         ## d = self.node2linesegs
         ## segs = [ d[n] for n in self.root if (n in d) ]
 
@@ -1577,7 +1674,7 @@ class Tree(Axes):
                     xmin = trans((min([ x.xmin for x in v ]),0))[0]
             except RuntimeError:
                 pass
-            
+
         v = self.n2c.values()
         ymin = min([ c.y for c in v ])
         ymax = max([ c.y for c in v ])
@@ -1655,7 +1752,7 @@ class Tree(Axes):
 
         self.figure.canvas.draw_idle()
         return boxes
-        
+
     def plot_continuous(self, data, mid=None, name=None, cmap=None,
                         size=15, colorbar=True):
         area = (size*0.5)*(size*0.5)*numpy.pi
@@ -1788,7 +1885,7 @@ class OverviewTree(Tree):
         self.xaxis.set_visible(False)
         self.spines["bottom"].set_visible(False)
         self.add_overview_rect()
-        
+
     def set_target(self, target):
         self.target = target
 
@@ -1903,7 +2000,7 @@ def onscroll(e):
         try: ax.adjust_xspine()
         except: pass
         ax.figure.canvas.draw_idle()
-        
+
 def onclick(e):
     ax = e.inaxes
     if ax and e.button==1 and hasattr(ax, "zoomrect") and ax.zoomrect:
@@ -1944,7 +2041,7 @@ def test_decorate(treeplot):
 class Decorator(object):
     def __init__(self, treeplot):
         self.plot = treeplot
-        
+
 class VisToggle(object):
     def __init__(self, name, treeplot=None, value=False):
         self.name = name
