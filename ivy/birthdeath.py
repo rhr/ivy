@@ -14,9 +14,9 @@ def Beta(epsilon, r, t):
     Calculate beta
 
     Args:
-        epsilon: Float. Relative extinction rate(d/b)
-        r: Float. Net diversification rate (b-d).
-        t: Float. Elapsed time.
+        * epsilon: Float. Relative extinction rate(d/b)
+        * r: Float. Net diversification rate (b-d).
+        * t: Float. Elapsed time.
     Returns:
         Float. Beta
     """
@@ -28,9 +28,9 @@ def Alpha(epsilon, r, t):
     Calculate alpha
 
     Args:
-        epsilon: Float. Relative extinction rate(d/b)
-        r: Float. Net diversification rate (b-d).
-        t: Float. Elapsed time
+        * epsilon: Float. Relative extinction rate(d/b)
+        * r: Float. Net diversification rate (b-d).
+        * t: Float. Elapsed time
     Returns:
         Float. Alpha
     """
@@ -41,11 +41,11 @@ def prN(i, t, a, r, epsilon):
     Probability of observing i species after time t
 
     Args:
-        i: Int. Number of extant species
-        t: Float. Elapsed time
-        a: Int. Number of lineages at t=0
-        r: Float. Net diversification rate (b-d)
-        epsilon: Float. Relative extinction (d/b)
+        * i: Int. Number of extant species
+        * t: Float. Elapsed time
+        * a: Int. Number of lineages at t=0
+        * r: Float. Net diversification rate (b-d)
+        * epsilon: Float. Relative extinction (d/b)
     """
     beta = Beta(epsilon, r, t)
     alpha = epsilon*beta
@@ -60,11 +60,11 @@ def condPrN(i, t, a, r, epsilon):
     probability of survival
 
     Args:
-        i: Int. Number of extant species
-        t: Float. Elapsed time
-        a: Int. Number of lineages at t=0
-        r: Float. Net diversification rate (b-d)
-        epsilon: Float. Relative extinction (d/b)
+        * i: Int. Number of extant species
+        * t: Float. Elapsed time
+        * a: Int. Number of lineages at t=0
+        * r: Float. Net diversification rate (b-d)
+        * epsilon: Float. Relative extinction (d/b)
     """
     return prN(i, t, a, r, epsilon)/(1 - pow(Alpha(epsilon, r, t), a))
 
@@ -73,10 +73,10 @@ def Nbar(t, a, r, epsilon):
     Mean clade size conditional on survival of the clade
 
     Args:
-        t: Float. Elapsed time
-        a: Int. Number of lineages at t=0
-        r: Float. Net diversification rate (b-d)
-        epsilon: Float. Relative extinction (d/b)
+        * t: Float. Elapsed time
+        * a: Int. Number of lineages at t=0
+        * r: Float. Net diversification rate (b-d)
+        * epsilon: Float. Relative extinction (d/b)
     """
     return (a*exp(r*t)) / (1 - pow(Alpha(epsilon, r, t), a))
 
@@ -85,10 +85,10 @@ def Kendall1948(i, t, r, epsilon):
     Probability of observing i species given single ancestor after time t
 
     Args:
-        i: Int. Number of extant species
-        t: Float. Elapsed time
-        r: Float. Net diversification rate (b-d)
-        epsilon: Float. Relative extinction (d/b)
+        * i: Int. Number of extant species
+        * t: Float. Elapsed time
+        * r: Float. Net diversification rate (b-d)
+        * epsilon: Float. Relative extinction (d/b)
     """
     beta = Beta(epsilon, r, t)
     alpha = epsilon*beta
@@ -100,10 +100,10 @@ def condKendall1948(i, t, r, epsilon):
     conditional on the clade surviving to time t
 
     Args:
-        i: Int. Number of extant species
-        t: Float. Elapsed time
-        r: Float. Net diversification rate (b-d)
-        epsilon: Float. Relative extinction (d/b)
+        * i: Int. Number of extant species
+        * t: Float. Elapsed time
+        * r: Float. Net diversification rate (b-d)
+        * epsilon: Float. Relative extinction (d/b)
     """
     beta = Beta(epsilon, r, t)
     return (1 - beta)*pow(beta, i-1)
@@ -121,11 +121,11 @@ def r_hat_crown(t, n, epsilon):
 
 def logLT(t, n, r, epsilon):
     """
-    log-likelihood of terminal taxa
-    t = vector of stem ages
-    n = vector of diversities
-    r = net diversification
-    epsilon = relative extinction
+    * log-likelihood of terminal taxa
+    * t = vector of stem ages
+    * n = vector of diversities
+    * r = net diversification
+    * epsilon = relative extinction
     """
     v = 0.0
     for ti, ni in zip(t, n):

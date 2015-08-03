@@ -44,7 +44,7 @@ class Node(object):
 
     Kwargs:
         * id: ID of the node. If not provided, is set using
-            builtin id function
+          builtin id function
         * ni: Int. Node index.
         * li: Int. Leaf index.
         * isroot: Bool. Is the node a root.
@@ -128,7 +128,7 @@ class Node(object):
 
     def __len__(self):
         """
-        Return number of nodes descended frmo self (including self)
+        Return number of nodes descended from self (including self)
         """
         i = 0
         for n in self:
@@ -307,7 +307,7 @@ class Node(object):
         Add new node as parent to self in the middle of branch to parent.
 
         Returns:
-            A new node.
+            * A new node.
         """
         assert self.parent
         parent = self.prune()
@@ -345,9 +345,9 @@ class Node(object):
 
         Args:
             * f: A function that evaluates to true if called with desired
-               node as the first input
+              node as the first input
         Returns:
-            A list of leaves that are true for f (if f is given)
+            * A list of leaves that are true for f (if f is given)
         """
         if f: return [ n for n in self if (n.isleaf and f(n)) ]
         return [ n for n in self if n.isleaf ]
@@ -358,9 +358,9 @@ class Node(object):
 
         Args:
             * f: A function that evaluates to true if called with desired
-               node as the first input
+              node as the first input
         Returns:
-            A list of internal nodes that are true for f (if f is given)
+            * A list of internal nodes that are true for f (if f is given)
         """
         if f: return [ n for n in self if (n.children and f(n)) ]
         return [ n for n in self if n.children ]
@@ -368,7 +368,6 @@ class Node(object):
     def clades(self):
         """
         Return a list of leaves descended from self
-
         """
         return [ n for n in self if not n.isleaf ]
 
@@ -446,7 +445,7 @@ class Node(object):
             * s: Str. String to search.
             * ignorecase: Bool. Indicates to ignore case. Defaults to true.
         Returns:
-            A list of node objects whose labels were matched by s.
+            * A list of node objects whose labels were matched by s.
         """
         import re
         if ignorecase:
@@ -465,7 +464,7 @@ class Node(object):
             * s: Str. String to search.
             * ignorecase: Bool. Indicates to ignore case. Defaults to true.
         Returns:
-            A list of node objects whose labels were matched by s.
+            * A list of node objects whose labels were matched by s.
         """
         return [ x for x in self.grep(s) if x.isleaf ]
 
@@ -478,7 +477,7 @@ class Node(object):
             * s: Str. String to search.
             * ignorecase: Bool. Indicates to ignore case. Defaults to true.
         Returns:
-            A list of node objects whose labels were matched by s.
+            * A list of node objects whose labels were matched by s.
         """
         return [ x for x in self.grep(s) if (not x.isleaf) ]
 
@@ -496,7 +495,7 @@ class Node(object):
             parameters, respectively.
 
         Yields:
-            Found nodes in preorder sequence.
+            * Found nodes in preorder sequence.
         """
         if not f: return
         if type(f) in types.StringTypes:
@@ -516,7 +515,7 @@ class Node(object):
         Remove self if self is not root.
 
         Returns:
-            Parent of self. If parent had only two children,
+            * Parent of self. If parent had only two children,
             parent is now a 'knee' and can be removed with excise.
         """
         p = self.parent
@@ -611,7 +610,7 @@ class Node(object):
         Args:
             * end: A node object
         Returns:
-            A float that is the length from self to root/end
+            * A float that is the length from self to root/end
         """
         n = self
         x = 0.0
@@ -810,7 +809,7 @@ def cls(root):
     Args:
         * root: A root node
     Returns:
-        A dict mapping nodes to clade sizes
+        * A dict mapping nodes to clade sizes
     """
     results = {}
     for node in root.postiter():

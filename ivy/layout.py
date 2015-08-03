@@ -71,14 +71,14 @@ def calc_node_positions(node, width, height,
     Calculate where nodes should be positioned in 2d space for drawing a tree
 
     Args:
-        node: A (root) node
-        width: Float. The width of the canvas
-        height: Float. The height of the canvas
-        lpad, rpad, tpad, bpad: Float. Padding on the edges of the canvas.
+        * node: A (root) node
+        * width: Float. The width of the canvas
+        * height: Float. The height of the canvas
+        * lpad, rpad, tpad, bpad: Float. Padding on the edges of the canvas.
                                 Optional, defaults to 0.
-        scaled: Bool. Whether or not the tree is scaled. Optional, defaults to
+        * scaled: Bool. Whether or not the tree is scaled. Optional, defaults to
                 True.
-        smooth: Bool. Whether or not to smooth the tree. Optional, defaults to
+        * smooth: Bool. Whether or not to smooth the tree. Optional, defaults to
                 True.
     Returns:
         Dict mapping nodes to Coordinates object

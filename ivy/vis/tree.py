@@ -487,7 +487,7 @@ class TreeFigure(object):
         """
         self.detail.select_nodes(nodes)
 
-    def decorate(self, func, *args, **kwargs):
+    def decorate(self, func, *args, **kwargs): # RR: is this repeated from above? -CZ
         self.detail.decorate(func, *args, **kwargs)
 
     ## def dataplot(self):

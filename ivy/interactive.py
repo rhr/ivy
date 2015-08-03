@@ -112,10 +112,9 @@ try:
 except:
     print sys.exc_info()[0]
     sys.stderr.write("Magic commands and completers requires IPython >= 0.11\n")
-    
+
 ## if __name__ == "__main__":
 ##     if len(sys.argv) > 1:
 ##         for fname in sys.argv[1:]:
 ##             if os.path.isfile(fname):
 ##                 execfile(fname)
-

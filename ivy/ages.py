@@ -9,8 +9,8 @@ def ages2lengths(node, node_ages, results={}):
     Convert node ages to branch lengths
 
     Args:
-        node: Node object
-        node_ages: Dict mapping nodes to ages
+        * node: Node object
+        * node_ages: Dict mapping nodes to ages
     Returns:
         A dict mapping nodes to lengths
 
@@ -27,8 +27,8 @@ def min_ages(node, leaf_ages, results={}):
     Calculate minimum ages given fixed ages in leaf_ages
 
     Args:
-        node: A node object
-        leaf_ages: A dict mapping leaf nodes to ages
+        * node: A node object
+        * leaf_ages: A dict mapping leaf nodes to ages
     Returns:
         Dict mapping nodes to ages
     """
