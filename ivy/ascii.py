@@ -16,6 +16,15 @@ class AsciiBuffer:
         return "\n".join([ b.tostring() for b in self._b ])
 
 def sum_to_root(node, internodes=True, length=False):
+    """
+    Number of branches from node to root.
+
+    Args:
+        * node: A Node object
+        * RR: Do internodes and length do anything in this function? -CZ
+    Returns:
+        * Int. The number of branches from node to root.
+    """
     i = 0
     n = node
     while 1:

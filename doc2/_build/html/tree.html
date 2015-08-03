@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The Node Class &mdash; ivy 0.1 documentation</title>
+    <title>Trees in Ivy &mdash; ivy 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -37,9 +37,11 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="the-node-class">
-<h1>The Node Class<a class="headerlink" href="#the-node-class" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="trees-in-ivy">
+<h1>Trees in Ivy<a class="headerlink" href="#trees-in-ivy" title="Permalink to this headline">¶</a></h1>
 <p>In Ivy, trees are stored as collections of connecting nodes. Most functions operate on nodes directly.</p>
+<div class="section" id="the-node-class">
+<h2>The Node Class<a class="headerlink" href="#the-node-class" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ivy.tree.Node">
 <em class="property">class </em><code class="descclassname">ivy.tree.</code><code class="descname">Node</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node" title="Permalink to this definition">¶</a></dt>
@@ -47,41 +49,23 @@
 (&#8216;children&#8217;, a list) and &#8216;parent&#8217;.</p>
 <dl class="docutils">
 <dt>Kwargs:</dt>
-<dd><ul class="first last">
-<li><dl class="first docutils">
-<dt>id: ID of the node. If not provided, is set using</dt>
-<dd><p class="first last">builtin id function</p>
-</dd>
-</dl>
-</li>
-<li><p class="first">ni: Int. Node index.</p>
-</li>
-<li><p class="first">li: Int. Leaf index.</p>
-</li>
-<li><p class="first">isroot: Bool. Is the node a root.</p>
-</li>
-<li><p class="first">isleaf: Bool. Is the node a leaf.</p>
-</li>
-<li><p class="first">label: Str. Node label.</p>
-</li>
-<li><p class="first">length: Float. Branch length from node to parent</p>
-</li>
-<li><p class="first">support: RR: Are these bootstrap support values? -CZ</p>
-</li>
-<li><p class="first">age: Float. Age of the node in time units.</p>
-</li>
-<li><p class="first">parent: Node object. Parent of the ndoe.</p>
-</li>
-<li><p class="first">children: List of node objects. Children of node</p>
-</li>
-<li><p class="first">nchildren: Int. # of children</p>
-</li>
-<li><p class="first">left: RR: Unsure what left and right mean -CZ</p>
-</li>
-<li><p class="first">treename: Name of tree</p>
-</li>
-<li><p class="first">comment: Comments for tree</p>
-</li>
+<dd><ul class="first last simple">
+<li>id: ID of the node. If not provided, is set using
+builtin id function</li>
+<li>ni: Int. Node index.</li>
+<li>li: Int. Leaf index.</li>
+<li>isroot: Bool. Is the node a root.</li>
+<li>isleaf: Bool. Is the node a leaf.</li>
+<li>label: Str. Node label.</li>
+<li>length: Float. Branch length from node to parent</li>
+<li>support: RR: Are these bootstrap support values? -CZ</li>
+<li>age: Float. Age of the node in time units.</li>
+<li>parent: Node object. Parent of the ndoe.</li>
+<li>children: List of node objects. Children of node</li>
+<li>nchildren: Int. # of children</li>
+<li>left: RR: Unsure what left and right mean -CZ</li>
+<li>treename: Name of tree</li>
+<li>comment: Comments for tree</li>
 </ul>
 </dd>
 </dl>
@@ -94,7 +78,7 @@
 <dl class="method">
 <dt id="ivy.tree.Node.__len__">
 <code class="descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.__len__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return number of nodes descended frmo self (including self)</p>
+<dd><p>Return number of nodes descended from self (including self)</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -135,7 +119,10 @@ labels</p>
 </ul>
 </dd>
 <dt>Returns:</dt>
-<dd>A list of node objects whose labels were matched by s.</dd>
+<dd><ul class="first last simple">
+<li>A list of node objects whose labels were matched by s.</li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -145,7 +132,10 @@ labels</p>
 <dd><p>Add new node as parent to self in the middle of branch to parent.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
-<dd>A new node.</dd>
+<dd><ul class="first last simple">
+<li>A new node.</li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -211,7 +201,10 @@ node as the first parameter.</p>
 <p class="last">parameters, respectively.</p>
 </dd>
 <dt>Yields:</dt>
-<dd>Found nodes in preorder sequence.</dd>
+<dd><ul class="first last simple">
+<li>Found nodes in preorder sequence.</li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -245,7 +238,10 @@ node as the first parameter.</p>
 </ul>
 </dd>
 <dt>Returns:</dt>
-<dd>A list of node objects whose labels were matched by s.</dd>
+<dd><ul class="first last simple">
+<li>A list of node objects whose labels were matched by s.</li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -255,17 +251,16 @@ node as the first parameter.</p>
 <dd><p>Return a list nodes that have children (internal nodes)</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last">
-<li><dl class="first docutils">
-<dt>f: A function that evaluates to true if called with desired</dt>
-<dd><p class="first last">node as the first input</p>
-</dd>
-</dl>
-</li>
+<dd><ul class="first last simple">
+<li>f: A function that evaluates to true if called with desired
+node as the first input</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
-<dd>A list of internal nodes that are true for f (if f is given)</dd>
+<dd><ul class="first last simple">
+<li>A list of internal nodes that are true for f (if f is given)</li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -314,17 +309,16 @@ node as the first parameter.</p>
 <dd><p>Return a list of leaves. Can be filtered with f.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last">
-<li><dl class="first docutils">
-<dt>f: A function that evaluates to true if called with desired</dt>
-<dd><p class="first last">node as the first input</p>
-</dd>
-</dl>
-</li>
+<dd><ul class="first last simple">
+<li>f: A function that evaluates to true if called with desired
+node as the first input</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
-<dd>A list of leaves that are true for f (if f is given)</dd>
+<dd><ul class="first last simple">
+<li>A list of leaves that are true for f (if f is given)</li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -340,7 +334,10 @@ node as the first parameter.</p>
 </ul>
 </dd>
 <dt>Returns:</dt>
-<dd>A list of node objects whose labels were matched by s.</dd>
+<dd><ul class="first last simple">
+<li>A list of node objects whose labels were matched by s.</li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -389,8 +386,11 @@ labels indicate unrooted bipartition support</p>
 <dd><p>Remove self if self is not root.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
-<dd>Parent of self. If parent had only two children,
-parent is now a &#8216;knee&#8217; and can be removed with excise.</dd>
+<dd><ul class="first simple">
+<li>Parent of self. If parent had only two children,</li>
+</ul>
+<p class="last">parent is now a &#8216;knee&#8217; and can be removed with excise.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -432,7 +432,10 @@ from self to an ancestor node (if end is an ancestor to self)</p>
 </ul>
 </dd>
 <dt>Returns:</dt>
-<dd>A float that is the length from self to root/end</dd>
+<dd><ul class="first last simple">
+<li>A float that is the length from self to root/end</li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -449,13 +452,22 @@ to be non-nested.</p>
 </dd></dl>
 
 </div>
+</div>
 
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Trees in Ivy</a><ul>
+<li><a class="reference internal" href="#the-node-class">The Node Class</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>

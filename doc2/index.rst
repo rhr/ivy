@@ -17,7 +17,7 @@ scipy, and numpy.
 
    Downloading and Installing <install>
    Users's Guide <using>
-   The Node Class <tree>
+   Trees in Ivy <tree>
 
 Motivation
 ==========

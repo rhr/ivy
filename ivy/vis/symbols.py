@@ -33,26 +33,29 @@ def _xy(plot, p):
         pass
     return p
 
+
+
 def image(plot, p, imgfile,
           maxdim=100, border=0,
           xoff=4, yoff=4,
           halign=0.0, valign=0.5,
-          xycoords='data', boxcoords=('offset points')):
-          """
-          Add images to plot
+          xycoords='data',
+          boxcoords=('offset points')):
+    """
+    Add images to plot
 
-          Args:
-              * Plot: A Tree plot instance
-              * p: A node object
-              * imgfile: Str. A path to an image
-              * maxdim: Float. Maximum dimension of image. Optional,
-                defaults to 100.
-              * border: RR: What does border do? -CZ
-              * xoff, yoff: Float. X and Y offset. Optional, defaults to 4
-              * halign, valign: Float. Horizontal and vertical alignment within
-                box. Optional, defaults to 0.0 and 0.5, respectively.
+    Args:
+        * Plot: A Tree plot instance
+        * p: A node object
+        * imgfile: Str. A path to an image
+        * maxdim: Float. Maximum dimension of image. Optional,
+          defaults to 100.
+        * border: RR: What does border do? -CZ
+        * xoff, yoff: Float. X and Y offset. Optional, defaults to 4
+        * halign, valign: Float. Horizontal and vertical alignment within
+          box. Optional, defaults to 0.0 and 0.5, respectively.
 
-          """
+    """
     if xycoords == "label":
         xycoords = plot.node2label[p]
         x, y = (1, 0.5)
@@ -76,21 +79,22 @@ def images(plot, p, imgfiles,
           xoff=4, yoff=4,
           halign=0.0, valign=0.5,
           xycoords='data', boxcoords=('offset points')):
-          """
-          Add many images to plot at once
+    """
+    Add many images to plot at once
 
-          Args:
-              * Plot: A Tree plot instance
-              * p: A list of node objects
-              * imgfile: A list of strs containing paths to image files.
-                Must be the same length as p.
-              * maxdim: Float. Maximum dimension of image. Optional,
-                defaults to 100.
-              * border: RR: What does border do? -CZ
-              * xoff, yoff: Float. X and Y offset. Optional, defaults to 4
-              * halign, valign: Float. Horizontal and vertical alignment within
-                box. Optional, defaults to 0.0 and 0.5, respectively.
-          """
+    Args:
+        * Plot: A Tree plot instance
+        * p: A list of node objects
+        * imgfile: A list of strs containing paths to image files.
+          Must be the same length as p.
+        * maxdim: Float. Maximum dimension of image. Optional,
+          defaults to 100.
+        * border: RR: What does border do? -CZ
+        * xoff, yoff: Float. X and Y offset. Optional, defaults to 4
+        * halign, valign: Float. Horizontal and vertical alignment within
+          box. Optional, defaults to 0.0 and 0.5, respectively.
+
+    """
     for x, f in zip(p, imgfiles):
         image(plot, x, f, maxdim, border, xoff, yoff, halign, valign,
               xycoords, boxcoords)
@@ -99,21 +103,22 @@ def pie(plot, p, values, colors=None, size=16, norm=True,
         xoff=0, yoff=0,
         halign=0.5, valign=0.5,
         xycoords='data', boxcoords=('offset points')):
-        """
-        Draw a pie chart
+    """
+    Draw a pie chart
 
-        Args:
-            * plot: A Tree plot instance
-            * p: A Node object
-            * values: A list of floats.
-            * colors: A list of strings to pull colors from. Optional.
-            * size: Float. Diameter of the pie chart
-            * norm: Bool. Whether or not to normalize the values so they
-              add up to 360
-            * xoff, yoff: Float. X and Y offset. Optional, defaults to 0
-            * halign, valign: Float. Horizontal and vertical alignment within
-              box. Optional, defaults to 0.5
-        """
+    Args:
+    * plot: A Tree plot instance
+    * p: A Node object
+    * values: A list of floats.
+    * colors: A list of strings to pull colors from. Optional.
+    * size: Float. Diameter of the pie chart
+    * norm: Bool. Whether or not to normalize the values so they
+      add up to 360
+    * xoff, yoff: Float. X and Y offset. Optional, defaults to 0
+    * halign, valign: Float. Horizontal and vertical alignment within
+      box. Optional, defaults to 0.5
+
+    """
     x, y = _xy(plot, p)
     da = DrawingArea(size, size); r = size*0.5; center = (r,r)
     x0 = 0
@@ -168,21 +173,23 @@ def hbars(plot, p, values, colors=None, height=16,
 
 def squares(plot, p, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
             zorder=1000):
-            """
-            Draw a square at given node
+    """
+    Draw a square at given node
 
-            Args:
-                * plot: A Tree plot instance
-                * p: A node or list of nodes
-                * colors: Str or list of strs. Colors of squares to be drawn.
-                  Optional, defaults to 'r' (red)
-                * size: Float. Size of the squares. Optional, defaults to 15
-                * xoff, yoff: Float. Offset for x and y dimensions. Optional,
-                  defaults to 0.
-                * alpha: Float between 0 and 1. Alpha transparency of squares.
-                  Optional, defaults to 1 (fully opaque)
-                * zorder: RR: What is zorder? -CZ
-            """
+    Args:
+        * plot: A Tree plot instance
+        * p: A node or list of nodes
+        * colors: Str or list of strs. Colors of squares to be drawn.
+          Optional, defaults to 'r' (red)
+        * size: Float. Size of the squares. Optional, defaults to 15
+        * xoff, yoff: Float. Offset for x and y dimensions. Optional,
+          defaults to 0.
+        * alpha: Float between 0 and 1. Alpha transparency of squares.
+          Optional, defaults to 1 (fully opaque)
+        * zorder: Int. The drawing order. Higher numbers appear on top
+          of lower numbers. Optional, defaults to 1000.
+
+    """
     points = _xy(plot, p)
     trans = offset_copy(
         plot.transData, fig=plot.figure, x=xoff, y=yoff, units='points')
@@ -214,6 +221,7 @@ def tipsquares(plot, p, colors='r', size=15, pad=2, edgepad=10):
           effect when I change it. -CZ
         * edgepad: Float. Padding from square to edge of plot. Optional,
           defaults to 10.
+
     """
     x, y = _xy(plot, p) # p is a single node or point in data coordinates
     n = len(colors)
@@ -244,6 +252,7 @@ def circles(plot, p, colors='g', size=15, xoff=0, yoff=0):
           defaults to 'g' (green)
         * size: Float. Size of the circles. Optional, defaults to 15
         * xoff, yoff: X and Y offset. Optional, defaults to 0.
+
     """
     points = _xy(plot, p)
     trans = offset_copy(
@@ -303,21 +312,22 @@ def leafspace_triangles(plot, color='black', rca=0.5):
 
 def text(plot, x, y, s, color='black', xoff=0, yoff=0, valign='center',
          halign='left', fontsize=10):
-         """
-         Add text to the plot.
+    """
+    Add text to the plot.
 
-         Args:
-             * plot: A Tree plot instance
-             * x, y: Float. x and y coordinates to place the text
-             * s: Str. The text to write
-             * color: Str. The color of the text. Optional, defaults to "black"
-             * xoff, yoff. Float. x and y offset
-             * valign: Str. Vertical alignment. Can be: 'center', 'top',
-               'bottom', or 'baseline'. Defaults to 'center'.
-             * halign: Str. Horizontal alignment. Can be: 'center', 'right',
-               or 'left'. Defaults to 'left'
-             * fontsize: Float. Font size. Optional, defaults to 10
-         """
+    Args:
+        * plot: A Tree plot instance
+        * x, y: Float. x and y coordinates to place the text
+        * s: Str. The text to write
+        * color: Str. The color of the text. Optional, defaults to "black"
+        * xoff, yoff. Float. x and y offset
+        * valign: Str. Vertical alignment. Can be: 'center', 'top',
+          'bottom', or 'baseline'. Defaults to 'center'.
+        * halign: Str. Horizontal alignment. Can be: 'center', 'right',
+          or 'left'. Defaults to 'left'
+        * fontsize: Float. Font size. Optional, defaults to 10
+
+    """
     txt = plot.annotate(
         s, xy=(x, y),
         xytext=(xoff, yoff),

@@ -59,6 +59,7 @@ class Node(object):
         * left: RR: Unsure what left and right mean -CZ
         * treename: Name of tree
         * comment: Comments for tree
+
     """
     def __init__(self, **kwargs):
         self.id = None
@@ -128,7 +129,10 @@ class Node(object):
 
     def __len__(self):
         """
-        Return number of nodes descended from self (including self)
+        Number of nodes descended from self
+
+        Returns:
+            * Int. Number of nodes descended from self (including self)
         """
         i = 0
         for n in self:
@@ -140,7 +144,12 @@ class Node(object):
 
     def __getitem__(self, x):
         """
-        x is a Node, Node.id (int) or a Node.label (string)
+        Args:
+            * x: A Node, Node.id (int) or a Node.label (string)
+
+        Returns:
+            * Found node(s)
+
         """
         for n in self:
             if n==x or n.id==x or n.ni == x or (n.label and n.label==x):
@@ -149,7 +158,19 @@ class Node(object):
 
     def ascii(self, *args, **kwargs):
         """
-        Create ascii tree to be shown with print()
+        Create ascii tree.
+
+        Args:
+            * unitlen: Float. How long each unit should be rendered as.
+              Defaults to 3.
+            * minwidth: Float. Minimum width of the plot. Defaults to 50
+            * maxwidth: Float. Maximum width of the plot. Defaults to None
+            * scaled: Bool. Whether or not the tree is scaled. Defaults to False
+            * show_internal_labels: Bool. Whether or not to show labels
+              on internal nodes. Defaults to True.
+        RR: Does this function have kwargs? -CZ
+        Returns:
+            * Str. Ascii tree to be shown with print().
         """
         from ascii import render
         return render(self, *args, **kwargs)
@@ -158,7 +179,12 @@ class Node(object):
         """
         Remove self and collapse children to polytomy
 
-        Returns: parent of self
+        Args:
+            * add: Bool. Whether or not to add self's length to children's
+              length.
+
+        * Returns: parent of self
+
         """
         assert self.parent
         p = self.prune()
@@ -175,6 +201,12 @@ class Node(object):
         or any attribute that is a Node.
 
         If `recurse` is True, recursively copy child nodes.
+
+        Args:
+            * recurse: Bool. Whether or not to copy children as well as self.
+
+        Returns:
+            * Node object that is a copy of self.
 
         TODO: test this function.
         """
@@ -209,6 +241,11 @@ class Node(object):
     def mrca(self, *nodes):
         """
         Find most recent common ancestor of *nodes*
+
+        Args:
+            * *nodes: Node objects
+        Returns:
+            * Node object. The MRCA of *nodes*
         """
         if len(nodes) == 1:
             nodes = tuple(nodes[0])
@@ -257,7 +294,16 @@ class Node(object):
     ##     return anc
 
     def ismono(self, *leaves):
-        """Test if leaf descendants are monophyletic"""
+        """
+        Test if leaf descendants are monophyletic
+
+        Args:
+            * At least two leaf Node objects
+
+        Returns:
+            * Bool. Are the leaf descendants monophyletic?
+
+        """
         if len(leaves) == 1:
             leaves = list(leaves)[0]
         assert len(leaves) > 1, (
@@ -295,6 +341,7 @@ class Node(object):
 
         Args:
             * child: A node object
+
         """
         assert child not in self.children
         self.children.append(child)
@@ -308,6 +355,7 @@ class Node(object):
 
         Returns:
             * A new node.
+
         """
         assert self.parent
         parent = self.prune()
@@ -325,6 +373,7 @@ class Node(object):
 
         Args:
             * child: A node object that is a child of self
+
         """
         assert child in self.children
         self.children.remove(child)
@@ -344,10 +393,12 @@ class Node(object):
         Return a list of leaves. Can be filtered with f.
 
         Args:
-            * f: A function that evaluates to true if called with desired
+            * f: A function that evaluates to True if called with desired
               node as the first input
+
         Returns:
             * A list of leaves that are true for f (if f is given)
+
         """
         if f: return [ n for n in self if (n.isleaf and f(n)) ]
         return [ n for n in self if n.isleaf ]
@@ -359,21 +410,35 @@ class Node(object):
         Args:
             * f: A function that evaluates to true if called with desired
               node as the first input
+
         Returns:
             * A list of internal nodes that are true for f (if f is given)
+
         """
         if f: return [ n for n in self if (n.children and f(n)) ]
         return [ n for n in self if n.children ]
 
     def clades(self):
         """
-        Return a list of leaves descended from self
+        Get internal nodes descended from self
+
+        Returns:
+            * A list of internal nodes descended from self.
+
         """
         return [ n for n in self if not n.isleaf ]
 
     def iternodes(self, f=None):
         """
         Return a generator of nodes descendant from self - including self
+
+        Args:
+            * f: A function that evaluates to true if called with desired
+              node as the first input
+
+        Yields:
+            * Nodes descended from self (including self)
+
         """
         if (f and f(self)) or (not f):
             yield self
@@ -413,8 +478,13 @@ class Node(object):
 
         Args:
             * order: String, optional, defaults to "pre". Indicates wether to
-            return nodes in preorder or postorder sequence.
-            * f: filtering function
+              return nodes in preorder or postorder sequence.
+            * f: filtering function that evaluates to True if desired
+              node is called as the first parameter.
+
+        Returns:
+            * A list of nodes descended from self not including self.
+
         """
         v = v or []
         for child in self.children:
@@ -430,6 +500,13 @@ class Node(object):
     def get(self, f, *args, **kwargs):
         """
         Return the first node found by node.find()
+
+        Args:
+            * f: A function that evaluates to True if desired
+              node is called as the first parameter.
+        Returns:
+            * The first node found by node.find()
+
         """
         v = self.find(f, *args, **kwargs)
         try:
@@ -444,8 +521,10 @@ class Node(object):
         Args:
             * s: Str. String to search.
             * ignorecase: Bool. Indicates to ignore case. Defaults to true.
+
         Returns:
             * A list of node objects whose labels were matched by s.
+
         """
         import re
         if ignorecase:
@@ -463,8 +542,10 @@ class Node(object):
         Args:
             * s: Str. String to search.
             * ignorecase: Bool. Indicates to ignore case. Defaults to true.
+
         Returns:
             * A list of node objects whose labels were matched by s.
+
         """
         return [ x for x in self.grep(s) if x.isleaf ]
 
@@ -476,8 +557,10 @@ class Node(object):
         Args:
             * s: Str. String to search.
             * ignorecase: Bool. Indicates to ignore case. Defaults to true.
+
         Returns:
             * A list of node objects whose labels were matched by s.
+
         """
         return [ x for x in self.grep(s) if (not x.isleaf) ]
 
@@ -487,15 +570,15 @@ class Node(object):
 
         Args:
             * f: Function or a string.  If a string, it is converted to a
-            function for finding *f* as a substring in node labels.
-            Otherwise, *f* should evaluate to True if called with a desired
-            node as the first parameter.
-
+              function for finding *f* as a substring in node labels.
+              Otherwise, *f* should evaluate to True if called with a desired
+              node as the first parameter.
             * *args* and *kwargs* are additional unnamed and named
-            parameters, respectively.
+              parameters, respectively.
 
         Yields:
             * Found nodes in preorder sequence.
+
         """
         if not f: return
         if type(f) in types.StringTypes:
@@ -516,7 +599,8 @@ class Node(object):
 
         Returns:
             * Parent of self. If parent had only two children,
-            parent is now a 'knee' and can be removed with excise.
+              parent is now a 'knee' and can be removed with excise.
+
         """
         p = self.parent
         if p:
@@ -593,6 +677,16 @@ class Node(object):
         """
         Iterate over parent nodes toward the root, or node *end* if
         encountered.
+
+        Args:
+            * end: A Node object to iterate to (instead of iterating
+              towards root)
+            * stop: A function that returns True if desired node is called
+              as the first parameter.
+
+        Yields:
+            * Nodes in path to root (or end).
+            S
         """
         n = self.parent
         while 1:
@@ -609,8 +703,10 @@ class Node(object):
 
         Args:
             * end: A node object
+
         Returns:
             * A float that is the length from self to root/end
+
         """
         n = self
         x = 0.0
@@ -808,8 +904,10 @@ def cls(root):
     Get clade sizes of whole tree
     Args:
         * root: A root node
+
     Returns:
         * A dict mapping nodes to clade sizes
+
     """
     results = {}
     for node in root.postiter():

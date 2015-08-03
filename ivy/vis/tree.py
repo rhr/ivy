@@ -54,7 +54,7 @@ class TreeFigure(object):
     of mouse interaction with the figure.  When neither of these
     buttons are checked, the default mouse bindings are as follows:
 
-    * button 1 drag: select nodes - retrieve by calling fig.selected_nodes()
+    * button 1 drag: select nodes - retrieve by calling fig.selected
     * button 3 drag: pan view
     * scroll up/down: zoom in/out
     * scroll up/down with Control key: zoom y-axis
@@ -443,7 +443,7 @@ class TreeFigure(object):
         ## if name in self.detail.decorators:
         ##     del self.detail.decorators[name]
 
-    def cbar(self, node, width=6, color='blue'):
+    def cbar(self, node, width=6, color='blue', mrca = True):
         pass
 
     def unclutter(self, *args):
@@ -832,6 +832,13 @@ class Tree(Axes):
             return 0
 
     def save_newick(self, filename):
+        """
+        Save tree as a newick file.
+
+        Args:
+            * filename: str. Path to file.
+
+        """
         if os.path.exists(filename):
             s = raw_input("File %s exists, enter 'y' to overwrite ").strip()
             if (s and s.lower() != 'y') or (not s):
@@ -857,6 +864,18 @@ class Tree(Axes):
         nodes.  *label* is an optional string to be drawn next to the
         bar, *offset* by the specified number of display units.  If
         *label* is ``None`` then the clade's label is used instead.
+
+        Args:
+            * nodes: Node or list of nodes
+            * color: Str. Color of the bar. Optional, defaults to None.
+            * label: Str. Optional label for bar. If None, the clade's
+              label is used instead. Defaults to None.
+            * Width: Float. Width of bar
+            * xoff: Float. Offset from label to bar
+            * showlabel: Bool. Whether or not to draw the label
+            * mrca: Bool. Whether or not to treat the node as the mrca and draw
+              the bar next to all descendants of the node.
+
         """
         xlim = self.get_xlim(); ylim = self.get_ylim()
         if color is None: color = _tango.next()
