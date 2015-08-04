@@ -445,6 +445,7 @@ class TreeFigure(object):
 
     def cbar(self, node, width=6, color='blue', mrca = True):
         pass
+        # self.axes.cbar(nodes = node, width = width, color = color, mrca = mrca)
 
     def unclutter(self, *args):
         self.detail.unclutter()
@@ -814,7 +815,9 @@ class Tree(Axes):
 
 
     def flip(self):
-        "Reverse the direction of the x-axis."
+        """
+        Reverse the direction of the x-axis.
+        """
         self.leaf_offset *= -1
         self.branch_offset *= -1
         ha = self.leaf_halign
@@ -825,7 +828,7 @@ class Tree(Axes):
         self.redraw()
 
     def xoffset(self):
-        "Space below x axis to show tick labels."
+        """Space below x axis to show tick labels."""
         if self.scaled:
             return self.xoffset_value
         else:
@@ -873,8 +876,7 @@ class Tree(Axes):
             * Width: Float. Width of bar
             * xoff: Float. Offset from label to bar
             * showlabel: Bool. Whether or not to draw the label
-            * mrca: Bool. Whether or not to treat the node as the mrca and draw
-              the bar next to all descendants of the node.
+            * mrca: RR: Not quite sure what this does -CZ
 
         """
         xlim = self.get_xlim(); ylim = self.get_ylim()
@@ -937,6 +939,10 @@ class Tree(Axes):
         self.set_xlim(xlim); self.set_ylim(ylim)
 
     def anctrace(self, anc, descendants=None, width=4, color="blue"):
+        """
+        RR: This function gives me a 'list index out of range' error
+        when I try to use it -CZ
+        """
         if not descendants:
             descendants = anc.leaves()
         else:
@@ -987,17 +993,26 @@ class Tree(Axes):
         self.set_ylim(ylim)
         self.figure.canvas.draw_idle()
 
-    def select_nodes(self, nodes=None):
+    def select_nodes(self, nodes=None, add=False):
         try:
             self.__selected_highlight_patch.remove()
             self.figure.canvas.draw_idle()
         except:
-           pass
-        if nodes:
-            self.selected_nodes = nodes
+            pass
+        if add:
+            if nodes:
+                self.selected_nodes = self.selected_nodes | nodes
             if hasattr(self, "app") and self.app:
                 self.app.on_nodes_selected(self)
             self.highlight_selected_nodes()
+        else:
+            if nodes:
+                self.selected_nodes = nodes
+                if hasattr(self, "app") and self.app:
+                    self.app.on_nodes_selected(self)
+                self.highlight_selected_nodes()
+            else:
+                self.selected_nodes = set()
 
     def rectselect(self, e0, e1):
         xlim = self.get_xlim()
@@ -1005,10 +1020,11 @@ class Tree(Axes):
         s = set()
         x0, x1 = sorted((e0.xdata, e1.xdata))
         y0, y1 = sorted((e0.ydata, e1.ydata))
+        add = e0.key == 'shift'
         for n, c in self.n2c.items():
             if (x0 < c.x < x1) and (y0 < c.y < y1):
                 s.add(n)
-        self.select_nodes(s)
+        self.select_nodes(nodes = s, add = add)
         self.set_xlim(xlim)
         self.set_ylim(ylim)
         ## if s:
@@ -1084,12 +1100,18 @@ class Tree(Axes):
         self.adjust_xspine()
 
     def center_y(self, y):
+        """
+        Center the y-axis of the canvas on the given y value
+        """
         ymin, ymax = self.get_ylim()
         yoff = (ymax - ymin) * 0.5
         self.set_ylim(y-yoff, y+yoff)
         self.adjust_xspine()
 
     def center_x(self, x, offset=0.3):
+        """
+        Center the x-axis of the canvas on the given x value
+        """
         xmin, xmax = self.get_xlim()
         xspan = xmax - xmin
         xoff = xspan*0.5 + xspan*offset
@@ -1097,6 +1119,9 @@ class Tree(Axes):
         self.adjust_xspine()
 
     def center_node(self, node):
+        """
+        Center the canvas on the given node
+        """
         c = self.n2c[node]
         y = c.y
         self.center_y(y)
@@ -1229,6 +1254,9 @@ class Tree(Axes):
         return self.add_patch(self.highlightpatch)
 
     def find(self, s):
+        """
+        Find node(s) matching pattern s and zoom to node(s)
+        """
         nodes = list(self.root.find(s))
         if nodes:
             self.zoom_nodes(nodes)
@@ -1408,6 +1436,9 @@ class Tree(Axes):
             self.figure.canvas.draw_idle()
 
     def redraw(self, home=False, layout=True):
+        """
+        Replot the tree
+        """
         xlim = self.get_xlim()
         ylim = self.get_ylim()
         self.cla()
@@ -1437,6 +1468,9 @@ class Tree(Axes):
             return at
 
     def _path_to_parent(self, node):
+        """
+        For use in drawing branches
+        """
         c = self.n2c[node]; x = c.x; y = c.y
         pc = self.n2c[node.parent]; px = pc.x; py = pc.y
         M = Path.MOVETO; L = Path.LINETO
@@ -1481,6 +1515,9 @@ class Tree(Axes):
         self.layout()
 
     def plot_tree(self, root=None, **kwargs):
+        """
+        Draw branches and labels
+        """
         if root and not self.root:
             self.set_root(root)
 
@@ -1559,6 +1596,9 @@ class Tree(Axes):
             return self.root
 
     def create_branch_artists(self):
+        """
+        Use MPL Paths to draw branches
+        """
         ## patches = []
         verts = []; codes = []
         for node in self.root.descendants():
