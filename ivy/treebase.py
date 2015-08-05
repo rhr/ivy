@@ -1,3 +1,7 @@
+"""
+Functions to get trees and character data from treebase
+"""
+
 from urllib2 import urlopen
 from lxml import etree
 from collections import defaultdict
@@ -25,9 +29,20 @@ META_DATATYPE = {
 AMBIG_RE = re.compile(r'([{][a-zA-Z]+[}])')
 
 def fetch_study(study_id, format="nexml"):
+    """
+    Get a study from treebase in one of various formats
+
+    Args:
+        * study_id: Str. The id of the study
+        * format: Str.  One of ["rdf", "html", "nexml", "nexus"]
+    Returns:
+        * Str representing a nexus file (if format = "nexus")
+        OR
+        * An lxml etree object
+    """
     try: study_id = "S%s" % int(study_id)
     except ValueError: pass
-        
+
     # format is one of ["rdf", "html", "nexml", "nexus"]
     url = "%s/study/TB2:%s?format=%s" % (TREEBASE_WEBSERVICE, study_id, format)
     if format=="nexus":
@@ -72,7 +87,15 @@ def parse_chars(e, otus):
     return v
 
 def parse_trees(e, otus):
-    "e is a nexml document parsed by etree"
+    """
+    Get trees from an etree object
+
+    Args:
+        * e: A nexml document parsed by etree
+        * otus: OTUs returned by parse_otus
+    Returns:
+        * A list of ivy Storage objects each containing every node of a tree.
+    """
     from tree import Node
     v = []
     for tb in e.findall(NEXML+"trees"):
@@ -105,7 +128,14 @@ def parse_trees(e, otus):
     return v
 
 def parse_otus(e):
-    "e is a nexml document parsed by etree"
+    """
+    Get OTUs from an etree object
+
+    Args:
+        * e: A nexml document parsed by etree
+    Returns:
+        * A dict mapping keys to OTUs contained in ivy Storage objects
+    """
     v = {}
     for otus in e.findall(NEXML+"otus"):
         for x in otus.findall(NEXML+"otu"):
@@ -128,6 +158,16 @@ def parse_otus(e):
     return v
 
 def parse_nexml(doc):
+    """
+    Parse an etree ElementTree
+
+    Args:
+        * doc: An etree ElementTree or a file that can be parsed into
+          an etree ElementTree with etree.parse
+    Returns:
+        * An ivy Storage object containing all the information from the
+          nexml file: Characters, metadata, OTUs, and trees.
+    """
     if not isinstance(doc, (etree._ElementTree, etree._Element)):
         doc = etree.parse(doc)
     meta = {}
@@ -143,7 +183,7 @@ def parse_nexml(doc):
                     meta[key] = [meta[key], val]
             else:
                 meta[key] = val
-            
+
     otus = parse_otus(doc)
 
     return Storage(meta = meta,
@@ -159,7 +199,7 @@ def parse_states(e):
     symb2states = {}
     id2symb = {}
     for child in sts.iterchildren():
-        t = child.tag 
+        t = child.tag
         if t == NEXML+"state":
             k = child.attrib["id"]
             v = child.attrib["symbol"]
@@ -193,16 +233,14 @@ def parse_charsets(study_id):
             first, last = map(int, line.split()[-1][:-1].split("-"))
             d[label] = (first-1, last-1)
     return d
-            
+
 if __name__ == "__main__":
     import sys
     from pprint import pprint
     e = fetch_study('S11152', 'nexus')
     #print e
     #e.write(sys.stdout, pretty_print=True)
-    
+
     ## e = etree.parse('/tmp/tmp.xml')
     ## x = parse_nexml(e)
     ## pprint(x)
-    
-    

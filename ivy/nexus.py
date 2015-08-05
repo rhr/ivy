@@ -30,6 +30,7 @@ class Newick(object):
         return self.root
 
 def fetchaln(fname):
+    """Fetch alignment"""
     from Bio.Nexus import Nexus
     n = Nexus.Nexus(fname)
     return n
@@ -78,7 +79,7 @@ def parse_treesblock(infile):
             ttable[k] = v
             if s[-1] == ";": break
         return ttable
-            
+
     ttable = {}
     while True:
         try: s = infile.next().strip()

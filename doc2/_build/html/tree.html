@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ivy 0.1 documentation" href="index.html" />
-    <link rel="prev" title="User’s Guide" href="using.html" />
+    <link rel="prev" title="Using Treebase" href="usingtreebase.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -72,13 +72,31 @@ builtin id function</li>
 <dl class="method">
 <dt id="ivy.tree.Node.__getitem__">
 <code class="descname">__getitem__</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.__getitem__" title="Permalink to this definition">¶</a></dt>
-<dd><p>x is a Node, Node.id (int) or a Node.label (string)</p>
+<dd><dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>x: A Node, Node.id (int) or a Node.label (string)</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>Found node(s)</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.__len__">
 <code class="descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.__len__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return number of nodes descended from self (including self)</p>
+<dd><p>Number of nodes descended from self</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>Int. Number of nodes descended from self (including self)</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -103,7 +121,27 @@ builtin id function</li>
 <dl class="method">
 <dt id="ivy.tree.Node.ascii">
 <code class="descname">ascii</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.ascii" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create ascii tree to be shown with print()</p>
+<dd><p>Create ascii tree.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>unitlen: Float. How long each unit should be rendered as.
+Defaults to 3.</li>
+<li>minwidth: Float. Minimum width of the plot. Defaults to 50</li>
+<li>maxwidth: Float. Maximum width of the plot. Defaults to None</li>
+<li>scaled: Bool. Whether or not the tree is scaled. Defaults to False</li>
+<li>show_internal_labels: Bool. Whether or not to show labels
+on internal nodes. Defaults to True.</li>
+</ul>
+</dd>
+</dl>
+<p>RR: Does this function have kwargs? -CZ
+Returns:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Str. Ascii tree to be shown with print().</li>
+</ul>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -142,14 +180,31 @@ labels</p>
 <dl class="method">
 <dt id="ivy.tree.Node.clades">
 <code class="descname">clades</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.clades" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of leaves descended from self</p>
+<dd><p>Get internal nodes descended from self</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>A list of internal nodes descended from self.</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.collapse">
 <code class="descname">collapse</code><span class="sig-paren">(</span><em>add=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.collapse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove self and collapse children to polytomy</p>
-<p>Returns: parent of self</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>add: Bool. Whether or not to add self&#8217;s length to children&#8217;s
+length.</li>
+</ul>
+</dd>
+</dl>
+<ul class="simple">
+<li>Returns: parent of self</li>
+</ul>
 </dd></dl>
 
 <dl class="method">
@@ -158,6 +213,18 @@ labels</p>
 <dd><p>Return a copy of the node, but not copies of children, parent,
 or any attribute that is a Node.</p>
 <p>If <cite>recurse</cite> is True, recursively copy child nodes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>recurse: Bool. Whether or not to copy children as well as self.</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>Node object that is a copy of self.</li>
+</ul>
+</dd>
+</dl>
 <p>TODO: test this function.</p>
 </dd></dl>
 
@@ -168,11 +235,17 @@ or any attribute that is a Node.</p>
 including self!</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first simple">
-<li>order: String, optional, defaults to &#8220;pre&#8221;. Indicates wether to</li>
+<dd><ul class="first last simple">
+<li>order: String, optional, defaults to &#8220;pre&#8221;. Indicates wether to
+return nodes in preorder or postorder sequence.</li>
+<li>f: filtering function that evaluates to True if desired
+node is called as the first parameter.</li>
 </ul>
-<p class="last">return nodes in preorder or postorder sequence.
-* f: filtering function</p>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>A list of nodes descended from self not including self.</li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -189,16 +262,14 @@ including self!</p>
 <dd><p>Find descendant nodes.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first simple">
-<li>f: Function or a string.  If a string, it is converted to a</li>
-</ul>
-<p>function for finding <em>f</em> as a substring in node labels.
+<dd><ul class="first last simple">
+<li>f: Function or a string.  If a string, it is converted to a
+function for finding <em>f</em> as a substring in node labels.
 Otherwise, <em>f</em> should evaluate to True if called with a desired
-node as the first parameter.</p>
-<ul class="simple">
-<li><em>args</em> and <em>kwargs</em> are additional unnamed and named</li>
+node as the first parameter.</li>
+<li><em>args</em> and <em>kwargs</em> are additional unnamed and named
+parameters, respectively.</li>
 </ul>
-<p class="last">parameters, respectively.</p>
 </dd>
 <dt>Yields:</dt>
 <dd><ul class="first last simple">
@@ -218,6 +289,19 @@ node as the first parameter.</p>
 <dt id="ivy.tree.Node.get">
 <code class="descname">get</code><span class="sig-paren">(</span><em>f</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the first node found by node.find()</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>f: A function that evaluates to True if desired
+node is called as the first parameter.</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>The first node found by node.find()</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -268,6 +352,18 @@ node as the first input</li>
 <dt id="ivy.tree.Node.ismono">
 <code class="descname">ismono</code><span class="sig-paren">(</span><em>*leaves</em><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.ismono" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test if leaf descendants are monophyletic</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>At least two leaf Node objects</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>Bool. Are the leaf descendants monophyletic?</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -280,6 +376,19 @@ node as the first input</li>
 <dt id="ivy.tree.Node.iternodes">
 <code class="descname">iternodes</code><span class="sig-paren">(</span><em>f=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.iternodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a generator of nodes descendant from self - including self</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>f: A function that evaluates to true if called with desired
+node as the first input</li>
+</ul>
+</dd>
+<dt>Yields:</dt>
+<dd><ul class="first last simple">
+<li>Nodes descended from self (including self)</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -310,7 +419,7 @@ node as the first input</li>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><ul class="first last simple">
-<li>f: A function that evaluates to true if called with desired
+<li>f: A function that evaluates to True if called with desired
 node as the first input</li>
 </ul>
 </dd>
@@ -359,6 +468,18 @@ labels indicate unrooted bipartition support</p>
 <dt id="ivy.tree.Node.mrca">
 <code class="descname">mrca</code><span class="sig-paren">(</span><em>*nodes</em><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.mrca" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find most recent common ancestor of <em>nodes</em></p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li><a href="#id1"><span class="problematic" id="id2">*</span></a>nodes: Node objects</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>Node object. The MRCA of <em>nodes</em></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -386,10 +507,10 @@ labels indicate unrooted bipartition support</p>
 <dd><p>Remove self if self is not root.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
-<dd><ul class="first simple">
-<li>Parent of self. If parent had only two children,</li>
+<dd><ul class="first last simple">
+<li>Parent of self. If parent had only two children,
+parent is now a &#8216;knee&#8217; and can be removed with excise.</li>
 </ul>
-<p class="last">parent is now a &#8216;knee&#8217; and can be removed with excise.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -418,6 +539,22 @@ labels indicate unrooted bipartition support</p>
 <code class="descname">rootpath</code><span class="sig-paren">(</span><em>end=None</em>, <em>stop=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ivy.tree.Node.rootpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Iterate over parent nodes toward the root, or node <em>end</em> if
 encountered.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>end: A Node object to iterate to (instead of iterating
+towards root)</li>
+<li>stop: A function that returns True if desired node is called
+as the first parameter.</li>
+</ul>
+</dd>
+<dt>Yields:</dt>
+<dd><ul class="first simple">
+<li>Nodes in path to root (or end).</li>
+</ul>
+<p class="last">S</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -471,7 +608,7 @@ to be non-nested.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="using.html" title="previous chapter">User&#8217;s Guide</a></li>
+      <li>Previous: <a href="usingtreebase.html" title="previous chapter">Using Treebase</a></li>
   </ul></li>
 </ul>
 </div>

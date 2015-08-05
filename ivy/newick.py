@@ -33,7 +33,7 @@ class Tokenizer(shlex.shlex):
         global LABELCHARS
         shlex.shlex.__init__(self, infile, posix=False)
         self.commenters = ''
-        self.wordchars = self.wordchars+LABELCHARS 
+        self.wordchars = self.wordchars+LABELCHARS
         self.quotes = "'"
 
     def parse_embedded_comment(self):
@@ -60,20 +60,19 @@ def parse(data, ttable=None, treename=None):
     Parse a newick string.
 
     Args:
-        data: Any file-like object that can be coerced into shlex, or
-            a string (converted to StringIO)
-
-        ttable: A dictionary mapping node labels in the newick string
-            to other values.
+        * data: Any file-like object that can be coerced into shlex, or
+          a string (converted to StringIO)
+        * ttable: A dictionary mapping node labels in the newick string
+          to other values.
 
     Returns:
-        The root node.
+        * The root node.
     """
     from tree import Node
-    
+
     if type(data) in types.StringTypes:
         data = StringIO(data)
-    
+
     start_pos = data.tell()
     tokens = Tokenizer(data)
 
@@ -118,12 +117,12 @@ def parse(data, ttable=None, treename=None):
             node.pi = pi; pi += 1
             if node.children:
                 node.right = node.children[-1].right + 1
-            
+
         elif token == ',':
             node = node.parent
             if node.children:
                 node.right = node.children[-1].right + 1
-            
+
         # branch length
         elif token == ':':
             token = tokens.get_token()
@@ -231,7 +230,7 @@ def parse(data, ttable=None, treename=None):
 ##     ##     trees[i] = t
 ##     ## return trees
 ##     return ttable, trees
-    
+
 def parse_ampersand_comment(s):
     import pyparsing
     pyparsing.ParserElement.enablePackrat()
@@ -260,7 +259,7 @@ def parse_ampersand_comment(s):
             except ValueError: pass
         d.append((x.key, v))
     return d
-             
+
 def nexus_iter(infile):
     import pyparsing
     pyparsing.ParserElement.enablePackrat()
@@ -303,7 +302,7 @@ def nexus_iter(infile):
             ttable[k] = v
             if s[-1] == ";": break
         return ttable
-            
+
     # read lines between "begin trees;" and "end;"
     f = itertools.takewhile(not_end, itertools.dropwhile(not_begin, infile))
     s = f.next().strip().lower()

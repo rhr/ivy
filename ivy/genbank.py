@@ -8,16 +8,37 @@ from ivy.storage import Storage
 email = ""
 
 def batch(iterable, size):
-    "take an iterable and return it in chunks (sub-iterables)"
+    """
+    Take an iterable and return it in chunks (sub-iterables)
+
+    Args:
+        * iterable: any iterable
+        * size: int. Size of chunks
+    Yields:
+        * chunks of size `size`
+    """
     args = [ iter(iterable) ]*size
     for x in izip_longest(fillvalue=None, *args):
         yield ifilter(None, x)
-        
+
 def extract_gbac(s):
+    """
+    Extract genbank accession
+
+    Args:
+        * s: str. text string of genbank file
+    Returns:
+        * List containing accession number(s)
+    """
     gbac_re = re.compile(r'[A-Z]{1,2}[0-9]{4,7}')
     return gbac_re.findall(s, re.M)
+    # RR: This also returns various other strings that match the pattern (eg.
+    # protein ids)
 
 def extract_gene(seq, gene):
+    """
+    RR: Not sure what format seq should be in -CZ
+    """
     for t in "exon", "gene":
         for x in seq.features:
             if x.type == t:
@@ -129,7 +150,7 @@ def fetchseq(gi):
     s = SeqIO.read(h, 'genbank')
     s.id = organism_id(s)
     return s
-    
+
 def create_fastas(data, genes):
     fastas = dict([ (g, file(g+".fasta", "w")) for g in genes ])
     for label, seqs in data.items():
@@ -272,7 +293,7 @@ def fetch_DNA_seqs(terms, maxn=10000, batchsize=1000):
         retstart += batchsize
     logging.info('...done')
     return seqs
-    
+
 def seqrec_taxid(seqrec):
     "extract the NCBI taxon id from a sequence record"
     for ft in seqrec.features:
@@ -284,5 +305,3 @@ def seqrec_taxid(seqrec):
                 return int(x.split(':')[1])
     except:
         pass
-
-    

@@ -3,6 +3,8 @@ Compute lineages through time
 """
 import numpy
 
+# RR: Should results be set to None and then defined in the function to avoid
+# problems with mutable defaults in functions? -CZ
 def traverse(node, t=0, results=[]):
     """
     Recursively traverse the tree and collect information about when

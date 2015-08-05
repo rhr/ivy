@@ -62,18 +62,18 @@ def calc_node_positions(node, radius=1.0, pole=None,
     polar tree
 
     Args:
-        node: A (root) node
-        radius: Float. The radius of the tree. Optional, defaults to 1
-        pole: Tuple of floats.. The cartesian coordinate of the pole.
-              Optional, defaults to None.
-        end: Float. Where the tree ends. For best results, between 0 and 360.
-             Optional, defaults to None.
-        direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is
-                   drawn. Optional, defaults to COUNTERCLOCKWISE
-        scaled: Bool. Whether or not the tree is scaled. Optional, defaults
-                to False.
+        * node: A (root) node
+        * radius: Float. The radius of the tree. Optional, defaults to 1
+        * pole: Tuple of floats.. The cartesian coordinate of the pole.
+          Optional, defaults to None.
+        * end: Float. Where the tree ends. For best results, between 0 and 360.
+          Optional, defaults to None.
+        * direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is
+          drawn. Optional, defaults to COUNTERCLOCKWISE
+        * scaled: Bool. Whether or not the tree is scaled. Optional, defaults
+          to False.
     Returns:
-        Dict mapping nodes to Coordinates object
+        * Dict mapping nodes to Coordinates object
     """
     leaves = node.leaves()
     nleaves = len(leaves)
