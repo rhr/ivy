@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # ivy documentation build configuration file, created by
-# sphinx-quickstart on Fri Jul 31 10:22:19 2015.
+# sphinx-quickstart on Wed Aug  5 15:31:06 2015.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -31,6 +31,8 @@ import shlex
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.viewcode',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -76,7 +78,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = []
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -284,3 +286,11 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'https://docs.python.org/': None}
+
+
+
+
