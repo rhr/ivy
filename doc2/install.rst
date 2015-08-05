@@ -8,13 +8,12 @@ Ivy is a Python package, and can be as simple to install as:
 
 .. code-block:: bash
 
-  $ pip install ivy-phylo
+  $ pip install git+git://github.com/rhr/ivy.git
 
 However, ``ivy`` requires quite a bit of third-party open source
 software to work.  The following instructions assume a Debian-based
-Linux system like Ubuntu.  On a Mac, they should work if you've
-installed the Apple Developer Tools - just ignore the ``apt-get``
-lines, and instead use ``easy_install`` and ``pip``.
+Linux system like Ubuntu.  On a Mac, you can `use Anaconda <http://docs.continuum.io/anaconda/install>`_ to install
+dependencies.
 
 More detailed instructions for Mac and Windows are in the works.
 
@@ -35,6 +34,7 @@ kinds of specialized functions.
   from GenBank, etc.
 * `pyparsing <http://pyparsing.wikispaces.com>`_ - convenience
   functions for parsing text
+* `bokeh <http://bokeh.pydata.org/en/latest/>`_ - visualization
 
 These are easily installed by:
 
@@ -131,16 +131,11 @@ Finally, once the dependencies have been satisfied, we can install ``ivy``:
 
 .. code-block:: bash
 
-  $ pip install ivy-phylo
+  $ pip install git+git://github.com/rhr/ivy.git
 
 
 Source code
 ===========
 
-Ivy source code is hosted at http://launchpad.net/ivy and can be
-checked out via bazaar:
-
-.. code-block:: bash
-
-  $ bzr branch lp:ivy
+Ivy source code is hosted at https://github.com/rhr/ivy
 

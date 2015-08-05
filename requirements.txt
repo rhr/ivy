@@ -1,6 +1,8 @@
 numpy
 scipy
 biopython
+matplotlib
+bokeh
 # used in ivy/nexus.py
 pyparsing 
 # used in ivy/treegraph.py
