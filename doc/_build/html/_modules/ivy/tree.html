@@ -77,7 +77,7 @@
         <span class="k">for</span> <span class="n">descendant</span> <span class="ow">in</span> <span class="n">traverse</span><span class="p">(</span><span class="n">child</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">descendant</span>
 </div>
-<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A basic Node class with attributes and references to child nodes</span>
 <span class="sd">    (&#39;children&#39;, a list) and &#39;parent&#39;.</span>
@@ -196,11 +196,11 @@
                 <span class="k">return</span> <span class="n">n</span>
         <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="Node.ascii"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.ascii">[docs]</a>    <span class="k">def</span> <span class="nf">ascii</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.ascii"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.ascii">[docs]</a>    <span class="k">def</span> <span class="nf">ascii</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create ascii tree.</span>
 
-<span class="sd">        Args:</span>
+<span class="sd">        Kwargs:</span>
 <span class="sd">            * unitlen: Float. How long each unit should be rendered as.</span>
 <span class="sd">              Defaults to 3.</span>
 <span class="sd">            * minwidth: Float. Minimum width of the plot. Defaults to 50</span>
@@ -208,14 +208,13 @@
 <span class="sd">            * scaled: Bool. Whether or not the tree is scaled. Defaults to False</span>
 <span class="sd">            * show_internal_labels: Bool. Whether or not to show labels</span>
 <span class="sd">              on internal nodes. Defaults to True.</span>
-<span class="sd">        RR: Does this function have kwargs? -CZ</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            * Str. Ascii tree to be shown with print().</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">ascii</span> <span class="kn">import</span> <span class="n">render</span>
         <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Node.collapse"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.collapse">[docs]</a>    <span class="k">def</span> <span class="nf">collapse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.collapse"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.collapse">[docs]</a>    <span class="k">def</span> <span class="nf">collapse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove self and collapse children to polytomy</span>
 
@@ -235,7 +234,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="n">p</span>
 </div>
-<div class="viewcode-block" id="Node.copy"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.copy"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a copy of the node, but not copies of children, parent,</span>
 <span class="sd">        or any attribute that is a Node.</span>
@@ -249,6 +248,8 @@
 <span class="sd">            * Node object that is a copy of self.</span>
 
 <span class="sd">        TODO: test this function.</span>
+
+<span class="sd">        RR: This function runs rather slowly -CZ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">newnode</span> <span class="o">=</span> <span class="n">Node</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -261,7 +262,7 @@
                     <span class="p">]</span>
         <span class="k">return</span> <span class="n">newnode</span>
 </div>
-<div class="viewcode-block" id="Node.leafsets"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.leafsets">[docs]</a>    <span class="k">def</span> <span class="nf">leafsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.leafsets"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.leafsets">[docs]</a>    <span class="k">def</span> <span class="nf">leafsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return a mapping of nodes to leaf sets (nodes or labels)&quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">d</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isleaf</span><span class="p">:</span>
@@ -278,7 +279,7 @@
             <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span>
 </div>
-<div class="viewcode-block" id="Node.mrca"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.mrca">[docs]</a>    <span class="k">def</span> <span class="nf">mrca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.mrca"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.mrca">[docs]</a>    <span class="k">def</span> <span class="nf">mrca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find most recent common ancestor of *nodes*</span>
 
@@ -333,7 +334,7 @@
     <span class="c">##         else: break</span>
     <span class="c">##     return anc</span>
 </div>
-<div class="viewcode-block" id="Node.ismono"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.ismono">[docs]</a>    <span class="k">def</span> <span class="nf">ismono</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">leaves</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.ismono"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.ismono">[docs]</a>    <span class="k">def</span> <span class="nf">ismono</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">leaves</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Test if leaf descendants are monophyletic</span>
 
@@ -343,6 +344,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            * Bool. Are the leaf descendants monophyletic?</span>
 
+<span class="sd">        RR: Should this function have a check to make sure the input nodes are</span>
+<span class="sd">        leaves? There is some strange behavior if you input internal nodes -CZ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">leaves</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">leaves</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">leaves</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -353,7 +356,7 @@
         <span class="k">if</span> <span class="n">anc</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">anc</span><span class="o">.</span><span class="n">leaves</span><span class="p">())</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">leaves</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="Node.order_subtrees_by_size"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.order_subtrees_by_size">[docs]</a>    <span class="k">def</span> <span class="nf">order_subtrees_by_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n2s</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.order_subtrees_by_size"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.order_subtrees_by_size">[docs]</a>    <span class="k">def</span> <span class="nf">order_subtrees_by_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n2s</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Order interal clades by size</span>
 
@@ -375,9 +378,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">order_subtrees_by_size</span><span class="p">(</span><span class="n">recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 </div>
-<div class="viewcode-block" id="Node.add_child"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.add_child">[docs]</a>    <span class="k">def</span> <span class="nf">add_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.add_child"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.add_child">[docs]</a>    <span class="k">def</span> <span class="nf">add_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add child as sister to self</span>
+<span class="sd">        Add child as child of self</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            * child: A node object</span>
@@ -389,7 +392,7 @@
         <span class="n">child</span><span class="o">.</span><span class="n">isroot</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nchildren</span> <span class="o">+=</span> <span class="mi">1</span>
 </div>
-<div class="viewcode-block" id="Node.bisect_branch"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.bisect_branch">[docs]</a>    <span class="k">def</span> <span class="nf">bisect_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.bisect_branch"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.bisect_branch">[docs]</a>    <span class="k">def</span> <span class="nf">bisect_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add new node as parent to self in the middle of branch to parent.</span>
 
@@ -407,7 +410,7 @@
         <span class="n">n</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">n</span>
 </div>
-<div class="viewcode-block" id="Node.remove_child"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.remove_child">[docs]</a>    <span class="k">def</span> <span class="nf">remove_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.remove_child"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.remove_child">[docs]</a>    <span class="k">def</span> <span class="nf">remove_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove child.</span>
 
@@ -422,13 +425,13 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">isleaf</span> <span class="o">=</span> <span class="bp">True</span>
 </div>
-<div class="viewcode-block" id="Node.labeled"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.labeled">[docs]</a>    <span class="k">def</span> <span class="nf">labeled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.labeled"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.labeled">[docs]</a>    <span class="k">def</span> <span class="nf">labeled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a list of all descendant nodes that are labeled</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="p">]</span>
 </div>
-<div class="viewcode-block" id="Node.leaves"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.leaves">[docs]</a>    <span class="k">def</span> <span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.leaves"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.leaves">[docs]</a>    <span class="k">def</span> <span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a list of leaves. Can be filtered with f.</span>
 
@@ -443,7 +446,7 @@
         <span class="k">if</span> <span class="n">f</span><span class="p">:</span> <span class="k">return</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="ow">and</span> <span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="p">]</span>
         <span class="k">return</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
 </div>
-<div class="viewcode-block" id="Node.internals"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.internals">[docs]</a>    <span class="k">def</span> <span class="nf">internals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.internals"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.internals">[docs]</a>    <span class="k">def</span> <span class="nf">internals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a list nodes that have children (internal nodes)</span>
 
@@ -458,7 +461,7 @@
         <span class="k">if</span> <span class="n">f</span><span class="p">:</span> <span class="k">return</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">children</span> <span class="ow">and</span> <span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="p">]</span>
         <span class="k">return</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">children</span> <span class="p">]</span>
 </div>
-<div class="viewcode-block" id="Node.clades"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.clades">[docs]</a>    <span class="k">def</span> <span class="nf">clades</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.clades"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.clades">[docs]</a>    <span class="k">def</span> <span class="nf">clades</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get internal nodes descended from self</span>
 
@@ -468,7 +471,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
 </div>
-<div class="viewcode-block" id="Node.iternodes"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.iternodes">[docs]</a>    <span class="k">def</span> <span class="nf">iternodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.iternodes"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.iternodes">[docs]</a>    <span class="k">def</span> <span class="nf">iternodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a generator of nodes descendant from self - including self</span>
 
@@ -477,7 +480,7 @@
 <span class="sd">              node as the first input</span>
 
 <span class="sd">        Yields:</span>
-<span class="sd">            * Nodes descended from self (including self)</span>
+<span class="sd">            * Nodes descended from self (including self) in preorder sequence</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">f</span> <span class="ow">and</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">f</span><span class="p">):</span>
@@ -486,20 +489,20 @@
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">iternodes</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">n</span>
 </div>
-<div class="viewcode-block" id="Node.iterleaves"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.iterleaves">[docs]</a>    <span class="k">def</span> <span class="nf">iterleaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.iterleaves"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.iterleaves">[docs]</a>    <span class="k">def</span> <span class="nf">iterleaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Yield leaves descendant from self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">iternodes</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">.</span><span class="n">isleaf</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Node.preiter"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.preiter">[docs]</a>    <span class="k">def</span> <span class="nf">preiter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.preiter"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.preiter">[docs]</a>    <span class="k">def</span> <span class="nf">preiter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Yield nodes in preorder sequence</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iternodes</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">n</span>
 </div>
-<div class="viewcode-block" id="Node.postiter"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.postiter">[docs]</a>    <span class="k">def</span> <span class="nf">postiter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.postiter"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.postiter">[docs]</a>    <span class="k">def</span> <span class="nf">postiter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Yield nodes in postorder sequence</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -511,7 +514,7 @@
         <span class="k">if</span> <span class="p">(</span><span class="n">f</span> <span class="ow">and</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">f</span><span class="p">):</span>
             <span class="k">yield</span> <span class="bp">self</span>
 </div>
-<div class="viewcode-block" id="Node.descendants"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.descendants">[docs]</a>    <span class="k">def</span> <span class="nf">descendants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;pre&quot;</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.descendants"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.descendants">[docs]</a>    <span class="k">def</span> <span class="nf">descendants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;pre&quot;</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a list of nodes descendant from self - but _not_</span>
 <span class="sd">        including self!</span>
@@ -537,7 +540,7 @@
                 <span class="n">child</span><span class="o">.</span><span class="n">descendants</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">v</span>
 </div>
-<div class="viewcode-block" id="Node.get"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.get"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the first node found by node.find()</span>
 
@@ -554,7 +557,7 @@
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span>
 </div>
-<div class="viewcode-block" id="Node.grep"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.grep">[docs]</a>    <span class="k">def</span> <span class="nf">grep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">ignorecase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.grep"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.grep">[docs]</a>    <span class="k">def</span> <span class="nf">grep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">ignorecase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find nodes by regular-expression search of labels</span>
 
@@ -575,7 +578,7 @@
         <span class="n">search</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span>
         <span class="k">return</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">label</span> <span class="ow">and</span> <span class="n">search</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="p">]</span>
 </div>
-<div class="viewcode-block" id="Node.lgrep"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.lgrep">[docs]</a>    <span class="k">def</span> <span class="nf">lgrep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">ignorecase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.lgrep"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.lgrep">[docs]</a>    <span class="k">def</span> <span class="nf">lgrep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">ignorecase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find leaves by regular-expression search of labels</span>
 
@@ -587,9 +590,9 @@
 <span class="sd">            * A list of node objects whose labels were matched by s.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grep</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grep</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ignorecase</span><span class="o">=</span><span class="n">ignorecase</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
 </div>
-<div class="viewcode-block" id="Node.bgrep"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.bgrep">[docs]</a>    <span class="k">def</span> <span class="nf">bgrep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">ignorecase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.bgrep"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.bgrep">[docs]</a>    <span class="k">def</span> <span class="nf">bgrep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">ignorecase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find branches (internal nodes) by regular-expression search of</span>
 <span class="sd">        labels</span>
@@ -602,9 +605,10 @@
 <span class="sd">            * A list of node objects whose labels were matched by s.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grep</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">isleaf</span><span class="p">)</span> <span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grep</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ignorecase</span><span class="o">=</span><span class="n">ignorecase</span><span class="p">)</span> <span class="k">if</span>
+               <span class="p">(</span><span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">isleaf</span><span class="p">)</span> <span class="p">]</span>
 </div>
-<div class="viewcode-block" id="Node.find"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.find">[docs]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.find"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.find">[docs]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find descendant nodes.</span>
 
@@ -629,11 +633,11 @@
             <span class="k">if</span> <span class="n">func</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">n</span>
 </div>
-<div class="viewcode-block" id="Node.findall"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.findall">[docs]</a>    <span class="k">def</span> <span class="nf">findall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.findall"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.findall">[docs]</a>    <span class="k">def</span> <span class="nf">findall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of found nodes.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="Node.prune"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.prune">[docs]</a>    <span class="k">def</span> <span class="nf">prune</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.prune"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.prune">[docs]</a>    <span class="k">def</span> <span class="nf">prune</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove self if self is not root.</span>
 
@@ -647,7 +651,7 @@
             <span class="n">p</span><span class="o">.</span><span class="n">remove_child</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">p</span>
 </div>
-<div class="viewcode-block" id="Node.excise"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.excise">[docs]</a>    <span class="k">def</span> <span class="nf">excise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.excise"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.excise">[docs]</a>    <span class="k">def</span> <span class="nf">excise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        For &#39;knees&#39;: remove self from between parent and single child</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -662,7 +666,7 @@
         <span class="n">p</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">p</span>
 </div>
-<div class="viewcode-block" id="Node.graft"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.graft">[docs]</a>    <span class="k">def</span> <span class="nf">graft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.graft"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.graft">[docs]</a>    <span class="k">def</span> <span class="nf">graft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add node as sister to self.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -698,7 +702,7 @@
     <span class="c">##     store[self] = leaf2len</span>
     <span class="c">##     return store</span>
 </div>
-<div class="viewcode-block" id="Node.leaf_distances"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.leaf_distances">[docs]</a>    <span class="k">def</span> <span class="nf">leaf_distances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measure</span><span class="o">=</span><span class="s">&quot;length&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.leaf_distances"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.leaf_distances">[docs]</a>    <span class="k">def</span> <span class="nf">leaf_distances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measure</span><span class="o">=</span><span class="s">&quot;length&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        RR: I don&#39;t quite understand the structure of the output. Also,</span>
 <span class="sd">            I can&#39;t figure out what &quot;measure&quot; does.-CZ</span>
@@ -713,7 +717,7 @@
                 <span class="n">x</span> <span class="o">+=</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">length</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">store</span>
 </div>
-<div class="viewcode-block" id="Node.rootpath"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.rootpath">[docs]</a>    <span class="k">def</span> <span class="nf">rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.rootpath"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.rootpath">[docs]</a>    <span class="k">def</span> <span class="nf">rootpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Iterate over parent nodes toward the root, or node *end* if</span>
 <span class="sd">        encountered.</span>
@@ -736,7 +740,7 @@
                 <span class="k">raise</span> <span class="ne">StopIteration</span>
             <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span>
 </div>
-<div class="viewcode-block" id="Node.rootpath_length"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.rootpath_length">[docs]</a>    <span class="k">def</span> <span class="nf">rootpath_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.rootpath_length"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.rootpath_length">[docs]</a>    <span class="k">def</span> <span class="nf">rootpath_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get length from self to root(if end is None) or length</span>
 <span class="sd">        from self to an ancestor node (if end is an ancestor to self)</span>
@@ -762,7 +766,7 @@
         <span class="c">## assert None not in v</span>
         <span class="c">## return sum(v)</span>
 </div>
-<div class="viewcode-block" id="Node.max_tippath"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.max_tippath">[docs]</a>    <span class="k">def</span> <span class="nf">max_tippath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.max_tippath"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.max_tippath">[docs]</a>    <span class="k">def</span> <span class="nf">max_tippath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the maximum length from self to a leaf node</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -774,7 +778,7 @@
             <span class="k">else</span><span class="p">:</span> <span class="n">v</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span>
         <span class="k">return</span> <span class="n">v</span>
 </div>
-<div class="viewcode-block" id="Node.subtree_mapping"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.subtree_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">subtree_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.subtree_mapping"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.subtree_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">subtree_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find the set of nodes in &#39;labels&#39;, and create a new tree</span>
 <span class="sd">        representing the subtree connecting them.  Nodes are assumed</span>
@@ -860,7 +864,7 @@
             <span class="n">cp</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">length</span>
         <span class="k">return</span> <span class="n">newroot</span>
 </div>
-<div class="viewcode-block" id="Node.reroot"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.reroot">[docs]</a>    <span class="k">def</span> <span class="nf">reroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newroot</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.reroot"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.reroot">[docs]</a>    <span class="k">def</span> <span class="nf">reroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newroot</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        RR: I can&#39;t get this to work properly -CZ</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -880,7 +884,7 @@
         <span class="n">newroot</span><span class="o">.</span><span class="n">isroot</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="n">newroot</span>
 </div>
-<div class="viewcode-block" id="Node.makeroot"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.makeroot">[docs]</a>    <span class="k">def</span> <span class="nf">makeroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shift_labels</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.makeroot"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.makeroot">[docs]</a>    <span class="k">def</span> <span class="nf">makeroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shift_labels</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        shift_labels: flag to shift internal parent-child node labels</span>
 <span class="sd">        when internode polarity changes; suitable e.g. if internal node</span>
@@ -1016,7 +1020,8 @@
 <span class="sd">    methods. *treename* is an optional string that will be attached to</span>
 <span class="sd">    all created nodes.</span>
 
-<span class="sd">    Returns: *root*, the root node.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        * *root*, the root node.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">newick</span>
     <span class="n">StringTypes</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span>

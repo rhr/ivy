@@ -109,7 +109,7 @@ builtin id function</li>
 <dl class="method">
 <dt id="ivy.tree.Node.add_child">
 <code class="descname">add_child</code><span class="sig-paren">(</span><em>child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.add_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.add_child" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add child as sister to self</p>
+<dd><p>Add child as child of self</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><ul class="first last simple">
@@ -124,7 +124,7 @@ builtin id function</li>
 <code class="descname">ascii</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.ascii"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.ascii" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create ascii tree.</p>
 <dl class="docutils">
-<dt>Args:</dt>
+<dt>Kwargs:</dt>
 <dd><ul class="first last simple">
 <li>unitlen: Float. How long each unit should be rendered as.
 Defaults to 3.</li>
@@ -135,14 +135,12 @@ Defaults to 3.</li>
 on internal nodes. Defaults to True.</li>
 </ul>
 </dd>
-</dl>
-<p>RR: Does this function have kwargs? -CZ
-Returns:</p>
-<blockquote>
-<div><ul class="simple">
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
 <li>Str. Ascii tree to be shown with print().</li>
 </ul>
-</div></blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -227,6 +225,7 @@ or any attribute that is a Node.</p>
 </dd>
 </dl>
 <p>TODO: test this function.</p>
+<p>RR: This function runs rather slowly -CZ</p>
 </dd></dl>
 
 <dl class="method">
@@ -365,6 +364,8 @@ node as the first input</li>
 </ul>
 </dd>
 </dl>
+<p>RR: Should this function have a check to make sure the input nodes are
+leaves? There is some strange behavior if you input internal nodes -CZ</p>
 </dd></dl>
 
 <dl class="method">
@@ -386,7 +387,7 @@ node as the first input</li>
 </dd>
 <dt>Yields:</dt>
 <dd><ul class="first last simple">
-<li>Nodes descended from self (including self)</li>
+<li>Nodes descended from self (including self) in preorder sequence</li>
 </ul>
 </dd>
 </dl>

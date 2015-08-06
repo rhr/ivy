@@ -243,7 +243,7 @@ current view, with a fixed data point (cx, cy)</p>
 <li><dl class="first docutils">
 <dt>x: A str or list of strs or node or list of nodes.</dt>
 <dd><ul class="first last simple">
-<li>colors: str. The color of the highlighted nodes. Optional,
+<li>color: str. The color of the highlighted nodes. Optional,
 defaults to red</li>
 <li>width: int. The width of the highlighted branches. Optional,
 defaults to 3.</li>
@@ -631,7 +631,9 @@ overwrite them.</li>
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.anctrace">
 <code class="descname">anctrace</code><span class="sig-paren">(</span><em>anc</em>, <em>descendants=None</em>, <em>width=4</em>, <em>color='blue'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.anctrace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.anctrace" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>RR: This function gives me a &#8216;list index out of range&#8217; error
+when I try to use it -CZ</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.cbar">
@@ -654,8 +656,7 @@ label is used instead. Defaults to None.</li>
 <li>Width: Float. Width of bar</li>
 <li>xoff: Float. Offset from label to bar</li>
 <li>showlabel: Bool. Whether or not to draw the label</li>
-<li>mrca: Bool. Whether or not to treat the node as the mrca and draw
-the bar next to all descendants of the node.</li>
+<li>mrca: RR: Not quite sure what this does -CZ</li>
 </ul>
 </dd>
 </dl>
@@ -664,17 +665,20 @@ the bar next to all descendants of the node.</li>
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.center_node">
 <code class="descname">center_node</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.center_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.center_node" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Center the canvas on the given node</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.center_x">
 <code class="descname">center_x</code><span class="sig-paren">(</span><em>x</em>, <em>offset=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.center_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.center_x" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Center the x-axis of the canvas on the given x value</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.center_y">
 <code class="descname">center_y</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.center_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.center_y" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Center the y-axis of the canvas on the given y value</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.clade_dimensions">
@@ -689,7 +693,8 @@ the bar next to all descendants of the node.</li>
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.create_branch_artists">
 <code class="descname">create_branch_artists</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.create_branch_artists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.create_branch_artists" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Use MPL Paths to draw branches</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.create_label_artists">
@@ -728,7 +733,8 @@ is stored in self.decorators and called upon every redraw.</p>
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.find">
 <code class="descname">find</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.find" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Find node(s) matching pattern s and zoom to node(s)</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.flip">
@@ -826,7 +832,8 @@ is stored in self.decorators and called upon every redraw.</p>
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.plot_tree">
 <code class="descname">plot_tree</code><span class="sig-paren">(</span><em>root=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.plot_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.plot_tree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Draw branches and labels</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.rectselect">
@@ -836,7 +843,8 @@ is stored in self.decorators and called upon every redraw.</p>
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.redraw">
 <code class="descname">redraw</code><span class="sig-paren">(</span><em>home=False</em>, <em>layout=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.redraw" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Replot the tree</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.rmdec">
@@ -863,7 +871,7 @@ is stored in self.decorators and called upon every redraw.</p>
 
 <dl class="method">
 <dt id="ivy.vis.tree.Tree.select_nodes">
-<code class="descname">select_nodes</code><span class="sig-paren">(</span><em>nodes=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.select_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.select_nodes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">select_nodes</code><span class="sig-paren">(</span><em>nodes=None</em>, <em>add=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.select_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.select_nodes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">

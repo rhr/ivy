@@ -362,7 +362,20 @@ e.g., d[node] or d[&#8216;Pongo&#8217;].</p>
 <dl class="function">
 <dt id="ivy.genbank.batch">
 <code class="descclassname">ivy.genbank.</code><code class="descname">batch</code><span class="sig-paren">(</span><em>iterable</em>, <em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/genbank.html#batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.genbank.batch" title="Permalink to this definition">¶</a></dt>
-<dd><p>take an iterable and return it in chunks (sub-iterables)</p>
+<dd><p>Take an iterable and return it in chunks (sub-iterables)</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>iterable: any iterable</li>
+<li>size: int. Size of chunks</li>
+</ul>
+</dd>
+<dt>Yields:</dt>
+<dd><ul class="first last simple">
+<li>chunks of size <cite>size</cite></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -383,12 +396,26 @@ e.g., d[node] or d[&#8216;Pongo&#8217;].</p>
 <dl class="function">
 <dt id="ivy.genbank.extract_gbac">
 <code class="descclassname">ivy.genbank.</code><code class="descname">extract_gbac</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/genbank.html#extract_gbac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.genbank.extract_gbac" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Extract genbank accession</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>s: str. text string of genbank file</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>List containing accession number(s)</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="ivy.genbank.extract_gene">
 <code class="descclassname">ivy.genbank.</code><code class="descname">extract_gene</code><span class="sig-paren">(</span><em>seq</em>, <em>gene</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/genbank.html#extract_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.genbank.extract_gene" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>RR: Not sure what format seq should be in -CZ</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="ivy.genbank.fetch_DNA_seqs">
@@ -626,22 +653,24 @@ returns list of SeqRecord objects</p>
 polar tree</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><p class="first">node: A (root) node
-radius: Float. The radius of the tree. Optional, defaults to 1
-pole: Tuple of floats.. The cartesian coordinate of the pole.</p>
-<blockquote>
-<div>Optional, defaults to None.</div></blockquote>
-<dl class="last docutils">
-<dt>end: Float. Where the tree ends. For best results, between 0 and 360.</dt>
-<dd>Optional, defaults to None.</dd>
-<dt>direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is</dt>
-<dd>drawn. Optional, defaults to COUNTERCLOCKWISE</dd>
-<dt>scaled: Bool. Whether or not the tree is scaled. Optional, defaults</dt>
-<dd>to False.</dd>
-</dl>
+<dd><ul class="first last simple">
+<li>node: A (root) node</li>
+<li>radius: Float. The radius of the tree. Optional, defaults to 1</li>
+<li>pole: Tuple of floats.. The cartesian coordinate of the pole.
+Optional, defaults to None.</li>
+<li>end: Float. Where the tree ends. For best results, between 0 and 360.
+Optional, defaults to None.</li>
+<li>direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is
+drawn. Optional, defaults to COUNTERCLOCKWISE</li>
+<li>scaled: Bool. Whether or not the tree is scaled. Optional, defaults
+to False.</li>
+</ul>
 </dd>
 <dt>Returns:</dt>
-<dd>Dict mapping nodes to Coordinates object</dd>
+<dd><ul class="first last simple">
+<li>Dict mapping nodes to Coordinates object</li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -748,15 +777,18 @@ the parsed tree.</p>
 <dd><p>Parse a newick string.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>data: Any file-like object that can be coerced into shlex, or</dt>
-<dd>a string (converted to StringIO)</dd>
-<dt>ttable: A dictionary mapping node labels in the newick string</dt>
-<dd>to other values.</dd>
-</dl>
+<dd><ul class="first last simple">
+<li>data: Any file-like object that can be coerced into shlex, or
+a string (converted to StringIO)</li>
+<li>ttable: A dictionary mapping node labels in the newick string
+to other values.</li>
+</ul>
 </dd>
 <dt>Returns:</dt>
-<dd>The root node.</dd>
+<dd><ul class="first last simple">
+<li>The root node.</li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -794,7 +826,8 @@ record from a nexus file, as parsed by newick.nexus_iter</p>
 <dl class="function">
 <dt id="ivy.nexus.fetchaln">
 <code class="descclassname">ivy.nexus.</code><code class="descname">fetchaln</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/nexus.html#fetchaln"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.nexus.fetchaln" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Fetch alignment</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="ivy.nexus.parse_treesblock">
@@ -969,17 +1002,62 @@ record from a nexus file, as parsed by newick.nexus_iter</p>
 <dl class="function">
 <dt id="ivy.sequtil.find_stop_codons">
 <code class="descclassname">ivy.sequtil.</code><code class="descname">find_stop_codons</code><span class="sig-paren">(</span><em>seq</em>, <em>pos=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/sequtil.html#find_stop_codons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.sequtil.find_stop_codons" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Find stop codons within sequence (in reading frame)</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>seq: Str. A sequence</li>
+<li>pos: Int. Starting position. Defaults to 0.</li>
+</ul>
+</dd>
+<dt>Yields:</dt>
+<dd><ul class="first last simple">
+<li>Tuple containing the index where the stop codon starts
+and which stop codon was found.</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="ivy.sequtil.finditer">
 <code class="descclassname">ivy.sequtil.</code><code class="descname">finditer</code><span class="sig-paren">(</span><em>seq</em>, <em>substr</em>, <em>start=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/sequtil.html#finditer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.sequtil.finditer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Find substrings within a sequence</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>seq: Str. A sequence.</li>
+<li>substr: Str. A subsequence to search for</li>
+<li>start: Int. Starting index. Defaults to 0</li>
+</ul>
+</dd>
+<dt>Yields:</dt>
+<dd><ul class="first last simple">
+<li>Starting indicies of where the substr was found in seq</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="ivy.sequtil.gapidx">
 <code class="descclassname">ivy.sequtil.</code><code class="descname">gapidx</code><span class="sig-paren">(</span><em>seq</em>, <em>gapchar='-'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/sequtil.html#gapidx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.sequtil.gapidx" title="Permalink to this definition">¶</a></dt>
-<dd><p>for a sequence with gaps, calculate site positions without gaps</p>
+<dd><p>For a sequence with gaps, calculate site positions without gaps</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>seq: List. Each element of the list is one character in a sequence.</li>
+<li>gapchar: Str. The character gaps are coded as. Defaults to &#8216;-&#8216;</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>An array where the first element corresponds to range(number of
+characters that are not gaps) and the second element is the indicies
+of all characters that are not gaps.</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -1112,7 +1190,7 @@ builtin id function</li>
 <dl class="method">
 <dt id="ivy.tree.Node.add_child">
 <code class="descname">add_child</code><span class="sig-paren">(</span><em>child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.add_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.add_child" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add child as sister to self</p>
+<dd><p>Add child as child of self</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><ul class="first last simple">
@@ -1127,7 +1205,7 @@ builtin id function</li>
 <code class="descname">ascii</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.ascii"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.ascii" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create ascii tree.</p>
 <dl class="docutils">
-<dt>Args:</dt>
+<dt>Kwargs:</dt>
 <dd><ul class="first last simple">
 <li>unitlen: Float. How long each unit should be rendered as.
 Defaults to 3.</li>
@@ -1138,14 +1216,12 @@ Defaults to 3.</li>
 on internal nodes. Defaults to True.</li>
 </ul>
 </dd>
-</dl>
-<p>RR: Does this function have kwargs? -CZ
-Returns:</p>
-<blockquote>
-<div><ul class="simple">
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
 <li>Str. Ascii tree to be shown with print().</li>
 </ul>
-</div></blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1230,6 +1306,7 @@ or any attribute that is a Node.</p>
 </dd>
 </dl>
 <p>TODO: test this function.</p>
+<p>RR: This function runs rather slowly -CZ</p>
 </dd></dl>
 
 <dl class="method">
@@ -1368,6 +1445,8 @@ node as the first input</li>
 </ul>
 </dd>
 </dl>
+<p>RR: Should this function have a check to make sure the input nodes are
+leaves? There is some strange behavior if you input internal nodes -CZ</p>
 </dd></dl>
 
 <dl class="method">
@@ -1389,7 +1468,7 @@ node as the first input</li>
 </dd>
 <dt>Yields:</dt>
 <dd><ul class="first last simple">
-<li>Nodes descended from self (including self)</li>
+<li>Nodes descended from self (including self) in preorder sequence</li>
 </ul>
 </dd>
 </dl>
@@ -1646,7 +1725,13 @@ Args:</p>
 file name, or a file-like object with <cite>tell</cite> and &#8216;read`
 methods. <em>treename</em> is an optional string that will be attached to
 all created nodes.</p>
-<p>Returns: <em>root</em>, the root node.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li><em>root</em>, the root node.</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1680,10 +1765,27 @@ all created nodes.</p>
 </div>
 <div class="section" id="module-ivy.treebase">
 <span id="ivy-treebase-module"></span><h2>ivy.treebase module<a class="headerlink" href="#module-ivy.treebase" title="Permalink to this headline">¶</a></h2>
+<p>Functions to get trees and character data from treebase</p>
 <dl class="function">
 <dt id="ivy.treebase.fetch_study">
 <code class="descclassname">ivy.treebase.</code><code class="descname">fetch_study</code><span class="sig-paren">(</span><em>study_id</em>, <em>format='nexml'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treebase.html#fetch_study"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treebase.fetch_study" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get a study from treebase in one of various formats</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>study_id: Str. The id of the study</li>
+<li>format: Str.  One of [&#8220;rdf&#8221;, &#8220;html&#8221;, &#8220;nexml&#8221;, &#8220;nexus&#8221;]</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first simple">
+<li>Str representing a nexus file (if format = &#8220;nexus&#8221;)</li>
+</ul>
+<p class="last">OR
+* An lxml etree object</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="ivy.treebase.parse_chars">
@@ -1698,12 +1800,39 @@ all created nodes.</p>
 <dl class="function">
 <dt id="ivy.treebase.parse_nexml">
 <code class="descclassname">ivy.treebase.</code><code class="descname">parse_nexml</code><span class="sig-paren">(</span><em>doc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treebase.html#parse_nexml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treebase.parse_nexml" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parse an etree ElementTree</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>doc: An etree ElementTree or a file that can be parsed into
+an etree ElementTree with etree.parse</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>An ivy Storage object containing all the information from the
+nexml file: Characters, metadata, OTUs, and trees.</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="ivy.treebase.parse_otus">
 <code class="descclassname">ivy.treebase.</code><code class="descname">parse_otus</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treebase.html#parse_otus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treebase.parse_otus" title="Permalink to this definition">¶</a></dt>
-<dd><p>e is a nexml document parsed by etree</p>
+<dd><p>Get OTUs from an etree object</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>e: A nexml document parsed by etree</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>A dict mapping keys to OTUs contained in ivy Storage objects</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1715,7 +1844,20 @@ all created nodes.</p>
 <dl class="function">
 <dt id="ivy.treebase.parse_trees">
 <code class="descclassname">ivy.treebase.</code><code class="descname">parse_trees</code><span class="sig-paren">(</span><em>e</em>, <em>otus</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treebase.html#parse_trees"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treebase.parse_trees" title="Permalink to this definition">¶</a></dt>
-<dd><p>e is a nexml document parsed by etree</p>
+<dd><p>Get trees from an etree object</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>e: A nexml document parsed by etree</li>
+<li>otus: OTUs returned by parse_otus</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><ul class="first last simple">
+<li>A list of ivy Storage objects each containing every node of a tree.</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

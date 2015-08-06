@@ -48,16 +48,37 @@
 <span class="n">email</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
 
 <div class="viewcode-block" id="batch"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.batch">[docs]</a><span class="k">def</span> <span class="nf">batch</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
-    <span class="s">&quot;take an iterable and return it in chunks (sub-iterables)&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take an iterable and return it in chunks (sub-iterables)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        * iterable: any iterable</span>
+<span class="sd">        * size: int. Size of chunks</span>
+<span class="sd">    Yields:</span>
+<span class="sd">        * chunks of size `size`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">iter</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span> <span class="p">]</span><span class="o">*</span><span class="n">size</span>
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">izip_longest</span><span class="p">(</span><span class="n">fillvalue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="k">yield</span> <span class="n">ifilter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-        </div>
+</div>
 <div class="viewcode-block" id="extract_gbac"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.extract_gbac">[docs]</a><span class="k">def</span> <span class="nf">extract_gbac</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract genbank accession</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        * s: str. text string of genbank file</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        * List containing accession number(s)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">gbac_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;[A-Z]{1,2}[0-9]{4,7}&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">gbac_re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+    <span class="c"># RR: This also returns various other strings that match the pattern (eg.</span>
+    <span class="c"># protein ids)</span>
 </div>
 <div class="viewcode-block" id="extract_gene"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.extract_gene">[docs]</a><span class="k">def</span> <span class="nf">extract_gene</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">gene</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    RR: Not sure what format seq should be in -CZ</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="s">&quot;exon&quot;</span><span class="p">,</span> <span class="s">&quot;gene&quot;</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seq</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">t</span><span class="p">:</span>
@@ -169,7 +190,7 @@
     <span class="n">s</span> <span class="o">=</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s">&#39;genbank&#39;</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">organism_id</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">s</span>
-    </div>
+</div>
 <div class="viewcode-block" id="create_fastas"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.create_fastas">[docs]</a><span class="k">def</span> <span class="nf">create_fastas</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
     <span class="n">fastas</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([</span> <span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="nb">file</span><span class="p">(</span><span class="n">g</span><span class="o">+</span><span class="s">&quot;.fasta&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genes</span> <span class="p">])</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">seqs</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -312,7 +333,7 @@
         <span class="n">retstart</span> <span class="o">+=</span> <span class="n">batchsize</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;...done&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">seqs</span>
-    </div>
+</div>
 <div class="viewcode-block" id="seqrec_taxid"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.seqrec_taxid">[docs]</a><span class="k">def</span> <span class="nf">seqrec_taxid</span><span class="p">(</span><span class="n">seqrec</span><span class="p">):</span>
     <span class="s">&quot;extract the NCBI taxon id from a sequence record&quot;</span>
     <span class="k">for</span> <span class="n">ft</span> <span class="ow">in</span> <span class="n">seqrec</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
@@ -323,9 +344,7 @@
             <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;taxon:&#39;</span><span class="p">):</span>
                 <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">except</span><span class="p">:</span>
-        <span class="k">pass</span>
-
-    </div>
+        <span class="k">pass</span></div>
 </pre></div>
 
           </div>
