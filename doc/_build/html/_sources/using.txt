@@ -103,8 +103,10 @@ to create a deep copy.
 
     In [*]: r2 = r.copy(recurse=True) # If recurse=False, won't copy children etc.
 
-As of now, the copy function does not produce a complete tree: the nodes are not
-properly connected to each other 
+.. warning::
+
+    As of now, the copy function does not produce a complete tree: the nodes are not
+    properly connected to each other 
 
 .. sourcecode:: ipython
 
@@ -316,6 +318,9 @@ We can test if a group of leaves is monophyletic
     In [*]: r.ismono(r["Homo"], r["Pongo"], r["Galago"])
     Out[*]: False
 
+.. warning::
+    `ismono` does not return an error if an internal node is given to it,
+    but it does produce undesired results.
 
 Modifying
 =========
@@ -326,7 +331,7 @@ The Ivy Node object has many methods for modifying a tree in place.
 Removing
 --------
 
-There are two main ways to remove nodes in Ivy; collapsing and pruning
+There are two main ways to remove nodes in Ivy; collapsing and pruning.
 
 Collapsing removes a node and attaches its descendants to the node's parent.
 
@@ -392,7 +397,7 @@ Adding
 ------
 
 Our tree is looking a little sparse, so let's add some nodes back in. There
-are a few methods of adding nodes in Ivy. We will go over `biscect`,`add_child`, and `graft`
+are a few methods of adding nodes in Ivy. We will go over `biscect`, `add_child`, and `graft`
 
 Bisecting creates a 'knee' node halfway between a parent and a child.
 
@@ -478,7 +483,8 @@ output when drawn. It orders the clades by size.
 Rerooting
 ---------
 
-Currently does not work properly.
+.. warning::
+    Currently does not work properly.
 
 .. sourcecode:: ipython
 
