@@ -160,7 +160,7 @@ class Node(object):
         """
         Create ascii tree.
 
-        Args:
+        Kwargs:
             * unitlen: Float. How long each unit should be rendered as.
               Defaults to 3.
             * minwidth: Float. Minimum width of the plot. Defaults to 50
@@ -168,7 +168,6 @@ class Node(object):
             * scaled: Bool. Whether or not the tree is scaled. Defaults to False
             * show_internal_labels: Bool. Whether or not to show labels
               on internal nodes. Defaults to True.
-        RR: Does this function have kwargs? -CZ
         Returns:
             * Str. Ascii tree to be shown with print().
         """
@@ -547,7 +546,7 @@ class Node(object):
             * A list of node objects whose labels were matched by s.
 
         """
-        return [ x for x in self.grep(s) if x.isleaf ]
+        return [ x for x in self.grep(s, ignorecase=ignorecase) if x.isleaf ]
 
     def bgrep(self, s, ignorecase=True):
         """
@@ -562,7 +561,8 @@ class Node(object):
             * A list of node objects whose labels were matched by s.
 
         """
-        return [ x for x in self.grep(s) if (not x.isleaf) ]
+        return [ x for x in self.grep(s, ignorecase=ignorecase) if
+               (not x.isleaf) ]
 
     def find(self, f, *args, **kwargs):
         """
