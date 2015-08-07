@@ -1,0 +1,342 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.treegraph_experimental module &mdash; ivy  documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy  documentation" href="index.html" />
+    <link rel="up" title="ivy package" href="ivy.html" />
+    <link rel="prev" title="ivy.treebase module" href="ivy.treebase.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ivy.treegraph_experimental">
+<span id="ivy-treegraph-experimental-module"></span><h1>ivy.treegraph_experimental module<a class="headerlink" href="#module-ivy.treegraph_experimental" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph">
+<em class="property">class </em><code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">TaxonomyGraph</code><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>g is a graph_tool.Graph of vertices (taxa) and edges
+(parent-&gt;child relationships).</p>
+<dl class="docutils">
+<dt>vertex properties:</dt>
+<dd>name (string)
+rank (string)
+taxid (int),
+istaxon (bool)
+dubious (bool)
+incertae sedis (bool),
+collapsed (bool)
+snode (int)
+stree (vector&lt;int&gt;)
+stem_cdef (vector&lt;int)</dd>
+<dt>edge properties:</dt>
+<dd>istaxon (bool)
+stree (vector&lt;int&gt;)</dd>
+</dl>
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.add_edge">
+<code class="descname">add_edge</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.add_edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.add_edge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.edge">
+<code class="descname">edge</code><span class="sig-paren">(</span><em>s</em>, <em>t</em>, <em>all_edges=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.edge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.edges">
+<code class="descname">edges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.edges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.load_from_GML">
+<em class="property">static </em><code class="descname">load_from_GML</code><span class="sig-paren">(</span><em>source</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.load_from_GML"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.load_from_GML" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.map_stree">
+<code class="descname">map_stree</code><span class="sig-paren">(</span><em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.map_stree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.map_stree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Traverse the tree <cite>root</cite> and assign taxon ids (taxids) to its
+nodes, as well as other information, e.g. whether a leaf is
+&#8216;incertae sedis&#8217; within a higher taxon, and how nodes conflict
+with the taxonomy.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.merge_stree">
+<code class="descname">merge_stree</code><span class="sig-paren">(</span><em>root</em>, <em>stree</em>, <em>verts=None</em>, <em>edges=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.merge_stree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.merge_stree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.new_edge_property">
+<code class="descname">new_edge_property</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.new_edge_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.new_edge_property" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.new_from_NCBI_taxdump">
+<em class="property">static </em><code class="descname">new_from_NCBI_taxdump</code><span class="sig-paren">(</span><em>basepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.new_from_NCBI_taxdump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.new_from_NCBI_taxdump" title="Permalink to this definition">¶</a></dt>
+<dd><p>create a TaxonomyGraph containing the NCBI taxonomic hierarchy
+using files from:</p>
+<p><a class="reference external" href="ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz">ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz</a></p>
+<p>which are assumed to be unpacked in the directory <code class="docutils literal"><span class="pre">basepath</span></code></p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.new_from_graph">
+<em class="property">static </em><code class="descname">new_from_graph</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.new_from_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.new_from_graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.new_vertex_property">
+<code class="descname">new_vertex_property</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.new_vertex_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.new_vertex_property" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.taxid_dubious">
+<code class="descname">taxid_dubious</code><span class="sig-paren">(</span><em>taxid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.taxid_dubious"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.taxid_dubious" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.taxid_hindex">
+<code class="descname">taxid_hindex</code><span class="sig-paren">(</span><em>taxid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.taxid_hindex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.taxid_hindex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.taxid_name">
+<code class="descname">taxid_name</code><span class="sig-paren">(</span><em>taxid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.taxid_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.taxid_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.taxid_new_subgraph">
+<code class="descname">taxid_new_subgraph</code><span class="sig-paren">(</span><em>taxids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.taxid_new_subgraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.taxid_new_subgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>create a new TaxonomyGraph based on a copy of self.g</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.taxid_subgraph">
+<code class="descname">taxid_subgraph</code><span class="sig-paren">(</span><em>taxids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.taxid_subgraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.taxid_subgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>create a new TaxonomyGraph based on a filtered view of self.g</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.vertex">
+<code class="descname">vertex</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.vertex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.vertex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.vertices">
+<code class="descname">vertices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.vertices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.vertices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.TaxonomyGraph.view">
+<code class="descname">view</code><span class="sig-paren">(</span><em>vfilt=None</em>, <em>efilt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#TaxonomyGraph.view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.TaxonomyGraph.view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.treegraph_experimental.Traverser">
+<em class="property">class </em><code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">Traverser</code><span class="sig-paren">(</span><em>pre=None</em>, <em>post=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#Traverser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.Traverser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">graph_tool.search.DFSVisitor</span></code></p>
+<dl class="method">
+<dt id="ivy.treegraph_experimental.Traverser.discover_vertex">
+<code class="descname">discover_vertex</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#Traverser.discover_vertex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.Traverser.discover_vertex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.treegraph_experimental.Traverser.finish_vertex">
+<code class="descname">finish_vertex</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#Traverser.finish_vertex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.Traverser.finish_vertex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.articulation_bfs">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">articulation_bfs</code><span class="sig-paren">(</span><em>g</em>, <em>root</em>, <em>arts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#articulation_bfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.articulation_bfs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.bicomp_tree">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">bicomp_tree</code><span class="sig-paren">(</span><em>g</em>, <em>rootv</em>, <em>arts</em>, <em>traversed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#bicomp_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.bicomp_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate tree of biconnected components of DAG</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.create_ncbi_taxonomy_graph">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">create_ncbi_taxonomy_graph</code><span class="sig-paren">(</span><em>basepath='ncbi'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#create_ncbi_taxonomy_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.create_ncbi_taxonomy_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>create a graph containing the NCBI taxonomic hierarchy using files from:</p>
+<p><a class="reference external" href="ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz">ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz</a></p>
+<p>which are assumed to be unpacked in the directory <code class="docutils literal"><span class="pre">basepath</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.get_or_create_ep">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">get_or_create_ep</code><span class="sig-paren">(</span><em>g</em>, <em>name</em>, <em>ptype</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#get_or_create_ep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.get_or_create_ep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.get_or_create_vp">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">get_or_create_vp</code><span class="sig-paren">(</span><em>g</em>, <em>name</em>, <em>ptype</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#get_or_create_vp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.get_or_create_vp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.graph2sqlite">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">graph2sqlite</code><span class="sig-paren">(</span><em>g</em>, <em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#graph2sqlite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.graph2sqlite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.graph_json">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">graph_json</code><span class="sig-paren">(</span><em>g</em>, <em>dist=None</em>, <em>pos=None</em>, <em>ecolor=None</em>, <em>ewidth=None</em>, <em>vcolor=None</em>, <em>vsize=None</em>, <em>vtext=None</em>, <em>fp=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#graph_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.graph_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.graph_view">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">graph_view</code><span class="sig-paren">(</span><em>g</em>, <em>vfilt=None</em>, <em>efilt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#graph_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.graph_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.index_graph">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">index_graph</code><span class="sig-paren">(</span><em>g</em>, <em>reindex=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#index_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.index_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>create a vertex property map with hierarchical (left, right)
+indices</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.layout">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">layout</code><span class="sig-paren">(</span><em>G</em>, <em>g</em>, <em>rootv</em>, <em>sfdp=True</em>, <em>deg0=-45.0</em>, <em>degspan=90.0</em>, <em>radius=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.load_taxonomy_graph">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">load_taxonomy_graph</code><span class="sig-paren">(</span><em>source</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#load_taxonomy_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.load_taxonomy_graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.map_stree">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">map_stree</code><span class="sig-paren">(</span><em>G</em>, <em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#map_stree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.map_stree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.merge_stree">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">merge_stree</code><span class="sig-paren">(</span><em>G</em>, <em>root</em>, <em>stree</em>, <em>verts=None</em>, <em>edges=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#merge_stree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.merge_stree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.rootpath_mrca">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">rootpath_mrca</code><span class="sig-paren">(</span><em>rootpaths</em>, <em>i=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#rootpath_mrca"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.rootpath_mrca" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.taxid_cmp">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">taxid_cmp</code><span class="sig-paren">(</span><em>g</em>, <em>t1</em>, <em>t2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#taxid_cmp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.taxid_cmp" title="Permalink to this definition">¶</a></dt>
+<dd><p>taxids: if t1 is nested in t2, return t1 before t2</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.taxid_new_subgraph">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">taxid_new_subgraph</code><span class="sig-paren">(</span><em>g</em>, <em>taxids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#taxid_new_subgraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.taxid_new_subgraph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.taxid_rootpath">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">taxid_rootpath</code><span class="sig-paren">(</span><em>G</em>, <em>taxid</em>, <em>stop=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#taxid_rootpath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.taxid_rootpath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.taxid_subgraph">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">taxid_subgraph</code><span class="sig-paren">(</span><em>g</em>, <em>taxids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#taxid_subgraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.taxid_subgraph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.treegraph_experimental.taxonomy_subtree">
+<code class="descclassname">ivy.treegraph_experimental.</code><code class="descname">taxonomy_subtree</code><span class="sig-paren">(</span><em>G</em>, <em>v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treegraph_experimental.html#taxonomy_subtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treegraph_experimental.taxonomy_subtree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="ivy.html">ivy package</a><ul>
+      <li>Previous: <a href="ivy.treebase.html" title="previous chapter">ivy.treebase module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.treegraph_experimental.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/ivy.treegraph_experimental.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
