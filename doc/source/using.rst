@@ -69,16 +69,16 @@ Trees in Ivy
 =============
 
 Ivy does not have a tree class per se; rather trees in Ivy exist as collections
-of nodes. in Ivy, a Node is a class that contains information about that node. 
+of nodes. In Ivy, a Node is a class that contains information about a node. 
 Nodes are rooted and recursively contain their children. Functions
-in Ivy act directly on Node objects. Nodes support Python idioms such as `in`, 
-`[`, iteration, etc. This guide will cover how to read, view, navigate, modify, 
+in Ivy act directly on Node objects. Nodes support Python idioms such as ``in``, 
+``[``, iteration, etc. This guide will cover how to read, view, navigate, modify, 
 and write trees in Ivy.
 
-Reading Trees
-=============
+Reading
+-------
 
-You can read in trees using Ivy's `tree.read` function. This function supports 
+You can read in trees using Ivy's ``tree.read`` function. This function supports 
 newick and nexus files. The tree.read function can take a file name, a file
 object, or a Newick string as input. The output of this function is the root
 node of the tree.
@@ -95,8 +95,8 @@ node of the tree.
                 "B:0.13,Ateles:0.62)C:0.38,Galago:1.00)root;")
     In [*]: # These three methods are identical
 
-You can copy a read tree using the `copy` method on the root node. Node
-objects are mutable, so this method is preferred over r2 = r if you want
+You can copy a read tree using the ``copy`` method on the root node. Node
+objects are mutable, so this method is preferred over ``r2 = r`` if you want
 to create a deep copy.
 
 .. sourcecode:: ipython
@@ -113,8 +113,8 @@ to create a deep copy.
     In [*]: print r2["A"].parent
     None
 
-Viewing Trees
-=============
+Viewing
+-------
 
 There are a number of ways you can view trees in Ivy. For a simple display
 without needing to create a plot, Ivy can create ascii trees that can be
@@ -134,7 +134,7 @@ printed to the console.
         ------------------------------------+ Galago 
  
 For a more detailed and interactive tree, Ivy can create a plot using 
-`Matplotlib`. More detail about visualization using Matplotlib will follow
+``Matplotlib``. More detail about visualization using Matplotlib will follow
 later in the guide.
 
 .. sourcecode:: ipython
@@ -143,7 +143,10 @@ later in the guide.
     In [*]: fig = ivy.vis.tree.TreeFigure(r)
     In [*]: fig.show()
 
-You can also create a plot using`Bokeh`.
+.. image:: _images/primate_mpl.png
+
+
+You can also create a plot using ``Bokeh``.
 
 .. sourcecode:: ipython
 
@@ -151,10 +154,12 @@ You can also create a plot using`Bokeh`.
     In [*]: fig2 = ivy.vis.bokehtree.BokehTree(r)
     In [*]: fig2.drawtree()
 
+.. image:: _images/primate_bokeh.png
+
 .. TODO: embed plot images
 
-Navigating Trees
-================
+Navigating
+----------
 
 A node in Ivy is a container. It recursively contains its descendants, 
 as well as itself. You can navigate a tree using the Python idioms that
@@ -216,8 +221,8 @@ ancestor node).
     Out[*]: Node(139624003155536, 'C')
 
 We can access the information a node has about which other nodes it is
-connected to using the `children` and `parent` attributes, which return
-the nodes directly connected to the current node. The `descendants` method, on
+connected to using the ``children`` and ``parent`` attributes, which return
+the nodes directly connected to the current node. The ``descendants`` method, on
 the other hand, recursively lists all descendants of a node (not including 
 the node itself)
 
@@ -258,8 +263,8 @@ We can also grep leaf nodes and internal nodes specifically.
 
 
 We can also search for nodes that match a certain criterion using the
-`find` method. `find` takes a function that takes a node as its
-first argument and returns a `bool`.
+``find`` method. ``find`` takes a function that takes a node as its
+first argument and returns a ``bool``.
 
 .. sourcecode:: ipython
 
@@ -276,7 +281,7 @@ first argument and returns a `bool`.
 
 
 Testing
-=======
+-------
 
 We can test many attributes of a node in Ivy.
 
@@ -323,13 +328,13 @@ We can test if a group of leaves is monophyletic
     but it does produce undesired results.
 
 Modifying
-=========
+---------
 
 The Ivy Node object has many methods for modifying a tree in place.
 
 
 Removing
---------
+~~~~~~~~
 
 There are two main ways to remove nodes in Ivy; collapsing and pruning.
 
@@ -389,15 +394,15 @@ tree retain some of their original attributes, including their indices:
     Out[*]: Node(140144821292368, leaf, 'Ateles') 
 
 To recap: 
-#. `collapse` removes a node and adds its descendants to its parent
-#. `prune` removes a node and also removes its descendants
-#. `excise` removes 'knees'
+#. ``collapse`` removes a node and adds its descendants to its parent
+#. ``prune`` removes a node and also removes its descendants
+#. ``excise`` removes 'knees'
 
 Adding
-------
+~~~~~~
 
 Our tree is looking a little sparse, so let's add some nodes back in. There
-are a few methods of adding nodes in Ivy. We will go over `biscect`, `add_child`, and `graft`
+are a few methods of adding nodes in Ivy. We will go over ``biscect``, ``add_child``, and ``graft``
 
 Bisecting creates a 'knee' node halfway between a parent and a child.
 
@@ -421,7 +426,7 @@ it using its ID instead (if you're following along, your ID will be different).
 
     In [*]: r[140144821654480].label = "N"
 
-Now let's add a node as a child of N. We can do this using the `add_child` method.
+Now let's add a node as a child of N. We can do this using the ``add_child`` method.
 
 .. sourcecode:: ipython
 
@@ -433,7 +438,7 @@ Now let's add a node as a child of N. We can do this using the `add_child` metho
         -----------------N+                          
                           ------------------+ Homo 
 
-We can also add nodes with `graft`. `graft` adds a node as a sibling to the
+We can also add nodes with ``graft``. ``graft`` adds a node as a sibling to the
 current node. In doing so, it also adds a new node as parent to both nodes.
 
 .. sourcecode:: ipython
@@ -454,13 +459,13 @@ current node. In doing so, it also adds a new node as parent to both nodes.
 
 To recap:
 
-#. `bisect_branch` adds 'knees'
-#. `add_child` adds a node as a child to the current node
-#. `graft` adds a node as a sister to the current node, and also adds a parent.
+#. ``bisect_branch`` adds 'knees'
+#. ``add_child`` adds a node as a child to the current node
+#. ``graft`` adds a node as a sister to the current node, and also adds a parent.
 
 
 Ladderizing
------------
+~~~~~~~~~~~
 
 Ladderizing non-destructively changes the tree so that it has a nicer-looking
 output when drawn. It orders the clades by size.
@@ -481,7 +486,7 @@ output when drawn. It orders the clades by size.
 
 
 Rerooting
----------
+~~~~~~~~~
 
 .. warning::
     Currently does not work properly.
@@ -497,10 +502,10 @@ Rerooting
     In [*]: print r.ascii() # Raises a KeyError
 
 Writing
-=======
+-------
 
 Once you are done modifying your tree, you will probably want to save it.
-You can save your trees with the `write` function. This function
+You can save your trees with the ``write`` function. This function
 takes a root node and an open file object as inputs. This function can
 currently only write in newick format.
 
@@ -512,13 +517,122 @@ currently only write in newick format.
     In [*]: f.close()
 
 
+Using Treebase
+==============
+
+``ivy`` has functions to pull trees from `Treebase <http://treebase.org/treebase-web/about.html;jsessionid=5B7D6A265E17EFAB9565327D3A78CD4B>`_.
 
 
+Fetching the study
+------------------
+
+If you have an id for a study on treebase, you can fetch the study and 
+access the trees contained within the study.
+
+.. sourcecode:: ipython
+
+    In [1]: import ivy
+    In [2]: from ivy.treebase import fetch_study
+    In [3]: study_id = "1411" # The leafy cactus genus Pereskia
+    In [4]: e = fetch_study(study_id, 'nexml') # e is an lxml etree
 
 
+Accessing the tree
+------------------
+
+You can parse the output of fetch_study using the parse_nexml function,
+ then access the tree(s) contained within the study.
+
+.. sourcecode:: ipython
+
+    In [5]: from ivy.treebase import parse_nexml
+    In [6]: x = parse_nexml(e) # x is an ivy Storage object
+    In [7]: r = x.trees[0].root
+    In [8]: from ivy.interactive import treefig
+    In [9]: fig = treefig(r)
 
 
+Performing analyses
+===================
 
+``ivy`` has many tools for performing analyses on trees. Here we will cover 
+a few analyses you can perform.
+
+Phylogenetically Independent Contrasts
+--------------------------------------
+
+You can perform PICs using ``ivy``'s ``PIC`` function. This function takes a
+root node and a dictionary mapping node labels to character traits as inputs
+and outputs a dictionary mappinginternal nodes to tuples containing ancestral
+state, its variance (error), the contrast, and the contrasts's variance. 
+
+Note: This function requires that the root node have a length
+Note: this function currently cannot handle polytomies
+
+.. sourcecode:: ipython
+
+    In [*]: import ivy
+    In [*]: r = ivy.tree.read("examples/primates.newick")
+    In [*]: r.length = 0.0 # Setting the root length to 0
+    In [*]: char1 = {
+                    "Homo": 4.09434,
+                    "Pongo": 3.61092,
+                    "Macaca": 2.37024,
+                    "Ateles": 2.02815,
+                    "Galago": -1.46968
+                    }
+    In [*]: c = ivy.contrasts.PIC(r, char1)
+    In [*]: for k,v in c.items():
+                print k.label, v
+    root (1.1837246133953971, 0.3757434703904836, 4.25050357912179, 1.6019055509527755)
+    A (3.85263, 0.385, 0.48341999999999974, 0.42)
+    B (3.2003784000000004, 0.3456, 1.48239, 0.875)
+    C (2.78082357912179, 0.6019055509527755, 1.1722284000000003, 0.9656)
+
+
+Lineages Through Time
+---------------------
+
+``ivy`` has functions for computing LTTs. The ``ltt`` function takes a root
+node as input and returns a tuple of 1D-arrays containing the results of 
+times and diverisities.
+
+Note: The tree is expected to be an ultrametric chromogram (extant leaves,
+branch lengths proportional to time).
+
+.. sourcecode:: ipython
+
+    In [*]: import ivy
+    In [*]: r = ivy.tree.read("examples/primates.newick")
+    In [*]: v = ivy.ltt(r)
+    In [*]: print r.ascii()
+                                   ---------+ Homo   
+                          --------A+                 
+                 --------B+        ---------+ Pongo  
+                 :        :                          
+        --------C+        ------------------+ Macaca 
+        :        :                                   
+    root+        ---------------------------+ Ateles 
+        :                                            
+        ------------------------------------+ Galago 
+    In [*]: for i in l:
+                print i
+    [ 0.    0.38  0.51  0.79]
+    [ 1.  2.  3.  4.]
+
+
+You can plot your results using ``Matplotlib``.
+
+    
+.. sourcecode:: ipython
+
+    In [*]: import matplotlib.pyplot as plt
+    In [*]: plt.step(v[0], v[1])
+    In [*]: plt.margins(.2, .2)
+    In [*]: plt.xlabel("Time"); plt.ylabel("Lineages"); plt.title("LTT")
+    In [*]: plt.show()
+
+.. image:: _images/ltt.png
 
 
 

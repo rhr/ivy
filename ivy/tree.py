@@ -208,6 +208,8 @@ class Node(object):
             * Node object that is a copy of self.
 
         TODO: test this function.
+
+        RR: This function runs rather slowly -CZ
         """
         newnode = Node()
         for attr, value in self.__dict__.items():
@@ -302,6 +304,8 @@ class Node(object):
         Returns:
             * Bool. Are the leaf descendants monophyletic?
 
+        RR: Should this function have a check to make sure the input nodes are
+        leaves? There is some strange behavior if you input internal nodes -CZ
         """
         if len(leaves) == 1:
             leaves = list(leaves)[0]
@@ -336,7 +340,7 @@ class Node(object):
 
     def add_child(self, child):
         """
-        Add child as sister to self
+        Add child as child of self
 
         Args:
             * child: A node object
@@ -436,7 +440,7 @@ class Node(object):
               node as the first input
 
         Yields:
-            * Nodes descended from self (including self)
+            * Nodes descended from self (including self) in preorder sequence
 
         """
         if (f and f(self)) or (not f):
@@ -976,7 +980,8 @@ def read(data, format=None, treename=None, ttable=None):
     methods. *treename* is an optional string that will be attached to
     all created nodes.
 
-    Returns: *root*, the root node.
+    Returns:
+        * *root*, the root node.
     """
     import newick
     StringTypes = types.StringTypes

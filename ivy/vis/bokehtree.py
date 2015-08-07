@@ -174,7 +174,7 @@ class BokehTree(object):
 
 		Args:
 		    * x: A str or list of strs or node or list of nodes.
-			* colors: str. The color of the highlighted nodes. Optional,
+			* color: str. The color of the highlighted nodes. Optional,
 			  defaults to red
 			* width: int. The width of the highlighted branches. Optional,
 			  defaults to 3.

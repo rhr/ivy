@@ -17,9 +17,6 @@ scipy, and numpy.
 
    Downloading and Installing <install>
    Users's Guide <using>
-   Trees in Ivy <tree>
-   Using Treebase <usingtreebase>
-   Ivy's Api <apiindex>
 
 Motivation
 ==========
