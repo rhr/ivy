@@ -25,8 +25,11 @@ def depth_length_preorder_traversal(node, n2coords=None):
     """
     Calculate node depth (root = depth 0) and length to root
 
-    Returns: Dict mapping nodes to coordinates instances. Coordinate
-             instances have attributes "depth" and "length_to_root"
+    Args:
+        node (Node): A node object.
+    Returns:
+        dict: Mapping of nodes to coordinates instances. Coordinate
+        instances have attributes "depth" and "length_to_root"
     """
     if n2coords is None:
         n2coords = {}
@@ -62,18 +65,18 @@ def calc_node_positions(node, radius=1.0, pole=None,
     polar tree
 
     Args:
-        * node: A (root) node
-        * radius: Float. The radius of the tree. Optional, defaults to 1
-        * pole: Tuple of floats.. The cartesian coordinate of the pole.
+        node (Node): A (root) node
+        radius (float): The radius of the tree. Optional, defaults to 1
+        pole (tuple): Tuple of floats. The cartesian coordinate of the pole.
           Optional, defaults to None.
-        * end: Float. Where the tree ends. For best results, between 0 and 360.
+        end (float): Where the tree ends. For best results, between 0 and 360.
           Optional, defaults to None.
-        * direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is
+        direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is
           drawn. Optional, defaults to COUNTERCLOCKWISE
-        * scaled: Bool. Whether or not the tree is scaled. Optional, defaults
+        scaled (bool): Whether or not the tree is scaled. Optional, defaults
           to False.
     Returns:
-        * Dict mapping nodes to Coordinates object
+        dict: Mapping of nodes to Coordinates object
     """
     leaves = node.leaves()
     nleaves = len(leaves)

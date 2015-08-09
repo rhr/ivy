@@ -8,7 +8,7 @@
     
     <title>ivy.treebase &mdash; ivy  documentation</title>
     
-    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -24,13 +24,22 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="ivy  documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="up" title="Module code" href="../index.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -73,12 +82,14 @@
 <span class="sd">    Get a study from treebase in one of various formats</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * study_id: Str. The id of the study</span>
-<span class="sd">        * format: Str.  One of [&quot;rdf&quot;, &quot;html&quot;, &quot;nexml&quot;, &quot;nexus&quot;]</span>
+<span class="sd">        study_id (str): The id of the study</span>
+<span class="sd">        format (str):  One of [&quot;rdf&quot;, &quot;html&quot;, &quot;nexml&quot;, &quot;nexus&quot;]</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        * Str representing a nexus file (if format = &quot;nexus&quot;)</span>
+<span class="sd">        Str representing a nexus file (if format = &quot;nexus&quot;)</span>
+
 <span class="sd">        OR</span>
-<span class="sd">        * An lxml etree object</span>
+
+<span class="sd">        An lxml etree object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span> <span class="n">study_id</span> <span class="o">=</span> <span class="s">&quot;S</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">study_id</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="k">pass</span>
@@ -131,10 +142,11 @@
 <span class="sd">    Get trees from an etree object</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * e: A nexml document parsed by etree</span>
-<span class="sd">        * otus: OTUs returned by parse_otus</span>
+<span class="sd">        e: A nexml document parsed by etree</span>
+<span class="sd">        otus: OTUs returned by parse_otus</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        * A list of ivy Storage objects each containing every node of a tree.</span>
+<span class="sd">        list: A list of ivy Storage objects each</span>
+<span class="sd">          containing every node of a tree.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">tree</span> <span class="kn">import</span> <span class="n">Node</span>
     <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
@@ -172,9 +184,9 @@
 <span class="sd">    Get OTUs from an etree object</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * e: A nexml document parsed by etree</span>
+<span class="sd">        e: A nexml document parsed by etree</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        * A dict mapping keys to OTUs contained in ivy Storage objects</span>
+<span class="sd">        dict: A dict mapping keys to OTUs contained in ivy Storage objects</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">v</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">otus</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">NEXML</span><span class="o">+</span><span class="s">&quot;otus&quot;</span><span class="p">):</span>
@@ -202,10 +214,10 @@
 <span class="sd">    Parse an etree ElementTree</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * doc: An etree ElementTree or a file that can be parsed into</span>
+<span class="sd">        doc: An etree ElementTree or a file that can be parsed into</span>
 <span class="sd">          an etree ElementTree with etree.parse</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        * An ivy Storage object containing all the information from the</span>
+<span class="sd">        An ivy Storage object containing all the information from the</span>
 <span class="sd">          nexml file: Characters, metadata, OTUs, and trees.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">_ElementTree</span><span class="p">,</span> <span class="n">etree</span><span class="o">.</span><span class="n">_Element</span><span class="p">)):</span>
@@ -232,7 +244,7 @@
                    <span class="n">trees</span> <span class="o">=</span> <span class="n">parse_trees</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">otus</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="parse_states"><a class="viewcode-back" href="../../ivy.treebase.html#ivy.treebase.parse_states">[docs]</a><span class="k">def</span> <span class="nf">parse_states</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="s">&quot;e is a characters element&quot;</span>
+    <span class="sd">&quot;&quot;&quot;e is a characters element&quot;&quot;&quot;</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">NEXML</span><span class="o">+</span><span class="s">&quot;format&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">sts</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">NEXML</span><span class="o">+</span><span class="s">&quot;states&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">states2symb</span> <span class="o">=</span> <span class="p">{}</span>
@@ -290,15 +302,7 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../index.html">Documentation overview</a><ul>
-  <li><a href="../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
@@ -316,17 +320,22 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Author.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

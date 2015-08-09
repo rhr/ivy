@@ -8,7 +8,7 @@
     
     <title>ivy.layout_polar &mdash; ivy  documentation</title>
     
-    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -24,13 +24,22 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="ivy  documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="up" title="Module code" href="../index.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -45,9 +54,9 @@
 <span class="n">COUNTERCLOCKWISE</span> <span class="o">=</span> <span class="mi">1</span>
 
 <div class="viewcode-block" id="Coordinates"><a class="viewcode-back" href="../../ivy.layout_polar.html#ivy.layout_polar.Coordinates">[docs]</a><span class="k">class</span> <span class="nc">Coordinates</span><span class="p">:</span>
-<div class="viewcode-block" id="Coordinates.__init__"><a class="viewcode-back" href="../../ivy.html#ivy.layout_polar.Coordinates.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
-</div></div>
+</div>
 <div class="viewcode-block" id="smooth_xpos"><a class="viewcode-back" href="../../ivy.layout_polar.html#ivy.layout_polar.smooth_xpos">[docs]</a><span class="k">def</span> <span class="nf">smooth_xpos</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">n2coords</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isleaf</span><span class="p">:</span>
         <span class="n">children</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span>
@@ -65,8 +74,11 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate node depth (root = depth 0) and length to root</span>
 
-<span class="sd">    Returns: Dict mapping nodes to coordinates instances. Coordinate</span>
-<span class="sd">             instances have attributes &quot;depth&quot; and &quot;length_to_root&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        node (Node): A node object.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Mapping of nodes to coordinates instances. Coordinate</span>
+<span class="sd">        instances have attributes &quot;depth&quot; and &quot;length_to_root&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">n2coords</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">n2coords</span> <span class="o">=</span> <span class="p">{}</span>
@@ -102,18 +114,18 @@
 <span class="sd">    polar tree</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * node: A (root) node</span>
-<span class="sd">        * radius: Float. The radius of the tree. Optional, defaults to 1</span>
-<span class="sd">        * pole: Tuple of floats.. The cartesian coordinate of the pole.</span>
+<span class="sd">        node (Node): A (root) node</span>
+<span class="sd">        radius (float): The radius of the tree. Optional, defaults to 1</span>
+<span class="sd">        pole (tuple): Tuple of floats. The cartesian coordinate of the pole.</span>
 <span class="sd">          Optional, defaults to None.</span>
-<span class="sd">        * end: Float. Where the tree ends. For best results, between 0 and 360.</span>
+<span class="sd">        end (float): Where the tree ends. For best results, between 0 and 360.</span>
 <span class="sd">          Optional, defaults to None.</span>
-<span class="sd">        * direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is</span>
+<span class="sd">        direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is</span>
 <span class="sd">          drawn. Optional, defaults to COUNTERCLOCKWISE</span>
-<span class="sd">        * scaled: Bool. Whether or not the tree is scaled. Optional, defaults</span>
+<span class="sd">        scaled (bool): Whether or not the tree is scaled. Optional, defaults</span>
 <span class="sd">          to False.</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        * Dict mapping nodes to Coordinates object</span>
+<span class="sd">        dict: Mapping of nodes to Coordinates object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">leaves</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">leaves</span><span class="p">()</span>
     <span class="n">nleaves</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">leaves</span><span class="p">)</span>
@@ -229,15 +241,7 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../index.html">Documentation overview</a><ul>
-  <li><a href="../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
@@ -255,17 +259,22 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Author.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

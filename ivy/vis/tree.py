@@ -182,11 +182,11 @@ class TreeFigure(object):
         Add a new tree in a new window
 
         Args:
-            * data: A node object or tree file.
-            * name: Name of the plot. Defaults to None
-            * branchlabels: Bool. Whether or not to draw branch labels.
+            data: A node object or tree file.
+            name (str): Name of the plot. Defaults to None
+            branchlabels (bool): Whether or not to draw branch labels.
               Defaults to False
-            * leaflabels: Bool. Whether or not to draw leaf labels.
+            leaflabels (bool): Whether or not to draw leaf labels.
               Defaults to True
         """
         newfig = MultiTreeFigure()
@@ -239,7 +239,7 @@ class TreeFigure(object):
         Define whether or not the tree is scaled and redraw tree
 
         Args:
-            * scaled. Bool. Whether or not the tree is scaled.
+            scaled (bool): Whether or not the tree is scaled.
         """
         for p in self.overview, self.detail:
             p.redraw(p.set_scaled(scaled))
@@ -333,9 +333,9 @@ class TreeFigure(object):
         Find nodes
 
         Args:
-            * x: A string
+            x (str): String to search
         Returns:
-            A list of node objects found with the Node findall() method
+            list: A list of node objects found with the Node findall() method
         """
         return self.root.findall(x)
 
@@ -344,11 +344,11 @@ class TreeFigure(object):
         Highlight nodes
 
         Args:
-            * nodes: A list of node objects
-            * width: Float. Width of highlighted lines. Defaults to 5
-            * color: Str. Color of highlighted lines. Defaults to red
-            * xoff: Float. Number of units to offset lines by. Defaults to 0
-            * yoff: Float. Number of units to offset lines by. Defaults to 0
+            nodes (list): A list of node objects
+            width (float): Width of highlighted lines. Defaults to 5
+            color (str): Color of highlighted lines. Defaults to red
+            xoff (float): Number of units to offset lines by. Defaults to 0
+            yoff (float): Number of units to offset lines by. Defaults to 0
         """
         self.overview.hlines(nodes, width=width, color=color,
                              xoff=xoff, yoff=yoff)
@@ -360,9 +360,9 @@ class TreeFigure(object):
         Highlight nodes
 
         Args:
-            * x: Str or list of Strs or Node or list of Nodes
-            * width: Float. Width of highlighted lines. Defaults to 5
-            * color: Str. Color of highlighted lines. Defaults to red
+            x: Str or list of Strs or Node or list of Nodes
+            width (float): Width of highlighted lines. Defaults to 5
+            color (str): Color of highlighted lines. Defaults to red
         """
         if x:
             nodes = set()
@@ -399,24 +399,24 @@ class TreeFigure(object):
         Zoom to fit a node *x* and all its descendants in the view.
 
         Args:
-            * x: Node or str that matches the label of a node
+            x: Node or str that matches the label of a node
         """
         if not isinstance(x, tree.Node):
             x = self.root[x]
         self.detail.zoom_clade(x)
 
     def zoom(self, factor=0.1):
-        "Zoom both axes by *factor* (relative display size)."
+        """Zoom both axes by *factor* (relative display size)."""
         self.detail.zoom(factor, factor)
         self.figure.canvas.draw_idle()
 
     def zx(self, factor=0.1):
-        "Zoom x axis by *factor*."
+        """Zoom x axis by *factor*."""
         self.detail.zoom(factor, 0)
         self.figure.canvas.draw_idle()
 
     def zy(self, factor=0.1):
-        "Zoom y axis by *factor*."
+        """Zoom y axis by *factor*."""
         self.detail.zoom(0, factor)
         self.figure.canvas.draw_idle()
 
@@ -425,7 +425,7 @@ class TreeFigure(object):
         Decorate the tree.
 
         Args:
-            * func: A function that takes a TreePlot instance as the
+            func (function): A function that takes a TreePlot instance as the
               first parameter, and *args* and *kwargs* as additional
               parameters.  It adds boxes, circles, etc to the TreePlot.
 
@@ -670,11 +670,11 @@ class MultiTreeFigure(object):
         Highlight nodes
 
         Args:
-            * s: Str or list of Strs or Node or list of Nodes
-            * add: Bool. Whether to add to existing highlighted nodes or
+            s: Str or list of Strs or Node or list of Nodes
+            add (bool): Whether to add to existing highlighted nodes or
               overwrite them.
-            * width: Float. Width of highlighted lines. Defaults to 5
-            * color: Str. Color of highlighted lines. Defaults to red
+            width (float): Width of highlighted lines. Defaults to 5
+            color (str): Color of highlighted lines. Defaults to red
         """
         if not s:
             self.highlighted = set()
@@ -839,7 +839,7 @@ class Tree(Axes):
         Save tree as a newick file.
 
         Args:
-            * filename: str. Path to file.
+            filename (str): Path to file.
 
         """
         if os.path.exists(filename):
@@ -869,14 +869,14 @@ class Tree(Axes):
         *label* is ``None`` then the clade's label is used instead.
 
         Args:
-            * nodes: Node or list of nodes
-            * color: Str. Color of the bar. Optional, defaults to None.
-            * label: Str. Optional label for bar. If None, the clade's
+            nodes: Node or list of nodes
+            color (str): Color of the bar. Optional, defaults to None.
+            label (str): Optional label for bar. If None, the clade's
               label is used instead. Defaults to None.
-            * Width: Float. Width of bar
-            * xoff: Float. Offset from label to bar
-            * showlabel: Bool. Whether or not to draw the label
-            * mrca: RR: Not quite sure what this does -CZ
+            width (float): Width of bar
+            xoff (float): Offset from label to bar
+            showlabel (bool): Whether or not to draw the label
+            mrca: RR: Not quite sure what this does -CZ
 
         """
         xlim = self.get_xlim(); ylim = self.get_ylim()

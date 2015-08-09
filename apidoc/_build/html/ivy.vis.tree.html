@@ -8,7 +8,7 @@
     
     <title>ivy.vis.tree module &mdash; ivy  documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -26,13 +26,29 @@
     <link rel="top" title="ivy  documentation" href="index.html" />
     <link rel="up" title="ivy.vis package" href="ivy.vis.html" />
     <link rel="next" title="ivy.ages module" href="ivy.ages.html" />
-    <link rel="prev" title="ivy.vis.symbols module" href="ivy.vis.symbols.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="prev" title="ivy.vis.symbols module" href="ivy.vis.symbols.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.ages.html" title="ivy.ages module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.symbols.html" title="ivy.vis.symbols module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" >Ivy Apidoc</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.vis.html" accesskey="U">ivy.vis package</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -73,17 +89,21 @@
 <dt id="ivy.vis.tree.MultiTreeFigure.highlight">
 <code class="descname">highlight</code><span class="sig-paren">(</span><em>s=None</em>, <em>add=False</em>, <em>width=5</em>, <em>color='red'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#MultiTreeFigure.highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.MultiTreeFigure.highlight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Highlight nodes</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>s: Str or list of Strs or Node or list of Nodes</li>
-<li>add: Bool. Whether to add to existing highlighted nodes or
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; Str or list of Strs or Node or list of Nodes</li>
+<li><strong>add</strong> (<em>bool</em>) &#8211; Whether to add to existing highlighted nodes or
 overwrite them.</li>
-<li>width: Float. Width of highlighted lines. Defaults to 5</li>
-<li>color: Str. Color of highlighted lines. Defaults to red</li>
+<li><strong>width</strong> (<em>float</em>) &#8211; Width of highlighted lines. Defaults to 5</li>
+<li><strong>color</strong> (<em>str</em>) &#8211; Color of highlighted lines. Defaults to red</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -183,20 +203,24 @@ interest is the most recent common ancestor of the specified
 nodes.  <em>label</em> is an optional string to be drawn next to the
 bar, <em>offset</em> by the specified number of display units.  If
 <em>label</em> is <code class="docutils literal"><span class="pre">None</span></code> then the clade&#8217;s label is used instead.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>nodes: Node or list of nodes</li>
-<li>color: Str. Color of the bar. Optional, defaults to None.</li>
-<li>label: Str. Optional label for bar. If None, the clade&#8217;s
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nodes</strong> &#8211; Node or list of nodes</li>
+<li><strong>color</strong> (<em>str</em>) &#8211; Color of the bar. Optional, defaults to None.</li>
+<li><strong>label</strong> (<em>str</em>) &#8211; Optional label for bar. If None, the clade&#8217;s
 label is used instead. Defaults to None.</li>
-<li>Width: Float. Width of bar</li>
-<li>xoff: Float. Offset from label to bar</li>
-<li>showlabel: Bool. Whether or not to draw the label</li>
-<li>mrca: RR: Not quite sure what this does -CZ</li>
+<li><strong>width</strong> (<em>float</em>) &#8211; Width of bar</li>
+<li><strong>xoff</strong> (<em>float</em>) &#8211; Offset from label to bar</li>
+<li><strong>showlabel</strong> (<em>bool</em>) &#8211; Whether or not to draw the label</li>
+<li><strong>mrca</strong> &#8211; RR: Not quite sure what this does -CZ</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -392,13 +416,14 @@ is stored in self.decorators and called upon every redraw.</p>
 <dt id="ivy.vis.tree.Tree.save_newick">
 <code class="descname">save_newick</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.save_newick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.save_newick" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save tree as a newick file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>filename: str. Path to file.</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Path to file.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -521,18 +546,22 @@ buttons are checked, the default mouse bindings are as follows:</p>
 <dt id="ivy.vis.tree.TreeFigure.add">
 <code class="descname">add</code><span class="sig-paren">(</span><em>data</em>, <em>name=None</em>, <em>support=70</em>, <em>branchlabels=False</em>, <em>leaflabels=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new tree in a new window</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>data: A node object or tree file.</li>
-<li>name: Name of the plot. Defaults to None</li>
-<li>branchlabels: Bool. Whether or not to draw branch labels.
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> &#8211; A node object or tree file.</li>
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of the plot. Defaults to None</li>
+<li><strong>branchlabels</strong> (<em>bool</em>) &#8211; Whether or not to draw branch labels.
 Defaults to False</li>
-<li>leaflabels: Bool. Whether or not to draw leaf labels.
+<li><strong>leaflabels</strong> (<em>bool</em>) &#8211; Whether or not to draw leaf labels.
 Defaults to True</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -566,15 +595,18 @@ Defaults to True</li>
 <dt id="ivy.vis.tree.TreeFigure.find">
 <code class="descname">find</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.find" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find nodes</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>x: A string</li>
-</ul>
-</dd>
-<dt>Returns:</dt>
-<dd>A list of node objects found with the Node findall() method</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<em>str</em>) &#8211; String to search</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of node objects found with the Node findall() method</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -586,32 +618,40 @@ Defaults to True</li>
 <dt id="ivy.vis.tree.TreeFigure.highlight">
 <code class="descname">highlight</code><span class="sig-paren">(</span><em>x=None</em>, <em>width=5</em>, <em>color='red'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.highlight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Highlight nodes</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>x: Str or list of Strs or Node or list of Nodes</li>
-<li>width: Float. Width of highlighted lines. Defaults to 5</li>
-<li>color: Str. Color of highlighted lines. Defaults to red</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> &#8211; Str or list of Strs or Node or list of Nodes</li>
+<li><strong>width</strong> (<em>float</em>) &#8211; Width of highlighted lines. Defaults to 5</li>
+<li><strong>color</strong> (<em>str</em>) &#8211; Color of highlighted lines. Defaults to red</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.tree.TreeFigure.hlines">
 <code class="descname">hlines</code><span class="sig-paren">(</span><em>nodes</em>, <em>width=5</em>, <em>color='red'</em>, <em>xoff=0</em>, <em>yoff=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.hlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.hlines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Highlight nodes</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>nodes: A list of node objects</li>
-<li>width: Float. Width of highlighted lines. Defaults to 5</li>
-<li>color: Str. Color of highlighted lines. Defaults to red</li>
-<li>xoff: Float. Number of units to offset lines by. Defaults to 0</li>
-<li>yoff: Float. Number of units to offset lines by. Defaults to 0</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nodes</strong> (<em>list</em>) &#8211; A list of node objects</li>
+<li><strong>width</strong> (<em>float</em>) &#8211; Width of highlighted lines. Defaults to 5</li>
+<li><strong>color</strong> (<em>str</em>) &#8211; Color of highlighted lines. Defaults to red</li>
+<li><strong>xoff</strong> (<em>float</em>) &#8211; Number of units to offset lines by. Defaults to 0</li>
+<li><strong>yoff</strong> (<em>float</em>) &#8211; Number of units to offset lines by. Defaults to 0</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -662,14 +702,18 @@ Defaults to True</li>
 <dt id="ivy.vis.tree.TreeFigure.select_nodes">
 <code class="descname">select_nodes</code><span class="sig-paren">(</span><em>nodes=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.select_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.select_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select nodes on the plot</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>nodes: A node or list of ndoes</dd>
-<dt>Notes:</dt>
-<dd>If only one node is given, all of the node&#8217;s ancestors are
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nodes</strong> &#8211; A node or list of ndoes</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If only one node is given, all of the node&#8217;s ancestors are
 also selected. If a list of nodes is given (even if it has only
-one node), only the given node(s) are selected.</dd>
-</dl>
+one node), only the given node(s) are selected.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -690,13 +734,14 @@ one node), only the given node(s) are selected.</dd>
 <dd>redraw takes exactly 1 argument(2 given)-CZ</dd>
 </dl>
 <p>Define whether or not the tree is scaled and redraw tree</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>scaled. Bool. Whether or not the tree is scaled.</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>scaled</strong> (<em>bool</em>) &#8211; Whether or not the tree is scaled.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -744,13 +789,14 @@ one node), only the given node(s) are selected.</dd>
 <dt id="ivy.vis.tree.TreeFigure.zoom_clade">
 <code class="descname">zoom_clade</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.zoom_clade"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.zoom_clade" title="Permalink to this definition">¶</a></dt>
 <dd><p>Zoom to fit a node <em>x</em> and all its descendants in the view.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>x: Node or str that matches the label of a node</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; Node or str that matches the label of a node</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -866,19 +912,13 @@ one node), only the given node(s) are selected.</dd>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="ivy.html">ivy package</a><ul>
-  <li><a href="ivy.vis.html">ivy.vis package</a><ul>
-      <li>Previous: <a href="ivy.vis.symbols.html" title="previous chapter">ivy.vis.symbols module</a></li>
-      <li>Next: <a href="ivy.ages.html" title="next chapter">ivy.ages module</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.vis.symbols.html"
+                        title="previous chapter">ivy.vis.symbols module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.ages.html"
+                        title="next chapter">ivy.ages module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -903,20 +943,29 @@ one node), only the given node(s) are selected.</dd>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Author.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/ivy.vis.tree.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.ages.html" title="ivy.ages module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.symbols.html" title="ivy.vis.symbols module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" >Ivy Apidoc</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.vis.html" >ivy.vis package</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

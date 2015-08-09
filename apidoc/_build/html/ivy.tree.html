@@ -8,7 +8,7 @@
     
     <title>ivy.tree module &mdash; ivy  documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -24,15 +24,30 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ivy  documentation" href="index.html" />
-    <link rel="up" title="ivy package" href="ivy.html" />
+    <link rel="up" title="Ivy Apidoc" href="ivy.html" />
     <link rel="next" title="ivy.treebase module" href="ivy.treebase.html" />
-    <link rel="prev" title="ivy.sequtil module" href="ivy.sequtil.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="prev" title="ivy.sequtil module" href="ivy.sequtil.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.treebase.html" title="ivy.treebase module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.sequtil.html" title="ivy.sequtil module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" accesskey="U">Ivy Apidoc</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -56,63 +71,146 @@ directly on Node objects.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>A basic Node class with attributes and references to child nodes
 (&#8216;children&#8217;, a list) and &#8216;parent&#8217;.</p>
-<dl class="docutils">
-<dt>Kwargs:</dt>
-<dd><ul class="first last simple">
-<li>id: ID of the node. If not provided, is set using
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211;
+ID of the node. If not provided, is set using
 builtin id function</li>
-<li>ni: Int. Node index.</li>
-<li>li: Int. Leaf index.</li>
-<li>isroot: Bool. Is the node a root.</li>
-<li>isleaf: Bool. Is the node a leaf.</li>
-<li>label: Str. Node label.</li>
-<li>length: Float. Branch length from node to parent</li>
-<li>support: RR: Are these bootstrap support values? -CZ</li>
-<li>age: Float. Age of the node in time units.</li>
-<li>parent: Node object. Parent of the ndoe.</li>
-<li>children: List of node objects. Children of node</li>
-<li>nchildren: Int. # of children</li>
-<li>left: RR: Unsure what left and right mean -CZ</li>
-<li>treename: Name of tree</li>
-<li>comment: Comments for tree</li>
+<li><strong>ni</strong> (<em>int</em>) &#8211;
+Node index.</li>
+<li><strong>li</strong> (<em>int</em>) &#8211;
+Leaf index.</li>
+<li><strong>isroot</strong> (<em>bool</em>) &#8211;
+Is the node a root.</li>
+<li><strong>isleaf</strong> (<em>bool</em>) &#8211;
+Is the node a leaf.</li>
+<li><strong>label</strong> (<em>str</em>) &#8211;
+Node label.</li>
+<li><strong>length</strong> (<em>float</em>) &#8211;
+Branch length from node to parent</li>
+<li><strong>support</strong> &#8211;
+RR: Are these bootstrap support values? -CZ</li>
+<li><strong>age</strong> (<em>float</em>) &#8211;
+Age of the node in time units.</li>
+<li><strong>parent</strong> (<em>Node</em>) &#8211;
+Parent of the ndoe.</li>
+<li><strong>children</strong> (<em>list</em>) &#8211;
+List of node objects. Children of node</li>
+<li><strong>nchildren</strong> (<em>int</em>) &#8211;
+No. of children</li>
+<li><strong>left</strong> &#8211;
+RR: Unsure what left and right mean -CZ</li>
+<li><strong>treename</strong> &#8211;
+Name of tree</li>
+<li><strong>comment</strong> &#8211;
+Comments for tree</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ivy.tree.Node.__contains__">
+<code class="descname">__contains__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.__contains__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.__contains__" title="Permalink to this definition">¶</a></dt>
+<dd><p>For use with <cite>in</cite> keyword</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> &#8211; Another node or node label.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Whether or not the other node is a descendant of self</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.tree.Node.__getitem__">
+<code class="descname">__getitem__</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.__getitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; A Node, Node.id (int) or a Node.label (string)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Found node(s)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.tree.Node.__len__">
+<code class="descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.__len__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of nodes descended from self</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of nodes descended from self (including self)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="ivy.tree.Node.add_child">
 <code class="descname">add_child</code><span class="sig-paren">(</span><em>child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.add_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.add_child" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add child as child of self</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>child: A node object</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>child</strong> (<a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A node object</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.ascii">
 <code class="descname">ascii</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.ascii"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.ascii" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create ascii tree.</p>
-<dl class="docutils">
-<dt>Kwargs:</dt>
-<dd><ul class="first last simple">
-<li>unitlen: Float. How long each unit should be rendered as.
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><strong>unitlen</strong> (<em>float</em>) &#8211;
+How long each unit should be rendered as.
 Defaults to 3.</li>
-<li>minwidth: Float. Minimum width of the plot. Defaults to 50</li>
-<li>maxwidth: Float. Maximum width of the plot. Defaults to None</li>
-<li>scaled: Bool. Whether or not the tree is scaled. Defaults to False</li>
-<li>show_internal_labels: Bool. Whether or not to show labels
+<li><strong>minwidth</strong> (<em>float</em>) &#8211;
+Minimum width of the plot. Defaults to 50</li>
+<li><strong>maxwidth</strong> (<em>float</em>) &#8211;
+Maximum width of the plot. Defaults to None</li>
+<li><strong>scaled</strong> (<em>bool</em>) &#8211;
+Whether or not the tree is scaled. Defaults to False</li>
+<li><strong>show_internal_labels</strong> (<em>bool</em>) &#8211;
+Whether or not to show labels
 on internal nodes. Defaults to True.</li>
 </ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Str. Ascii tree to be shown with print().</li>
-</ul>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Ascii tree to be shown with print().</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -120,62 +218,75 @@ on internal nodes. Defaults to True.</li>
 <code class="descname">bgrep</code><span class="sig-paren">(</span><em>s</em>, <em>ignorecase=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.bgrep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.bgrep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find branches (internal nodes) by regular-expression search of
 labels</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>s: Str. String to search.</li>
-<li>ignorecase: Bool. Indicates to ignore case. Defaults to true.</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>s</strong> (<em>str</em>) &#8211; String to search.</li>
+<li><strong>ignorecase</strong> (<em>bool</em>) &#8211; Indicates to ignore case. Defaults to true.</li>
 </ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of node objects whose labels were matched by s.</li>
-</ul>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of node objects whose labels were matched by s.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">lsit</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.bisect_branch">
 <code class="descname">bisect_branch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.bisect_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.bisect_branch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add new node as parent to self in the middle of branch to parent.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A new node.</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A new node.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.clades">
 <code class="descname">clades</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.clades"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.clades" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get internal nodes descended from self</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of internal nodes descended from self.</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of internal nodes descended from self.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.collapse">
 <code class="descname">collapse</code><span class="sig-paren">(</span><em>add=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.collapse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.collapse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove self and collapse children to polytomy</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>add: Bool. Whether or not to add self&#8217;s length to children&#8217;s
-length.</li>
-</ul>
-</dd>
-</dl>
-<ul class="simple">
-<li>Returns: parent of self</li>
-</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>add</strong> (<em>bool</em>) &#8211; Whether or not to add self&#8217;s length to children&#8217;s
+length.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Parent of self</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -184,18 +295,18 @@ length.</li>
 <dd><p>Return a copy of the node, but not copies of children, parent,
 or any attribute that is a Node.</p>
 <p>If <cite>recurse</cite> is True, recursively copy child nodes.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>recurse: Bool. Whether or not to copy children as well as self.</li>
-</ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Node object that is a copy of self.</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>recurse</strong> (<em>bool</em>) &#8211; Whether or not to copy children as well as self.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A copy of self.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+</tr>
+</tbody>
+</table>
 <p>TODO: test this function.</p>
 <p>RR: This function runs rather slowly -CZ</p>
 </dd></dl>
@@ -205,21 +316,26 @@ or any attribute that is a Node.</p>
 <code class="descname">descendants</code><span class="sig-paren">(</span><em>order='pre'</em>, <em>v=None</em>, <em>f=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.descendants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.descendants" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of nodes descendant from self - but _not_
 including self!</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>order: String, optional, defaults to &#8220;pre&#8221;. Indicates wether to
-return nodes in preorder or postorder sequence.</li>
-<li>f: filtering function that evaluates to True if desired
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>order</strong> (<em>str</em>) &#8211; Indicates wether to return nodes in preorder or
+postorder sequence. Optional, defaults to &#8220;pre&#8221;</li>
+<li><strong>f</strong> (<em>function</em>) &#8211; filtering function that evaluates to True if desired
 node is called as the first parameter.</li>
 </ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of nodes descended from self not including self.</li>
-</ul>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of nodes descended from self not including self.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -232,23 +348,20 @@ node is called as the first parameter.</li>
 <dt id="ivy.tree.Node.find">
 <code class="descname">find</code><span class="sig-paren">(</span><em>f</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.find" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find descendant nodes.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>f: Function or a string.  If a string, it is converted to a
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> &#8211; Function or a string.  If a string, it is converted to a
 function for finding <em>f</em> as a substring in node labels.
 Otherwise, <em>f</em> should evaluate to True if called with a desired
-node as the first parameter.</li>
-<li><em>args</em> and <em>kwargs</em> are additional unnamed and named
-parameters, respectively.</li>
-</ul>
-</dd>
-<dt>Yields:</dt>
-<dd><ul class="first last simple">
-<li>Found nodes in preorder sequence.</li>
-</ul>
-</dd>
-</dl>
+node as the first parameter.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><em>Node</em> &#8211;
+Found nodes in preorder sequence.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -261,19 +374,19 @@ parameters, respectively.</li>
 <dt id="ivy.tree.Node.get">
 <code class="descname">get</code><span class="sig-paren">(</span><em>f</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the first node found by node.find()</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>f: A function that evaluates to True if desired
-node is called as the first parameter.</li>
-</ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>The first node found by node.find()</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to True if desired
+node is called as the first parameter.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The first node found by node.find()</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -286,56 +399,61 @@ node is called as the first parameter.</li>
 <dt id="ivy.tree.Node.grep">
 <code class="descname">grep</code><span class="sig-paren">(</span><em>s</em>, <em>ignorecase=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.grep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.grep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find nodes by regular-expression search of labels</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>s: Str. String to search.</li>
-<li>ignorecase: Bool. Indicates to ignore case. Defaults to true.</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>s</strong> (<em>str</em>) &#8211; String to search.</li>
+<li><strong>ignorecase</strong> (<em>bool</em>) &#8211; Indicates to ignore case. Defaults to true.</li>
 </ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of node objects whose labels were matched by s.</li>
-</ul>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of node objects whose labels were matched by s.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">lsit</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.internals">
 <code class="descname">internals</code><span class="sig-paren">(</span><em>f=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.internals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.internals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list nodes that have children (internal nodes)</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>f: A function that evaluates to true if called with desired
-node as the first input</li>
-</ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of internal nodes that are true for f (if f is given)</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to true if called with desired
+node as the first input</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of internal nodes that are true for f (if f is given)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.ismono">
 <code class="descname">ismono</code><span class="sig-paren">(</span><em>*leaves</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.ismono"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.ismono" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test if leaf descendants are monophyletic</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>At least two leaf Node objects</li>
-</ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Bool. Are the leaf descendants monophyletic?</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*leaves</strong> (<a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; At least two leaf Node objects</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Are the leaf descendants monophyletic?</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
 <p>RR: Should this function have a check to make sure the input nodes are
 leaves? There is some strange behavior if you input internal nodes -CZ</p>
 </dd></dl>
@@ -350,25 +468,41 @@ leaves? There is some strange behavior if you input internal nodes -CZ</p>
 <dt id="ivy.tree.Node.iternodes">
 <code class="descname">iternodes</code><span class="sig-paren">(</span><em>f=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.iternodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.iternodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a generator of nodes descendant from self - including self</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>f: A function that evaluates to true if called with desired
-node as the first input</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to true if called with</li>
+<li><strong>node as the first input</strong> (<em>desired</em>) &#8211; </li>
 </ul>
-</dd>
-<dt>Yields:</dt>
-<dd><ul class="first last simple">
-<li>Nodes descended from self (including self) in preorder sequence</li>
-</ul>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first"><em>Node</em> &#8211;
+Nodes descended from self (including self) in</p>
+<blockquote class="last">
+<div><p>preorder sequence</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.labeled">
 <code class="descname">labeled</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.labeled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.labeled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of all descendant nodes that are labeled</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">All descendants of self that are labeled (including self)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -395,38 +529,43 @@ node as the first input</li>
 <dt id="ivy.tree.Node.leaves">
 <code class="descname">leaves</code><span class="sig-paren">(</span><em>f=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.leaves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.leaves" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of leaves. Can be filtered with f.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>f: A function that evaluates to True if called with desired
-node as the first input</li>
-</ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of leaves that are true for f (if f is given)</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to True if called with desired
+node as the first input</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of leaves that are true for f (if f is given)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.lgrep">
 <code class="descname">lgrep</code><span class="sig-paren">(</span><em>s</em>, <em>ignorecase=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.lgrep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.lgrep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find leaves by regular-expression search of labels</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>s: Str. String to search.</li>
-<li>ignorecase: Bool. Indicates to ignore case. Defaults to true.</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>s</strong> (<em>str</em>) &#8211; String to search.</li>
+<li><strong>ignorecase</strong> (<em>bool</em>) &#8211; Indicates to ignore case. Defaults to true.</li>
 </ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of node objects whose labels were matched by s.</li>
-</ul>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of node objects whose labels were matched by s.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">lsit</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -447,25 +586,24 @@ labels indicate unrooted bipartition support</p>
 <dt id="ivy.tree.Node.mrca">
 <code class="descname">mrca</code><span class="sig-paren">(</span><em>*nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.mrca"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.mrca" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find most recent common ancestor of <em>nodes</em></p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li><a href="#id1"><span class="problematic" id="id2">*</span></a>nodes: Node objects</li>
-</ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Node object. The MRCA of <em>nodes</em></li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*nodes</strong> (<a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Node objects</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The MRCA of <em>nodes</em></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.order_subtrees_by_size">
 <code class="descname">order_subtrees_by_size</code><span class="sig-paren">(</span><em>n2s=None</em>, <em>recurse=False</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.order_subtrees_by_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.order_subtrees_by_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Order interal clades by size</p>
-<p>RR: What is n2s?</p>
 </dd></dl>
 
 <dl class="method">
@@ -484,27 +622,31 @@ labels indicate unrooted bipartition support</p>
 <dt id="ivy.tree.Node.prune">
 <code class="descname">prune</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.prune"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.prune" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove self if self is not root.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Parent of self. If parent had only two children,
-parent is now a &#8216;knee&#8217; and can be removed with excise.</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Parent of self. If parent had only two children,
+parent is now a &#8216;knee&#8217; and can be removed with excise.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.tree.Node.remove_child">
 <code class="descname">remove_child</code><span class="sig-paren">(</span><em>child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.remove_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.remove_child" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove child.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>child: A node object that is a child of self</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>child</strong> (<a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A node object that is a child of self</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -523,22 +665,24 @@ parent is now a &#8216;knee&#8217; and can be removed with excise.</li>
 <code class="descname">rootpath</code><span class="sig-paren">(</span><em>end=None</em>, <em>stop=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.rootpath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.rootpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Iterate over parent nodes toward the root, or node <em>end</em> if
 encountered.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>end: A Node object to iterate to (instead of iterating
-towards root)</li>
-<li>stop: A function that returns True if desired node is called
-as the first parameter.</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>end</strong> (<a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A Node object to iterate to (instead of iterating
+towards root). Optional, defaults to None</li>
+<li><strong>stop</strong> (<em>function</em>) &#8211; A function that returns True if desired node is called
+as the first parameter. Optional, defaults to None</li>
 </ul>
-</dd>
-<dt>Yields:</dt>
-<dd><ul class="first simple">
-<li>Nodes in path to root (or end).</li>
-</ul>
-<p class="last">S</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last"><em>Node</em> &#8211;
+Nodes in path to root (or end).</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -546,18 +690,18 @@ as the first parameter.</li>
 <code class="descname">rootpath_length</code><span class="sig-paren">(</span><em>end=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.rootpath_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.rootpath_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get length from self to root(if end is None) or length
 from self to an ancestor node (if end is an ancestor to self)</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>end: A node object</li>
-</ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A float that is the length from self to root/end</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>end</strong> (<a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A node object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The length from self to root/end</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -566,7 +710,16 @@ from self to an ancestor node (if end is an ancestor to self)</p>
 <dd><p>Find the set of nodes in &#8216;labels&#8217;, and create a new tree
 representing the subtree connecting them.  Nodes are assumed
 to be non-nested.</p>
-<p>Return: a mapping of old nodes to new nodes and vice versa.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a mapping of old nodes to new nodes and vice versa.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 <p>TODO: test this, high bug probability</p>
 </dd></dl>
 
@@ -587,19 +740,18 @@ to be non-nested.</p>
 <dt id="ivy.tree.cls">
 <code class="descclassname">ivy.tree.</code><code class="descname">cls</code><span class="sig-paren">(</span><em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#cls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.cls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get clade sizes of whole tree
-Args:</p>
-<blockquote>
-<div><ul class="simple">
-<li>root: A root node</li>
-</ul>
-</div></blockquote>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
+:param * root: A root node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
 <li>A dict mapping nodes to clade sizes</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -616,13 +768,18 @@ Args:</p>
 file name, or a file-like object with <cite>tell</cite> and &#8216;read`
 methods. <em>treename</em> is an optional string that will be attached to
 all created nodes.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li><em>root</em>, the root node.</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> &#8211; A file or file-like object or newick string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The root node.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -660,17 +817,13 @@ all created nodes.</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="ivy.html">ivy package</a><ul>
-      <li>Previous: <a href="ivy.sequtil.html" title="previous chapter">ivy.sequtil module</a></li>
-      <li>Next: <a href="ivy.treebase.html" title="next chapter">ivy.treebase module</a></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.sequtil.html"
+                        title="previous chapter">ivy.sequtil module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.treebase.html"
+                        title="next chapter">ivy.treebase module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -695,20 +848,28 @@ all created nodes.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Author.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/ivy.tree.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.treebase.html" title="ivy.treebase module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.sequtil.html" title="ivy.sequtil module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" >Ivy Apidoc</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

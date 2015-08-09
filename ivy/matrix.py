@@ -7,10 +7,10 @@ def vcv(root):
     """
     Leaf variances and covariances
     Args:
-        * root: A node object
+        root (Node): A node object
     Returns:
-        * var: A defaultdict mapping pairs of nodes to variances
-        * cov: A defaultdict mapping pairs of nodes to covariances
+        var: A defaultdict mapping pairs of nodes to variances
+        cov: A defaultdict mapping pairs of nodes to covariances
     """
     leafdists = root.leaf_distances()
     var = defaultdict(float)

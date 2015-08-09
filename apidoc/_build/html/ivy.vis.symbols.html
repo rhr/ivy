@@ -8,7 +8,7 @@
     
     <title>ivy.vis.symbols module &mdash; ivy  documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -26,13 +26,29 @@
     <link rel="top" title="ivy  documentation" href="index.html" />
     <link rel="up" title="ivy.vis package" href="ivy.vis.html" />
     <link rel="next" title="ivy.vis.tree module" href="ivy.vis.tree.html" />
-    <link rel="prev" title="ivy.vis.matplot module" href="ivy.vis.matplot.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="prev" title="ivy.vis.matplot module" href="ivy.vis.matplot.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.tree.html" title="ivy.vis.tree module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.matplot.html" title="ivy.vis.matplot module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" >Ivy Apidoc</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.vis.html" accesskey="U">ivy.vis package</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -46,18 +62,22 @@
 <dt id="ivy.vis.symbols.circles">
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">circles</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em>, <em>colors='g'</em>, <em>size=15</em>, <em>xoff=0</em>, <em>yoff=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#circles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.circles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw circles on plot</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>plot: A Tree plot instance</li>
-<li>p: A node object or list of Node objects</li>
-<li>colors: Str or list of strs. Colors of the circles. Optional,
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<a class="reference internal" href="ivy.vis.tree.html#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance</li>
+<li><strong>p</strong> &#8211; A node object or list of Node objects</li>
+<li><strong>colors</strong> &#8211; Str or list of strs. Colors of the circles. Optional,
 defaults to &#8216;g&#8217; (green)</li>
-<li>size: Float. Size of the circles. Optional, defaults to 15</li>
-<li>xoff, yoff: X and Y offset. Optional, defaults to 0.</li>
+<li><strong>size</strong> (<em>float</em>) &#8211; Size of the circles. Optional, defaults to 15</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; X and Y offset. Optional, defaults to 0.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -74,43 +94,51 @@ defaults to &#8216;g&#8217; (green)</li>
 <dt id="ivy.vis.symbols.image">
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">image</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em>, <em>imgfile</em>, <em>maxdim=100</em>, <em>border=0</em>, <em>xoff=4</em>, <em>yoff=4</em>, <em>halign=0.0</em>, <em>valign=0.5</em>, <em>xycoords='data'</em>, <em>boxcoords='offset points'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add images to plot</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>Plot: A Tree plot instance</li>
-<li>p: A node object</li>
-<li>imgfile: Str. A path to an image</li>
-<li>maxdim: Float. Maximum dimension of image. Optional,
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<a class="reference internal" href="ivy.vis.tree.html#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance</li>
+<li><strong>p</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A node object</li>
+<li><strong>imgfile</strong> (<em>str</em>) &#8211; A path to an image</li>
+<li><strong>maxdim</strong> (<em>float</em>) &#8211; Maximum dimension of image. Optional,
 defaults to 100.</li>
-<li>border: RR: What does border do? -CZ</li>
-<li>xoff, yoff: Float. X and Y offset. Optional, defaults to 4</li>
-<li>halign, valign: Float. Horizontal and vertical alignment within
+<li><strong>border</strong> &#8211; RR: What does border do? -CZ</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; X and Y offset. Optional, defaults to 4</li>
+<li><strong>valign</strong> (<em>halign,</em>) &#8211; Horizontal and vertical alignment within
 box. Optional, defaults to 0.0 and 0.5, respectively.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.vis.symbols.images">
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">images</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em>, <em>imgfiles</em>, <em>maxdim=100</em>, <em>border=0</em>, <em>xoff=4</em>, <em>yoff=4</em>, <em>halign=0.0</em>, <em>valign=0.5</em>, <em>xycoords='data'</em>, <em>boxcoords='offset points'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add many images to plot at once</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>Plot: A Tree plot instance</li>
-<li>p: A list of node objects</li>
-<li>imgfile: A list of strs containing paths to image files.
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Plot</strong> (<a class="reference internal" href="ivy.vis.tree.html#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance</li>
+<li><strong>p</strong> (<em>list</em>) &#8211; A list of node objects</li>
+<li><strong>imgfile</strong> (<em>list</em>) &#8211; A list of strs containing paths to image files.
 Must be the same length as p.</li>
-<li>maxdim: Float. Maximum dimension of image. Optional,
+<li><strong>maxdim</strong> (<em>float</em>) &#8211; Maximum dimension of image. Optional,
 defaults to 100.</li>
-<li>border: RR: What does border do? -CZ</li>
-<li>xoff, yoff: Float. X and Y offset. Optional, defaults to 4</li>
-<li>halign, valign: Float. Horizontal and vertical alignment within
+<li><strong>border</strong> &#8211; RR: What does border do? -CZ</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; X and Y offset. Optional, defaults to 4</li>
+<li><strong>valign</strong> (<em>halign,</em>) &#8211; Horizontal and vertical alignment within
 box. Optional, defaults to 0.0 and 0.5, respectively.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -134,64 +162,71 @@ written. This function currently does not work. -CZ</p>
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">pie</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em>, <em>values</em>, <em>colors=None</em>, <em>size=16</em>, <em>norm=True</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>halign=0.5</em>, <em>valign=0.5</em>, <em>xycoords='data'</em>, <em>boxcoords='offset points'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#pie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.pie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw a pie chart</p>
 <p>Args:
-* plot: A Tree plot instance
-* p: A Node object
-* values: A list of floats.
-* colors: A list of strings to pull colors from. Optional.
-* size: Float. Diameter of the pie chart
-* norm: Bool. Whether or not to normalize the values so they</p>
+plot (Tree): A Tree plot instance
+p (Node): A Node object
+values (list): A list of floats.
+colors (list): A list of strings to pull colors from. Optional.
+size (float): Diameter of the pie chart
+norm (bool): Whether or not to normalize the values so they</p>
 <blockquote>
 <div>add up to 360</div></blockquote>
-<ul class="simple">
-<li>xoff, yoff: Float. X and Y offset. Optional, defaults to 0</li>
-<li>halign, valign: Float. Horizontal and vertical alignment within
-box. Optional, defaults to 0.5</li>
-</ul>
+<p>xoff, yoff (float): X and Y offset. Optional, defaults to 0
+halign, valign (float): Horizontal and vertical alignment within</p>
+<blockquote>
+<div>box. Optional, defaults to 0.5</div></blockquote>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.vis.symbols.squares">
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">squares</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em>, <em>colors='r'</em>, <em>size=15</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>alpha=1.0</em>, <em>zorder=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#squares"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.squares" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw a square at given node</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>plot: A Tree plot instance</li>
-<li>p: A node or list of nodes</li>
-<li>colors: Str or list of strs. Colors of squares to be drawn.
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<a class="reference internal" href="ivy.vis.tree.html#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance</li>
+<li><strong>p</strong> &#8211; A node or list of nodes</li>
+<li><strong>colors</strong> &#8211; Str or list of strs. Colors of squares to be drawn.
 Optional, defaults to &#8216;r&#8217; (red)</li>
-<li>size: Float. Size of the squares. Optional, defaults to 15</li>
-<li>xoff, yoff: Float. Offset for x and y dimensions. Optional,
+<li><strong>size</strong> (<em>float</em>) &#8211; Size of the squares. Optional, defaults to 15</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; Offset for x and y dimensions. Optional,
 defaults to 0.</li>
-<li>alpha: Float between 0 and 1. Alpha transparency of squares.
+<li><strong>alpha</strong> (<em>float</em>) &#8211; between 0 and 1. Alpha transparency of squares.
 Optional, defaults to 1 (fully opaque)</li>
-<li>zorder: Int. The drawing order. Higher numbers appear on top
+<li><strong>zorder</strong> (<em>int</em>) &#8211; The drawing order. Higher numbers appear on top
 of lower numbers. Optional, defaults to 1000.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.vis.symbols.text">
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">text</code><span class="sig-paren">(</span><em>plot</em>, <em>x</em>, <em>y</em>, <em>s</em>, <em>color='black'</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>valign='center'</em>, <em>halign='left'</em>, <em>fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.text" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add text to the plot.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>plot: A Tree plot instance</li>
-<li>x, y: Float. x and y coordinates to place the text</li>
-<li>s: Str. The text to write</li>
-<li>color: Str. The color of the text. Optional, defaults to &#8220;black&#8221;</li>
-<li>xoff, yoff. Float. x and y offset</li>
-<li>valign: Str. Vertical alignment. Can be: &#8216;center&#8217;, &#8216;top&#8217;,
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<a class="reference internal" href="ivy.vis.tree.html#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance</li>
+<li><strong>y</strong> (<em>x,</em>) &#8211; x and y coordinates to place the text</li>
+<li><strong>s</strong> (<em>str</em>) &#8211; The text to write</li>
+<li><strong>color</strong> (<em>str</em>) &#8211; The color of the text. Optional, defaults to &#8220;black&#8221;</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; x and y offset</li>
+<li><strong>valign</strong> (<em>str</em>) &#8211; Vertical alignment. Can be: &#8216;center&#8217;, &#8216;top&#8217;,
 &#8216;bottom&#8217;, or &#8216;baseline&#8217;. Defaults to &#8216;center&#8217;.</li>
-<li>halign: Str. Horizontal alignment. Can be: &#8216;center&#8217;, &#8216;right&#8217;,
+<li><strong>halign</strong> (<em>str</em>) &#8211; Horizontal alignment. Can be: &#8216;center&#8217;, &#8216;right&#8217;,
 or &#8216;left&#8217;. Defaults to &#8216;left&#8217;</li>
-<li>fontsize: Float. Font size. Optional, defaults to 10</li>
+<li><strong>fontsize</strong> (<em>float</em>) &#8211; Font size. Optional, defaults to 10</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -202,20 +237,24 @@ argument for p, it will not only not work (expected) but it will also
 make it so that you can&#8217;t interact with the tree figure (gives errors when
 you try to add symbols, select nodes, etc.) -CZ</p>
 <p>Add square after tip label, anchored to the side of the plot</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>plot: A Tree plot instance.</li>
-<li>p: A Node object (Should be a leaf node).</li>
-<li>colors: Str. Color of drawn square. Optional, defaults to &#8216;r&#8217; (red)</li>
-<li>size:  Float. Size of square. Optional, defaults to 15</li>
-<li>pad: RR: I am unsure what this does. Does not seem to have visible
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<a class="reference internal" href="ivy.vis.tree.html#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance.</li>
+<li><strong>p</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A Node object (Should be a leaf node).</li>
+<li><strong>colors</strong> (<em>str</em>) &#8211; olor of drawn square. Optional, defaults to &#8216;r&#8217; (red)</li>
+<li><strong>size</strong> (<em>float</em>) &#8211; Size of square. Optional, defaults to 15</li>
+<li><strong>pad</strong> &#8211; RR: I am unsure what this does. Does not seem to have visible
 effect when I change it. -CZ</li>
-<li>edgepad: Float. Padding from square to edge of plot. Optional,
+<li><strong>edgepad</strong> (<em>float</em>) &#8211; Padding from square to edge of plot. Optional,
 defaults to 10.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -225,19 +264,13 @@ defaults to 10.</li>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="ivy.html">ivy package</a><ul>
-  <li><a href="ivy.vis.html">ivy.vis package</a><ul>
-      <li>Previous: <a href="ivy.vis.matplot.html" title="previous chapter">ivy.vis.matplot module</a></li>
-      <li>Next: <a href="ivy.vis.tree.html" title="next chapter">ivy.vis.tree module</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.vis.matplot.html"
+                        title="previous chapter">ivy.vis.matplot module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.vis.tree.html"
+                        title="next chapter">ivy.vis.tree module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -262,20 +295,29 @@ defaults to 10.</li>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Author.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/ivy.vis.symbols.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.tree.html" title="ivy.vis.tree module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.matplot.html" title="ivy.vis.matplot module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" >Ivy Apidoc</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.vis.html" >ivy.vis package</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

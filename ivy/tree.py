@@ -42,23 +42,23 @@ class Node(object):
     A basic Node class with attributes and references to child nodes
     ('children', a list) and 'parent'.
 
-    Kwargs:
-        * id: ID of the node. If not provided, is set using
+    Keyword Args:
+        id: ID of the node. If not provided, is set using
           builtin id function
-        * ni: Int. Node index.
-        * li: Int. Leaf index.
-        * isroot: Bool. Is the node a root.
-        * isleaf: Bool. Is the node a leaf.
-        * label: Str. Node label.
-        * length: Float. Branch length from node to parent
-        * support: RR: Are these bootstrap support values? -CZ
-        * age: Float. Age of the node in time units.
-        * parent: Node object. Parent of the ndoe.
-        * children: List of node objects. Children of node
-        * nchildren: Int. # of children
-        * left: RR: Unsure what left and right mean -CZ
-        * treename: Name of tree
-        * comment: Comments for tree
+        ni (int): Node index.
+        li (int): Leaf index.
+        isroot (bool): Is the node a root.
+        isleaf (bool): Is the node a leaf.
+        label (str): Node label.
+        length (float): Branch length from node to parent
+        support: RR: Are these bootstrap support values? -CZ
+        age (float): Age of the node in time units.
+        parent (Node): Parent of the ndoe.
+        children (list): List of node objects. Children of node
+        nchildren (int): No. of children
+        left: RR: Unsure what left and right mean -CZ
+        treename: Name of tree
+        comment: Comments for tree
 
     """
     def __init__(self, **kwargs):
@@ -110,6 +110,14 @@ class Node(object):
 
 
     def __contains__(self, other):
+        """
+        For use with `in` keyword
+
+        Args:
+            other: Another node or node label.
+        Returns:
+            bool: Whether or not the other node is a descendant of self
+        """
         otype = type(other)
         if other and otype in types.StringTypes:
             for x in self:
@@ -132,7 +140,7 @@ class Node(object):
         Number of nodes descended from self
 
         Returns:
-            * Int. Number of nodes descended from self (including self)
+            int: Number of nodes descended from self (including self)
         """
         i = 0
         for n in self:
@@ -145,10 +153,10 @@ class Node(object):
     def __getitem__(self, x):
         """
         Args:
-            * x: A Node, Node.id (int) or a Node.label (string)
+            x: A Node, Node.id (int) or a Node.label (string)
 
         Returns:
-            * Found node(s)
+            Node: Found node(s)
 
         """
         for n in self:
@@ -160,16 +168,16 @@ class Node(object):
         """
         Create ascii tree.
 
-        Kwargs:
-            * unitlen: Float. How long each unit should be rendered as.
+        Keyword Args:
+            unitlen (float): How long each unit should be rendered as.
               Defaults to 3.
-            * minwidth: Float. Minimum width of the plot. Defaults to 50
-            * maxwidth: Float. Maximum width of the plot. Defaults to None
-            * scaled: Bool. Whether or not the tree is scaled. Defaults to False
-            * show_internal_labels: Bool. Whether or not to show labels
+            minwidth (float): Minimum width of the plot. Defaults to 50
+            maxwidth (float): Maximum width of the plot. Defaults to None
+            scaled (bool): Whether or not the tree is scaled. Defaults to False
+            show_internal_labels (bool): Whether or not to show labels
               on internal nodes. Defaults to True.
         Returns:
-            * Str. Ascii tree to be shown with print().
+            str: Ascii tree to be shown with print().
         """
         from ascii import render
         return render(self, *args, **kwargs)
@@ -179,10 +187,11 @@ class Node(object):
         Remove self and collapse children to polytomy
 
         Args:
-            * add: Bool. Whether or not to add self's length to children's
+            add (bool): Whether or not to add self's length to children's
               length.
 
-        * Returns: parent of self
+        Returns:
+            Node: Parent of self
 
         """
         assert self.parent
@@ -202,10 +211,10 @@ class Node(object):
         If `recurse` is True, recursively copy child nodes.
 
         Args:
-            * recurse: Bool. Whether or not to copy children as well as self.
+            recurse (bool): Whether or not to copy children as well as self.
 
         Returns:
-            * Node object that is a copy of self.
+            Node: A copy of self.
 
         TODO: test this function.
 
@@ -244,9 +253,9 @@ class Node(object):
         Find most recent common ancestor of *nodes*
 
         Args:
-            * *nodes: Node objects
+            *nodes (Node): Node objects
         Returns:
-            * Node object. The MRCA of *nodes*
+            Node: The MRCA of *nodes*
         """
         if len(nodes) == 1:
             nodes = tuple(nodes[0])
@@ -299,10 +308,10 @@ class Node(object):
         Test if leaf descendants are monophyletic
 
         Args:
-            * At least two leaf Node objects
+            *leaves (Node): At least two leaf Node objects
 
         Returns:
-            * Bool. Are the leaf descendants monophyletic?
+            bool: Are the leaf descendants monophyletic?
 
         RR: Should this function have a check to make sure the input nodes are
         leaves? There is some strange behavior if you input internal nodes -CZ
@@ -320,7 +329,6 @@ class Node(object):
         """
         Order interal clades by size
 
-        RR: What is n2s?
         """
         if n2s is None:
             n2s = clade_sizes(self)
@@ -343,7 +351,7 @@ class Node(object):
         Add child as child of self
 
         Args:
-            * child: A node object
+            child (Node): A node object
 
         """
         assert child not in self.children
@@ -357,7 +365,7 @@ class Node(object):
         Add new node as parent to self in the middle of branch to parent.
 
         Returns:
-            * A new node.
+            Node: A new node.
 
         """
         assert self.parent
@@ -375,7 +383,7 @@ class Node(object):
         Remove child.
 
         Args:
-            * child: A node object that is a child of self
+            child (Node): A node object that is a child of self
 
         """
         assert child in self.children
@@ -388,6 +396,9 @@ class Node(object):
     def labeled(self):
         """
         Return a list of all descendant nodes that are labeled
+
+        Returns:
+            list: All descendants of self that are labeled (including self)
         """
         return [ n for n in self if n.label ]
 
@@ -396,11 +407,11 @@ class Node(object):
         Return a list of leaves. Can be filtered with f.
 
         Args:
-            * f: A function that evaluates to True if called with desired
+            f (function): A function that evaluates to True if called with desired
               node as the first input
 
         Returns:
-            * A list of leaves that are true for f (if f is given)
+            list: A list of leaves that are true for f (if f is given)
 
         """
         if f: return [ n for n in self if (n.isleaf and f(n)) ]
@@ -411,11 +422,11 @@ class Node(object):
         Return a list nodes that have children (internal nodes)
 
         Args:
-            * f: A function that evaluates to true if called with desired
+            f (function): A function that evaluates to true if called with desired
               node as the first input
 
         Returns:
-            * A list of internal nodes that are true for f (if f is given)
+            list: A list of internal nodes that are true for f (if f is given)
 
         """
         if f: return [ n for n in self if (n.children and f(n)) ]
@@ -426,7 +437,7 @@ class Node(object):
         Get internal nodes descended from self
 
         Returns:
-            * A list of internal nodes descended from self.
+            list: A list of internal nodes descended from self.
 
         """
         return [ n for n in self if not n.isleaf ]
@@ -436,11 +447,12 @@ class Node(object):
         Return a generator of nodes descendant from self - including self
 
         Args:
-            * f: A function that evaluates to true if called with desired
-              node as the first input
+            f (function): A function that evaluates to true if called with
+            desired node as the first input
 
         Yields:
-            * Nodes descended from self (including self) in preorder sequence
+            Node: Nodes descended from self (including self) in
+              preorder sequence
 
         """
         if (f and f(self)) or (not f):
@@ -480,13 +492,13 @@ class Node(object):
         including self!
 
         Args:
-            * order: String, optional, defaults to "pre". Indicates wether to
-              return nodes in preorder or postorder sequence.
-            * f: filtering function that evaluates to True if desired
+            order (str): Indicates wether to return nodes in preorder or
+              postorder sequence. Optional, defaults to "pre"
+            f (function): filtering function that evaluates to True if desired
               node is called as the first parameter.
 
         Returns:
-            * A list of nodes descended from self not including self.
+            list: A list of nodes descended from self not including self.
 
         """
         v = v or []
@@ -505,10 +517,10 @@ class Node(object):
         Return the first node found by node.find()
 
         Args:
-            * f: A function that evaluates to True if desired
+            f (function): A function that evaluates to True if desired
               node is called as the first parameter.
         Returns:
-            * The first node found by node.find()
+            Node: The first node found by node.find()
 
         """
         v = self.find(f, *args, **kwargs)
@@ -522,11 +534,11 @@ class Node(object):
         Find nodes by regular-expression search of labels
 
         Args:
-            * s: Str. String to search.
-            * ignorecase: Bool. Indicates to ignore case. Defaults to true.
+            s (str): String to search.
+            ignorecase (bool): Indicates to ignore case. Defaults to true.
 
         Returns:
-            * A list of node objects whose labels were matched by s.
+            lsit: A list of node objects whose labels were matched by s.
 
         """
         import re
@@ -543,11 +555,11 @@ class Node(object):
         Find leaves by regular-expression search of labels
 
         Args:
-            * s: Str. String to search.
-            * ignorecase: Bool. Indicates to ignore case. Defaults to true.
+            s (str): String to search.
+            ignorecase (bool): Indicates to ignore case. Defaults to true.
 
         Returns:
-            * A list of node objects whose labels were matched by s.
+            lsit: A list of node objects whose labels were matched by s.
 
         """
         return [ x for x in self.grep(s, ignorecase=ignorecase) if x.isleaf ]
@@ -558,11 +570,11 @@ class Node(object):
         labels
 
         Args:
-            * s: Str. String to search.
-            * ignorecase: Bool. Indicates to ignore case. Defaults to true.
+            s (str): String to search.
+            ignorecase (bool): Indicates to ignore case. Defaults to true.
 
         Returns:
-            * A list of node objects whose labels were matched by s.
+            lsit: A list of node objects whose labels were matched by s.
 
         """
         return [ x for x in self.grep(s, ignorecase=ignorecase) if
@@ -573,15 +585,13 @@ class Node(object):
         Find descendant nodes.
 
         Args:
-            * f: Function or a string.  If a string, it is converted to a
+            f: Function or a string.  If a string, it is converted to a
               function for finding *f* as a substring in node labels.
               Otherwise, *f* should evaluate to True if called with a desired
               node as the first parameter.
-            * *args* and *kwargs* are additional unnamed and named
-              parameters, respectively.
 
         Yields:
-            * Found nodes in preorder sequence.
+            Node: Found nodes in preorder sequence.
 
         """
         if not f: return
@@ -602,7 +612,7 @@ class Node(object):
         Remove self if self is not root.
 
         Returns:
-            * Parent of self. If parent had only two children,
+            Node: Parent of self. If parent had only two children,
               parent is now a 'knee' and can be removed with excise.
 
         """
@@ -683,14 +693,14 @@ class Node(object):
         encountered.
 
         Args:
-            * end: A Node object to iterate to (instead of iterating
-              towards root)
-            * stop: A function that returns True if desired node is called
-              as the first parameter.
+            end (Node): A Node object to iterate to (instead of iterating
+              towards root). Optional, defaults to None
+            stop (function): A function that returns True if desired node is called
+              as the first parameter. Optional, defaults to None
 
         Yields:
-            * Nodes in path to root (or end).
-            S
+            Node: Nodes in path to root (or end).
+
         """
         n = self.parent
         while 1:
@@ -706,10 +716,10 @@ class Node(object):
         from self to an ancestor node (if end is an ancestor to self)
 
         Args:
-            * end: A node object
+            end (Node): A node object
 
         Returns:
-            * A float that is the length from self to root/end
+            float: The length from self to root/end
 
         """
         n = self
@@ -744,7 +754,8 @@ class Node(object):
         representing the subtree connecting them.  Nodes are assumed
         to be non-nested.
 
-        Return: a mapping of old nodes to new nodes and vice versa.
+        Returns:
+            dict: a mapping of old nodes to new nodes and vice versa.
 
         TODO: test this, high bug probability
         """
@@ -922,7 +933,7 @@ def cls(root):
     return results
 
 def clade_sizes(node, results={}):
-    "Map node and descendants to number of descendant tips"
+    """Map node and descendants to number of descendant tips"""
     size = int(node.isleaf)
     if not node.isleaf:
         for child in node.children:
@@ -980,8 +991,11 @@ def read(data, format=None, treename=None, ttable=None):
     methods. *treename* is an optional string that will be attached to
     all created nodes.
 
+    Args:
+        data: A file or file-like object or newick string
+
     Returns:
-        * *root*, the root node.
+        Node: The root node.
     """
     import newick
     StringTypes = types.StringTypes

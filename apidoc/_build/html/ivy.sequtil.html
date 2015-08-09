@@ -8,7 +8,7 @@
     
     <title>ivy.sequtil module &mdash; ivy  documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -24,15 +24,30 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ivy  documentation" href="index.html" />
-    <link rel="up" title="ivy package" href="ivy.html" />
+    <link rel="up" title="Ivy Apidoc" href="ivy.html" />
     <link rel="next" title="ivy.tree module" href="ivy.tree.html" />
-    <link rel="prev" title="ivy.nexus module" href="ivy.nexus.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="prev" title="ivy.nexus module" href="ivy.nexus.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.tree.html" title="ivy.tree module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.nexus.html" title="ivy.nexus module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" accesskey="U">Ivy Apidoc</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -45,61 +60,72 @@
 <dt id="ivy.sequtil.find_stop_codons">
 <code class="descclassname">ivy.sequtil.</code><code class="descname">find_stop_codons</code><span class="sig-paren">(</span><em>seq</em>, <em>pos=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/sequtil.html#find_stop_codons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.sequtil.find_stop_codons" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find stop codons within sequence (in reading frame)</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>seq: Str. A sequence</li>
-<li>pos: Int. Starting position. Defaults to 0.</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>seq</strong> (<em>str</em>) &#8211; A sequence</li>
+<li><strong>pos</strong> (<em>int</em>) &#8211; Starting position. Defaults to 0.</li>
 </ul>
-</dd>
-<dt>Yields:</dt>
-<dd><ul class="first last simple">
-<li>Tuple containing the index where the stop codon starts
-and which stop codon was found.</li>
-</ul>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last"><em>tuple</em> &#8211;
+The index where the stop codon starts
+and which stop codon was found.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.sequtil.finditer">
 <code class="descclassname">ivy.sequtil.</code><code class="descname">finditer</code><span class="sig-paren">(</span><em>seq</em>, <em>substr</em>, <em>start=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/sequtil.html#finditer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.sequtil.finditer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find substrings within a sequence</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>seq: Str. A sequence.</li>
-<li>substr: Str. A subsequence to search for</li>
-<li>start: Int. Starting index. Defaults to 0</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>seq</strong> (<em>str</em>) &#8211; A sequence.</li>
+<li><strong>substr</strong> (<em>str</em>) &#8211; A subsequence to search for</li>
+<li><strong>start</strong> (<em>int</em>) &#8211; Starting index. Defaults to 0</li>
 </ul>
-</dd>
-<dt>Yields:</dt>
-<dd><ul class="first last simple">
-<li>Starting indicies of where the substr was found in seq</li>
-</ul>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last"><em>int</em> &#8211;
+Starting indicies of where the substr was found in seq</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.sequtil.gapidx">
 <code class="descclassname">ivy.sequtil.</code><code class="descname">gapidx</code><span class="sig-paren">(</span><em>seq</em>, <em>gapchar='-'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/sequtil.html#gapidx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.sequtil.gapidx" title="Permalink to this definition">¶</a></dt>
 <dd><p>For a sequence with gaps, calculate site positions without gaps</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>seq: List. Each element of the list is one character in a sequence.</li>
-<li>gapchar: Str. The character gaps are coded as. Defaults to &#8216;-&#8216;</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>seq</strong> (<em>list</em>) &#8211; Each element of the list is one character in a sequence.</li>
+<li><strong>gapchar</strong> (<em>str</em>) &#8211; The character gaps are coded as. Defaults to &#8216;-&#8216;</li>
 </ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>An array where the first element corresponds to range(number of
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An array where the first element corresponds to range(number of
 characters that are not gaps) and the second element is the indicies
-of all characters that are not gaps.</li>
-</ul>
-</dd>
-</dl>
+of all characters that are not gaps.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">array</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -109,17 +135,13 @@ of all characters that are not gaps.</li>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="ivy.html">ivy package</a><ul>
-      <li>Previous: <a href="ivy.nexus.html" title="previous chapter">ivy.nexus module</a></li>
-      <li>Next: <a href="ivy.tree.html" title="next chapter">ivy.tree module</a></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.nexus.html"
+                        title="previous chapter">ivy.nexus module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.tree.html"
+                        title="next chapter">ivy.tree module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -144,20 +166,28 @@ of all characters that are not gaps.</li>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Author.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/ivy.sequtil.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.tree.html" title="ivy.tree module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.nexus.html" title="ivy.nexus module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" >Ivy Apidoc</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

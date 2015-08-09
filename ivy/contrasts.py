@@ -11,13 +11,14 @@ def PIC(node, data, results={}):
     given a dictionary of trait values.
 
     Args:
-        node: A node object
-        data: A dict mapping leaf names to character values
-        
+        node (Node): A node object
+        data (dict): Mapping of leaf names to character values
+
     Returns:
-        A dict mapping internal nodes to tuples containing ancestral
-        state, its variance (error), the contrast, and the contrasts's variance. 
-    
+        dict: Mapping of internal nodes to tuples containing ancestral
+              state, its variance (error), the contrast, and the
+              contrasts's variance.
+
     TODO: modify to accommodate polytomies.
     """
     X = []; v = []
@@ -57,6 +58,6 @@ if __name__ == "__main__":
         "Ateles": 2.02815,
         "Galago": -1.46968
         }
-    
+
     for k, v in PIC(n, char1).items():
         print k.label or k.id, v

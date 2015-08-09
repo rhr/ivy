@@ -12,10 +12,10 @@ def batch(iterable, size):
     Take an iterable and return it in chunks (sub-iterables)
 
     Args:
-        * iterable: any iterable
-        * size: int. Size of chunks
+        iterable: Any iterable
+        size (int): Size of chunks
     Yields:
-        * chunks of size `size`
+        Chunks of size `size`
     """
     args = [ iter(iterable) ]*size
     for x in izip_longest(fillvalue=None, *args):
@@ -26,9 +26,9 @@ def extract_gbac(s):
     Extract genbank accession
 
     Args:
-        * s: str. text string of genbank file
+        s (str): text string of genbank file
     Returns:
-        * List containing accession number(s)
+        list: Accession number(s)
     """
     gbac_re = re.compile(r'[A-Z]{1,2}[0-9]{4,7}')
     return gbac_re.findall(s, re.M)

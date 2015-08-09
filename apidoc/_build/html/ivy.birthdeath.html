@@ -8,7 +8,7 @@
     
     <title>ivy.birthdeath module &mdash; ivy  documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -26,21 +26,222 @@
     <link rel="top" title="ivy  documentation" href="index.html" />
     <link rel="up" title="Ivy Apidoc" href="ivy.html" />
     <link rel="next" title="ivy.contrasts module" href="ivy.contrasts.html" />
-    <link rel="prev" title="ivy.bipart module" href="ivy.bipart.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="prev" title="ivy.bipart module" href="ivy.bipart.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.contrasts.html" title="ivy.contrasts module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.bipart.html" title="ivy.bipart module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" accesskey="U">Ivy Apidoc</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="ivy-birthdeath-module">
-<h1>ivy.birthdeath module<a class="headerlink" href="#ivy-birthdeath-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-ivy.birthdeath">
+<span id="ivy-birthdeath-module"></span><h1>ivy.birthdeath module<a class="headerlink" href="#module-ivy.birthdeath" title="Permalink to this headline">¶</a></h1>
+<p>Equations from Magallon and Sanderson 2001</p>
+<p>RR: Are my descriptions of these equations correct? -CZ</p>
+<dl class="function">
+<dt id="ivy.birthdeath.Alpha">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">Alpha</code><span class="sig-paren">(</span><em>epsilon</em>, <em>r</em>, <em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#Alpha"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.Alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate Alpha</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>epsilon</strong> (<em>float</em>) &#8211; Relative extinction rate(d/b)</li>
+<li><strong>r</strong> (<em>float</em>) &#8211; Net diversification rate (b-d).</li>
+<li><strong>t</strong> (<em>float</em>) &#8211; Elapsed time</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Alpha</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.Beta">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">Beta</code><span class="sig-paren">(</span><em>epsilon</em>, <em>r</em>, <em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#Beta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.Beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate Beta</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>epsilon</strong> (<em>float</em>) &#8211; Relative extinction rate(d/b)</li>
+<li><strong>r</strong> (<em>float</em>) &#8211; Net diversification rate (b-d).</li>
+<li><strong>t</strong> (<em>float</em>) &#8211; Elapsed time.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Beta</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.Kendall1948">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">Kendall1948</code><span class="sig-paren">(</span><em>i</em>, <em>t</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#Kendall1948"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.Kendall1948" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probability of observing i species given single ancestor after time t</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>i</strong> (<em>int</em>) &#8211; Number of extant species</li>
+<li><strong>t</strong> (<em>float</em>) &#8211; Elapsed time</li>
+<li><strong>r</strong> (<em>float</em>) &#8211; Net diversification rate (b-d)</li>
+<li><strong>epsilon</strong> (<em>float</em>) &#8211; Relative extinction (d/b)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.Nbar">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">Nbar</code><span class="sig-paren">(</span><em>t</em>, <em>a</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#Nbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.Nbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mean clade size conditional on survival of the clade</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>t</strong> (<em>float</em>) &#8211; Elapsed time</li>
+<li><strong>a</strong> (<em>int</em>) &#8211; Number of lineages at t=0</li>
+<li><strong>r</strong> (<em>float</em>) &#8211; Net diversification rate (b-d)</li>
+<li><strong>epsilon</strong> (<em>float</em>) &#8211; Relative extinction (d/b)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.condKendall1948">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">condKendall1948</code><span class="sig-paren">(</span><em>i</em>, <em>t</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#condKendall1948"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.condKendall1948" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probability of observing i species given a single ancestor after time t
+conditional on the clade surviving to time t</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>i</strong> (<em>int</em>) &#8211; Number of extant species</li>
+<li><strong>t</strong> (<em>float</em>) &#8211; Elapsed time</li>
+<li><strong>r</strong> (<em>float</em>) &#8211; Net diversification rate (b-d)</li>
+<li><strong>epsilon</strong> (<em>float</em>) &#8211; Relative extinction (d/b)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.condPrN">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">condPrN</code><span class="sig-paren">(</span><em>i</em>, <em>t</em>, <em>a</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#condPrN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.condPrN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conditional probability of i species after time t, given the
+probability of survival</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>i</strong> (<em>int</em>) &#8211; Number of extant species</li>
+<li><strong>t</strong> (<em>float</em>) &#8211; Elapsed time</li>
+<li><strong>a</strong> (<em>int</em>) &#8211; Number of lineages at t=0</li>
+<li><strong>r</strong> (<em>float</em>) &#8211; Net diversification rate (b-d)</li>
+<li><strong>epsilon</strong> (<em>float</em>) &#8211; Relative extinction (d/b)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.logLT">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">logLT</code><span class="sig-paren">(</span><em>t</em>, <em>n</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#logLT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.logLT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log-likelihood of terminal taxa</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>t</strong> &#8211; vector of stem ages</li>
+<li><strong>n</strong> &#8211; vector of diversities</li>
+<li><strong>r</strong> (<em>float</em>) &#8211; net diversification</li>
+<li><strong>epsilon</strong> (<em>float</em>) &#8211; Relative extinction</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.prN">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">prN</code><span class="sig-paren">(</span><em>i</em>, <em>t</em>, <em>a</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#prN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.prN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probability of observing i species after time t</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>i</strong> (<em>int</em>) &#8211; Number of extant species</li>
+<li><strong>t</strong> (<em>float</em>) &#8211; Elapsed time</li>
+<li><strong>a</strong> (<em>int</em>) &#8211; Number of lineages at t=0</li>
+<li><strong>r</strong> (<em>float</em>) &#8211; Net diversification rate (b-d)</li>
+<li><strong>epsilon</strong> (<em>float</em>) &#8211; Relative extinction (d/b)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.r_hat_crown">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">r_hat_crown</code><span class="sig-paren">(</span><em>t</em>, <em>n</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#r_hat_crown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.r_hat_crown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.r_hat_stem">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">r_hat_stem</code><span class="sig-paren">(</span><em>t</em>, <em>n</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#r_hat_stem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.r_hat_stem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -48,17 +249,13 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="ivy.html">Ivy Apidoc</a><ul>
-      <li>Previous: <a href="ivy.bipart.html" title="previous chapter">ivy.bipart module</a></li>
-      <li>Next: <a href="ivy.contrasts.html" title="next chapter">ivy.contrasts module</a></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.bipart.html"
+                        title="previous chapter">ivy.bipart module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.contrasts.html"
+                        title="next chapter">ivy.contrasts module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -83,20 +280,28 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Author.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/ivy.birthdeath.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.contrasts.html" title="ivy.contrasts module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.bipart.html" title="ivy.bipart module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" >Ivy Apidoc</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

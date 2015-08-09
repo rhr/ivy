@@ -17,16 +17,16 @@ class BokehTree(object):
 		"""
 		BokehTree class for plotting trees
 		Args:
-		    * root: A node object.
-			* scaled: Bool. Whether or not the tree is scaled.
+		    root (Node): A node object.
+			scaled (bool): Whether or not the tree is scaled.
 			  Optional, defaults to True
-			* nodelabels: Bool. Whether or not to show node labels.
+			nodelabels (bool): Whether or not to show node labels.
 			  Optional, defaults to True.
-			* tiplabels: Bool. Whether or not to show tip labels.
+			tiplabels (bool): Whether or not to show tip labels.
 			  Optional, defaults to True.
-			* showplot: Bool. Whether or not to display when drawtree
+			showplot(bool): Whether or not to display when drawtree
 			  is called. Optional, defaults to True.
-			* hover: Bool. Whether or not to use the hover tool. Optional,
+			hover (bool): Whether or not to use the hover tool. Optional,
 			  defaults to false.
 		"""
 		self.root = root
@@ -173,10 +173,10 @@ class BokehTree(object):
 		Highlight selected clade(s)
 
 		Args:
-		    * x: A str or list of strs or node or list of nodes.
-			* color: str. The color of the highlighted nodes. Optional,
+		    x: A str or list of strs or node or list of nodes.
+			color (str): The color of the highlighted nodes. Optional,
 			  defaults to red
-			* width: int. The width of the highlighted branches. Optional,
+			width (int): The width of the highlighted branches. Optional,
 			  defaults to 3.
 		"""
 		if x:

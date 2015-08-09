@@ -33,12 +33,14 @@ def fetch_study(study_id, format="nexml"):
     Get a study from treebase in one of various formats
 
     Args:
-        * study_id: Str. The id of the study
-        * format: Str.  One of ["rdf", "html", "nexml", "nexus"]
+        study_id (str): The id of the study
+        format (str):  One of ["rdf", "html", "nexml", "nexus"]
     Returns:
-        * Str representing a nexus file (if format = "nexus")
+        Str representing a nexus file (if format = "nexus")
+
         OR
-        * An lxml etree object
+
+        An lxml etree object
     """
     try: study_id = "S%s" % int(study_id)
     except ValueError: pass
@@ -91,10 +93,11 @@ def parse_trees(e, otus):
     Get trees from an etree object
 
     Args:
-        * e: A nexml document parsed by etree
-        * otus: OTUs returned by parse_otus
+        e: A nexml document parsed by etree
+        otus: OTUs returned by parse_otus
     Returns:
-        * A list of ivy Storage objects each containing every node of a tree.
+        list: A list of ivy Storage objects each
+          containing every node of a tree.
     """
     from tree import Node
     v = []
@@ -132,9 +135,9 @@ def parse_otus(e):
     Get OTUs from an etree object
 
     Args:
-        * e: A nexml document parsed by etree
+        e: A nexml document parsed by etree
     Returns:
-        * A dict mapping keys to OTUs contained in ivy Storage objects
+        dict: A dict mapping keys to OTUs contained in ivy Storage objects
     """
     v = {}
     for otus in e.findall(NEXML+"otus"):
@@ -162,10 +165,10 @@ def parse_nexml(doc):
     Parse an etree ElementTree
 
     Args:
-        * doc: An etree ElementTree or a file that can be parsed into
+        doc: An etree ElementTree or a file that can be parsed into
           an etree ElementTree with etree.parse
     Returns:
-        * An ivy Storage object containing all the information from the
+        An ivy Storage object containing all the information from the
           nexml file: Characters, metadata, OTUs, and trees.
     """
     if not isinstance(doc, (etree._ElementTree, etree._Element)):
@@ -192,7 +195,7 @@ def parse_nexml(doc):
                    trees = parse_trees(doc, otus))
 
 def parse_states(e):
-    "e is a characters element"
+    """e is a characters element"""
     f = e.findall(NEXML+"format")[0]
     sts = f.findall(NEXML+"states")[0]
     states2symb = {}

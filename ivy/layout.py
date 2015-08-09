@@ -37,7 +37,11 @@ def depth_length_preorder_traversal(node, n2coords=None, isroot=False):
     """
     Calculate node depth (root = depth 0) and length to root
 
-    Returns: Dict mapping nodes to coordinate objects. Coordinate
+    Args:
+       node (Node): A node object
+
+    Returns:
+        dict: Mapping of nodes to coordinate objects. Coordinate
              objects have attributes "depth" and "length_to_root"
     """
     if n2coords is None:
@@ -71,17 +75,17 @@ def calc_node_positions(node, width, height,
     Calculate where nodes should be positioned in 2d space for drawing a tree
 
     Args:
-        * node: A (root) node
-        * width: Float. The width of the canvas
-        * height: Float. The height of the canvas
-        * lpad, rpad, tpad, bpad: Float. Padding on the edges of the canvas.
+        node (Node): A (root) node
+        width (float): The width of the canvas
+        height (float): The height of the canvas
+        lpad, rpad, tpad, bpad (float): Padding on the edges of the canvas.
                                 Optional, defaults to 0.
-        * scaled: Bool. Whether or not the tree is scaled. Optional, defaults to
+        scaled (bool): Whether or not the tree is scaled. Optional, defaults to
                 True.
-        * smooth: Bool. Whether or not to smooth the tree. Optional, defaults to
+        smooth (bool): Whether or not to smooth the tree. Optional, defaults to
                 True.
     Returns:
-        Dict mapping nodes to Coordinates object
+        dict: Mapping of nodes to Coordinates object
     Notes:
         Origin is at upper left
     """

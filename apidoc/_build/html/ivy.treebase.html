@@ -8,7 +8,7 @@
     
     <title>ivy.treebase module &mdash; ivy  documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -24,15 +24,30 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ivy  documentation" href="index.html" />
-    <link rel="up" title="ivy package" href="ivy.html" />
+    <link rel="up" title="Ivy Apidoc" href="ivy.html" />
     <link rel="next" title="ivy.treegraph_experimental module" href="ivy.treegraph_experimental.html" />
-    <link rel="prev" title="ivy.tree module" href="ivy.tree.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="prev" title="ivy.tree module" href="ivy.tree.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.treegraph_experimental.html" title="ivy.treegraph_experimental module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.tree.html" title="ivy.tree module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" accesskey="U">Ivy Apidoc</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -46,21 +61,24 @@
 <dt id="ivy.treebase.fetch_study">
 <code class="descclassname">ivy.treebase.</code><code class="descname">fetch_study</code><span class="sig-paren">(</span><em>study_id</em>, <em>format='nexml'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treebase.html#fetch_study"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treebase.fetch_study" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a study from treebase in one of various formats</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>study_id: Str. The id of the study</li>
-<li>format: Str.  One of [&#8220;rdf&#8221;, &#8220;html&#8221;, &#8220;nexml&#8221;, &#8220;nexus&#8221;]</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>study_id</strong> (<em>str</em>) &#8211; The id of the study</li>
+<li><strong>format</strong> (<em>str</em>) &#8211; One of [&#8220;rdf&#8221;, &#8220;html&#8221;, &#8220;nexml&#8221;, &#8220;nexus&#8221;]</li>
 </ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first simple">
-<li>Str representing a nexus file (if format = &#8220;nexus&#8221;)</li>
-</ul>
-<p class="last">OR
-* An lxml etree object</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>Str representing a nexus file (if format = &#8220;nexus&#8221;)</p>
+<p>OR</p>
+<p>An lxml etree object</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -77,38 +95,36 @@
 <dt id="ivy.treebase.parse_nexml">
 <code class="descclassname">ivy.treebase.</code><code class="descname">parse_nexml</code><span class="sig-paren">(</span><em>doc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treebase.html#parse_nexml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treebase.parse_nexml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse an etree ElementTree</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>doc: An etree ElementTree or a file that can be parsed into
-an etree ElementTree with etree.parse</li>
-</ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>An ivy Storage object containing all the information from the
-nexml file: Characters, metadata, OTUs, and trees.</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>doc</strong> &#8211; An etree ElementTree or a file that can be parsed into
+an etree ElementTree with etree.parse</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An ivy Storage object containing all the information from the
+nexml file: Characters, metadata, OTUs, and trees.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.treebase.parse_otus">
 <code class="descclassname">ivy.treebase.</code><code class="descname">parse_otus</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treebase.html#parse_otus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treebase.parse_otus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get OTUs from an etree object</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>e: A nexml document parsed by etree</li>
-</ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A dict mapping keys to OTUs contained in ivy Storage objects</li>
-</ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>e</strong> &#8211; A nexml document parsed by etree</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dict mapping keys to OTUs contained in ivy Storage objects</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -121,19 +137,25 @@ nexml file: Characters, metadata, OTUs, and trees.</li>
 <dt id="ivy.treebase.parse_trees">
 <code class="descclassname">ivy.treebase.</code><code class="descname">parse_trees</code><span class="sig-paren">(</span><em>e</em>, <em>otus</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/treebase.html#parse_trees"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.treebase.parse_trees" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get trees from an etree object</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>e: A nexml document parsed by etree</li>
-<li>otus: OTUs returned by parse_otus</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>e</strong> &#8211; A nexml document parsed by etree</li>
+<li><strong>otus</strong> &#8211; OTUs returned by parse_otus</li>
 </ul>
-</dd>
-<dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of ivy Storage objects each containing every node of a tree.</li>
-</ul>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of ivy Storage objects each
+containing every node of a tree.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -143,17 +165,13 @@ nexml file: Characters, metadata, OTUs, and trees.</li>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="ivy.html">ivy package</a><ul>
-      <li>Previous: <a href="ivy.tree.html" title="previous chapter">ivy.tree module</a></li>
-      <li>Next: <a href="ivy.treegraph_experimental.html" title="next chapter">ivy.treegraph_experimental module</a></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.tree.html"
+                        title="previous chapter">ivy.tree module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.treegraph_experimental.html"
+                        title="next chapter">ivy.treegraph_experimental module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -178,20 +196,28 @@ nexml file: Characters, metadata, OTUs, and trees.</li>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Author.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/ivy.treebase.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.treegraph_experimental.html" title="ivy.treegraph_experimental module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.tree.html" title="ivy.tree module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="ivy.html" >Ivy Apidoc</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

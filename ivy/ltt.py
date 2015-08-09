@@ -24,7 +24,11 @@ def ltt(node):
     ultrametric chronogram (extant leaves, with branch lengths
     proportional to time).
 
-    Returns: (times, diversity) - 1D-arrays containing the results.
+    Args:
+        node (Node): A node object. All nodes should have branch lengths.
+
+    Returns:
+        tuple: (times, diversity) - 1D-arrays containing the results.
     """
     v = traverse(node) # v is a list of (time, diversity) values
     v.sort()
