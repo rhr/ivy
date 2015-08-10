@@ -59,7 +59,7 @@ file containing a newick tree, or an open file containing a newick
 string.  Note that file paths are completed dynamically in ipython by
 hitting the <TAB> key, making it easy to find files with little
 typing.
-   
+
 A new window should appear, controlled by the variable *fig*.  View
 the help for *fig*::
 
@@ -69,16 +69,16 @@ Trees in Ivy
 =============
 
 Ivy does not have a tree class per se; rather trees in Ivy exist as collections
-of nodes. In Ivy, a Node is a class that contains information about a node. 
+of nodes. In Ivy, a Node is a class that contains information about a node.
 Nodes are rooted and recursively contain their children. Functions
-in Ivy act directly on Node objects. Nodes support Python idioms such as ``in``, 
-``[``, iteration, etc. This guide will cover how to read, view, navigate, modify, 
+in Ivy act directly on Node objects. Nodes support Python idioms such as ``in``,
+``[``, iteration, etc. This guide will cover how to read, view, navigate, modify,
 and write trees in Ivy.
 
 Reading
 -------
 
-You can read in trees using Ivy's ``tree.read`` function. This function supports 
+You can read in trees using Ivy's ``tree.read`` function. This function supports
 newick and nexus files. The tree.read function can take a file name, a file
 object, or a Newick string as input. The output of this function is the root
 node of the tree.
@@ -106,7 +106,7 @@ to create a deep copy.
 .. warning::
 
     As of now, the copy function does not produce a complete tree: the nodes are not
-    properly connected to each other 
+    properly connected to each other
 
 .. sourcecode:: ipython
 
@@ -123,17 +123,17 @@ printed to the console.
 .. sourcecode:: ipython
 
     In [*]: print r.ascii # You can use the ascii method on root nodes.
-                                   ---------+ Homo   
-                          --------A+                 
-                 --------B+        ---------+ Pongo  
-                 :        :                          
-        --------C+        ------------------+ Macaca 
-        :        :                                   
-    root+        ---------------------------+ Ateles 
-        :                                            
-        ------------------------------------+ Galago 
- 
-For a more detailed and interactive tree, Ivy can create a plot using 
+                                   ---------+ Homo
+                          --------A+
+                 --------B+        ---------+ Pongo
+                 :        :
+        --------C+        ------------------+ Macaca
+        :        :
+    root+        ---------------------------+ Ateles
+        :
+        ------------------------------------+ Galago
+
+For a more detailed and interactive tree, Ivy can create a plot using
 ``Matplotlib``. More detail about visualization using Matplotlib will follow
 later in the guide.
 
@@ -161,11 +161,11 @@ You can also create a plot using ``Bokeh``.
 Navigating
 ----------
 
-A node in Ivy is a container. It recursively contains its descendants, 
+A node in Ivy is a container. It recursively contains its descendants,
 as well as itself. You can navigate a tree using the Python idioms that
 you are used to.
 
-Let's start by iterating over all of the children contained within the root 
+Let's start by iterating over all of the children contained within the root
 node. By default, iteration over a node happens in preorder sequence, starting
 with the root node.
 
@@ -184,7 +184,7 @@ with the root node.
     Node(139624003155920, leaf, 'Macaca')
     Node(139624003155984, leaf, 'Ateles')
     Node(139624003156048, leaf, 'Galago')
-    In [*]: for node in r.preiter: 
+    In [*]: for node in r.preiter:
                 print node # Same as above
     Node(140144824314320, root, 'root')
     Node(140144824314384, 'C')
@@ -209,7 +209,7 @@ with the root node.
 
 
 We can access internal nodes using square brackets on the root node (or other
-ancestor node). 
+ancestor node).
 
 .. sourcecode:: ipython
 
@@ -223,7 +223,7 @@ ancestor node).
 We can access the information a node has about which other nodes it is
 connected to using the ``children`` and ``parent`` attributes, which return
 the nodes directly connected to the current node. The ``descendants`` method, on
-the other hand, recursively lists all descendants of a node (not including 
+the other hand, recursively lists all descendants of a node (not including
 the node itself)
 
 .. sourcecode:: ipython
@@ -245,7 +245,7 @@ We can also grep leaf nodes and internal nodes specifically.
 .. sourcecode:: ipython
 
     In [*]: r.grep("A") # By default, grep ignores case
-    Out[*]: 
+    Out[*]:
     [Node(139624003155664, 'A'),
      Node(139624003155920, leaf, 'Macaca'),
      Node(139624003155984, leaf, 'Ateles'),
@@ -269,7 +269,7 @@ first argument and returns a ``bool``.
 .. sourcecode:: ipython
 
     In [*]: def three_or_more_decs(node):
-                return len(node) >= 4 
+                return len(node) >= 4
     In [*]: r.find(three_or_more_decs) # Find returns a generator
     Out[*]: <generator object find at 0x7efcbf498730>
     In [*]: r.findall(three_or_more_decs) # Findall returns a list
@@ -344,15 +344,15 @@ Collapsing removes a node and attaches its descendants to the node's parent.
 
     In [*]: r["A"].collapse()
     In [*]: print r.ascii()
-                                ------------+ Macaca 
-                                :                    
-                    -----------B+-----------+ Homo   
-                    :           :                    
-        -----------C+           ------------+ Pongo  
-        :           :                                
-    root+           ------------------------+ Ateles 
-        :                                            
-        ------------------------------------+ Galago 
+                                ------------+ Macaca
+                                :
+                    -----------B+-----------+ Homo
+                    :           :
+        -----------C+           ------------+ Pongo
+        :           :
+    root+           ------------------------+ Ateles
+        :
+        ------------------------------------+ Galago
 
 Pruning removes a node and its descendants
 
@@ -361,8 +361,8 @@ Pruning removes a node and its descendants
     In [*]: cladeB = r["B"] # Store this node: we will add it back later
     In [*]: r["B"].prune()
     In [*]: print r.ascii()
-        -----------------C+-----------------+ Ateles 
-    root+                                            
+        -----------------C+-----------------+ Ateles
+    root+
         ------------------------------------+ Galago
 
 You can see that the tree now has a 'knee': clade C only has one child and
@@ -374,9 +374,9 @@ and its single child.
 
     In [*]: r["C"].excise()
     In [*]: print r.ascii()
-        -------------------------------------+ Galago 
-    root+                                             
-        -------------------------------------+ Ateles 
+        -------------------------------------+ Galago
+    root+
+        -------------------------------------+ Ateles
 
 It is important to note that although the tree has changed, the nodes in the
 tree retain some of their original attributes, including their indices:
@@ -391,9 +391,9 @@ tree retain some of their original attributes, including their indices:
 
     IndexError: 1
     In [*]: r[7] # You can access existing nodes with their original indices
-    Out[*]: Node(140144821292368, leaf, 'Ateles') 
+    Out[*]: Node(140144821292368, leaf, 'Ateles')
 
-To recap: 
+To recap:
 #. ``collapse`` removes a node and adds its descendants to its parent
 #. ``prune`` removes a node and also removes its descendants
 #. ``excise`` removes 'knees'
@@ -411,14 +411,14 @@ Bisecting creates a 'knee' node halfway between a parent and a child.
     In [*]: r["Galago"].bisect_branch()
     Out[*]: Node(140144821654480)
     In [*]: print r.ascii
-        ------------------------------------+ Ateles 
-    root+                                            
-        ------------------+-----------------+ Galago 
+        ------------------------------------+ Ateles
+    root+
+        ------------------+-----------------+ Galago
 
 We now have a brand new node. We can set some of its attributes, including its
 label.
 
-Note: we `cannot` access this new node by using node indicies (that is, 
+Note: we `cannot` access this new node by using node indicies (that is,
 r[1], etc.). We also cannot use its label because it has none. We'll access
 it using its ID instead (if you're following along, your ID will be different).
 
@@ -432,11 +432,11 @@ Now let's add a node as a child of N. We can do this using the ``add_child`` met
 
     In [*]: r["N"].add_child(cladeB["Homo"])
     In [*]: print r.ascii()
-        ------------------------------------+ Ateles 
-    root+                                            
-        :                 ------------------+ Galago 
-        -----------------N+                          
-                          ------------------+ Homo 
+        ------------------------------------+ Ateles
+    root+
+        :                 ------------------+ Galago
+        -----------------N+
+                          ------------------+ Homo
 
 We can also add nodes with ``graft``. ``graft`` adds a node as a sibling to the
 current node. In doing so, it also adds a new node as parent to both nodes.
@@ -446,15 +446,15 @@ current node. In doing so, it also adds a new node as parent to both nodes.
     In [*]: r["Ateles"].graft(cladeB["Macaca"])
     In [*]: r["Galago"].graft(cladeB["Pongo"])
     In [*]: print r.ascii()
-                    ------------------------+ Homo   
-        -----------N+                                
-        :           :           ------------+ Galago 
-        :           ------------+                    
-    root+                       ------------+ Pongo  
-        :                                            
-        :                       ------------+ Ateles 
-        ------------------------+                    
-                                ------------+ Macaca 
+                    ------------------------+ Homo
+        -----------N+
+        :           :           ------------+ Galago
+        :           ------------+
+    root+                       ------------+ Pongo
+        :
+        :                       ------------+ Ateles
+        ------------------------+
+                                ------------+ Macaca
 
 
 To recap:
@@ -474,15 +474,15 @@ output when drawn. It orders the clades by size.
 
     In [*]: r.ladderize()
     In [*]: print r.ascii()
-                                ------------+ Ateles 
-        ------------------------+                    
-        :                       ------------+ Macaca 
-    root+                                            
-        :           ------------------------+ Homo   
-        -----------N+                                
-                    :           ------------+ Galago 
-                    ------------+                    
-                                ------------+ Pongo  
+                                ------------+ Ateles
+        ------------------------+
+        :                       ------------+ Macaca
+    root+
+        :           ------------------------+ Homo
+        -----------N+
+                    :           ------------+ Galago
+                    ------------+
+                                ------------+ Pongo
 
 
 Rerooting
@@ -495,7 +495,7 @@ Rerooting
 
     In [*]: r.reroot(r["N"])
     In [*]: r.descendants() # Missing descendants
-    Out[*]: 
+    Out[*]:
     [Node(140144821839696),
      Node(140144821839120, leaf, 'Ateles'),
      Node(140144821839056, leaf, 'Macaca')]
@@ -526,15 +526,15 @@ Using Treebase
 Fetching the study
 ------------------
 
-If you have an id for a study on treebase, you can fetch the study and 
+If you have an id for a study on treebase, you can fetch the study and
 access the trees contained within the study.
 
 .. sourcecode:: ipython
 
-    In [1]: import ivy
-    In [2]: from ivy.treebase import fetch_study
-    In [3]: study_id = "1411" # The leafy cactus genus Pereskia
-    In [4]: e = fetch_study(study_id, 'nexml') # e is an lxml etree
+    In [*]: import ivy
+    In [*]: from ivy.treebase import fetch_study
+    In [*]: study_id = "1411" # The leafy cactus genus Pereskia
+    In [*]: e = fetch_study(study_id, 'nexml') # e is an lxml etree
 
 
 Accessing the tree
@@ -545,17 +545,96 @@ You can parse the output of fetch_study using the parse_nexml function,
 
 .. sourcecode:: ipython
 
-    In [5]: from ivy.treebase import parse_nexml
-    In [6]: x = parse_nexml(e) # x is an ivy Storage object
-    In [7]: r = x.trees[0].root
-    In [8]: from ivy.interactive import treefig
-    In [9]: fig = treefig(r)
+    In [*]: from ivy.treebase import parse_nexml
+    In [*]: x = parse_nexml(e) # x is an ivy Storage object
+    In [*]: r = x.trees[0].root
+    In [*]: from ivy.interactive import treefig
+    In [*]: fig = treefig(r)
+
+
+
+Visualization with Matplotlib
+=============================
+
+``ivy`` supports interactive tree visualization with Matplotlib. 
+
+Displaying a tree is very simple
+
+.. sourcecode:: ipython
+
+    In [*]: from ivy.interactive import *
+    In [*]: r = ivy.tree.read("examples/primates.newick")
+    In [*]: fig = treefig(r)
+
+.. image:: _images/visualization_1.png
+
+A tree figure by default consists of the tree with clade and leaf
+labels and a navigation toolbar. The navigation toolbar allows zooming and
+panning. Panning can be done by clicking with the middle mouse button, using
+the arrow keys, or using the pan tool on the toolbar. Zooming can be done
+using the scroll wheel, the plus and minus keys, or the 'zoom to rectangle'
+tool in the toolbar. Press t to return default zoom level.
+
+Larger trees are shown with a split overview pane as well, which can be toggled
+with the ``toggle_overview`` method.
+
+.. sourcecode:: ipython
+
+    In [*]: fig.toggle_overview()
+
+.. image:: _images/visualization_2.png
+
+You can retrieve information about a node or group of nodes by selecting
+them (selected nodes have green circles on them) 
+and accessing the ``selected`` nodes
+
+.. sourcecode:: ipython
+
+    In [*]: fig.selected
+    Out [*]: 
+    [Node(139976891981456, leaf, 'Homo'),
+     Node(139976891981392, 'A'),
+     Node(139976891981520, leaf, 'Pongo')]
+
+.. image:: _images/visualization_3.png
+
+
+You can also select nodes from the command line. Entering an internal node will
+select that node and all of its descendants.
+
+.. sourcecode:: ipython
+
+    In [*]: fig.select_nodes(r["C"])
+
+.. image:: _images/visualization_4.png
+
+You can highlight certain branches using the ``highlight`` method. Again, 
+entering an internal node will highlight that node and its descendants. This
+also highlights the branches on the overview.
+
+.. sourcecode:: ipython
+
+    In [*]: fig.highlight(r["B"])
+
+.. image:: _images/visualization_5.png
+
+You can also decorate the tree with various symbols using the ``decorate``
+method. ``decorate`` can be called with any function from ``ivy.symbols``.
+
+.. sourcecode:: ipython
+
+    In [*]: import ivy.vis.symbols
+    In [*]: fig.redraw() # This clears the plot
+    In [*]: fig.decorate(ivy.vis.symbols.circles, r.leaves(), 
+            colors = ["red", "orange", "yellow", "green", "blue"])
+
+.. image:: _images/visualization_6.png
 
 
 Performing analyses
 ===================
 
-``ivy`` has many tools for performing analyses on trees. Here we will cover 
+``ivy`` has many tools for performing analyses on trees. Here we will cover
 a few analyses you can perform.
 
 Phylogenetically Independent Contrasts
@@ -564,10 +643,10 @@ Phylogenetically Independent Contrasts
 You can perform PICs using ``ivy``'s ``PIC`` function. This function takes a
 root node and a dictionary mapping node labels to character traits as inputs
 and outputs a dictionary mappinginternal nodes to tuples containing ancestral
-state, its variance (error), the contrast, and the contrasts's variance. 
+state, its variance (error), the contrast, and the contrasts's variance.
 
-Note: This function requires that the root node have a length
-Note: this function currently cannot handle polytomies
+Note: This function requires that the root node have a length that is not none.
+Note: this function currently cannot handle polytomies.
 
 .. sourcecode:: ipython
 
@@ -594,7 +673,7 @@ Lineages Through Time
 ---------------------
 
 ``ivy`` has functions for computing LTTs. The ``ltt`` function takes a root
-node as input and returns a tuple of 1D-arrays containing the results of 
+node as input and returns a tuple of 1D-arrays containing the results of
 times and diverisities.
 
 Note: The tree is expected to be an ultrametric chromogram (extant leaves,
@@ -606,15 +685,15 @@ branch lengths proportional to time).
     In [*]: r = ivy.tree.read("examples/primates.newick")
     In [*]: v = ivy.ltt(r)
     In [*]: print r.ascii()
-                                   ---------+ Homo   
-                          --------A+                 
-                 --------B+        ---------+ Pongo  
-                 :        :                          
-        --------C+        ------------------+ Macaca 
-        :        :                                   
-    root+        ---------------------------+ Ateles 
-        :                                            
-        ------------------------------------+ Galago 
+                                   ---------+ Homo
+                          --------A+
+                 --------B+        ---------+ Pongo
+                 :        :
+        --------C+        ------------------+ Macaca
+        :        :
+    root+        ---------------------------+ Ateles
+        :
+        ------------------------------------+ Galago
     In [*]: for i in l:
                 print i
     [ 0.    0.38  0.51  0.79]
@@ -623,7 +702,7 @@ branch lengths proportional to time).
 
 You can plot your results using ``Matplotlib``.
 
-    
+
 .. sourcecode:: ipython
 
     In [*]: import matplotlib.pyplot as plt
@@ -633,6 +712,83 @@ You can plot your results using ``Matplotlib``.
     In [*]: plt.show()
 
 .. image:: _images/ltt.png
+
+
+Phylorate plot
+--------------
+
+By accessing R libraries using `rpy2 <http://rpy.sourceforge.net/>`_, we can use
+the functions in the `BAMMtools <https://cran.r-project.org/web/packages/BAMMtools/index.html>`_
+R library to generate phylorate plots.
+
+The following analysis is done using the whales dataset provided with BAMMtools.
+
+The first step is to read in the data and then import and use the necessary
+R functions to get the rate data for each branch.
+
+.. sourcecode:: ipython
+
+    In [*]: from rpy2.robjects.packages import importr
+    In [*]: import numpy as np
+    In [*]: from ivy.interactive import *
+    In [*]: e = "whaleEvents.csv" # Event data created with BAMM
+    In [*]: treefile = "whales.tre"
+    In [*]: ape = importr('ape')
+    In [*]: bamm = importr('BAMMtools')
+    In [*]: rutils = importr('utils')
+    In [*]: events = rutils.read_csv(e)
+    In [*]: tree = ape.read_tree(treefile)
+    In [*]: edata = bamm.getEventData(tree, eventdata=e, burnin=0.2)
+    In [*]: dtrates = bamm.dtRates(edata, 0.01, tmat=True).rx2('dtrates')
+    In [*]: nodeidx = np.array(dtrates.rx2('tmat').rx(True, 1), dtype=int)
+    In [*]: rates = np.array(dtrates.rx2('rates'))
+    In [*]: netdiv = rates[0]-rates[1]
+
+Now we are done using R functions. The rest can be done in Python.
+
+The next step is to read in the tree with ``ivy`` and then assign the Ape
+node indicies. Ape numbers nodes as following: for a tree with n leaves, the
+leaves and numbered 1:n in the order they appear in their file. The internal
+nodes are ordered in preorder sequence, starting with the root node as
+node n+1.
+
+.. sourcecode:: ipython
+
+    In [*]: r = ivy.tree.read(treefile, type="newick")
+    In [*]: i = 1
+    In [*]: for lf in r.leaves():
+            lf.apeidx = i
+            i += 1
+    In [*]: for n in r.clades():
+            n.apeidx = i
+            i += 1
+    In [*]: f = treefig(r)
+
+Now we can generate the plot by drawing individual segments of each branch, 
+color-coded by rate along the branch.
+
+
+
+    In [*]: for n in r.descendants():
+            n.rates = netdiv[nodeidx==n.apeidx]
+            c = f.detail.n2c[n]
+            pc = f.detail.n2c[n.parent]
+            seglen = (c.x-pc.x)/len(n.rates)
+            for i, rate in enumerate(n.rates):
+                x0 = pc.x+i*seglen
+                x1 = x0+seglen
+                segments.append(((x0, c.y), (x1, c.y)))
+                values.append(rate)
+            segments.append(((pc.x, pc.y), (pc.x, c.y)))
+            values.append(n.rates[0])
+    In [*]: from matplotlib.cm import coolwarm
+    In [*]: from matplotlib.collections import LineCollection
+    In [*]: lc = LineCollection(segments, cmap=coolwarm, lw=2)
+    In [*]: lc.set_array(np.array(values))
+    In [*]: f.detail.add_collection(lc)
+    In [*]: f.figure.canvas.draw_idle()
+
+.. image:: _images/phylorate_plot.png
 
 
 

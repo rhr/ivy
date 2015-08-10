@@ -4,7 +4,7 @@ ivy: interactive visual phylogenetics
 
 ``ivy`` is a Python module for the analysis and exploration of
 phylogenetic trees and comparative data, based on IPython, matplotlib,
-scipy, and numpy.
+scipy, and numpy. 
 
 .. warning::
 
