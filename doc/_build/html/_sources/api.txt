@@ -1,6 +1,0 @@
-***********
-The Ivy API
-***********
-
-.. automodule:: ivy
-    :members:
