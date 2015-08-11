@@ -854,6 +854,25 @@ class Node(object):
             cp.label = node.label
         newroot.isroot = True
         return newroot
+        
+    def reroot_new(self, newroot):
+        """
+        Create a new node to be the root. Set newroot as one child of this node.
+        Remove old root. Attach old root's descendants to the new root.
+        """
+        oldroot = self
+        oldroot.isroot = False
+        newroot = oldroot[newroot]
+        assert newroot in oldroot
+        assert newroot not in oldroot.children
+        t = newroot.bisect_branch()
+        knee = t.parent
+        t.parent.remove_child(t)
+        knee.excise()
+        newroot.graft(oldroot)
+        newroot.parent.parent = None
+        newroot.parent.isroot = True
+        return newroot.parent
 
     def makeroot(self, shift_labels=False):
         """

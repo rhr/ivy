@@ -7,7 +7,7 @@ User's Guide
 ``ivy`` is designed to be used both as a library and interactively, in
 the IPython shell.  `IPython <http://ipython.scipy.org>`_ is an
 enhanced Python interpreter designed for interactive and exploratory
-scientific computing.
+scientific computing. 
 
 This `screencast <http://vimeo.com/23646898>`_ demonstrates some basic
 concepts:
@@ -665,7 +665,7 @@ tree.
     In [*]: r = readtree("examples/plants.newick")
     In [*]: fig = treefig(r)
 
-.. image:: _images/plants_fig1
+.. image:: _images/plants_fig1.png
 
 When a tree has a large number of tips (>100), ``ivy`` automatically includes an
 overview on the side. This tree looks rather cluttered. We can try to clean it
@@ -676,7 +676,7 @@ up by ladderizing the tree and toggling off the node labels
     In [*]: fig.ladderize()
     In [*]: fig.toggle_branchlabels()
 
-.. image:: _images/plants_fig2
+.. image:: _images/plants_fig2.png
 
 Here you can see that when all of the labels do not fit on the tree, the plot
 automatically only draws as many labels as will fit.
@@ -690,7 +690,7 @@ trees.
     In [*]: sol = fig.find("Solanales")[0]
     In [*]: fig.highlight(sol)
 
-.. image:: _images/plants_fig3
+.. image:: _images/plants_fig3.png
 
 We can zoom to this clade with the ``zoom_clade`` function.
 
@@ -698,11 +698,11 @@ We can zoom to this clade with the ``zoom_clade`` function.
 
     In [*]: fig.zoom_clade(sol)
 
-.. image:: _images/plants_fig4
+.. image:: _images/plants_fig4.png
 
 Maybe we want to zoom out a little. We can select a few clades...
 
-.. image:: _images/plants_fig5
+.. image:: _images/plants_fig5.png
 
 And then zoom to the MRCA of the selected nodes
 
@@ -711,11 +711,11 @@ And then zoom to the MRCA of the selected nodes
     In [*]: c = fig.root.mrca(fig.selected)
     In [*]: fig.zoom_clade(c)
 
-.. image:: _images/plants_fig6
+.. image:: _images/plants_fig6.png
 
 Another benefit to using ``ivy`` interactively is ``ivy``'s node autocompelte
 function. You can type in the partial name of a node and hit ``tab`` to 
-autocomplete, just like with any other autocompletion in ipython
+autocomplete, just like with any other autocompletion in ipython. 
 
 .. sourcecode:: ipython
 
