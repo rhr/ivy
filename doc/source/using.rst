@@ -144,6 +144,7 @@ later in the guide.
     In [*]: fig.show()
 
 .. image:: _images/primate_mpl.png
+    :width: 700
 
 
 You can also create a plot using ``Bokeh``.
@@ -155,8 +156,8 @@ You can also create a plot using ``Bokeh``.
     In [*]: fig2.drawtree()
 
 .. image:: _images/primate_bokeh.png
+    :width: 700
 
-.. TODO: embed plot images
 
 Navigating
 ----------
@@ -489,17 +490,12 @@ Rerooting
 ~~~~~~~~~
 
 .. warning::
-    Currently does not work properly.
+    Rerooting can lead to unexpected results, such as mixed up labels
 
 .. sourcecode:: ipython
 
-    In [*]: r.reroot(r["N"])
-    In [*]: r.descendants() # Missing descendants
-    Out[*]:
-    [Node(140144821839696),
-     Node(140144821839120, leaf, 'Ateles'),
-     Node(140144821839056, leaf, 'Macaca')]
-    In [*]: print r.ascii() # Raises a KeyError
+    In [*]: r2 = r.reroot(r["N"])
+    In [*]: print r2.ascii()
 
 Writing
 -------
@@ -558,15 +554,36 @@ Visualization with Matplotlib
 
 ``ivy`` supports interactive tree visualization with Matplotlib. 
 
-Displaying a tree is very simple
+Small Trees
+-----------
+
+Displaying a tree is very simple. For interactive tree viewing, you can run
+the command ``from ivy.interactive import *``, which imports a number of 
+convenience functions for interacting with trees. After importing everything
+from ivy.interactive, you may, for instance, use ``readtree`` instead of
+``ivy.tree.read`` and ``treefig`` instead of ``ivy.vis.tree.TreeFigure``.
 
 .. sourcecode:: ipython
 
     In [*]: from ivy.interactive import *
-    In [*]: r = ivy.tree.read("examples/primates.newick")
+    In [*]: r = readtree("examples/primates.newick")
     In [*]: fig = treefig(r)
 
+You can also use the magic command ``%maketree`` in the ipython console to
+read in a tree.
+
+.. sourcecode:: ipython
+
+    In [*]: %maketree
+    Enter the name of a tree file or a newick string:
+    examples/primates.newick
+    Tree parsed and assigned to variable 'root'
+    In [*]: root
+    Out[*]: Out[38]: Node(139904996110480, root, 'root')
+
+
 .. image:: _images/visualization_1.png
+    :width: 700
 
 A tree figure by default consists of the tree with clade and leaf
 labels and a navigation toolbar. The navigation toolbar allows zooming and
@@ -583,6 +600,7 @@ with the ``toggle_overview`` method.
     In [*]: fig.toggle_overview()
 
 .. image:: _images/visualization_2.png
+    :width: 700
 
 You can retrieve information about a node or group of nodes by selecting
 them (selected nodes have green circles on them) 
@@ -597,6 +615,7 @@ and accessing the ``selected`` nodes
      Node(139976891981520, leaf, 'Pongo')]
 
 .. image:: _images/visualization_3.png
+    :width: 700
 
 
 You can also select nodes from the command line. Entering an internal node will
@@ -607,6 +626,7 @@ select that node and all of its descendants.
     In [*]: fig.select_nodes(r["C"])
 
 .. image:: _images/visualization_4.png
+    :width: 700
 
 You can highlight certain branches using the ``highlight`` method. Again, 
 entering an internal node will highlight that node and its descendants. This
@@ -617,6 +637,7 @@ also highlights the branches on the overview.
     In [*]: fig.highlight(r["B"])
 
 .. image:: _images/visualization_5.png
+    :width: 700
 
 You can also decorate the tree with various symbols using the ``decorate``
 method. ``decorate`` can be called with any function from ``ivy.symbols``.
@@ -629,6 +650,81 @@ method. ``decorate`` can be called with any function from ``ivy.symbols``.
             colors = ["red", "orange", "yellow", "green", "blue"])
 
 .. image:: _images/visualization_6.png
+    :width: 700
+
+Large Trees
+-----------
+
+Oftentimes, the tree you are working with is too large to comfortably fit on
+one page. ``ivy`` has many tools for working with large trees and creating
+legible, printable figures of them. Let's try working on an example plant
+tree.
+
+.. sourcecode:: ipython
+
+    In [*]: r = readtree("examples/plants.newick")
+    In [*]: fig = treefig(r)
+
+.. image:: _images/plants_fig1
+
+When a tree has a large number of tips (>100), ``ivy`` automatically includes an
+overview on the side. This tree looks rather cluttered. We can try to clean it
+up by ladderizing the tree and toggling off the node labels
+
+.. sourcecode:: ipython
+
+    In [*]: fig.ladderize()
+    In [*]: fig.toggle_branchlabels()
+
+.. image:: _images/plants_fig2
+
+Here you can see that when all of the labels do not fit on the tree, the plot
+automatically only draws as many labels as will fit.
+
+Let's say we only want to look at the Solanales. The ``highlight`` function,
+combined with the ``find`` function, is very useful when working with large
+trees.
+
+.. sourcecode:: ipython
+
+    In [*]: sol = fig.find("Solanales")[0]
+    In [*]: fig.highlight(sol)
+
+.. image:: _images/plants_fig3
+
+We can zoom to this clade with the ``zoom_clade`` function.
+
+.. sourcecode:: ipython
+
+    In [*]: fig.zoom_clade(sol)
+
+.. image:: _images/plants_fig4
+
+Maybe we want to zoom out a little. We can select a few clades...
+
+.. image:: _images/plants_fig5
+
+And then zoom to the MRCA of the selected nodes
+
+.. sourcecode:: ipython
+
+    In [*]: c = fig.root.mrca(fig.selected)
+    In [*]: fig.zoom_clade(c)
+
+.. image:: _images/plants_fig6
+
+Another benefit to using ``ivy`` interactively is ``ivy``'s node autocompelte
+function. You can type in the partial name of a node and hit ``tab`` to 
+autocomplete, just like with any other autocompletion in ipython
+
+.. sourcecode:: ipython
+
+    In [*]: fig.root["Sy # Hit tab to autocomplete
+    Sylvichadsia  Symplocaceae  Synoum        Syrmatium   
+    In [*]: fig.root["Sym # Hitting tab will complete the line
+    In [*]: fig.root["Symplocaceae"]
+    Out[*]: Node(139904995827408, leaf, 'Symplocaceae')
+
 
 
 Performing analyses
@@ -712,6 +808,7 @@ You can plot your results using ``Matplotlib``.
     In [*]: plt.show()
 
 .. image:: _images/ltt.png
+    :width: 700
 
 
 Phylorate plot
@@ -768,6 +865,7 @@ Now we can generate the plot by drawing individual segments of each branch,
 color-coded by rate along the branch.
 
 
+.. sourcecode:: ipython
 
     In [*]: for n in r.descendants():
             n.rates = netdiv[nodeidx==n.apeidx]
@@ -789,6 +887,7 @@ color-coded by rate along the branch.
     In [*]: f.figure.canvas.draw_idle()
 
 .. image:: _images/phylorate_plot.png
+    :width: 700
 
 
 
