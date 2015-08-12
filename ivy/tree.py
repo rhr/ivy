@@ -407,8 +407,8 @@ class Node(object):
         Return a list of leaves. Can be filtered with f.
 
         Args:
-            f (function): A function that evaluates to True if called with desired
-              node as the first input
+            f (function): A function that evaluates to True if called with 
+              desired node as the first input
 
         Returns:
             list: A list of leaves that are true for f (if f is given)
@@ -422,8 +422,8 @@ class Node(object):
         Return a list nodes that have children (internal nodes)
 
         Args:
-            f (function): A function that evaluates to true if called with desired
-              node as the first input
+            f (function): A function that evaluates to true if called with 
+              desired node as the first input
 
         Returns:
             list: A list of internal nodes that are true for f (if f is given)
@@ -511,6 +511,28 @@ class Node(object):
             if child.children:
                 child.descendants(order, v, f)
         return v
+    def drop_tip(self, *nodes):
+        """
+        Drop given leaf nodes from the tree
+        
+        Args:
+            *nodes: Leaf nodes or labels of leaf nodes
+        Returns:
+            Node: Root node with tips dropped
+        """
+        nodes = [ self[x] for x in nodes ]
+        assert all([ x.isleaf for x in nodes ]), "All nodes given must be tips"
+        
+        for node in nodes:
+            cp = node.parent
+            cp.remove_child(node)
+            node.length += cp.length
+            if len(cp.children) == 1: 
+                try: 
+                    cp.excise()
+                except AssertionError:
+                    pass
+        return self
 
     def get(self, f, *args, **kwargs):
         """
@@ -519,6 +541,7 @@ class Node(object):
         Args:
             f (function): A function that evaluates to True if desired
               node is called as the first parameter.
+            *args, **kwargs: Additional args called by f
         Returns:
             Node: The first node found by node.find()
 
@@ -695,8 +718,8 @@ class Node(object):
         Args:
             end (Node): A Node object to iterate to (instead of iterating
               towards root). Optional, defaults to None
-            stop (function): A function that returns True if desired node is called
-              as the first parameter. Optional, defaults to None
+            stop (function): A function that returns True if desired node is 
+              called as the first parameter. Optional, defaults to None
 
         Yields:
             Node: Nodes in path to root (or end).
@@ -857,7 +880,8 @@ class Node(object):
         
     def reroot_new(self, newroot):
         """
-        Create a new node as parent to newroot to be the new root.
+        Create a new node as parent to newroot to be the new root. Reroot
+        the tree with newroot as the 'outgroup'.
         """
         oldroot = self
         oldroot.isroot = False
@@ -871,10 +895,14 @@ class Node(object):
         t.children.append(v[0])
         
         newparent = t
+        newlen = t.length
         for node in v:
             node.children = [ x for x in node.children if x is not newparent ]
             node.children.append(node.parent)
             node.parent = newparent
+            oldlen = node.length
+            node.length = newlen
+            newlen = oldlen
             newparent = node
         v[-1].children = [ x for x in v[-1].children if x ]
         v[-1].excise()
