@@ -857,8 +857,7 @@ class Node(object):
         
     def reroot_new(self, newroot):
         """
-        Create a new node to be the root. Set newroot as one child of this node.
-        Remove old root. Attach old root's descendants to the new root.
+        Create a new node as parent to newroot to be the new root.
         """
         oldroot = self
         oldroot.isroot = False
@@ -866,13 +865,26 @@ class Node(object):
         assert newroot in oldroot
         assert newroot not in oldroot.children
         t = newroot.bisect_branch()
-        knee = t.parent
-        t.parent.remove_child(t)
-        knee.excise()
-        newroot.graft(oldroot)
-        newroot.parent.parent = None
-        newroot.parent.isroot = True
-        return newroot.parent
+        
+        v = list(t.rootpath())
+        t.parent = None
+        t.children.append(v[0])
+        
+        newparent = t
+        for node in v:
+            node.children = [ x for x in node.children if x is not newparent ]
+            node.children.append(node.parent)
+            node.parent = newparent
+            newparent = node
+        v[-1].children = [ x for x in v[-1].children if x ]
+        v[-1].excise()
+        
+        t.isroot = True
+        return t
+            
+            
+        
+        
 
     def makeroot(self, shift_labels=False):
         """
