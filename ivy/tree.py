@@ -205,7 +205,7 @@ class Node(object):
 
     def copy(self, recurse=False):
         """
-        Return a copy of the node, but not copies of children, parent,
+        Return a shallow copy of the node, but not copies of children, parent,
         or any attribute that is a Node.
 
         If `recurse` is True, recursively copy child nodes.
@@ -230,6 +230,32 @@ class Node(object):
                     child.copy(True) for child in self.children
                     ]
         return newnode
+    def copy_new(self, recurse=True, _par=None):
+        """
+        Return a shallow copy of self. If recurse = False, do not copy children,
+        parents, or any attribute that is Node.
+        
+        Args:
+            recurse (bool): Whether or not to copy children as well as self.
+
+        Returns:
+            Node: A copy of self.
+
+        """
+        newnode = Node()
+        for attr, value in self.__dict__.items():
+            if (attr not in ("children", "parent") and
+                not isinstance(value, Node)):
+                setattr(newnode, attr, _copy(value))
+        if recurse:
+            newnode.children = [
+                child.copy_new(True, _par = newnode) for child in self.children
+                ]
+            if _par:
+                newnode.parent = _par
+        return newnode
+        
+        
 
     def leafsets(self, d=None, labels=False):
         """return a mapping of nodes to leaf sets (nodes or labels)"""
@@ -518,7 +544,7 @@ class Node(object):
         Args:
             *nodes: Leaf nodes or labels of leaf nodes
         Returns:
-            Node: Root node with tips dropped
+            Node (Node): Root node with tips dropped
         """
         nodes = [ self[x] for x in nodes ]
         assert all([ x.isleaf for x in nodes ]), "All nodes given must be tips"
