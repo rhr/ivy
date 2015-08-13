@@ -33,6 +33,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -57,13 +60,14 @@
 <span class="sd">    given a dictionary of trait values.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        node: A node object</span>
-<span class="sd">        data: A dict mapping leaf names to character values</span>
-<span class="sd">        </span>
+<span class="sd">        node (Node): A node object</span>
+<span class="sd">        data (dict): Mapping of leaf names to character values</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        A dict mapping internal nodes to tuples containing ancestral</span>
-<span class="sd">        state, its variance (error), the contrast, and the contrasts&#39;s variance. </span>
-<span class="sd">    </span>
+<span class="sd">        dict: Mapping of internal nodes to tuples containing ancestral</span>
+<span class="sd">              state, its variance (error), the contrast, and the</span>
+<span class="sd">              contrasts&#39;s variance.</span>
+
 <span class="sd">    TODO: modify to accommodate polytomies.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">X</span> <span class="o">=</span> <span class="p">[];</span> <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
@@ -103,7 +107,7 @@
         <span class="s">&quot;Ateles&quot;</span><span class="p">:</span> <span class="mf">2.02815</span><span class="p">,</span>
         <span class="s">&quot;Galago&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.46968</span>
         <span class="p">}</span>
-    
+
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">PIC</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">char1</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">print</span> <span class="n">k</span><span class="o">.</span><span class="n">label</span> <span class="ow">or</span> <span class="n">k</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">v</span>
 </pre></div>
@@ -136,6 +140,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>

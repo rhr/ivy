@@ -33,6 +33,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -71,8 +74,11 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate node depth (root = depth 0) and length to root</span>
 
-<span class="sd">    Returns: Dict mapping nodes to coordinates instances. Coordinate</span>
-<span class="sd">             instances have attributes &quot;depth&quot; and &quot;length_to_root&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        node (Node): A node object.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Mapping of nodes to coordinates instances. Coordinate</span>
+<span class="sd">        instances have attributes &quot;depth&quot; and &quot;length_to_root&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">n2coords</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">n2coords</span> <span class="o">=</span> <span class="p">{}</span>
@@ -108,18 +114,18 @@
 <span class="sd">    polar tree</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * node: A (root) node</span>
-<span class="sd">        * radius: Float. The radius of the tree. Optional, defaults to 1</span>
-<span class="sd">        * pole: Tuple of floats.. The cartesian coordinate of the pole.</span>
+<span class="sd">        node (Node): A (root) node</span>
+<span class="sd">        radius (float): The radius of the tree. Optional, defaults to 1</span>
+<span class="sd">        pole (tuple): Tuple of floats. The cartesian coordinate of the pole.</span>
 <span class="sd">          Optional, defaults to None.</span>
-<span class="sd">        * end: Float. Where the tree ends. For best results, between 0 and 360.</span>
+<span class="sd">        end (float): Where the tree ends. For best results, between 0 and 360.</span>
 <span class="sd">          Optional, defaults to None.</span>
-<span class="sd">        * direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is</span>
+<span class="sd">        direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is</span>
 <span class="sd">          drawn. Optional, defaults to COUNTERCLOCKWISE</span>
-<span class="sd">        * scaled: Bool. Whether or not the tree is scaled. Optional, defaults</span>
+<span class="sd">        scaled (bool): Whether or not the tree is scaled. Optional, defaults</span>
 <span class="sd">          to False.</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        * Dict mapping nodes to Coordinates object</span>
+<span class="sd">        dict: Mapping of nodes to Coordinates object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">leaves</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">leaves</span><span class="p">()</span>
     <span class="n">nleaves</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">leaves</span><span class="p">)</span>
@@ -259,6 +265,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>

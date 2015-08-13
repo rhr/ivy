@@ -33,6 +33,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -88,23 +91,23 @@
 <span class="sd">    A basic Node class with attributes and references to child nodes</span>
 <span class="sd">    (&#39;children&#39;, a list) and &#39;parent&#39;.</span>
 
-<span class="sd">    Kwargs:</span>
-<span class="sd">        * id: ID of the node. If not provided, is set using</span>
+<span class="sd">    Keyword Args:</span>
+<span class="sd">        id: ID of the node. If not provided, is set using</span>
 <span class="sd">          builtin id function</span>
-<span class="sd">        * ni: Int. Node index.</span>
-<span class="sd">        * li: Int. Leaf index.</span>
-<span class="sd">        * isroot: Bool. Is the node a root.</span>
-<span class="sd">        * isleaf: Bool. Is the node a leaf.</span>
-<span class="sd">        * label: Str. Node label.</span>
-<span class="sd">        * length: Float. Branch length from node to parent</span>
-<span class="sd">        * support: RR: Are these bootstrap support values? -CZ</span>
-<span class="sd">        * age: Float. Age of the node in time units.</span>
-<span class="sd">        * parent: Node object. Parent of the ndoe.</span>
-<span class="sd">        * children: List of node objects. Children of node</span>
-<span class="sd">        * nchildren: Int. # of children</span>
-<span class="sd">        * left: RR: Unsure what left and right mean -CZ</span>
-<span class="sd">        * treename: Name of tree</span>
-<span class="sd">        * comment: Comments for tree</span>
+<span class="sd">        ni (int): Node index.</span>
+<span class="sd">        li (int): Leaf index.</span>
+<span class="sd">        isroot (bool): Is the node a root.</span>
+<span class="sd">        isleaf (bool): Is the node a leaf.</span>
+<span class="sd">        label (str): Node label.</span>
+<span class="sd">        length (float): Branch length from node to parent</span>
+<span class="sd">        support: RR: Are these bootstrap support values? -CZ</span>
+<span class="sd">        age (float): Age of the node in time units.</span>
+<span class="sd">        parent (Node): Parent of the ndoe.</span>
+<span class="sd">        children (list): List of node objects. Children of node</span>
+<span class="sd">        nchildren (int): No. of children</span>
+<span class="sd">        left: RR: Unsure what left and right mean -CZ</span>
+<span class="sd">        treename: Name of tree</span>
+<span class="sd">        comment: Comments for tree</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -156,6 +159,14 @@
 
 
     <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For use with `in` keyword</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: Another node or node label.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: Whether or not the other node is a descendant of self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">otype</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">and</span> <span class="n">otype</span> <span class="ow">in</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
@@ -173,49 +184,49 @@
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iternodes</span><span class="p">():</span>
             <span class="k">yield</span> <span class="n">node</span>
 
-<div class="viewcode-block" id="Node.__len__"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.__len__">[docs]</a>    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of nodes descended from self</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * Int. Number of nodes descended from self (including self)</span>
+<span class="sd">            int: Number of nodes descended from self (including self)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">i</span>
-</div>
+
     <span class="k">def</span> <span class="nf">__nonzero__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">True</span>
 
-<div class="viewcode-block" id="Node.__getitem__"><a class="viewcode-back" href="../../tree.html#ivy.tree.Node.__getitem__">[docs]</a>    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            * x: A Node, Node.id (int) or a Node.label (string)</span>
+<span class="sd">            x: A Node, Node.id (int) or a Node.label (string)</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * Found node(s)</span>
+<span class="sd">            Node: Found node(s)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="n">x</span> <span class="ow">or</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="o">==</span><span class="n">x</span> <span class="ow">or</span> <span class="n">n</span><span class="o">.</span><span class="n">ni</span> <span class="o">==</span> <span class="n">x</span> <span class="ow">or</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">and</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="o">==</span><span class="n">x</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">n</span>
         <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-</div>
+
 <div class="viewcode-block" id="Node.ascii"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.ascii">[docs]</a>    <span class="k">def</span> <span class="nf">ascii</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create ascii tree.</span>
 
-<span class="sd">        Kwargs:</span>
-<span class="sd">            * unitlen: Float. How long each unit should be rendered as.</span>
+<span class="sd">        Keyword Args:</span>
+<span class="sd">            unitlen (float): How long each unit should be rendered as.</span>
 <span class="sd">              Defaults to 3.</span>
-<span class="sd">            * minwidth: Float. Minimum width of the plot. Defaults to 50</span>
-<span class="sd">            * maxwidth: Float. Maximum width of the plot. Defaults to None</span>
-<span class="sd">            * scaled: Bool. Whether or not the tree is scaled. Defaults to False</span>
-<span class="sd">            * show_internal_labels: Bool. Whether or not to show labels</span>
+<span class="sd">            minwidth (float): Minimum width of the plot. Defaults to 50</span>
+<span class="sd">            maxwidth (float): Maximum width of the plot. Defaults to None</span>
+<span class="sd">            scaled (bool): Whether or not the tree is scaled. Defaults to False</span>
+<span class="sd">            show_internal_labels (bool): Whether or not to show labels</span>
 <span class="sd">              on internal nodes. Defaults to True.</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            * Str. Ascii tree to be shown with print().</span>
+<span class="sd">            str: Ascii tree to be shown with print().</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">ascii</span> <span class="kn">import</span> <span class="n">render</span>
         <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -225,10 +236,11 @@
 <span class="sd">        Remove self and collapse children to polytomy</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * add: Bool. Whether or not to add self&#39;s length to children&#39;s</span>
+<span class="sd">            add (bool): Whether or not to add self&#39;s length to children&#39;s</span>
 <span class="sd">              length.</span>
 
-<span class="sd">        * Returns: parent of self</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Node: Parent of self</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
@@ -248,10 +260,10 @@
 <span class="sd">        If `recurse` is True, recursively copy child nodes.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * recurse: Bool. Whether or not to copy children as well as self.</span>
+<span class="sd">            recurse (bool): Whether or not to copy children as well as self.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * Node object that is a copy of self.</span>
+<span class="sd">            Node: A copy of self.</span>
 
 <span class="sd">        TODO: test this function.</span>
 
@@ -290,9 +302,9 @@
 <span class="sd">        Find most recent common ancestor of *nodes*</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * *nodes: Node objects</span>
+<span class="sd">            *nodes (Node): Node objects</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            * Node object. The MRCA of *nodes*</span>
+<span class="sd">            Node: The MRCA of *nodes*</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -345,10 +357,10 @@
 <span class="sd">        Test if leaf descendants are monophyletic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * At least two leaf Node objects</span>
+<span class="sd">            *leaves (Node): At least two leaf Node objects</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * Bool. Are the leaf descendants monophyletic?</span>
+<span class="sd">            bool: Are the leaf descendants monophyletic?</span>
 
 <span class="sd">        RR: Should this function have a check to make sure the input nodes are</span>
 <span class="sd">        leaves? There is some strange behavior if you input internal nodes -CZ</span>
@@ -366,7 +378,6 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Order interal clades by size</span>
 
-<span class="sd">        RR: What is n2s?</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">n2s</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">n2s</span> <span class="o">=</span> <span class="n">clade_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -389,7 +400,7 @@
 <span class="sd">        Add child as child of self</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * child: A node object</span>
+<span class="sd">            child (Node): A node object</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">child</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span>
@@ -403,7 +414,7 @@
 <span class="sd">        Add new node as parent to self in the middle of branch to parent.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * A new node.</span>
+<span class="sd">            Node: A new node.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
@@ -421,7 +432,7 @@
 <span class="sd">        Remove child.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * child: A node object that is a child of self</span>
+<span class="sd">            child (Node): A node object that is a child of self</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span>
@@ -434,6 +445,9 @@
 <div class="viewcode-block" id="Node.labeled"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.labeled">[docs]</a>    <span class="k">def</span> <span class="nf">labeled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a list of all descendant nodes that are labeled</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: All descendants of self that are labeled (including self)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="p">]</span>
 </div>
@@ -442,11 +456,11 @@
 <span class="sd">        Return a list of leaves. Can be filtered with f.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * f: A function that evaluates to True if called with desired</span>
+<span class="sd">            f (function): A function that evaluates to True if called with desired</span>
 <span class="sd">              node as the first input</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * A list of leaves that are true for f (if f is given)</span>
+<span class="sd">            list: A list of leaves that are true for f (if f is given)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">f</span><span class="p">:</span> <span class="k">return</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="ow">and</span> <span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="p">]</span>
@@ -457,11 +471,11 @@
 <span class="sd">        Return a list nodes that have children (internal nodes)</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * f: A function that evaluates to true if called with desired</span>
+<span class="sd">            f (function): A function that evaluates to true if called with desired</span>
 <span class="sd">              node as the first input</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * A list of internal nodes that are true for f (if f is given)</span>
+<span class="sd">            list: A list of internal nodes that are true for f (if f is given)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">f</span><span class="p">:</span> <span class="k">return</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">children</span> <span class="ow">and</span> <span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="p">]</span>
@@ -472,7 +486,7 @@
 <span class="sd">        Get internal nodes descended from self</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * A list of internal nodes descended from self.</span>
+<span class="sd">            list: A list of internal nodes descended from self.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
@@ -482,11 +496,12 @@
 <span class="sd">        Return a generator of nodes descendant from self - including self</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * f: A function that evaluates to true if called with desired</span>
-<span class="sd">              node as the first input</span>
+<span class="sd">            f (function): A function that evaluates to true if called with</span>
+<span class="sd">            desired node as the first input</span>
 
 <span class="sd">        Yields:</span>
-<span class="sd">            * Nodes descended from self (including self) in preorder sequence</span>
+<span class="sd">            Node: Nodes descended from self (including self) in</span>
+<span class="sd">              preorder sequence</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">f</span> <span class="ow">and</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">f</span><span class="p">):</span>
@@ -526,13 +541,13 @@
 <span class="sd">        including self!</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * order: String, optional, defaults to &quot;pre&quot;. Indicates wether to</span>
-<span class="sd">              return nodes in preorder or postorder sequence.</span>
-<span class="sd">            * f: filtering function that evaluates to True if desired</span>
+<span class="sd">            order (str): Indicates wether to return nodes in preorder or</span>
+<span class="sd">              postorder sequence. Optional, defaults to &quot;pre&quot;</span>
+<span class="sd">            f (function): filtering function that evaluates to True if desired</span>
 <span class="sd">              node is called as the first parameter.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * A list of nodes descended from self not including self.</span>
+<span class="sd">            list: A list of nodes descended from self not including self.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">v</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -551,10 +566,10 @@
 <span class="sd">        Return the first node found by node.find()</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * f: A function that evaluates to True if desired</span>
+<span class="sd">            f (function): A function that evaluates to True if desired</span>
 <span class="sd">              node is called as the first parameter.</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            * The first node found by node.find()</span>
+<span class="sd">            Node: The first node found by node.find()</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -568,11 +583,11 @@
 <span class="sd">        Find nodes by regular-expression search of labels</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * s: Str. String to search.</span>
-<span class="sd">            * ignorecase: Bool. Indicates to ignore case. Defaults to true.</span>
+<span class="sd">            s (str): String to search.</span>
+<span class="sd">            ignorecase (bool): Indicates to ignore case. Defaults to true.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * A list of node objects whose labels were matched by s.</span>
+<span class="sd">            lsit: A list of node objects whose labels were matched by s.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">re</span>
@@ -589,11 +604,11 @@
 <span class="sd">        Find leaves by regular-expression search of labels</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * s: Str. String to search.</span>
-<span class="sd">            * ignorecase: Bool. Indicates to ignore case. Defaults to true.</span>
+<span class="sd">            s (str): String to search.</span>
+<span class="sd">            ignorecase (bool): Indicates to ignore case. Defaults to true.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * A list of node objects whose labels were matched by s.</span>
+<span class="sd">            lsit: A list of node objects whose labels were matched by s.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grep</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ignorecase</span><span class="o">=</span><span class="n">ignorecase</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
@@ -604,11 +619,11 @@
 <span class="sd">        labels</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * s: Str. String to search.</span>
-<span class="sd">            * ignorecase: Bool. Indicates to ignore case. Defaults to true.</span>
+<span class="sd">            s (str): String to search.</span>
+<span class="sd">            ignorecase (bool): Indicates to ignore case. Defaults to true.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * A list of node objects whose labels were matched by s.</span>
+<span class="sd">            lsit: A list of node objects whose labels were matched by s.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grep</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ignorecase</span><span class="o">=</span><span class="n">ignorecase</span><span class="p">)</span> <span class="k">if</span>
@@ -619,15 +634,13 @@
 <span class="sd">        Find descendant nodes.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * f: Function or a string.  If a string, it is converted to a</span>
+<span class="sd">            f: Function or a string.  If a string, it is converted to a</span>
 <span class="sd">              function for finding *f* as a substring in node labels.</span>
 <span class="sd">              Otherwise, *f* should evaluate to True if called with a desired</span>
 <span class="sd">              node as the first parameter.</span>
-<span class="sd">            * *args* and *kwargs* are additional unnamed and named</span>
-<span class="sd">              parameters, respectively.</span>
 
 <span class="sd">        Yields:</span>
-<span class="sd">            * Found nodes in preorder sequence.</span>
+<span class="sd">            Node: Found nodes in preorder sequence.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="p">:</span> <span class="k">return</span>
@@ -648,7 +661,7 @@
 <span class="sd">        Remove self if self is not root.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * Parent of self. If parent had only two children,</span>
+<span class="sd">            Node: Parent of self. If parent had only two children,</span>
 <span class="sd">              parent is now a &#39;knee&#39; and can be removed with excise.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -729,14 +742,14 @@
 <span class="sd">        encountered.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * end: A Node object to iterate to (instead of iterating</span>
-<span class="sd">              towards root)</span>
-<span class="sd">            * stop: A function that returns True if desired node is called</span>
-<span class="sd">              as the first parameter.</span>
+<span class="sd">            end (Node): A Node object to iterate to (instead of iterating</span>
+<span class="sd">              towards root). Optional, defaults to None</span>
+<span class="sd">            stop (function): A function that returns True if desired node is called</span>
+<span class="sd">              as the first parameter. Optional, defaults to None</span>
 
 <span class="sd">        Yields:</span>
-<span class="sd">            * Nodes in path to root (or end).</span>
-<span class="sd">            S</span>
+<span class="sd">            Node: Nodes in path to root (or end).</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
         <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
@@ -752,10 +765,10 @@
 <span class="sd">        from self to an ancestor node (if end is an ancestor to self)</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            * end: A node object</span>
+<span class="sd">            end (Node): A node object</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            * A float that is the length from self to root/end</span>
+<span class="sd">            float: The length from self to root/end</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span>
@@ -790,7 +803,8 @@
 <span class="sd">        representing the subtree connecting them.  Nodes are assumed</span>
 <span class="sd">        to be non-nested.</span>
 
-<span class="sd">        Return: a mapping of old nodes to new nodes and vice versa.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: a mapping of old nodes to new nodes and vice versa.</span>
 
 <span class="sd">        TODO: test this, high bug probability</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -889,6 +903,37 @@
             <span class="n">cp</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">label</span>
         <span class="n">newroot</span><span class="o">.</span><span class="n">isroot</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="n">newroot</span>
+        </div>
+<div class="viewcode-block" id="Node.reroot_new"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.reroot_new">[docs]</a>    <span class="k">def</span> <span class="nf">reroot_new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newroot</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new node as parent to newroot to be the new root.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">oldroot</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">oldroot</span><span class="o">.</span><span class="n">isroot</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">newroot</span> <span class="o">=</span> <span class="n">oldroot</span><span class="p">[</span><span class="n">newroot</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">newroot</span> <span class="ow">in</span> <span class="n">oldroot</span>
+        <span class="k">assert</span> <span class="n">newroot</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">oldroot</span><span class="o">.</span><span class="n">children</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">newroot</span><span class="o">.</span><span class="n">bisect_branch</span><span class="p">()</span>
+        
+        <span class="n">v</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">rootpath</span><span class="p">())</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        
+        <span class="n">newparent</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">newparent</span> <span class="p">]</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">newparent</span>
+            <span class="n">newparent</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="n">x</span> <span class="p">]</span>
+        <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">excise</span><span class="p">()</span>
+        
+        <span class="n">t</span><span class="o">.</span><span class="n">isroot</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="n">t</span>
+            
+            
+        
+        
 </div>
 <div class="viewcode-block" id="Node.makeroot"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.makeroot">[docs]</a>    <span class="k">def</span> <span class="nf">makeroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shift_labels</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -968,7 +1013,7 @@
     <span class="k">return</span> <span class="n">results</span>
 </div>
 <div class="viewcode-block" id="clade_sizes"><a class="viewcode-back" href="../../ivy.html#ivy.tree.clade_sizes">[docs]</a><span class="k">def</span> <span class="nf">clade_sizes</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">{}):</span>
-    <span class="s">&quot;Map node and descendants to number of descendant tips&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Map node and descendants to number of descendant tips&quot;&quot;&quot;</span>
     <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">isleaf</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isleaf</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
@@ -1026,8 +1071,11 @@
 <span class="sd">    methods. *treename* is an optional string that will be attached to</span>
 <span class="sd">    all created nodes.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        data: A file or file-like object or newick string</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        * *root*, the root node.</span>
+<span class="sd">        Node: The root node.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">newick</span>
     <span class="n">StringTypes</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span>
@@ -1189,6 +1237,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>

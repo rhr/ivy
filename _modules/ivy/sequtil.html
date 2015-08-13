@@ -33,6 +33,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -52,11 +55,11 @@
 <span class="sd">    Find substrings within a sequence</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * seq: Str. A sequence.</span>
-<span class="sd">        * substr: Str. A subsequence to search for</span>
-<span class="sd">        * start: Int. Starting index. Defaults to 0</span>
+<span class="sd">        seq (str): A sequence.</span>
+<span class="sd">        substr (str): A subsequence to search for</span>
+<span class="sd">        start (int): Starting index. Defaults to 0</span>
 <span class="sd">    Yields:</span>
-<span class="sd">        * Starting indicies of where the substr was found in seq</span>
+<span class="sd">        int: Starting indicies of where the substr was found in seq</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">substr</span><span class="p">)</span>
     <span class="n">i</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">substr</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
@@ -69,12 +72,12 @@
 <span class="sd">    For a sequence with gaps, calculate site positions without gaps</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * seq: List. Each element of the list is one character in a sequence.</span>
-<span class="sd">        * gapchar: Str. The character gaps are coded as. Defaults to &#39;-&#39;</span>
+<span class="sd">        seq (list): Each element of the list is one character in a sequence.</span>
+<span class="sd">        gapchar (str): The character gaps are coded as. Defaults to &#39;-&#39;</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        * An array where the first element corresponds to range(number of</span>
-<span class="sd">          characters that are not gaps) and the second element is the indicies</span>
-<span class="sd">          of all characters that are not gaps.</span>
+<span class="sd">        array: An array where the first element corresponds to range(number of</span>
+<span class="sd">        characters that are not gaps) and the second element is the indicies</span>
+<span class="sd">        of all characters that are not gaps.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
@@ -86,11 +89,11 @@
 <span class="sd">    Find stop codons within sequence (in reading frame)</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * seq: Str. A sequence</span>
-<span class="sd">        * pos: Int. Starting position. Defaults to 0.</span>
+<span class="sd">        seq (str): A sequence</span>
+<span class="sd">        pos (int): Starting position. Defaults to 0.</span>
 <span class="sd">    Yields:</span>
-<span class="sd">        * Tuple containing the index where the stop codon starts</span>
-<span class="sd">          and which stop codon was found.</span>
+<span class="sd">        tuple: The index where the stop codon starts</span>
+<span class="sd">        and which stop codon was found.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">seq</span><span class="p">[</span><span class="n">pos</span><span class="p">:]</span>
     <span class="n">it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -128,6 +131,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>

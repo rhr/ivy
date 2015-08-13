@@ -8,7 +8,7 @@
     
     <title>ivy package &mdash; ivy 0.1 documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,16 +23,21 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
-    <link rel="up" title="Ivy’s API documentation" href="apiindex.html" />
-    <link rel="next" title="ivy.chars package" href="ivy.chars.html" />
-    <link rel="prev" title="Ivy’s API documentation" href="apiindex.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -82,13 +87,10 @@
 <dd><p>Convert node ages to branch lengths</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>node: Node object</li>
-<li>node_ages: Dict mapping nodes to ages</li>
-</ul>
-</dd>
+<dd>node (Node): Node object
+node_ages (dict): Dict mapping nodes to ages</dd>
 <dt>Returns:</dt>
-<dd>A dict mapping nodes to lengths</dd>
+<dd>dict: mapping of nodes to lengths</dd>
 </dl>
 </dd></dl>
 
@@ -98,13 +100,10 @@
 <dd><p>Calculate minimum ages given fixed ages in leaf_ages</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>node: A node object</li>
-<li>leaf_ages: A dict mapping leaf nodes to ages</li>
-</ul>
-</dd>
+<dd>node (Node): A node object
+leaf_ages (dict): A dict mapping leaf nodes to ages</dd>
 <dt>Returns:</dt>
-<dd>Dict mapping nodes to ages</dd>
+<dd>dict: mapping of nodes to ages</dd>
 </dl>
 </dd></dl>
 
@@ -195,16 +194,10 @@ RR: I don&#8217;t actually know what this function does -CZ</p>
 <dd><p>Number of branches from node to root.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>node: A Node object</li>
-<li>RR: Do internodes and length do anything in this function? -CZ</li>
-</ul>
-</dd>
+<dd>node (Node): A Node object
+RR: Do internodes and length do anything in this function? -CZ</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Int. The number of branches from node to root.</li>
-</ul>
-</dd>
+<dd>int: The number of branches from node to root.</dd>
 </dl>
 </dd></dl>
 
@@ -272,8 +265,130 @@ in <em>collapsed</em></p>
 <dd></dd></dl>
 
 </div>
-<div class="section" id="ivy-birthdeath-module">
-<h2>ivy.birthdeath module<a class="headerlink" href="#ivy-birthdeath-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-ivy.birthdeath">
+<span id="ivy-birthdeath-module"></span><h2>ivy.birthdeath module<a class="headerlink" href="#module-ivy.birthdeath" title="Permalink to this headline">¶</a></h2>
+<p>Equations from Magallon and Sanderson 2001</p>
+<p>RR: Are my descriptions of these equations correct? -CZ</p>
+<dl class="function">
+<dt id="ivy.birthdeath.Alpha">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">Alpha</code><span class="sig-paren">(</span><em>epsilon</em>, <em>r</em>, <em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#Alpha"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.Alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate Alpha</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>epsilon (float): Relative extinction rate(d/b)
+r (float): Net diversification rate (b-d).
+t (float): Elapsed time</dd>
+<dt>Returns:</dt>
+<dd>Float: Alpha</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.Beta">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">Beta</code><span class="sig-paren">(</span><em>epsilon</em>, <em>r</em>, <em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#Beta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.Beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate Beta</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>epsilon (float): Relative extinction rate(d/b)
+r (float): Net diversification rate (b-d).
+t (float): Elapsed time.</dd>
+<dt>Returns:</dt>
+<dd>Float: Beta</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.Kendall1948">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">Kendall1948</code><span class="sig-paren">(</span><em>i</em>, <em>t</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#Kendall1948"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.Kendall1948" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probability of observing i species given single ancestor after time t</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>i (int): Number of extant species
+t (float): Elapsed time
+r (float): Net diversification rate (b-d)
+epsilon (float):  Relative extinction (d/b)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.Nbar">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">Nbar</code><span class="sig-paren">(</span><em>t</em>, <em>a</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#Nbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.Nbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mean clade size conditional on survival of the clade</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>t (float): Elapsed time
+a (int): Number of lineages at t=0
+r (float): Net diversification rate (b-d)
+epsilon (float):  Relative extinction (d/b)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.condKendall1948">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">condKendall1948</code><span class="sig-paren">(</span><em>i</em>, <em>t</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#condKendall1948"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.condKendall1948" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probability of observing i species given a single ancestor after time t
+conditional on the clade surviving to time t</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>i (int): Number of extant species
+t (float): Elapsed time
+r (float): Net diversification rate (b-d)
+epsilon (float):  Relative extinction (d/b)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.condPrN">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">condPrN</code><span class="sig-paren">(</span><em>i</em>, <em>t</em>, <em>a</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#condPrN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.condPrN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conditional probability of i species after time t, given the
+probability of survival</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>i (int): Number of extant species
+t (float): Elapsed time
+a (int): Number of lineages at t=0
+r (float): Net diversification rate (b-d)
+epsilon (float):  Relative extinction (d/b)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.logLT">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">logLT</code><span class="sig-paren">(</span><em>t</em>, <em>n</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#logLT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.logLT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log-likelihood of terminal taxa</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>t: vector of stem ages
+n: vector of diversities
+r (float): net diversification
+epsilon (float): Relative extinction</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.prN">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">prN</code><span class="sig-paren">(</span><em>i</em>, <em>t</em>, <em>a</em>, <em>r</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#prN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.prN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probability of observing i species after time t</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>i (int): Number of extant species
+t (float): Elapsed time
+a (int): Number of lineages at t=0
+r (float): Net diversification rate (b-d)
+epsilon (float):  Relative extinction (d/b)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.r_hat_crown">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">r_hat_crown</code><span class="sig-paren">(</span><em>t</em>, <em>n</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#r_hat_crown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.r_hat_crown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.birthdeath.r_hat_stem">
+<code class="descclassname">ivy.birthdeath.</code><code class="descname">r_hat_stem</code><span class="sig-paren">(</span><em>t</em>, <em>n</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/birthdeath.html#r_hat_stem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.birthdeath.r_hat_stem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-ivy.contrasts">
 <span id="ivy-contrasts-module"></span><h2>ivy.contrasts module<a class="headerlink" href="#module-ivy.contrasts" title="Permalink to this headline">¶</a></h2>
@@ -287,11 +402,15 @@ in <em>collapsed</em></p>
 given a dictionary of trait values.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>node: A node object
-data: A dict mapping leaf names to character values</dd>
+<dd>node (Node): A node object
+data (dict): Mapping of leaf names to character values</dd>
 <dt>Returns:</dt>
-<dd>A dict mapping internal nodes to tuples containing ancestral
-state, its variance (error), the contrast, and the contrasts&#8217;s variance.</dd>
+<dd><dl class="first last docutils">
+<dt>dict: Mapping of internal nodes to tuples containing ancestral</dt>
+<dd>state, its variance (error), the contrast, and the
+contrasts&#8217;s variance.</dd>
+</dl>
+</dd>
 </dl>
 <p>TODO: modify to accommodate polytomies.</p>
 </dd></dl>
@@ -365,16 +484,10 @@ e.g., d[node] or d[&#8216;Pongo&#8217;].</p>
 <dd><p>Take an iterable and return it in chunks (sub-iterables)</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>iterable: any iterable</li>
-<li>size: int. Size of chunks</li>
-</ul>
-</dd>
+<dd>iterable: Any iterable
+size (int): Size of chunks</dd>
 <dt>Yields:</dt>
-<dd><ul class="first last simple">
-<li>chunks of size <cite>size</cite></li>
-</ul>
-</dd>
+<dd>Chunks of size <cite>size</cite></dd>
 </dl>
 </dd></dl>
 
@@ -399,15 +512,9 @@ e.g., d[node] or d[&#8216;Pongo&#8217;].</p>
 <dd><p>Extract genbank accession</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>s: str. text string of genbank file</li>
-</ul>
-</dd>
+<dd>s (str): text string of genbank file</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>List containing accession number(s)</li>
-</ul>
-</dd>
+<dd>list: Accession number(s)</dd>
 </dl>
 </dd></dl>
 
@@ -539,35 +646,21 @@ returns list of SeqRecord objects</p>
 <dd><p>Calculate where nodes should be positioned in 2d space for drawing a tree</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last">
-<li><p class="first">node: A (root) node</p>
-</li>
-<li><p class="first">width: Float. The width of the canvas</p>
-</li>
-<li><p class="first">height: Float. The height of the canvas</p>
-</li>
-<li><dl class="first docutils">
-<dt>lpad, rpad, tpad, bpad: Float. Padding on the edges of the canvas.</dt>
-<dd><p class="first last">Optional, defaults to 0.</p>
-</dd>
+<dd><p class="first">node (Node): A (root) node
+width (float): The width of the canvas
+height (float): The height of the canvas
+lpad, rpad, tpad, bpad (float): Padding on the edges of the canvas.</p>
+<blockquote>
+<div>Optional, defaults to 0.</div></blockquote>
+<dl class="last docutils">
+<dt>scaled (bool): Whether or not the tree is scaled. Optional, defaults to</dt>
+<dd>True.</dd>
+<dt>smooth (bool): Whether or not to smooth the tree. Optional, defaults to</dt>
+<dd>True.</dd>
 </dl>
-</li>
-<li><dl class="first docutils">
-<dt>scaled: Bool. Whether or not the tree is scaled. Optional, defaults to</dt>
-<dd><p class="first last">True.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>smooth: Bool. Whether or not to smooth the tree. Optional, defaults to</dt>
-<dd><p class="first last">True.</p>
-</dd>
-</dl>
-</li>
-</ul>
 </dd>
 <dt>Returns:</dt>
-<dd>Dict mapping nodes to Coordinates object</dd>
+<dd>dict: Mapping of nodes to Coordinates object</dd>
 <dt>Notes:</dt>
 <dd>Origin is at upper left</dd>
 </dl>
@@ -587,8 +680,14 @@ returns list of SeqRecord objects</p>
 <code class="descclassname">ivy.layout.</code><code class="descname">depth_length_preorder_traversal</code><span class="sig-paren">(</span><em>node</em>, <em>n2coords=None</em>, <em>isroot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/layout.html#depth_length_preorder_traversal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.layout.depth_length_preorder_traversal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate node depth (root = depth 0) and length to root</p>
 <dl class="docutils">
-<dt>Returns: Dict mapping nodes to coordinate objects. Coordinate</dt>
+<dt>Args:</dt>
+<dd>node (Node): A node object</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>dict: Mapping of nodes to coordinate objects. Coordinate</dt>
 <dd>objects have attributes &#8220;depth&#8221; and &#8220;length_to_root&#8221;</dd>
+</dl>
+</dd>
 </dl>
 </dd></dl>
 
@@ -598,35 +697,21 @@ returns list of SeqRecord objects</p>
 <dd><p>Calculate where nodes should be positioned in 2d space for drawing a tree</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last">
-<li><p class="first">node: A (root) node</p>
-</li>
-<li><p class="first">width: Float. The width of the canvas</p>
-</li>
-<li><p class="first">height: Float. The height of the canvas</p>
-</li>
-<li><dl class="first docutils">
-<dt>lpad, rpad, tpad, bpad: Float. Padding on the edges of the canvas.</dt>
-<dd><p class="first last">Optional, defaults to 0.</p>
-</dd>
+<dd><p class="first">node (Node): A (root) node
+width (float): The width of the canvas
+height (float): The height of the canvas
+lpad, rpad, tpad, bpad (float): Padding on the edges of the canvas.</p>
+<blockquote>
+<div>Optional, defaults to 0.</div></blockquote>
+<dl class="last docutils">
+<dt>scaled (bool): Whether or not the tree is scaled. Optional, defaults to</dt>
+<dd>True.</dd>
+<dt>smooth (bool): Whether or not to smooth the tree. Optional, defaults to</dt>
+<dd>True.</dd>
 </dl>
-</li>
-<li><dl class="first docutils">
-<dt>scaled: Bool. Whether or not the tree is scaled. Optional, defaults to</dt>
-<dd><p class="first last">True.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>smooth: Bool. Whether or not to smooth the tree. Optional, defaults to</dt>
-<dd><p class="first last">True.</p>
-</dd>
-</dl>
-</li>
-</ul>
 </dd>
 <dt>Returns:</dt>
-<dd>Dict mapping nodes to Coordinates object</dd>
+<dd>dict: Mapping of nodes to Coordinates object</dd>
 <dt>Notes:</dt>
 <dd>Origin is at upper left</dd>
 </dl>
@@ -653,24 +738,22 @@ returns list of SeqRecord objects</p>
 polar tree</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>node: A (root) node</li>
-<li>radius: Float. The radius of the tree. Optional, defaults to 1</li>
-<li>pole: Tuple of floats.. The cartesian coordinate of the pole.
-Optional, defaults to None.</li>
-<li>end: Float. Where the tree ends. For best results, between 0 and 360.
-Optional, defaults to None.</li>
-<li>direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is
-drawn. Optional, defaults to COUNTERCLOCKWISE</li>
-<li>scaled: Bool. Whether or not the tree is scaled. Optional, defaults
-to False.</li>
-</ul>
+<dd><p class="first">node (Node): A (root) node
+radius (float): The radius of the tree. Optional, defaults to 1
+pole (tuple): Tuple of floats. The cartesian coordinate of the pole.</p>
+<blockquote>
+<div>Optional, defaults to None.</div></blockquote>
+<dl class="last docutils">
+<dt>end (float): Where the tree ends. For best results, between 0 and 360.</dt>
+<dd>Optional, defaults to None.</dd>
+<dt>direction: CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is</dt>
+<dd>drawn. Optional, defaults to COUNTERCLOCKWISE</dd>
+<dt>scaled (bool): Whether or not the tree is scaled. Optional, defaults</dt>
+<dd>to False.</dd>
+</dl>
 </dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Dict mapping nodes to Coordinates object</li>
-</ul>
-</dd>
+<dd>dict: Mapping of nodes to Coordinates object</dd>
 </dl>
 </dd></dl>
 
@@ -679,8 +762,11 @@ to False.</li>
 <code class="descclassname">ivy.layout_polar.</code><code class="descname">depth_length_preorder_traversal</code><span class="sig-paren">(</span><em>node</em>, <em>n2coords=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/layout_polar.html#depth_length_preorder_traversal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.layout_polar.depth_length_preorder_traversal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate node depth (root = depth 0) and length to root</p>
 <dl class="docutils">
-<dt>Returns: Dict mapping nodes to coordinates instances. Coordinate</dt>
-<dd>instances have attributes &#8220;depth&#8221; and &#8220;length_to_root&#8221;</dd>
+<dt>Args:</dt>
+<dd>node (Node): A node object.</dd>
+<dt>Returns:</dt>
+<dd>dict: Mapping of nodes to coordinates instances. Coordinate
+instances have attributes &#8220;depth&#8221; and &#8220;length_to_root&#8221;</dd>
 </dl>
 </dd></dl>
 
@@ -704,7 +790,12 @@ to False.</li>
 <dd><p>Calculate lineages through time.  The tree is assumed to be an
 ultrametric chronogram (extant leaves, with branch lengths
 proportional to time).</p>
-<p>Returns: (times, diversity) - 1D-arrays containing the results.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>node (Node): A node object. All nodes should have branch lengths.</dd>
+<dt>Returns:</dt>
+<dd>tuple: (times, diversity) - 1D-arrays containing the results.</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -729,17 +820,11 @@ nodes split and how many lineages are added by its splitting.</p>
 <dd><p>Leaf variances and covariances
 Args:</p>
 <blockquote>
-<div><ul class="simple">
-<li>root: A node object</li>
-</ul>
-</div></blockquote>
+<div>root (Node): A node object</div></blockquote>
 <dl class="docutils">
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>var: A defaultdict mapping pairs of nodes to variances</li>
-<li>cov: A defaultdict mapping pairs of nodes to covariances</li>
-</ul>
-</dd>
+<dd>var: A defaultdict mapping pairs of nodes to variances
+cov: A defaultdict mapping pairs of nodes to covariances</dd>
 </dl>
 </dd></dl>
 
@@ -777,18 +862,15 @@ the parsed tree.</p>
 <dd><p>Parse a newick string.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>data: Any file-like object that can be coerced into shlex, or
-a string (converted to StringIO)</li>
-<li>ttable: A dictionary mapping node labels in the newick string
-to other values.</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>data: Any file-like object that can be coerced into shlex, or</dt>
+<dd>a string (converted to StringIO)</dd>
+<dt>ttable (dict): Mapping of node labels in the newick string</dt>
+<dd>to other values.</dd>
+</dl>
 </dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>The root node.</li>
-</ul>
-</dd>
+<dd>Node: The root node.</dd>
 </dl>
 </dd></dl>
 
@@ -1005,17 +1087,11 @@ record from a nexus file, as parsed by newick.nexus_iter</p>
 <dd><p>Find stop codons within sequence (in reading frame)</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>seq: Str. A sequence</li>
-<li>pos: Int. Starting position. Defaults to 0.</li>
-</ul>
-</dd>
+<dd>seq (str): A sequence
+pos (int): Starting position. Defaults to 0.</dd>
 <dt>Yields:</dt>
-<dd><ul class="first last simple">
-<li>Tuple containing the index where the stop codon starts
-and which stop codon was found.</li>
-</ul>
-</dd>
+<dd>tuple: The index where the stop codon starts
+and which stop codon was found.</dd>
 </dl>
 </dd></dl>
 
@@ -1025,17 +1101,11 @@ and which stop codon was found.</li>
 <dd><p>Find substrings within a sequence</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>seq: Str. A sequence.</li>
-<li>substr: Str. A subsequence to search for</li>
-<li>start: Int. Starting index. Defaults to 0</li>
-</ul>
-</dd>
+<dd>seq (str): A sequence.
+substr (str): A subsequence to search for
+start (int): Starting index. Defaults to 0</dd>
 <dt>Yields:</dt>
-<dd><ul class="first last simple">
-<li>Starting indicies of where the substr was found in seq</li>
-</ul>
-</dd>
+<dd>int: Starting indicies of where the substr was found in seq</dd>
 </dl>
 </dd></dl>
 
@@ -1045,18 +1115,12 @@ and which stop codon was found.</li>
 <dd><p>For a sequence with gaps, calculate site positions without gaps</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>seq: List. Each element of the list is one character in a sequence.</li>
-<li>gapchar: Str. The character gaps are coded as. Defaults to &#8216;-&#8216;</li>
-</ul>
-</dd>
+<dd>seq (list): Each element of the list is one character in a sequence.
+gapchar (str): The character gaps are coded as. Defaults to &#8216;-&#8216;</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>An array where the first element corresponds to range(number of
+<dd>array: An array where the first element corresponds to range(number of
 characters that are not gaps) and the second element is the indicies
-of all characters that are not gaps.</li>
-</ul>
-</dd>
+of all characters that are not gaps.</dd>
 </dl>
 </dd></dl>
 
@@ -1166,25 +1230,25 @@ directly on Node objects.</p>
 <p>A basic Node class with attributes and references to child nodes
 (&#8216;children&#8217;, a list) and &#8216;parent&#8217;.</p>
 <dl class="docutils">
-<dt>Kwargs:</dt>
-<dd><ul class="first last simple">
-<li>id: ID of the node. If not provided, is set using
-builtin id function</li>
-<li>ni: Int. Node index.</li>
-<li>li: Int. Leaf index.</li>
-<li>isroot: Bool. Is the node a root.</li>
-<li>isleaf: Bool. Is the node a leaf.</li>
-<li>label: Str. Node label.</li>
-<li>length: Float. Branch length from node to parent</li>
-<li>support: RR: Are these bootstrap support values? -CZ</li>
-<li>age: Float. Age of the node in time units.</li>
-<li>parent: Node object. Parent of the ndoe.</li>
-<li>children: List of node objects. Children of node</li>
-<li>nchildren: Int. # of children</li>
-<li>left: RR: Unsure what left and right mean -CZ</li>
-<li>treename: Name of tree</li>
-<li>comment: Comments for tree</li>
-</ul>
+<dt>Keyword Args:</dt>
+<dd><dl class="first docutils">
+<dt>id: ID of the node. If not provided, is set using</dt>
+<dd>builtin id function</dd>
+</dl>
+<p class="last">ni (int): Node index.
+li (int): Leaf index.
+isroot (bool): Is the node a root.
+isleaf (bool): Is the node a leaf.
+label (str): Node label.
+length (float): Branch length from node to parent
+support: RR: Are these bootstrap support values? -CZ
+age (float): Age of the node in time units.
+parent (Node): Parent of the ndoe.
+children (list): List of node objects. Children of node
+nchildren (int): No. of children
+left: RR: Unsure what left and right mean -CZ
+treename: Name of tree
+comment: Comments for tree</p>
 </dd>
 </dl>
 <dl class="method">
@@ -1193,10 +1257,7 @@ builtin id function</li>
 <dd><p>Add child as child of self</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>child: A node object</li>
-</ul>
-</dd>
+<dd>child (Node): A node object</dd>
 </dl>
 </dd></dl>
 
@@ -1205,22 +1266,20 @@ builtin id function</li>
 <code class="descname">ascii</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.ascii"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.ascii" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create ascii tree.</p>
 <dl class="docutils">
-<dt>Kwargs:</dt>
-<dd><ul class="first last simple">
-<li>unitlen: Float. How long each unit should be rendered as.
-Defaults to 3.</li>
-<li>minwidth: Float. Minimum width of the plot. Defaults to 50</li>
-<li>maxwidth: Float. Maximum width of the plot. Defaults to None</li>
-<li>scaled: Bool. Whether or not the tree is scaled. Defaults to False</li>
-<li>show_internal_labels: Bool. Whether or not to show labels
-on internal nodes. Defaults to True.</li>
-</ul>
+<dt>Keyword Args:</dt>
+<dd><dl class="first docutils">
+<dt>unitlen (float): How long each unit should be rendered as.</dt>
+<dd>Defaults to 3.</dd>
+</dl>
+<p>minwidth (float): Minimum width of the plot. Defaults to 50
+maxwidth (float): Maximum width of the plot. Defaults to None
+scaled (bool): Whether or not the tree is scaled. Defaults to False
+show_internal_labels (bool): Whether or not to show labels</p>
+<blockquote class="last">
+<div>on internal nodes. Defaults to True.</div></blockquote>
 </dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Str. Ascii tree to be shown with print().</li>
-</ul>
-</dd>
+<dd>str: Ascii tree to be shown with print().</dd>
 </dl>
 </dd></dl>
 
@@ -1231,16 +1290,10 @@ on internal nodes. Defaults to True.</li>
 labels</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>s: Str. String to search.</li>
-<li>ignorecase: Bool. Indicates to ignore case. Defaults to true.</li>
-</ul>
-</dd>
+<dd>s (str): String to search.
+ignorecase (bool): Indicates to ignore case. Defaults to true.</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of node objects whose labels were matched by s.</li>
-</ul>
-</dd>
+<dd>lsit: A list of node objects whose labels were matched by s.</dd>
 </dl>
 </dd></dl>
 
@@ -1250,10 +1303,7 @@ labels</p>
 <dd><p>Add new node as parent to self in the middle of branch to parent.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A new node.</li>
-</ul>
-</dd>
+<dd>Node: A new node.</dd>
 </dl>
 </dd></dl>
 
@@ -1263,10 +1313,7 @@ labels</p>
 <dd><p>Get internal nodes descended from self</p>
 <dl class="docutils">
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of internal nodes descended from self.</li>
-</ul>
-</dd>
+<dd>list: A list of internal nodes descended from self.</dd>
 </dl>
 </dd></dl>
 
@@ -1276,15 +1323,14 @@ labels</p>
 <dd><p>Remove self and collapse children to polytomy</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>add: Bool. Whether or not to add self&#8217;s length to children&#8217;s
-length.</li>
-</ul>
-</dd>
+<dd><dl class="first last docutils">
+<dt>add (bool): Whether or not to add self&#8217;s length to children&#8217;s</dt>
+<dd>length.</dd>
 </dl>
-<ul class="simple">
-<li>Returns: parent of self</li>
-</ul>
+</dd>
+<dt>Returns:</dt>
+<dd>Node: Parent of self</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1295,15 +1341,9 @@ or any attribute that is a Node.</p>
 <p>If <cite>recurse</cite> is True, recursively copy child nodes.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>recurse: Bool. Whether or not to copy children as well as self.</li>
-</ul>
-</dd>
+<dd>recurse (bool): Whether or not to copy children as well as self.</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Node object that is a copy of self.</li>
-</ul>
-</dd>
+<dd>Node: A copy of self.</dd>
 </dl>
 <p>TODO: test this function.</p>
 <p>RR: This function runs rather slowly -CZ</p>
@@ -1316,18 +1356,15 @@ or any attribute that is a Node.</p>
 including self!</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>order: String, optional, defaults to &#8220;pre&#8221;. Indicates wether to
-return nodes in preorder or postorder sequence.</li>
-<li>f: filtering function that evaluates to True if desired
-node is called as the first parameter.</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>order (str): Indicates wether to return nodes in preorder or</dt>
+<dd>postorder sequence. Optional, defaults to &#8220;pre&#8221;</dd>
+<dt>f (function): filtering function that evaluates to True if desired</dt>
+<dd>node is called as the first parameter.</dd>
+</dl>
 </dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of nodes descended from self not including self.</li>
-</ul>
-</dd>
+<dd>list: A list of nodes descended from self not including self.</dd>
 </dl>
 </dd></dl>
 
@@ -1343,20 +1380,15 @@ node is called as the first parameter.</li>
 <dd><p>Find descendant nodes.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>f: Function or a string.  If a string, it is converted to a
-function for finding <em>f</em> as a substring in node labels.
+<dd><dl class="first last docutils">
+<dt>f: Function or a string.  If a string, it is converted to a</dt>
+<dd>function for finding <em>f</em> as a substring in node labels.
 Otherwise, <em>f</em> should evaluate to True if called with a desired
-node as the first parameter.</li>
-<li><em>args</em> and <em>kwargs</em> are additional unnamed and named
-parameters, respectively.</li>
-</ul>
+node as the first parameter.</dd>
+</dl>
 </dd>
 <dt>Yields:</dt>
-<dd><ul class="first last simple">
-<li>Found nodes in preorder sequence.</li>
-</ul>
-</dd>
+<dd>Node: Found nodes in preorder sequence.</dd>
 </dl>
 </dd></dl>
 
@@ -1372,16 +1404,13 @@ parameters, respectively.</li>
 <dd><p>Return the first node found by node.find()</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>f: A function that evaluates to True if desired
-node is called as the first parameter.</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>f (function): A function that evaluates to True if desired</dt>
+<dd>node is called as the first parameter.</dd>
+</dl>
 </dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>The first node found by node.find()</li>
-</ul>
-</dd>
+<dd>Node: The first node found by node.find()</dd>
 </dl>
 </dd></dl>
 
@@ -1397,16 +1426,10 @@ node is called as the first parameter.</li>
 <dd><p>Find nodes by regular-expression search of labels</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>s: Str. String to search.</li>
-<li>ignorecase: Bool. Indicates to ignore case. Defaults to true.</li>
-</ul>
-</dd>
+<dd>s (str): String to search.
+ignorecase (bool): Indicates to ignore case. Defaults to true.</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of node objects whose labels were matched by s.</li>
-</ul>
-</dd>
+<dd>lsit: A list of node objects whose labels were matched by s.</dd>
 </dl>
 </dd></dl>
 
@@ -1416,16 +1439,13 @@ node is called as the first parameter.</li>
 <dd><p>Return a list nodes that have children (internal nodes)</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>f: A function that evaluates to true if called with desired
-node as the first input</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>f (function): A function that evaluates to true if called with desired</dt>
+<dd>node as the first input</dd>
+</dl>
 </dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of internal nodes that are true for f (if f is given)</li>
-</ul>
-</dd>
+<dd>list: A list of internal nodes that are true for f (if f is given)</dd>
 </dl>
 </dd></dl>
 
@@ -1435,15 +1455,9 @@ node as the first input</li>
 <dd><p>Test if leaf descendants are monophyletic</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>At least two leaf Node objects</li>
-</ul>
-</dd>
+<dd><a href="#id1"><span class="problematic" id="id2">*</span></a>leaves (Node): At least two leaf Node objects</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Bool. Are the leaf descendants monophyletic?</li>
-</ul>
-</dd>
+<dd>bool: Are the leaf descendants monophyletic?</dd>
 </dl>
 <p>RR: Should this function have a check to make sure the input nodes are
 leaves? There is some strange behavior if you input internal nodes -CZ</p>
@@ -1461,15 +1475,13 @@ leaves? There is some strange behavior if you input internal nodes -CZ</p>
 <dd><p>Return a generator of nodes descendant from self - including self</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>f: A function that evaluates to true if called with desired
-node as the first input</li>
-</ul>
-</dd>
+<dd>f (function): A function that evaluates to true if called with
+desired node as the first input</dd>
 <dt>Yields:</dt>
-<dd><ul class="first last simple">
-<li>Nodes descended from self (including self) in preorder sequence</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>Node: Nodes descended from self (including self) in</dt>
+<dd>preorder sequence</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -1478,6 +1490,10 @@ node as the first input</li>
 <dt id="ivy.tree.Node.labeled">
 <code class="descname">labeled</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.labeled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.labeled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of all descendant nodes that are labeled</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>list: All descendants of self that are labeled (including self)</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1506,16 +1522,13 @@ node as the first input</li>
 <dd><p>Return a list of leaves. Can be filtered with f.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>f: A function that evaluates to True if called with desired
-node as the first input</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>f (function): A function that evaluates to True if called with desired</dt>
+<dd>node as the first input</dd>
+</dl>
 </dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of leaves that are true for f (if f is given)</li>
-</ul>
-</dd>
+<dd>list: A list of leaves that are true for f (if f is given)</dd>
 </dl>
 </dd></dl>
 
@@ -1525,16 +1538,10 @@ node as the first input</li>
 <dd><p>Find leaves by regular-expression search of labels</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>s: Str. String to search.</li>
-<li>ignorecase: Bool. Indicates to ignore case. Defaults to true.</li>
-</ul>
-</dd>
+<dd>s (str): String to search.
+ignorecase (bool): Indicates to ignore case. Defaults to true.</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of node objects whose labels were matched by s.</li>
-</ul>
-</dd>
+<dd>lsit: A list of node objects whose labels were matched by s.</dd>
 </dl>
 </dd></dl>
 
@@ -1558,15 +1565,9 @@ labels indicate unrooted bipartition support</p>
 <dd><p>Find most recent common ancestor of <em>nodes</em></p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li><a href="#id1"><span class="problematic" id="id2">*</span></a>nodes: Node objects</li>
-</ul>
-</dd>
+<dd><a href="#id3"><span class="problematic" id="id4">*</span></a>nodes (Node): Node objects</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Node object. The MRCA of <em>nodes</em></li>
-</ul>
-</dd>
+<dd>Node: The MRCA of <em>nodes</em></dd>
 </dl>
 </dd></dl>
 
@@ -1574,7 +1575,6 @@ labels indicate unrooted bipartition support</p>
 <dt id="ivy.tree.Node.order_subtrees_by_size">
 <code class="descname">order_subtrees_by_size</code><span class="sig-paren">(</span><em>n2s=None</em>, <em>recurse=False</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.order_subtrees_by_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.order_subtrees_by_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Order interal clades by size</p>
-<p>RR: What is n2s?</p>
 </dd></dl>
 
 <dl class="method">
@@ -1595,10 +1595,10 @@ labels indicate unrooted bipartition support</p>
 <dd><p>Remove self if self is not root.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>Parent of self. If parent had only two children,
-parent is now a &#8216;knee&#8217; and can be removed with excise.</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>Node: Parent of self. If parent had only two children,</dt>
+<dd>parent is now a &#8216;knee&#8217; and can be removed with excise.</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -1609,10 +1609,7 @@ parent is now a &#8216;knee&#8217; and can be removed with excise.</li>
 <dd><p>Remove child.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>child: A node object that is a child of self</li>
-</ul>
-</dd>
+<dd>child (Node): A node object that is a child of self</dd>
 </dl>
 </dd></dl>
 
@@ -1620,6 +1617,12 @@ parent is now a &#8216;knee&#8217; and can be removed with excise.</li>
 <dt id="ivy.tree.Node.reroot">
 <code class="descname">reroot</code><span class="sig-paren">(</span><em>newroot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.reroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.reroot" title="Permalink to this definition">¶</a></dt>
 <dd><p>RR: I can&#8217;t get this to work properly -CZ</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.tree.Node.reroot_new">
+<code class="descname">reroot_new</code><span class="sig-paren">(</span><em>newroot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.reroot_new"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.reroot_new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new node as parent to newroot to be the new root.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1634,19 +1637,15 @@ parent is now a &#8216;knee&#8217; and can be removed with excise.</li>
 encountered.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>end: A Node object to iterate to (instead of iterating
-towards root)</li>
-<li>stop: A function that returns True if desired node is called
-as the first parameter.</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>end (Node): A Node object to iterate to (instead of iterating</dt>
+<dd>towards root). Optional, defaults to None</dd>
+<dt>stop (function): A function that returns True if desired node is called</dt>
+<dd>as the first parameter. Optional, defaults to None</dd>
+</dl>
 </dd>
 <dt>Yields:</dt>
-<dd><ul class="first simple">
-<li>Nodes in path to root (or end).</li>
-</ul>
-<p class="last">S</p>
-</dd>
+<dd>Node: Nodes in path to root (or end).</dd>
 </dl>
 </dd></dl>
 
@@ -1657,15 +1656,9 @@ as the first parameter.</li>
 from self to an ancestor node (if end is an ancestor to self)</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>end: A node object</li>
-</ul>
-</dd>
+<dd>end (Node): A node object</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A float that is the length from self to root/end</li>
-</ul>
-</dd>
+<dd>float: The length from self to root/end</dd>
 </dl>
 </dd></dl>
 
@@ -1675,7 +1668,10 @@ from self to an ancestor node (if end is an ancestor to self)</p>
 <dd><p>Find the set of nodes in &#8216;labels&#8217;, and create a new tree
 representing the subtree connecting them.  Nodes are assumed
 to be non-nested.</p>
-<p>Return: a mapping of old nodes to new nodes and vice versa.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: a mapping of old nodes to new nodes and vice versa.</dd>
+</dl>
 <p>TODO: test this, high bug probability</p>
 </dd></dl>
 
@@ -1726,11 +1722,10 @@ file name, or a file-like object with <cite>tell</cite> and &#8216;read`
 methods. <em>treename</em> is an optional string that will be attached to
 all created nodes.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>data: A file or file-like object or newick string</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li><em>root</em>, the root node.</li>
-</ul>
-</dd>
+<dd>Node: The root node.</dd>
 </dl>
 </dd></dl>
 
@@ -1772,17 +1767,12 @@ all created nodes.</p>
 <dd><p>Get a study from treebase in one of various formats</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>study_id: Str. The id of the study</li>
-<li>format: Str.  One of [&#8220;rdf&#8221;, &#8220;html&#8221;, &#8220;nexml&#8221;, &#8220;nexus&#8221;]</li>
-</ul>
-</dd>
+<dd>study_id (str): The id of the study
+format (str):  One of [&#8220;rdf&#8221;, &#8220;html&#8221;, &#8220;nexml&#8221;, &#8220;nexus&#8221;]</dd>
 <dt>Returns:</dt>
-<dd><ul class="first simple">
-<li>Str representing a nexus file (if format = &#8220;nexus&#8221;)</li>
-</ul>
-<p class="last">OR
-* An lxml etree object</p>
+<dd><p class="first">Str representing a nexus file (if format = &#8220;nexus&#8221;)</p>
+<p>OR</p>
+<p class="last">An lxml etree object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1803,16 +1793,16 @@ all created nodes.</p>
 <dd><p>Parse an etree ElementTree</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>doc: An etree ElementTree or a file that can be parsed into
-an etree ElementTree with etree.parse</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>doc: An etree ElementTree or a file that can be parsed into</dt>
+<dd>an etree ElementTree with etree.parse</dd>
+</dl>
 </dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>An ivy Storage object containing all the information from the
-nexml file: Characters, metadata, OTUs, and trees.</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>An ivy Storage object containing all the information from the</dt>
+<dd>nexml file: Characters, metadata, OTUs, and trees.</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -1823,15 +1813,9 @@ nexml file: Characters, metadata, OTUs, and trees.</li>
 <dd><p>Get OTUs from an etree object</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>e: A nexml document parsed by etree</li>
-</ul>
-</dd>
+<dd>e: A nexml document parsed by etree</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A dict mapping keys to OTUs contained in ivy Storage objects</li>
-</ul>
-</dd>
+<dd>dict: A dict mapping keys to OTUs contained in ivy Storage objects</dd>
 </dl>
 </dd></dl>
 
@@ -1847,15 +1831,13 @@ nexml file: Characters, metadata, OTUs, and trees.</li>
 <dd><p>Get trees from an etree object</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>e: A nexml document parsed by etree</li>
-<li>otus: OTUs returned by parse_otus</li>
-</ul>
-</dd>
+<dd>e: A nexml document parsed by etree
+otus: OTUs returned by parse_otus</dd>
 <dt>Returns:</dt>
-<dd><ul class="first last simple">
-<li>A list of ivy Storage objects each containing every node of a tree.</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>list: A list of ivy Storage objects each</dt>
+<dd>containing every node of a tree.</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -2310,7 +2292,7 @@ Useful: dendropy, biopython, etc.</p>
 <li><a class="reference internal" href="#module-ivy.ascii">ivy.ascii module</a></li>
 <li><a class="reference internal" href="#module-ivy.autocollapse">ivy.autocollapse module</a></li>
 <li><a class="reference internal" href="#module-ivy.bipart">ivy.bipart module</a></li>
-<li><a class="reference internal" href="#ivy-birthdeath-module">ivy.birthdeath module</a></li>
+<li><a class="reference internal" href="#module-ivy.birthdeath">ivy.birthdeath module</a></li>
 <li><a class="reference internal" href="#module-ivy.contrasts">ivy.contrasts module</a></li>
 <li><a class="reference internal" href="#module-ivy.data">ivy.data module</a></li>
 <li><a class="reference internal" href="#module-ivy.demo">ivy.demo module</a></li>
@@ -2336,17 +2318,7 @@ Useful: dendropy, biopython, etc.</p>
 </ul>
 </li>
 </ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="apiindex.html">Ivy&#8217;s API documentation</a><ul>
-      <li>Previous: <a href="apiindex.html" title="previous chapter">Ivy&#8217;s API documentation</a></li>
-      <li>Next: <a href="ivy.chars.html" title="next chapter">ivy.chars package</a></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -2371,20 +2343,21 @@ Useful: dendropy, biopython, etc.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, RR, CZ.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/ivy.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

@@ -33,6 +33,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -91,14 +94,14 @@
 <span class="sd">    Add images to plot</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * Plot: A Tree plot instance</span>
-<span class="sd">        * p: A node object</span>
-<span class="sd">        * imgfile: Str. A path to an image</span>
-<span class="sd">        * maxdim: Float. Maximum dimension of image. Optional,</span>
+<span class="sd">        plot (Tree): A Tree plot instance</span>
+<span class="sd">        p (Node): A node object</span>
+<span class="sd">        imgfile (str): A path to an image</span>
+<span class="sd">        maxdim (float): Maximum dimension of image. Optional,</span>
 <span class="sd">          defaults to 100.</span>
-<span class="sd">        * border: RR: What does border do? -CZ</span>
-<span class="sd">        * xoff, yoff: Float. X and Y offset. Optional, defaults to 4</span>
-<span class="sd">        * halign, valign: Float. Horizontal and vertical alignment within</span>
+<span class="sd">        border: RR: What does border do? -CZ</span>
+<span class="sd">        xoff, yoff (float): X and Y offset. Optional, defaults to 4</span>
+<span class="sd">        halign, valign (float): Horizontal and vertical alignment within</span>
 <span class="sd">          box. Optional, defaults to 0.0 and 0.5, respectively.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -129,15 +132,15 @@
 <span class="sd">    Add many images to plot at once</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * Plot: A Tree plot instance</span>
-<span class="sd">        * p: A list of node objects</span>
-<span class="sd">        * imgfile: A list of strs containing paths to image files.</span>
+<span class="sd">        Plot (Tree): A Tree plot instance</span>
+<span class="sd">        p (list): A list of node objects</span>
+<span class="sd">        imgfile (list): A list of strs containing paths to image files.</span>
 <span class="sd">          Must be the same length as p.</span>
-<span class="sd">        * maxdim: Float. Maximum dimension of image. Optional,</span>
+<span class="sd">        maxdim (float): Maximum dimension of image. Optional,</span>
 <span class="sd">          defaults to 100.</span>
-<span class="sd">        * border: RR: What does border do? -CZ</span>
-<span class="sd">        * xoff, yoff: Float. X and Y offset. Optional, defaults to 4</span>
-<span class="sd">        * halign, valign: Float. Horizontal and vertical alignment within</span>
+<span class="sd">        border: RR: What does border do? -CZ</span>
+<span class="sd">        xoff, yoff (float): X and Y offset. Optional, defaults to 4</span>
+<span class="sd">        halign, valign (float): Horizontal and vertical alignment within</span>
 <span class="sd">          box. Optional, defaults to 0.0 and 0.5, respectively.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -153,15 +156,15 @@
 <span class="sd">    Draw a pie chart</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">    * plot: A Tree plot instance</span>
-<span class="sd">    * p: A Node object</span>
-<span class="sd">    * values: A list of floats.</span>
-<span class="sd">    * colors: A list of strings to pull colors from. Optional.</span>
-<span class="sd">    * size: Float. Diameter of the pie chart</span>
-<span class="sd">    * norm: Bool. Whether or not to normalize the values so they</span>
+<span class="sd">    plot (Tree): A Tree plot instance</span>
+<span class="sd">    p (Node): A Node object</span>
+<span class="sd">    values (list): A list of floats.</span>
+<span class="sd">    colors (list): A list of strings to pull colors from. Optional.</span>
+<span class="sd">    size (float): Diameter of the pie chart</span>
+<span class="sd">    norm (bool): Whether or not to normalize the values so they</span>
 <span class="sd">      add up to 360</span>
-<span class="sd">    * xoff, yoff: Float. X and Y offset. Optional, defaults to 0</span>
-<span class="sd">    * halign, valign: Float. Horizontal and vertical alignment within</span>
+<span class="sd">    xoff, yoff (float): X and Y offset. Optional, defaults to 0</span>
+<span class="sd">    halign, valign (float): Horizontal and vertical alignment within</span>
 <span class="sd">      box. Optional, defaults to 0.5</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -223,16 +226,16 @@
 <span class="sd">    Draw a square at given node</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * plot: A Tree plot instance</span>
-<span class="sd">        * p: A node or list of nodes</span>
-<span class="sd">        * colors: Str or list of strs. Colors of squares to be drawn.</span>
+<span class="sd">        plot (Tree): A Tree plot instance</span>
+<span class="sd">        p: A node or list of nodes</span>
+<span class="sd">        colors: Str or list of strs. Colors of squares to be drawn.</span>
 <span class="sd">          Optional, defaults to &#39;r&#39; (red)</span>
-<span class="sd">        * size: Float. Size of the squares. Optional, defaults to 15</span>
-<span class="sd">        * xoff, yoff: Float. Offset for x and y dimensions. Optional,</span>
+<span class="sd">        size (float): Size of the squares. Optional, defaults to 15</span>
+<span class="sd">        xoff, yoff (float): Offset for x and y dimensions. Optional,</span>
 <span class="sd">          defaults to 0.</span>
-<span class="sd">        * alpha: Float between 0 and 1. Alpha transparency of squares.</span>
+<span class="sd">        alpha (float): between 0 and 1. Alpha transparency of squares.</span>
 <span class="sd">          Optional, defaults to 1 (fully opaque)</span>
-<span class="sd">        * zorder: Int. The drawing order. Higher numbers appear on top</span>
+<span class="sd">        zorder (int): The drawing order. Higher numbers appear on top</span>
 <span class="sd">          of lower numbers. Optional, defaults to 1000.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -259,13 +262,13 @@
 <span class="sd">    Add square after tip label, anchored to the side of the plot</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * plot: A Tree plot instance.</span>
-<span class="sd">        * p: A Node object (Should be a leaf node).</span>
-<span class="sd">        * colors: Str. Color of drawn square. Optional, defaults to &#39;r&#39; (red)</span>
-<span class="sd">        * size:  Float. Size of square. Optional, defaults to 15</span>
-<span class="sd">        * pad: RR: I am unsure what this does. Does not seem to have visible</span>
+<span class="sd">        plot (Tree): A Tree plot instance.</span>
+<span class="sd">        p (Node): A Node object (Should be a leaf node).</span>
+<span class="sd">        colors (str): olor of drawn square. Optional, defaults to &#39;r&#39; (red)</span>
+<span class="sd">        size (float): Size of square. Optional, defaults to 15</span>
+<span class="sd">        pad: RR: I am unsure what this does. Does not seem to have visible</span>
 <span class="sd">          effect when I change it. -CZ</span>
-<span class="sd">        * edgepad: Float. Padding from square to edge of plot. Optional,</span>
+<span class="sd">        edgepad (float): Padding from square to edge of plot. Optional,</span>
 <span class="sd">          defaults to 10.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -292,12 +295,12 @@
 <span class="sd">    Draw circles on plot</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * plot: A Tree plot instance</span>
-<span class="sd">        * p: A node object or list of Node objects</span>
-<span class="sd">        * colors: Str or list of strs. Colors of the circles. Optional,</span>
+<span class="sd">        plot (Tree): A Tree plot instance</span>
+<span class="sd">        p: A node object or list of Node objects</span>
+<span class="sd">        colors: Str or list of strs. Colors of the circles. Optional,</span>
 <span class="sd">          defaults to &#39;g&#39; (green)</span>
-<span class="sd">        * size: Float. Size of the circles. Optional, defaults to 15</span>
-<span class="sd">        * xoff, yoff: X and Y offset. Optional, defaults to 0.</span>
+<span class="sd">        size (float): Size of the circles. Optional, defaults to 15</span>
+<span class="sd">        xoff, yoff (float): X and Y offset. Optional, defaults to 0.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">points</span> <span class="o">=</span> <span class="n">_xy</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
@@ -362,16 +365,16 @@
 <span class="sd">    Add text to the plot.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * plot: A Tree plot instance</span>
-<span class="sd">        * x, y: Float. x and y coordinates to place the text</span>
-<span class="sd">        * s: Str. The text to write</span>
-<span class="sd">        * color: Str. The color of the text. Optional, defaults to &quot;black&quot;</span>
-<span class="sd">        * xoff, yoff. Float. x and y offset</span>
-<span class="sd">        * valign: Str. Vertical alignment. Can be: &#39;center&#39;, &#39;top&#39;,</span>
+<span class="sd">        plot (Tree): A Tree plot instance</span>
+<span class="sd">        x, y (float): x and y coordinates to place the text</span>
+<span class="sd">        s (str): The text to write</span>
+<span class="sd">        color (str): The color of the text. Optional, defaults to &quot;black&quot;</span>
+<span class="sd">        xoff, yoff (float): x and y offset</span>
+<span class="sd">        valign (str): Vertical alignment. Can be: &#39;center&#39;, &#39;top&#39;,</span>
 <span class="sd">          &#39;bottom&#39;, or &#39;baseline&#39;. Defaults to &#39;center&#39;.</span>
-<span class="sd">        * halign: Str. Horizontal alignment. Can be: &#39;center&#39;, &#39;right&#39;,</span>
+<span class="sd">        halign (str): Horizontal alignment. Can be: &#39;center&#39;, &#39;right&#39;,</span>
 <span class="sd">          or &#39;left&#39;. Defaults to &#39;left&#39;</span>
-<span class="sd">        * fontsize: Float. Font size. Optional, defaults to 10</span>
+<span class="sd">        fontsize (float): Font size. Optional, defaults to 10</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">txt</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
@@ -416,6 +419,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
       </ul>

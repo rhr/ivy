@@ -8,7 +8,7 @@
     
     <title>ivy.vis package &mdash; ivy 0.1 documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,15 +23,21 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
-    <link rel="up" title="ivy package" href="ivy.html" />
-    <link rel="prev" title="ivy.chars package" href="ivy.chars.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -239,19 +245,16 @@ current view, with a fixed data point (cx, cy)</p>
 <dd><p>Highlight selected clade(s)</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last">
-<li><dl class="first docutils">
+<dd><dl class="first last docutils">
 <dt>x: A str or list of strs or node or list of nodes.</dt>
-<dd><ul class="first last simple">
-<li>color: str. The color of the highlighted nodes. Optional,
-defaults to red</li>
-<li>width: int. The width of the highlighted branches. Optional,
-defaults to 3.</li>
-</ul>
+<dd><dl class="first last docutils">
+<dt>color (str): The color of the highlighted nodes. Optional,</dt>
+<dd>defaults to red</dd>
+<dt>width (int): The width of the highlighted branches. Optional,</dt>
+<dd>defaults to 3.</dd>
+</dl>
 </dd>
 </dl>
-</li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -331,14 +334,13 @@ Detects if tree is scaled or not.</p>
 <dd><p>Draw circles on plot</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>plot: A Tree plot instance</li>
-<li>p: A node object or list of Node objects</li>
-<li>colors: Str or list of strs. Colors of the circles. Optional,
-defaults to &#8216;g&#8217; (green)</li>
-<li>size: Float. Size of the circles. Optional, defaults to 15</li>
-<li>xoff, yoff: X and Y offset. Optional, defaults to 0.</li>
-</ul>
+<dd><p class="first">plot (Tree): A Tree plot instance
+p: A node object or list of Node objects
+colors: Str or list of strs. Colors of the circles. Optional,</p>
+<blockquote>
+<div>defaults to &#8216;g&#8217; (green)</div></blockquote>
+<p class="last">size (float): Size of the circles. Optional, defaults to 15
+xoff, yoff (float): X and Y offset. Optional, defaults to 0.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -359,17 +361,17 @@ defaults to &#8216;g&#8217; (green)</li>
 <dd><p>Add images to plot</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>Plot: A Tree plot instance</li>
-<li>p: A node object</li>
-<li>imgfile: Str. A path to an image</li>
-<li>maxdim: Float. Maximum dimension of image. Optional,
-defaults to 100.</li>
-<li>border: RR: What does border do? -CZ</li>
-<li>xoff, yoff: Float. X and Y offset. Optional, defaults to 4</li>
-<li>halign, valign: Float. Horizontal and vertical alignment within
-box. Optional, defaults to 0.0 and 0.5, respectively.</li>
-</ul>
+<dd><p class="first">plot (Tree): A Tree plot instance
+p (Node): A node object
+imgfile (str): A path to an image
+maxdim (float): Maximum dimension of image. Optional,</p>
+<blockquote>
+<div>defaults to 100.</div></blockquote>
+<p>border: RR: What does border do? -CZ
+xoff, yoff (float): X and Y offset. Optional, defaults to 4
+halign, valign (float): Horizontal and vertical alignment within</p>
+<blockquote class="last">
+<div>box. Optional, defaults to 0.0 and 0.5, respectively.</div></blockquote>
 </dd>
 </dl>
 </dd></dl>
@@ -380,18 +382,20 @@ box. Optional, defaults to 0.0 and 0.5, respectively.</li>
 <dd><p>Add many images to plot at once</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>Plot: A Tree plot instance</li>
-<li>p: A list of node objects</li>
-<li>imgfile: A list of strs containing paths to image files.
-Must be the same length as p.</li>
-<li>maxdim: Float. Maximum dimension of image. Optional,
-defaults to 100.</li>
-<li>border: RR: What does border do? -CZ</li>
-<li>xoff, yoff: Float. X and Y offset. Optional, defaults to 4</li>
-<li>halign, valign: Float. Horizontal and vertical alignment within
-box. Optional, defaults to 0.0 and 0.5, respectively.</li>
-</ul>
+<dd><p class="first">Plot (Tree): A Tree plot instance
+p (list): A list of node objects
+imgfile (list): A list of strs containing paths to image files.</p>
+<blockquote>
+<div>Must be the same length as p.</div></blockquote>
+<dl class="docutils">
+<dt>maxdim (float): Maximum dimension of image. Optional,</dt>
+<dd>defaults to 100.</dd>
+</dl>
+<p>border: RR: What does border do? -CZ
+xoff, yoff (float): X and Y offset. Optional, defaults to 4
+halign, valign (float): Horizontal and vertical alignment within</p>
+<blockquote class="last">
+<div>box. Optional, defaults to 0.0 and 0.5, respectively.</div></blockquote>
 </dd>
 </dl>
 </dd></dl>
@@ -417,19 +421,18 @@ written. This function currently does not work. -CZ</p>
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">pie</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em>, <em>values</em>, <em>colors=None</em>, <em>size=16</em>, <em>norm=True</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>halign=0.5</em>, <em>valign=0.5</em>, <em>xycoords='data'</em>, <em>boxcoords='offset points'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#pie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.pie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw a pie chart</p>
 <p>Args:
-* plot: A Tree plot instance
-* p: A Node object
-* values: A list of floats.
-* colors: A list of strings to pull colors from. Optional.
-* size: Float. Diameter of the pie chart
-* norm: Bool. Whether or not to normalize the values so they</p>
+plot (Tree): A Tree plot instance
+p (Node): A Node object
+values (list): A list of floats.
+colors (list): A list of strings to pull colors from. Optional.
+size (float): Diameter of the pie chart
+norm (bool): Whether or not to normalize the values so they</p>
 <blockquote>
 <div>add up to 360</div></blockquote>
-<ul class="simple">
-<li>xoff, yoff: Float. X and Y offset. Optional, defaults to 0</li>
-<li>halign, valign: Float. Horizontal and vertical alignment within
-box. Optional, defaults to 0.5</li>
-</ul>
+<p>xoff, yoff (float): X and Y offset. Optional, defaults to 0
+halign, valign (float): Horizontal and vertical alignment within</p>
+<blockquote>
+<div>box. Optional, defaults to 0.5</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -438,19 +441,21 @@ box. Optional, defaults to 0.5</li>
 <dd><p>Draw a square at given node</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>plot: A Tree plot instance</li>
-<li>p: A node or list of nodes</li>
-<li>colors: Str or list of strs. Colors of squares to be drawn.
-Optional, defaults to &#8216;r&#8217; (red)</li>
-<li>size: Float. Size of the squares. Optional, defaults to 15</li>
-<li>xoff, yoff: Float. Offset for x and y dimensions. Optional,
-defaults to 0.</li>
-<li>alpha: Float between 0 and 1. Alpha transparency of squares.
-Optional, defaults to 1 (fully opaque)</li>
-<li>zorder: Int. The drawing order. Higher numbers appear on top
-of lower numbers. Optional, defaults to 1000.</li>
-</ul>
+<dd><p class="first">plot (Tree): A Tree plot instance
+p: A node or list of nodes
+colors: Str or list of strs. Colors of squares to be drawn.</p>
+<blockquote>
+<div>Optional, defaults to &#8216;r&#8217; (red)</div></blockquote>
+<p>size (float): Size of the squares. Optional, defaults to 15
+xoff, yoff (float): Offset for x and y dimensions. Optional,</p>
+<blockquote>
+<div>defaults to 0.</div></blockquote>
+<dl class="last docutils">
+<dt>alpha (float): between 0 and 1. Alpha transparency of squares.</dt>
+<dd>Optional, defaults to 1 (fully opaque)</dd>
+<dt>zorder (int): The drawing order. Higher numbers appear on top</dt>
+<dd>of lower numbers. Optional, defaults to 1000.</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -461,18 +466,19 @@ of lower numbers. Optional, defaults to 1000.</li>
 <dd><p>Add text to the plot.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>plot: A Tree plot instance</li>
-<li>x, y: Float. x and y coordinates to place the text</li>
-<li>s: Str. The text to write</li>
-<li>color: Str. The color of the text. Optional, defaults to &#8220;black&#8221;</li>
-<li>xoff, yoff. Float. x and y offset</li>
-<li>valign: Str. Vertical alignment. Can be: &#8216;center&#8217;, &#8216;top&#8217;,
-&#8216;bottom&#8217;, or &#8216;baseline&#8217;. Defaults to &#8216;center&#8217;.</li>
-<li>halign: Str. Horizontal alignment. Can be: &#8216;center&#8217;, &#8216;right&#8217;,
-or &#8216;left&#8217;. Defaults to &#8216;left&#8217;</li>
-<li>fontsize: Float. Font size. Optional, defaults to 10</li>
-</ul>
+<dd><p class="first">plot (Tree): A Tree plot instance
+x, y (float): x and y coordinates to place the text
+s (str): The text to write
+color (str): The color of the text. Optional, defaults to &#8220;black&#8221;
+xoff, yoff (float): x and y offset
+valign (str): Vertical alignment. Can be: &#8216;center&#8217;, &#8216;top&#8217;,</p>
+<blockquote>
+<div>&#8216;bottom&#8217;, or &#8216;baseline&#8217;. Defaults to &#8216;center&#8217;.</div></blockquote>
+<dl class="docutils">
+<dt>halign (str): Horizontal alignment. Can be: &#8216;center&#8217;, &#8216;right&#8217;,</dt>
+<dd>or &#8216;left&#8217;. Defaults to &#8216;left&#8217;</dd>
+</dl>
+<p class="last">fontsize (float): Font size. Optional, defaults to 10</p>
 </dd>
 </dl>
 </dd></dl>
@@ -487,16 +493,17 @@ you try to add symbols, select nodes, etc.) -CZ</p>
 <p>Add square after tip label, anchored to the side of the plot</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>plot: A Tree plot instance.</li>
-<li>p: A Node object (Should be a leaf node).</li>
-<li>colors: Str. Color of drawn square. Optional, defaults to &#8216;r&#8217; (red)</li>
-<li>size:  Float. Size of square. Optional, defaults to 15</li>
-<li>pad: RR: I am unsure what this does. Does not seem to have visible
-effect when I change it. -CZ</li>
-<li>edgepad: Float. Padding from square to edge of plot. Optional,
-defaults to 10.</li>
-</ul>
+<dd><p class="first">plot (Tree): A Tree plot instance.
+p (Node): A Node object (Should be a leaf node).
+colors (str): olor of drawn square. Optional, defaults to &#8216;r&#8217; (red)
+size (float): Size of square. Optional, defaults to 15
+pad: RR: I am unsure what this does. Does not seem to have visible</p>
+<blockquote>
+<div>effect when I change it. -CZ</div></blockquote>
+<dl class="last docutils">
+<dt>edgepad (float): Padding from square to edge of plot. Optional,</dt>
+<dd>defaults to 10.</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -538,13 +545,12 @@ defaults to 10.</li>
 <dd><p>Highlight nodes</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>s: Str or list of Strs or Node or list of Nodes</li>
-<li>add: Bool. Whether to add to existing highlighted nodes or
-overwrite them.</li>
-<li>width: Float. Width of highlighted lines. Defaults to 5</li>
-<li>color: Str. Color of highlighted lines. Defaults to red</li>
-</ul>
+<dd><p class="first">s: Str or list of Strs or Node or list of Nodes
+add (bool): Whether to add to existing highlighted nodes or</p>
+<blockquote>
+<div>overwrite them.</div></blockquote>
+<p class="last">width (float): Width of highlighted lines. Defaults to 5
+color (str): Color of highlighted lines. Defaults to red</p>
 </dd>
 </dl>
 </dd></dl>
@@ -648,16 +654,15 @@ bar, <em>offset</em> by the specified number of display units.  If
 <em>label</em> is <code class="docutils literal"><span class="pre">None</span></code> then the clade&#8217;s label is used instead.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>nodes: Node or list of nodes</li>
-<li>color: Str. Color of the bar. Optional, defaults to None.</li>
-<li>label: Str. Optional label for bar. If None, the clade&#8217;s
-label is used instead. Defaults to None.</li>
-<li>Width: Float. Width of bar</li>
-<li>xoff: Float. Offset from label to bar</li>
-<li>showlabel: Bool. Whether or not to draw the label</li>
-<li>mrca: RR: Not quite sure what this does -CZ</li>
-</ul>
+<dd><p class="first">nodes: Node or list of nodes
+color (str): Color of the bar. Optional, defaults to None.
+label (str): Optional label for bar. If None, the clade&#8217;s</p>
+<blockquote>
+<div>label is used instead. Defaults to None.</div></blockquote>
+<p class="last">width (float): Width of bar
+xoff (float): Offset from label to bar
+showlabel (bool): Whether or not to draw the label
+mrca: RR: Not quite sure what this does -CZ</p>
 </dd>
 </dl>
 </dd></dl>
@@ -857,10 +862,7 @@ is stored in self.decorators and called upon every redraw.</p>
 <dd><p>Save tree as a newick file.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>filename: str. Path to file.</li>
-</ul>
-</dd>
+<dd>filename (str): Path to file.</dd>
 </dl>
 </dd></dl>
 
@@ -986,14 +988,15 @@ buttons are checked, the default mouse bindings are as follows:</p>
 <dd><p>Add a new tree in a new window</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>data: A node object or tree file.</li>
-<li>name: Name of the plot. Defaults to None</li>
-<li>branchlabels: Bool. Whether or not to draw branch labels.
-Defaults to False</li>
-<li>leaflabels: Bool. Whether or not to draw leaf labels.
-Defaults to True</li>
-</ul>
+<dd><p class="first">data: A node object or tree file.
+name (str): Name of the plot. Defaults to None
+branchlabels (bool): Whether or not to draw branch labels.</p>
+<blockquote>
+<div>Defaults to False</div></blockquote>
+<dl class="last docutils">
+<dt>leaflabels (bool): Whether or not to draw leaf labels.</dt>
+<dd>Defaults to True</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -1031,12 +1034,9 @@ Defaults to True</li>
 <dd><p>Find nodes</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>x: A string</li>
-</ul>
-</dd>
+<dd>x (str): String to search</dd>
 <dt>Returns:</dt>
-<dd>A list of node objects found with the Node findall() method</dd>
+<dd>list: A list of node objects found with the Node findall() method</dd>
 </dl>
 </dd></dl>
 
@@ -1051,12 +1051,9 @@ Defaults to True</li>
 <dd><p>Highlight nodes</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>x: Str or list of Strs or Node or list of Nodes</li>
-<li>width: Float. Width of highlighted lines. Defaults to 5</li>
-<li>color: Str. Color of highlighted lines. Defaults to red</li>
-</ul>
-</dd>
+<dd>x: Str or list of Strs or Node or list of Nodes
+width (float): Width of highlighted lines. Defaults to 5
+color (str): Color of highlighted lines. Defaults to red</dd>
 </dl>
 </dd></dl>
 
@@ -1066,14 +1063,11 @@ Defaults to True</li>
 <dd><p>Highlight nodes</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>nodes: A list of node objects</li>
-<li>width: Float. Width of highlighted lines. Defaults to 5</li>
-<li>color: Str. Color of highlighted lines. Defaults to red</li>
-<li>xoff: Float. Number of units to offset lines by. Defaults to 0</li>
-<li>yoff: Float. Number of units to offset lines by. Defaults to 0</li>
-</ul>
-</dd>
+<dd>nodes (list): A list of node objects
+width (float): Width of highlighted lines. Defaults to 5
+color (str): Color of highlighted lines. Defaults to red
+xoff (float): Number of units to offset lines by. Defaults to 0
+yoff (float): Number of units to offset lines by. Defaults to 0</dd>
 </dl>
 </dd></dl>
 
@@ -1155,10 +1149,7 @@ one node), only the given node(s) are selected.</dd>
 <p>Define whether or not the tree is scaled and redraw tree</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>scaled. Bool. Whether or not the tree is scaled.</li>
-</ul>
-</dd>
+<dd>scaled (bool): Whether or not the tree is scaled.</dd>
 </dl>
 </dd></dl>
 
@@ -1209,10 +1200,7 @@ one node), only the given node(s) are selected.</dd>
 <dd><p>Zoom to fit a node <em>x</em> and all its descendants in the view.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>x: Node or str that matches the label of a node</li>
-</ul>
-</dd>
+<dd>x: Node or str that matches the label of a node</dd>
 </dl>
 </dd></dl>
 
@@ -1350,18 +1338,7 @@ one node), only the given node(s) are selected.</dd>
 </ul>
 </li>
 </ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="apiindex.html">Ivy&#8217;s API documentation</a><ul>
-  <li><a href="ivy.html">ivy package</a><ul>
-      <li>Previous: <a href="ivy.chars.html" title="previous chapter">ivy.chars package</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1386,20 +1363,21 @@ one node), only the given node(s) are selected.</dd>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, RR, CZ.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/ivy.vis.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

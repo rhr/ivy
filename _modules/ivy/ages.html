@@ -33,6 +33,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -55,10 +58,10 @@
 <span class="sd">    Convert node ages to branch lengths</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * node: Node object</span>
-<span class="sd">        * node_ages: Dict mapping nodes to ages</span>
+<span class="sd">        node (Node): Node object</span>
+<span class="sd">        node_ages (dict): Dict mapping nodes to ages</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        A dict mapping nodes to lengths</span>
+<span class="sd">        dict: mapping of nodes to lengths</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
@@ -73,10 +76,10 @@
 <span class="sd">    Calculate minimum ages given fixed ages in leaf_ages</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        * node: A node object</span>
-<span class="sd">        * leaf_ages: A dict mapping leaf nodes to ages</span>
+<span class="sd">        node (Node): A node object</span>
+<span class="sd">        leaf_ages (dict): A dict mapping leaf nodes to ages</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        Dict mapping nodes to ages</span>
+<span class="sd">        dict: mapping of nodes to ages</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
@@ -165,6 +168,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
