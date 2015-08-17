@@ -548,17 +548,21 @@ class Node(object):
         """
         nodes = [ self[x] for x in nodes ]
         assert all([ x.isleaf for x in nodes ]), "All nodes given must be tips"
-        
+        root = self
         for node in nodes:
             cp = node.parent
             cp.remove_child(node)
-            node.length += cp.length
+            if cp.length:
+                node.length += cp.length
             if len(cp.children) == 1: 
                 try: 
                     cp.excise()
                 except AssertionError:
-                    pass
-        return self
+                    self.isroot = False
+                    root = cp.children[0]
+                    root.parent = None
+                    
+        return root
 
     def get(self, f, *args, **kwargs):
         """
@@ -906,8 +910,16 @@ class Node(object):
         
     def reroot_new(self, newroot):
         """
-        Create a new node as parent to newroot to be the new root. Reroot
-        the tree with newroot as the 'outgroup'.
+        Create a new node in between newroot and its current parent and sets that
+        as the new root node. By default, the new node is halfway in between
+        newroot and its current parent. Works by unrooting the tree, then
+        rerooting it at the new node.
+        
+        Args:
+            newroot: Node or str of node label. Cannot be descended from 
+              current root.
+        Returns:
+            Node: Root node of new rerooted tree.
         """
         oldroot = self
         oldroot.isroot = False
@@ -931,7 +943,10 @@ class Node(object):
             newlen = oldlen
             newparent = node
         v[-1].children = [ x for x in v[-1].children if x ]
-        v[-1].excise()
+        try:
+            v[-1].excise()
+        except:
+            pass
         
         t.isroot = True
         return t

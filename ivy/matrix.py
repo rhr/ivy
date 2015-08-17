@@ -2,6 +2,30 @@
 Functions for dealing with trees as matrices.
 """
 from collections import defaultdict
+import numpy as np
+
+def to_matrix(root, uselen = False):
+    """
+    Convert tree in Node form to numpy array adjacency matric
+    
+    Args:
+        root (Node): A node object
+        uselen (bool): Whether to use branch lengths. If false, only use
+         presence/absense of nodes coded as 1s in matrix.
+    Returns:
+        Array: Adjacency matrix of tree
+        
+    """
+    adj_matrix = np.zeros((len(root), len(root)))
+    idx = { n: i for n, i in zip(root, range(len(root))) }
+    for node in root:
+        for ch in node.children:
+            adj_matrix[idx[node], idx[ch]] = ch.length if uselen else 1
+    return adj_matrix
+            
+        
+    
+    
 
 def vcv(root):
     """

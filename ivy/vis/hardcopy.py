@@ -3,6 +3,8 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import tree
 from axes_utils import adjust_limits
+from pyPdf import PdfFileWriter, PdfFileReader
+from StringIO import StringIO
 
 ## class TreeFigure:
 ##     def __init__(self):
@@ -87,8 +89,8 @@ class TreeFigure:
     def detail(self):
         return self.axes
         
-    def savefig(self, fname):
-        self.figure.savefig(fname)
+    def savefig(self, fname, format="pdf"):
+        self.figure.savefig(fname, format = format)
 
     def set_relative_width(self, relwidth):
         w, h = self.figure.get_size_inches()
@@ -104,3 +106,72 @@ class TreeFigure:
 
     def home(self):
         self.axes.home()
+        
+        
+    def render_multipage(self, opts, outbuf=None):
+        pagesize = opts.pagesize or [8.5, 11.0]
+        border = opts.border or 0.393701 # border = 1cm (mpl works in inches)
+        landscape = opts.landscape or False
+        pgwidth, pgheight = pagesize if not landscape \
+                            else (pagesize[1], pagesize[0])
+        if opts.dims:
+            self.width = opts.dims[0] # In inches
+            self.height = opts.dims[1]
+            self.figure.set_size_inches(opts.dims)
+        #print "drawing width, height:", drawing.width/inch, drawing.height/inch
+        if self.width > pgwidth - 2*border:
+            scalefact = (pgwidth - 2*border)/float(self.width)
+            #self.figure.set_size_inches(scalefact*self.width, scalefact*self.height)
+            #self.width = scalefact*self.width; self.height = scalefact*self.height
+
+        else:
+            scalefact = 1.0
+        #border *= scalefact
+        dwidth = self.width * 72.0
+        dheight = self.height * 72.0
+
+        output = PdfFileWriter()
+        if not outbuf:
+            outfile = file(opts.outfile, "wb")
+        else:
+            outfile = outbuf
+
+        buf = StringIO()
+        self.savefig(buf)
+        pgwidth = pgwidth*72
+        pgheight = pgheight*72
+        lower = dheight
+        right = pgwidth
+        left = 0
+        pgnum = 0
+        vpgnum = 0
+        border = border*72 # Converting to pixels in 72 DPI
+        while lower >= 0:
+            if pgnum == 0:
+                delta = 0.0
+            else:
+                delta = 2*border*vpgnum
+            buf.seek(0)
+            tmp = PdfFileReader(buf)
+            page = tmp.getPage(0)
+            box = page.mediaBox
+            uly = float(box.getUpperLeft_y())
+            ulx = float(box.getUpperLeft_x())
+            upper = uly+border+delta-vpgnum*pgheight
+            #lower = uly+border+delta-(pgnum+1)*pgheight
+            lower = upper-pgheight
+            box.setUpperRight(((right+border), upper))
+            box.setUpperLeft(((left+border), upper))
+            box.setLowerRight(((right+border), lower))
+            box.setLowerLeft(((left+border), lower))
+            output.addPage(page)
+            pgnum += 1
+            vpgnum += 1
+            if (lower < 0) & (right < dwidth):
+                lower = dheight
+                right = right+pgwidth+2*border
+                left = left+pgwidth+2*border
+                vpgnum = 0
+
+        output.write(outfile)
+        return pgnum, scalefact

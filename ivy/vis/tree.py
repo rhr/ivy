@@ -1191,6 +1191,9 @@ class Tree(Axes):
         ##                                                yoff=yoff)))
         self.figure.canvas.draw_idle()
         return lc
+        
+        
+    
 
     def hardcopy(self, relwidth=0.5, leafpad=1.5):
         p = HC.TreeFigure(self.root, relwidth=relwidth, leafpad=leafpad,

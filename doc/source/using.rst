@@ -73,7 +73,7 @@ of nodes. In Ivy, a Node is a class that contains information about a node.
 Nodes are rooted and recursively contain their children. Functions
 in Ivy act directly on Node objects. Nodes support Python idioms such as ``in``,
 ``[``, iteration, etc. This guide will cover how to read, view, navigate, modify,
-and write trees in Ivy.
+and write trees in ``ivy``.
 
 Reading
 -------
@@ -95,18 +95,14 @@ node of the tree.
                 "B:0.13,Ateles:0.62)C:0.38,Galago:1.00)root;")
     In [*]: # These three methods are identical
 
-You can copy a read tree using the ``copy`` method on the root node. Node
+You can copy a read tree using the ``copy_new`` method on the root node. Node
 objects are mutable, so this method is preferred over ``r2 = r`` if you want
 to create a deep copy.
 
 .. sourcecode:: ipython
 
-    In [*]: r2 = r.copy(recurse=True) # If recurse=False, won't copy children etc.
+    In [*]: r2 = r.copy_new(recurse=True) # If recurse=False, won't copy children.
 
-.. warning::
-
-    As of now, the copy function does not produce a complete tree: the nodes are not
-    properly connected to each other
 
 .. sourcecode:: ipython
 
@@ -403,7 +399,8 @@ Adding
 ~~~~~~
 
 Our tree is looking a little sparse, so let's add some nodes back in. There
-are a few methods of adding nodes in Ivy. We will go over ``biscect``, ``add_child``, and ``graft``
+are a few methods of adding nodes in Ivy. We will go over ``biscect``, 
+``add_child``, and ``graft``
 
 Bisecting creates a 'knee' node halfway between a parent and a child.
 
@@ -427,7 +424,8 @@ it using its ID instead (if you're following along, your ID will be different).
 
     In [*]: r[140144821654480].label = "N"
 
-Now let's add a node as a child of N. We can do this using the ``add_child`` method.
+Now let's add a node as a child of N. We can do this using the ``add_child`` 
+method.
 
 .. sourcecode:: ipython
 
@@ -490,12 +488,26 @@ Rerooting
 ~~~~~~~~~
 
 .. warning::
-    Rerooting can lead to unexpected results, such as mixed up labels
+    This reroot function has not been thouroughly tested. Use with caution.
+
+All trees in ``ivy`` are rooted. If you read in a tree that has been incorrectly
+rooted, you may want to reroot it. You can do this with the ``reroot_new`` 
+function. This function returns the root node of the rerooted tree.
 
 .. sourcecode:: ipython
 
-    In [*]: r2 = r.reroot(r["N"])
+    In [*]: r2 = r.reroot_new(r["Galago"])
     In [*]: print r2.ascii()
+    ----------------------------------------+ Galago 
+    +                                                
+    :         ------------------------------+ Pongo  
+    ----------+                                      
+              :         --------------------+ Homo   
+              ---------N+                            
+                        :         ----------+ Ateles 
+                        ----------+                  
+                                  ----------+ Macaca 
+
 
 Writing
 -------
@@ -509,7 +521,7 @@ currently only write in newick format.
 .. sourcecode:: ipython
 
     In [*]: f = open("examples/primates_mangled.newick", "w")
-    In [*]: ivy.tree.write(r, outfile = f)
+    In [*]: ivy.tree.write(r2, outfile = f)
     In [*]: f.close()
 
 
