@@ -24,6 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="next" title="ivy API documentation" href="apiindex.html" />
     <link rel="prev" title="Downloading and Installing" href="install.html" /> 
   </head>
   <body role="document">
@@ -36,6 +37,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="apiindex.html" title="ivy API documentation"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="install.html" title="Downloading and Installing"
              accesskey="P">previous</a> |</li>
@@ -105,7 +109,7 @@ of nodes. In Ivy, a Node is a class that contains information about a node.
 Nodes are rooted and recursively contain their children. Functions
 in Ivy act directly on Node objects. Nodes support Python idioms such as <code class="docutils literal"><span class="pre">in</span></code>,
 <code class="docutils literal"><span class="pre">[</span></code>, iteration, etc. This guide will cover how to read, view, navigate, modify,
-and write trees in Ivy.</p>
+and write trees in <code class="docutils literal"><span class="pre">ivy</span></code>.</p>
 <div class="section" id="reading">
 <h3>Reading<a class="headerlink" href="#reading" title="Permalink to this headline">¶</a></h3>
 <p>You can read in trees using Ivy&#8217;s <code class="docutils literal"><span class="pre">tree.read</span></code> function. This function supports
@@ -123,16 +127,11 @@ node of the tree.</p>
 <span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="c"># These three methods are identical</span>
 </pre></div>
 </div>
-<p>You can copy a read tree using the <code class="docutils literal"><span class="pre">copy</span></code> method on the root node. Node
+<p>You can copy a read tree using the <code class="docutils literal"><span class="pre">copy_new</span></code> method on the root node. Node
 objects are mutable, so this method is preferred over <code class="docutils literal"><span class="pre">r2</span> <span class="pre">=</span> <span class="pre">r</span></code> if you want
 to create a deep copy.</p>
-<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c"># If recurse=False, won&#39;t copy children etc.</span>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">copy_new</span><span class="p">(</span><span class="n">recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c"># If recurse=False, won&#39;t copy children.</span>
 </pre></div>
-</div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">As of now, the copy function does not produce a complete tree: the nodes are not
-properly connected to each other</p>
 </div>
 <div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">9</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r2</span><span class="p">[</span><span class="s">&quot;A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span>
 <span class="bp">None</span>
@@ -376,7 +375,8 @@ tree retain some of their original attributes, including their indices:</p>
 <div class="section" id="adding">
 <h4>Adding<a class="headerlink" href="#adding" title="Permalink to this headline">¶</a></h4>
 <p>Our tree is looking a little sparse, so let&#8217;s add some nodes back in. There
-are a few methods of adding nodes in Ivy. We will go over <code class="docutils literal"><span class="pre">biscect</span></code>, <code class="docutils literal"><span class="pre">add_child</span></code>, and <code class="docutils literal"><span class="pre">graft</span></code></p>
+are a few methods of adding nodes in Ivy. We will go over <code class="docutils literal"><span class="pre">biscect</span></code>,
+<code class="docutils literal"><span class="pre">add_child</span></code>, and <code class="docutils literal"><span class="pre">graft</span></code></p>
 <p>Bisecting creates a &#8216;knee&#8217; node halfway between a parent and a child.</p>
 <div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">53</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;Galago&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">bisect_branch</span><span class="p">()</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">53</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">140144821654480</span><span class="p">)</span>
@@ -394,7 +394,8 @@ it using its ID instead (if you&#8217;re following along, your ID will be differ
 <div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">55</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="mi">140144821654480</span><span class="p">]</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s">&quot;N&quot;</span>
 </pre></div>
 </div>
-<p>Now let&#8217;s add a node as a child of N. We can do this using the <code class="docutils literal"><span class="pre">add_child</span></code> method.</p>
+<p>Now let&#8217;s add a node as a child of N. We can do this using the <code class="docutils literal"><span class="pre">add_child</span></code>
+method.</p>
 <div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">56</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;N&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">cladeB</span><span class="p">[</span><span class="s">&quot;Homo&quot;</span><span class="p">])</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">57</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span>
     <span class="o">------------------------------------+</span> <span class="n">Ateles</span>
@@ -453,26 +454,20 @@ output when drawn. It orders the clades by size.</p>
 </div>
 <p>All trees in <code class="docutils literal"><span class="pre">ivy</span></code> are rooted. If you read in a tree that has been incorrectly
 rooted, you may want to reroot it. You can do this with the <code class="docutils literal"><span class="pre">reroot_new</span></code>
-function. This function returns the root node of the rerooted tree.
-.. sourcecode:: ipython</p>
-<blockquote>
-<div><p>In [63]: r2 = r.reroot_new(r[&#8220;Galago&#8221;])
-In [64]: print r2.ascii()
-&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;-+ Galago
-+
-:         &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ Pongo
-&#8212;&#8212;&#8212;-+</p>
-<blockquote>
-<div><p>:         &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8211;+ Homo
-&#8212;&#8212;&#8212;N+</p>
-<blockquote>
-<div><p>:         &#8212;&#8212;&#8212;-+ Ateles
-&#8212;&#8212;&#8212;-+</p>
-<blockquote>
-<div>&#8212;&#8212;&#8212;-+ Macaca</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
+function. This function returns the root node of the rerooted tree.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">63</span><span class="p">]:</span> <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">reroot_new</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&quot;Galago&quot;</span><span class="p">])</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">64</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r2</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span>
+<span class="o">----------------------------------------+</span> <span class="n">Galago</span>
+<span class="o">+</span>
+<span class="p">:</span>         <span class="o">------------------------------+</span> <span class="n">Pongo</span>
+<span class="o">----------+</span>
+          <span class="p">:</span>         <span class="o">--------------------+</span> <span class="n">Homo</span>
+          <span class="o">---------</span><span class="n">N</span><span class="o">+</span>
+                    <span class="p">:</span>         <span class="o">----------+</span> <span class="n">Ateles</span>
+                    <span class="o">----------+</span>
+                              <span class="o">----------+</span> <span class="n">Macaca</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="writing">
@@ -539,7 +534,7 @@ read in a tree.</p>
 <span class="n">examples</span><span class="o">/</span><span class="n">primates</span><span class="o">.</span><span class="n">newick</span>
 <span class="n">Tree</span> <span class="n">parsed</span> <span class="ow">and</span> <span class="n">assigned</span> <span class="n">to</span> <span class="n">variable</span> <span class="s">&#39;root&#39;</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">root</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">Out</span><span class="p">[</span><span class="mi">38</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139904996110480</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139904996110480</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <a class="reference internal image-reference" href="_images/visualization_1.png"><img alt="_images/visualization_1.png" src="_images/visualization_1.png" style="width: 700px;" /></a>
@@ -593,8 +588,7 @@ method. <code class="docutils literal"><span class="pre">decorate</span></code> 
 <h3>Large Trees<a class="headerlink" href="#large-trees" title="Permalink to this headline">¶</a></h3>
 <p>Oftentimes, the tree you are working with is too large to comfortably fit on
 one page. <code class="docutils literal"><span class="pre">ivy</span></code> has many tools for working with large trees and creating
-legible, printable figures of them. Let&#8217;s try working on an example plant
-tree.</p>
+legible, printable figures of them. Let&#8217;s try working on the plant phylogeny.</p>
 <div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">14</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">readtree</span><span class="p">(</span><span class="s">&quot;examples/plants.newick&quot;</span><span class="p">)</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">15</span><span class="p">]:</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">treefig</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
 </pre></div>
@@ -639,6 +633,17 @@ autocomplete, just like with any other autocompletion in ipython.</p>
 <span class="n">In</span> <span class="p">[</span><span class="mi">24</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="s">&quot;Sym # Hitting tab will complete the line</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">25</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="s">&quot;Symplocaceae&quot;</span><span class="p">]</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">25</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139904995827408</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Symplocaceae&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> also has tools for printing large figures across multiple pages. The
+figure method <code class="docutils literal"><span class="pre">hardcopy</span></code> creates an object that has methods for creating
+PDFs that can be printed or placed in documents. To print a large figure
+across multiple pages, you can use the <code class="docutils literal"><span class="pre">render_multipage</span></code> method of a
+<code class="docutils literal"><span class="pre">hardcopy</span></code> object. For more information, look at the documentation for
+<code class="docutils literal"><span class="pre">render_multipage</span></code>. The following code will create a PDF that has the figure
+spread across 4x4 letter-size pages.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">26</span><span class="p">]:</span> <span class="n">h</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">hardcopy</span><span class="p">()</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">27</span><span class="p">]:</span> <span class="n">h</span><span class="o">.</span><span class="n">render_multipage</span><span class="p">(</span><span class="n">outfile</span><span class="o">=</span><span class="s">&quot;plants.pdf&quot;</span><span class="p">,</span> <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="mf">34.0</span><span class="p">,</span> <span class="mf">44.4</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -742,7 +747,7 @@ node indicies. Ape numbers nodes as following: for a tree with n leaves, the
 leaves and numbered 1:n in the order they appear in their file. The internal
 nodes are ordered in preorder sequence, starting with the root node as
 node n+1.</p>
-<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">32</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">treefile</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&quot;newick&quot;</span><span class="p">)</span>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">32</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">treefile</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;newick&quot;</span><span class="p">)</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">33</span><span class="p">]:</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">34</span><span class="p">]:</span> <span class="k">for</span> <span class="n">lf</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">leaves</span><span class="p">():</span>
         <span class="n">lf</span><span class="o">.</span><span class="n">apeidx</span> <span class="o">=</span> <span class="n">i</span>
@@ -755,7 +760,9 @@ node n+1.</p>
 </div>
 <p>Now we can generate the plot by drawing individual segments of each branch,
 color-coded by rate along the branch.</p>
-<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">37</span><span class="p">]:</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">37</span><span class="p">]:</span> <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">38</span><span class="p">]:</span> <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">39</span><span class="p">]:</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
         <span class="n">n</span><span class="o">.</span><span class="n">rates</span> <span class="o">=</span> <span class="n">netdiv</span><span class="p">[</span><span class="n">nodeidx</span><span class="o">==</span><span class="n">n</span><span class="o">.</span><span class="n">apeidx</span><span class="p">]</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">detail</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">pc</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">detail</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span>
@@ -767,12 +774,12 @@ color-coded by rate along the branch.</p>
             <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span>
         <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">pc</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">pc</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">)))</span>
         <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">rates</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">In</span> <span class="p">[</span><span class="mi">38</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">matplotlib.cm</span> <span class="kn">import</span> <span class="n">coolwarm</span>
-<span class="n">In</span> <span class="p">[</span><span class="mi">39</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">matplotlib.collections</span> <span class="kn">import</span> <span class="n">LineCollection</span>
-<span class="n">In</span> <span class="p">[</span><span class="mi">40</span><span class="p">]:</span> <span class="n">lc</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">coolwarm</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">In</span> <span class="p">[</span><span class="mi">41</span><span class="p">]:</span> <span class="n">lc</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
-<span class="n">In</span> <span class="p">[</span><span class="mi">42</span><span class="p">]:</span> <span class="n">f</span><span class="o">.</span><span class="n">detail</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
-<span class="n">In</span> <span class="p">[</span><span class="mi">43</span><span class="p">]:</span> <span class="n">f</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">40</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">matplotlib.cm</span> <span class="kn">import</span> <span class="n">coolwarm</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">41</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">matplotlib.collections</span> <span class="kn">import</span> <span class="n">LineCollection</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">42</span><span class="p">]:</span> <span class="n">lc</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">coolwarm</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">43</span><span class="p">]:</span> <span class="n">lc</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">44</span><span class="p">]:</span> <span class="n">f</span><span class="o">.</span><span class="n">detail</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">45</span><span class="p">]:</span> <span class="n">f</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 </pre></div>
 </div>
 <a class="reference internal image-reference" href="_images/phylorate_plot.png"><img alt="_images/phylorate_plot.png" src="_images/phylorate_plot.png" style="width: 700px;" /></a>
@@ -832,6 +839,9 @@ color-coded by rate along the branch.</p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="install.html"
                         title="previous chapter">Downloading and Installing</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="apiindex.html"
+                        title="next chapter">ivy API documentation</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -865,6 +875,9 @@ color-coded by rate along the branch.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="apiindex.html" title="ivy API documentation"
+             >next</a> |</li>
         <li class="right" >
           <a href="install.html" title="Downloading and Installing"
              >previous</a> |</li>

@@ -17,6 +17,7 @@ scipy, and numpy.
 
    Downloading and Installing <install>
    Users's Guide <using>
+   API Documentation <apiindex>
 
 Motivation
 ==========

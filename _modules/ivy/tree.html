@@ -158,7 +158,7 @@
         <span class="k">return</span> <span class="n">s</span>
 
 
-    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.__contains__"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.__contains__">[docs]</a>    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        For use with `in` keyword</span>
 
@@ -179,12 +179,12 @@
                 <span class="k">if</span> <span class="n">other</span> <span class="o">==</span> <span class="n">x</span><span class="p">:</span>
                     <span class="k">return</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="bp">False</span>
-
+</div>
     <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iternodes</span><span class="p">():</span>
             <span class="k">yield</span> <span class="n">node</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.__len__"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.__len__">[docs]</a>    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of nodes descended from self</span>
 
@@ -195,11 +195,11 @@
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">i</span>
-
+</div>
     <span class="k">def</span> <span class="nf">__nonzero__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">True</span>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.__getitem__"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.__getitem__">[docs]</a>    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            x: A Node, Node.id (int) or a Node.label (string)</span>
@@ -212,7 +212,7 @@
             <span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="n">x</span> <span class="ow">or</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="o">==</span><span class="n">x</span> <span class="ow">or</span> <span class="n">n</span><span class="o">.</span><span class="n">ni</span> <span class="o">==</span> <span class="n">x</span> <span class="ow">or</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">and</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="o">==</span><span class="n">x</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">n</span>
         <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-
+</div>
 <div class="viewcode-block" id="Node.ascii"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.ascii">[docs]</a>    <span class="k">def</span> <span class="nf">ascii</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create ascii tree.</span>
@@ -254,7 +254,7 @@
 </div>
 <div class="viewcode-block" id="Node.copy"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a copy of the node, but not copies of children, parent,</span>
+<span class="sd">        Return a shallow copy of the node, but not copies of children, parent,</span>
 <span class="sd">        or any attribute that is a Node.</span>
 
 <span class="sd">        If `recurse` is True, recursively copy child nodes.</span>
@@ -278,7 +278,33 @@
                 <span class="n">newnode</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">child</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span>
                     <span class="p">]</span>
+        <span class="k">return</span> <span class="n">newnode</span></div>
+<div class="viewcode-block" id="Node.copy_new"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.copy_new">[docs]</a>    <span class="k">def</span> <span class="nf">copy_new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">_par</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a shallow copy of self. If recurse = False, do not copy children,</span>
+<span class="sd">        parents, or any attribute that is Node.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            recurse (bool): Whether or not to copy children as well as self.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Node: A copy of self.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">newnode</span> <span class="o">=</span> <span class="n">Node</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;children&quot;</span><span class="p">,</span> <span class="s">&quot;parent&quot;</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Node</span><span class="p">)):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">_copy</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">recurse</span><span class="p">:</span>
+            <span class="n">newnode</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">child</span><span class="o">.</span><span class="n">copy_new</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="n">_par</span> <span class="o">=</span> <span class="n">newnode</span><span class="p">)</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span>
+                <span class="p">]</span>
+            <span class="k">if</span> <span class="n">_par</span><span class="p">:</span>
+                <span class="n">newnode</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">_par</span>
         <span class="k">return</span> <span class="n">newnode</span>
+        
+        
 </div>
 <div class="viewcode-block" id="Node.leafsets"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.leafsets">[docs]</a>    <span class="k">def</span> <span class="nf">leafsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return a mapping of nodes to leaf sets (nodes or labels)&quot;&quot;&quot;</span>
@@ -456,8 +482,8 @@
 <span class="sd">        Return a list of leaves. Can be filtered with f.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            f (function): A function that evaluates to True if called with desired</span>
-<span class="sd">              node as the first input</span>
+<span class="sd">            f (function): A function that evaluates to True if called with </span>
+<span class="sd">              desired node as the first input</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list: A list of leaves that are true for f (if f is given)</span>
@@ -471,8 +497,8 @@
 <span class="sd">        Return a list nodes that have children (internal nodes)</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            f (function): A function that evaluates to true if called with desired</span>
-<span class="sd">              node as the first input</span>
+<span class="sd">            f (function): A function that evaluates to true if called with </span>
+<span class="sd">              desired node as the first input</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list: A list of internal nodes that are true for f (if f is given)</span>
@@ -559,7 +585,33 @@
                     <span class="n">v</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">child</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
                 <span class="n">child</span><span class="o">.</span><span class="n">descendants</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+<div class="viewcode-block" id="Node.drop_tip"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.drop_tip">[docs]</a>    <span class="k">def</span> <span class="nf">drop_tip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Drop given leaf nodes from the tree</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            *nodes: Leaf nodes or labels of leaf nodes</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Node (Node): Root node with tips dropped</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span> <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nodes</span> <span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span> <span class="n">x</span><span class="o">.</span><span class="n">isleaf</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nodes</span> <span class="p">]),</span> <span class="s">&quot;All nodes given must be tips&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="n">cp</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span>
+            <span class="n">cp</span><span class="o">.</span><span class="n">remove_child</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cp</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="o">+=</span> <span class="n">cp</span><span class="o">.</span><span class="n">length</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> 
+                <span class="k">try</span><span class="p">:</span> 
+                    <span class="n">cp</span><span class="o">.</span><span class="n">excise</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">isroot</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="n">root</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">root</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
+                    
+        <span class="k">return</span> <span class="n">root</span>
 </div>
 <div class="viewcode-block" id="Node.get"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -568,6 +620,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            f (function): A function that evaluates to True if desired</span>
 <span class="sd">              node is called as the first parameter.</span>
+<span class="sd">            *args, **kwargs: Additional args called by f</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            Node: The first node found by node.find()</span>
 
@@ -744,8 +797,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            end (Node): A Node object to iterate to (instead of iterating</span>
 <span class="sd">              towards root). Optional, defaults to None</span>
-<span class="sd">            stop (function): A function that returns True if desired node is called</span>
-<span class="sd">              as the first parameter. Optional, defaults to None</span>
+<span class="sd">            stop (function): A function that returns True if desired node is </span>
+<span class="sd">              called as the first parameter. Optional, defaults to None</span>
 
 <span class="sd">        Yields:</span>
 <span class="sd">            Node: Nodes in path to root (or end).</span>
@@ -906,7 +959,16 @@
         </div>
 <div class="viewcode-block" id="Node.reroot_new"><a class="viewcode-back" href="../../ivy.html#ivy.tree.Node.reroot_new">[docs]</a>    <span class="k">def</span> <span class="nf">reroot_new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newroot</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new node as parent to newroot to be the new root.</span>
+<span class="sd">        Create a new node in between newroot and its current parent and sets that</span>
+<span class="sd">        as the new root node. By default, the new node is halfway in between</span>
+<span class="sd">        newroot and its current parent. Works by unrooting the tree, then</span>
+<span class="sd">        rerooting it at the new node.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            newroot: Node or str of node label. Cannot be descended from </span>
+<span class="sd">              current root.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Node: Root node of new rerooted tree.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">oldroot</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="n">oldroot</span><span class="o">.</span><span class="n">isroot</span> <span class="o">=</span> <span class="bp">False</span>
@@ -920,13 +982,20 @@
         <span class="n">t</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         
         <span class="n">newparent</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="n">newlen</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">length</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
             <span class="n">node</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">newparent</span> <span class="p">]</span>
             <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
             <span class="n">node</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">newparent</span>
+            <span class="n">oldlen</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">length</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">newlen</span>
+            <span class="n">newlen</span> <span class="o">=</span> <span class="n">oldlen</span>
             <span class="n">newparent</span> <span class="o">=</span> <span class="n">node</span>
         <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="n">x</span> <span class="p">]</span>
-        <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">excise</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">excise</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
         
         <span class="n">t</span><span class="o">.</span><span class="n">isroot</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="n">t</span>

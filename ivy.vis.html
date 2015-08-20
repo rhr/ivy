@@ -23,7 +23,10 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="ivy 0.1 documentation" href="index.html" /> 
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy API documentation" href="apiindex.html" />
+    <link rel="next" title="ivy.chars package" href="ivy.chars.html" />
+    <link rel="prev" title="ivy.vis package" href="" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -35,7 +38,14 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
+        <li class="right" >
+          <a href="ivy.chars.html" title="ivy.chars package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="#" title="ivy.vis package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="apiindex.html" accesskey="U">ivy API documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -243,20 +253,22 @@ current view, with a fixed data point (cx, cy)</p>
 <dt id="ivy.vis.bokehtree.BokehTree.highlight">
 <code class="descname">highlight</code><span class="sig-paren">(</span><em>x=None</em>, <em>color='red'</em>, <em>width=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.highlight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Highlight selected clade(s)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; <p>A str or list of strs or node or list of nodes.
+color (str): The color of the highlighted nodes. Optional,</p>
+<blockquote>
+<div>defaults to red</div></blockquote>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>x: A str or list of strs or node or list of nodes.</dt>
-<dd><dl class="first last docutils">
-<dt>color (str): The color of the highlighted nodes. Optional,</dt>
-<dd>defaults to red</dd>
 <dt>width (int): The width of the highlighted branches. Optional,</dt>
 <dd>defaults to 3.</dd>
 </dl>
-</dd>
-</dl>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -310,8 +322,34 @@ Detects if tree is scaled or not.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="ivy.vis.hardcopy.TreeFigure.render_multipage">
+<code class="descname">render_multipage</code><span class="sig-paren">(</span><em>outfile, pagesize=[8.5, 11.0], dims=None, border=0.393701, landscape=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.render_multipage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.render_multipage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a multi-page PDF document where the figure is cut into
+multiple pages. Used for printing large figures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outfile</strong> (<a class="reference external" href="https://docs.python.org/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The path to the output file.</li>
+<li><strong>pagesize</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; Two floats. Page size of each individual page
+in inches. Defaults to 8.5 x 11.0.</li>
+<li><strong>dims</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; Two floats. The dimensions of the final figure in
+inches. Defaults to the original size of the figure.</li>
+<li><strong>border</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The amount of overlap (in inches) between each page
+to make taping them together easier. Defaults to 0.393701 (1 cm)</li>
+<li><strong>landscape</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not each page will be in landscape
+orientation. Defaults to false.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="ivy.vis.hardcopy.TreeFigure.savefig">
-<code class="descname">savefig</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.savefig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.savefig" title="Permalink to this definition">¶</a></dt>
+<code class="descname">savefig</code><span class="sig-paren">(</span><em>fname</em>, <em>format='pdf'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.savefig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.savefig" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -332,17 +370,22 @@ Detects if tree is scaled or not.</p>
 <dt id="ivy.vis.symbols.circles">
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">circles</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em>, <em>colors='g'</em>, <em>size=15</em>, <em>xoff=0</em>, <em>yoff=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#circles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.circles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw circles on plot</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">plot (Tree): A Tree plot instance
-p: A node object or list of Node objects
-colors: Str or list of strs. Colors of the circles. Optional,</p>
-<blockquote>
-<div>defaults to &#8216;g&#8217; (green)</div></blockquote>
-<p class="last">size (float): Size of the circles. Optional, defaults to 15
-xoff, yoff (float): X and Y offset. Optional, defaults to 0.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<a class="reference internal" href="#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance</li>
+<li><strong>p</strong> &#8211; A node object or list of Node objects</li>
+<li><strong>colors</strong> &#8211; Str or list of strs. Colors of the circles. Optional,
+defaults to &#8216;g&#8217; (green)</li>
+<li><strong>size</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Size of the circles. Optional, defaults to 15</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; X and Y offset. Optional, defaults to 0.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -359,45 +402,51 @@ xoff, yoff (float): X and Y offset. Optional, defaults to 0.</p>
 <dt id="ivy.vis.symbols.image">
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">image</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em>, <em>imgfile</em>, <em>maxdim=100</em>, <em>border=0</em>, <em>xoff=4</em>, <em>yoff=4</em>, <em>halign=0.0</em>, <em>valign=0.5</em>, <em>xycoords='data'</em>, <em>boxcoords='offset points'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add images to plot</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">plot (Tree): A Tree plot instance
-p (Node): A node object
-imgfile (str): A path to an image
-maxdim (float): Maximum dimension of image. Optional,</p>
-<blockquote>
-<div>defaults to 100.</div></blockquote>
-<p>border: RR: What does border do? -CZ
-xoff, yoff (float): X and Y offset. Optional, defaults to 4
-halign, valign (float): Horizontal and vertical alignment within</p>
-<blockquote class="last">
-<div>box. Optional, defaults to 0.0 and 0.5, respectively.</div></blockquote>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<a class="reference internal" href="#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance</li>
+<li><strong>p</strong> (<a class="reference internal" href="ivy.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A node object</li>
+<li><strong>imgfile</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; A path to an image</li>
+<li><strong>maxdim</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Maximum dimension of image. Optional,
+defaults to 100.</li>
+<li><strong>border</strong> &#8211; RR: What does border do? -CZ</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; X and Y offset. Optional, defaults to 4</li>
+<li><strong>valign</strong> (<em>halign,</em>) &#8211; Horizontal and vertical alignment within
+box. Optional, defaults to 0.0 and 0.5, respectively.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.vis.symbols.images">
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">images</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em>, <em>imgfiles</em>, <em>maxdim=100</em>, <em>border=0</em>, <em>xoff=4</em>, <em>yoff=4</em>, <em>halign=0.0</em>, <em>valign=0.5</em>, <em>xycoords='data'</em>, <em>boxcoords='offset points'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add many images to plot at once</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">Plot (Tree): A Tree plot instance
-p (list): A list of node objects
-imgfile (list): A list of strs containing paths to image files.</p>
-<blockquote>
-<div>Must be the same length as p.</div></blockquote>
-<dl class="docutils">
-<dt>maxdim (float): Maximum dimension of image. Optional,</dt>
-<dd>defaults to 100.</dd>
-</dl>
-<p>border: RR: What does border do? -CZ
-xoff, yoff (float): X and Y offset. Optional, defaults to 4
-halign, valign (float): Horizontal and vertical alignment within</p>
-<blockquote class="last">
-<div>box. Optional, defaults to 0.0 and 0.5, respectively.</div></blockquote>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Plot</strong> (<a class="reference internal" href="#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance</li>
+<li><strong>p</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of node objects</li>
+<li><strong>imgfile</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of strs containing paths to image files.
+Must be the same length as p.</li>
+<li><strong>maxdim</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Maximum dimension of image. Optional,
+defaults to 100.</li>
+<li><strong>border</strong> &#8211; RR: What does border do? -CZ</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; X and Y offset. Optional, defaults to 4</li>
+<li><strong>valign</strong> (<em>halign,</em>) &#8211; Horizontal and vertical alignment within
+box. Optional, defaults to 0.0 and 0.5, respectively.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -439,48 +488,53 @@ halign, valign (float): Horizontal and vertical alignment within</p>
 <dt id="ivy.vis.symbols.squares">
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">squares</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em>, <em>colors='r'</em>, <em>size=15</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>alpha=1.0</em>, <em>zorder=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#squares"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.squares" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw a square at given node</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">plot (Tree): A Tree plot instance
-p: A node or list of nodes
-colors: Str or list of strs. Colors of squares to be drawn.</p>
-<blockquote>
-<div>Optional, defaults to &#8216;r&#8217; (red)</div></blockquote>
-<p>size (float): Size of the squares. Optional, defaults to 15
-xoff, yoff (float): Offset for x and y dimensions. Optional,</p>
-<blockquote>
-<div>defaults to 0.</div></blockquote>
-<dl class="last docutils">
-<dt>alpha (float): between 0 and 1. Alpha transparency of squares.</dt>
-<dd>Optional, defaults to 1 (fully opaque)</dd>
-<dt>zorder (int): The drawing order. Higher numbers appear on top</dt>
-<dd>of lower numbers. Optional, defaults to 1000.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<a class="reference internal" href="#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance</li>
+<li><strong>p</strong> &#8211; A node or list of nodes</li>
+<li><strong>colors</strong> &#8211; Str or list of strs. Colors of squares to be drawn.
+Optional, defaults to &#8216;r&#8217; (red)</li>
+<li><strong>size</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Size of the squares. Optional, defaults to 15</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; Offset for x and y dimensions. Optional,
+defaults to 0.</li>
+<li><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; between 0 and 1. Alpha transparency of squares.
+Optional, defaults to 1 (fully opaque)</li>
+<li><strong>zorder</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The drawing order. Higher numbers appear on top
+of lower numbers. Optional, defaults to 1000.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.vis.symbols.text">
 <code class="descclassname">ivy.vis.symbols.</code><code class="descname">text</code><span class="sig-paren">(</span><em>plot</em>, <em>x</em>, <em>y</em>, <em>s</em>, <em>color='black'</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>valign='center'</em>, <em>halign='left'</em>, <em>fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/symbols.html#text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.symbols.text" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add text to the plot.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">plot (Tree): A Tree plot instance
-x, y (float): x and y coordinates to place the text
-s (str): The text to write
-color (str): The color of the text. Optional, defaults to &#8220;black&#8221;
-xoff, yoff (float): x and y offset
-valign (str): Vertical alignment. Can be: &#8216;center&#8217;, &#8216;top&#8217;,</p>
-<blockquote>
-<div>&#8216;bottom&#8217;, or &#8216;baseline&#8217;. Defaults to &#8216;center&#8217;.</div></blockquote>
-<dl class="docutils">
-<dt>halign (str): Horizontal alignment. Can be: &#8216;center&#8217;, &#8216;right&#8217;,</dt>
-<dd>or &#8216;left&#8217;. Defaults to &#8216;left&#8217;</dd>
-</dl>
-<p class="last">fontsize (float): Font size. Optional, defaults to 10</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<a class="reference internal" href="#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance</li>
+<li><strong>y</strong> (<em>x,</em>) &#8211; x and y coordinates to place the text</li>
+<li><strong>s</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The text to write</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The color of the text. Optional, defaults to &#8220;black&#8221;</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; x and y offset</li>
+<li><strong>valign</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Vertical alignment. Can be: &#8216;center&#8217;, &#8216;top&#8217;,
+&#8216;bottom&#8217;, or &#8216;baseline&#8217;. Defaults to &#8216;center&#8217;.</li>
+<li><strong>halign</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Horizontal alignment. Can be: &#8216;center&#8217;, &#8216;right&#8217;,
+or &#8216;left&#8217;. Defaults to &#8216;left&#8217;</li>
+<li><strong>fontsize</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Font size. Optional, defaults to 10</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -491,21 +545,24 @@ argument for p, it will not only not work (expected) but it will also
 make it so that you can&#8217;t interact with the tree figure (gives errors when
 you try to add symbols, select nodes, etc.) -CZ</p>
 <p>Add square after tip label, anchored to the side of the plot</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">plot (Tree): A Tree plot instance.
-p (Node): A Node object (Should be a leaf node).
-colors (str): olor of drawn square. Optional, defaults to &#8216;r&#8217; (red)
-size (float): Size of square. Optional, defaults to 15
-pad: RR: I am unsure what this does. Does not seem to have visible</p>
-<blockquote>
-<div>effect when I change it. -CZ</div></blockquote>
-<dl class="last docutils">
-<dt>edgepad (float): Padding from square to edge of plot. Optional,</dt>
-<dd>defaults to 10.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<a class="reference internal" href="#ivy.vis.tree.Tree" title="ivy.vis.tree.Tree"><em>Tree</em></a>) &#8211; A Tree plot instance.</li>
+<li><strong>p</strong> (<a class="reference internal" href="ivy.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A Node object (Should be a leaf node).</li>
+<li><strong>colors</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; olor of drawn square. Optional, defaults to &#8216;r&#8217; (red)</li>
+<li><strong>size</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Size of square. Optional, defaults to 15</li>
+<li><strong>pad</strong> &#8211; RR: I am unsure what this does. Does not seem to have visible
+effect when I change it. -CZ</li>
+<li><strong>edgepad</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Padding from square to edge of plot. Optional,
+defaults to 10.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -543,16 +600,21 @@ pad: RR: I am unsure what this does. Does not seem to have visible</p>
 <dt id="ivy.vis.tree.MultiTreeFigure.highlight">
 <code class="descname">highlight</code><span class="sig-paren">(</span><em>s=None</em>, <em>add=False</em>, <em>width=5</em>, <em>color='red'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#MultiTreeFigure.highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.MultiTreeFigure.highlight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Highlight nodes</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">s: Str or list of Strs or Node or list of Nodes
-add (bool): Whether to add to existing highlighted nodes or</p>
-<blockquote>
-<div>overwrite them.</div></blockquote>
-<p class="last">width (float): Width of highlighted lines. Defaults to 5
-color (str): Color of highlighted lines. Defaults to red</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; Str or list of Strs or Node or list of Nodes</li>
+<li><strong>add</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether to add to existing highlighted nodes or
+overwrite them.</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Width of highlighted lines. Defaults to 5</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Color of highlighted lines. Defaults to red</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -652,19 +714,24 @@ interest is the most recent common ancestor of the specified
 nodes.  <em>label</em> is an optional string to be drawn next to the
 bar, <em>offset</em> by the specified number of display units.  If
 <em>label</em> is <code class="docutils literal"><span class="pre">None</span></code> then the clade&#8217;s label is used instead.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">nodes: Node or list of nodes
-color (str): Color of the bar. Optional, defaults to None.
-label (str): Optional label for bar. If None, the clade&#8217;s</p>
-<blockquote>
-<div>label is used instead. Defaults to None.</div></blockquote>
-<p class="last">width (float): Width of bar
-xoff (float): Offset from label to bar
-showlabel (bool): Whether or not to draw the label
-mrca: RR: Not quite sure what this does -CZ</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nodes</strong> &#8211; Node or list of nodes</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Color of the bar. Optional, defaults to None.</li>
+<li><strong>label</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Optional label for bar. If None, the clade&#8217;s
+label is used instead. Defaults to None.</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Width of bar</li>
+<li><strong>xoff</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Offset from label to bar</li>
+<li><strong>showlabel</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not to draw the label</li>
+<li><strong>mrca</strong> &#8211; RR: Not quite sure what this does -CZ</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -860,10 +927,14 @@ is stored in self.decorators and called upon every redraw.</p>
 <dt id="ivy.vis.tree.Tree.save_newick">
 <code class="descname">save_newick</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#Tree.save_newick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.Tree.save_newick" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save tree as a newick file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>filename (str): Path to file.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Path to file.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -986,19 +1057,22 @@ buttons are checked, the default mouse bindings are as follows:</p>
 <dt id="ivy.vis.tree.TreeFigure.add">
 <code class="descname">add</code><span class="sig-paren">(</span><em>data</em>, <em>name=None</em>, <em>support=70</em>, <em>branchlabels=False</em>, <em>leaflabels=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new tree in a new window</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">data: A node object or tree file.
-name (str): Name of the plot. Defaults to None
-branchlabels (bool): Whether or not to draw branch labels.</p>
-<blockquote>
-<div>Defaults to False</div></blockquote>
-<dl class="last docutils">
-<dt>leaflabels (bool): Whether or not to draw leaf labels.</dt>
-<dd>Defaults to True</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> &#8211; A node object or tree file.</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Name of the plot. Defaults to None</li>
+<li><strong>branchlabels</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not to draw branch labels.
+Defaults to False</li>
+<li><strong>leaflabels</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not to draw leaf labels.
+Defaults to True</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1032,12 +1106,18 @@ branchlabels (bool): Whether or not to draw branch labels.</p>
 <dt id="ivy.vis.tree.TreeFigure.find">
 <code class="descname">find</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.find" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find nodes</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>x (str): String to search</dd>
-<dt>Returns:</dt>
-<dd>list: A list of node objects found with the Node findall() method</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; String to search</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of node objects found with the Node findall() method</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)">list</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1049,26 +1129,40 @@ branchlabels (bool): Whether or not to draw branch labels.</p>
 <dt id="ivy.vis.tree.TreeFigure.highlight">
 <code class="descname">highlight</code><span class="sig-paren">(</span><em>x=None</em>, <em>width=5</em>, <em>color='red'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.highlight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Highlight nodes</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>x: Str or list of Strs or Node or list of Nodes
-width (float): Width of highlighted lines. Defaults to 5
-color (str): Color of highlighted lines. Defaults to red</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> &#8211; Str or list of Strs or Node or list of Nodes</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Width of highlighted lines. Defaults to 5</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Color of highlighted lines. Defaults to red</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.tree.TreeFigure.hlines">
 <code class="descname">hlines</code><span class="sig-paren">(</span><em>nodes</em>, <em>width=5</em>, <em>color='red'</em>, <em>xoff=0</em>, <em>yoff=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.hlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.hlines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Highlight nodes</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>nodes (list): A list of node objects
-width (float): Width of highlighted lines. Defaults to 5
-color (str): Color of highlighted lines. Defaults to red
-xoff (float): Number of units to offset lines by. Defaults to 0
-yoff (float): Number of units to offset lines by. Defaults to 0</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of node objects</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Width of highlighted lines. Defaults to 5</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Color of highlighted lines. Defaults to red</li>
+<li><strong>xoff</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Number of units to offset lines by. Defaults to 0</li>
+<li><strong>yoff</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Number of units to offset lines by. Defaults to 0</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1119,14 +1213,18 @@ yoff (float): Number of units to offset lines by. Defaults to 0</dd>
 <dt id="ivy.vis.tree.TreeFigure.select_nodes">
 <code class="descname">select_nodes</code><span class="sig-paren">(</span><em>nodes=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.select_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.select_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select nodes on the plot</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>nodes: A node or list of ndoes</dd>
-<dt>Notes:</dt>
-<dd>If only one node is given, all of the node&#8217;s ancestors are
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nodes</strong> &#8211; A node or list of ndoes</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If only one node is given, all of the node&#8217;s ancestors are
 also selected. If a list of nodes is given (even if it has only
-one node), only the given node(s) are selected.</dd>
-</dl>
+one node), only the given node(s) are selected.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1147,10 +1245,14 @@ one node), only the given node(s) are selected.</dd>
 <dd>redraw takes exactly 1 argument(2 given)-CZ</dd>
 </dl>
 <p>Define whether or not the tree is scaled and redraw tree</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>scaled (bool): Whether or not the tree is scaled.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>scaled</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not the tree is scaled.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1198,10 +1300,14 @@ one node), only the given node(s) are selected.</dd>
 <dt id="ivy.vis.tree.TreeFigure.zoom_clade">
 <code class="descname">zoom_clade</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/tree.html#TreeFigure.zoom_clade"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.tree.TreeFigure.zoom_clade" title="Permalink to this definition">¶</a></dt>
 <dd><p>Zoom to fit a node <em>x</em> and all its descendants in the view.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>x: Node or str that matches the label of a node</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; Node or str that matches the label of a node</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1339,6 +1445,12 @@ one node), only the given node(s) are selected.</dd>
 </li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href=""
+                        title="previous chapter">ivy.vis package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.chars.html"
+                        title="next chapter">ivy.chars package</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1372,7 +1484,14 @@ one node), only the given node(s) are selected.</dd>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
+        <li class="right" >
+          <a href="ivy.chars.html" title="ivy.chars package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="#" title="ivy.vis package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="apiindex.html" >ivy API documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

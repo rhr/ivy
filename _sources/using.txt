@@ -73,7 +73,7 @@ of nodes. In Ivy, a Node is a class that contains information about a node.
 Nodes are rooted and recursively contain their children. Functions
 in Ivy act directly on Node objects. Nodes support Python idioms such as ``in``,
 ``[``, iteration, etc. This guide will cover how to read, view, navigate, modify,
-and write trees in Ivy.
+and write trees in ``ivy``.
 
 Reading
 -------
@@ -95,18 +95,14 @@ node of the tree.
                 "B:0.13,Ateles:0.62)C:0.38,Galago:1.00)root;")
     In [*]: # These three methods are identical
 
-You can copy a read tree using the ``copy`` method on the root node. Node
+You can copy a read tree using the ``copy_new`` method on the root node. Node
 objects are mutable, so this method is preferred over ``r2 = r`` if you want
 to create a deep copy.
 
 .. sourcecode:: ipython
 
-    In [*]: r2 = r.copy(recurse=True) # If recurse=False, won't copy children etc.
+    In [*]: r2 = r.copy_new(recurse=True) # If recurse=False, won't copy children.
 
-.. warning::
-
-    As of now, the copy function does not produce a complete tree: the nodes are not
-    properly connected to each other
 
 .. sourcecode:: ipython
 
@@ -403,7 +399,8 @@ Adding
 ~~~~~~
 
 Our tree is looking a little sparse, so let's add some nodes back in. There
-are a few methods of adding nodes in Ivy. We will go over ``biscect``, ``add_child``, and ``graft``
+are a few methods of adding nodes in Ivy. We will go over ``biscect``, 
+``add_child``, and ``graft``
 
 Bisecting creates a 'knee' node halfway between a parent and a child.
 
@@ -427,7 +424,8 @@ it using its ID instead (if you're following along, your ID will be different).
 
     In [*]: r[140144821654480].label = "N"
 
-Now let's add a node as a child of N. We can do this using the ``add_child`` method.
+Now let's add a node as a child of N. We can do this using the ``add_child`` 
+method.
 
 .. sourcecode:: ipython
 
@@ -495,6 +493,7 @@ Rerooting
 All trees in ``ivy`` are rooted. If you read in a tree that has been incorrectly
 rooted, you may want to reroot it. You can do this with the ``reroot_new`` 
 function. This function returns the root node of the rerooted tree.
+
 .. sourcecode:: ipython
 
     In [*]: r2 = r.reroot_new(r["Galago"])
@@ -592,7 +591,7 @@ read in a tree.
     examples/primates.newick
     Tree parsed and assigned to variable 'root'
     In [*]: root
-    Out[*]: Out[38]: Node(139904996110480, root, 'root')
+    Out[*]: Node(139904996110480, root, 'root')
 
 
 .. image:: _images/visualization_1.png
@@ -670,8 +669,7 @@ Large Trees
 
 Oftentimes, the tree you are working with is too large to comfortably fit on
 one page. ``ivy`` has many tools for working with large trees and creating
-legible, printable figures of them. Let's try working on an example plant
-tree.
+legible, printable figures of them. Let's try working on the plant phylogeny.
 
 .. sourcecode:: ipython
 
@@ -738,7 +736,18 @@ autocomplete, just like with any other autocompletion in ipython.
     In [*]: fig.root["Symplocaceae"]
     Out[*]: Node(139904995827408, leaf, 'Symplocaceae')
 
+``ivy`` also has tools for printing large figures across multiple pages. The 
+figure method ``hardcopy`` creates an object that has methods for creating
+PDFs that can be printed or placed in documents. To print a large figure
+across multiple pages, you can use the ``render_multipage`` method of a 
+``hardcopy`` object. For more information, look at the documentation for
+``render_multipage``. The following code will create a PDF that has the figure
+spread across 4x4 letter-size pages.
 
+.. sourcecode:: ipython
+
+    In [*]: h = fig.hardcopy()
+    In [*]: h.render_multipage(outfile="plants.pdf", dims = [34.0, 44.4])
 
 Performing analyses
 ===================
@@ -864,7 +873,7 @@ node n+1.
 
 .. sourcecode:: ipython
 
-    In [*]: r = ivy.tree.read(treefile, type="newick")
+    In [*]: r = ivy.tree.read(treefile, format="newick")
     In [*]: i = 1
     In [*]: for lf in r.leaves():
             lf.apeidx = i
@@ -880,6 +889,8 @@ color-coded by rate along the branch.
 
 .. sourcecode:: ipython
 
+    In [*]: segments = []
+    In [*]: values = []
     In [*]: for n in r.descendants():
             n.rates = netdiv[nodeidx==n.apeidx]
             c = f.detail.n2c[n]

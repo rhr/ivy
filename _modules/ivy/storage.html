@@ -182,11 +182,11 @@
         <span class="s">&#39;Like dict.copy() but returns a Counter instance instead of a dict.&#39;</span>
         <span class="k">return</span> <span class="n">Counter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </div>
-    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">):</span>
+<div class="viewcode-block" id="Counter.__delitem__"><a class="viewcode-back" href="../../ivy.html#ivy.storage.Counter.__delitem__">[docs]</a>    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">):</span>
         <span class="s">&#39;Like dict.__delitem__() but does not raise KeyError for missing values.&#39;</span>
         <span class="k">if</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="nb">dict</span><span class="o">.</span><span class="n">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">)</span>
-
+</div>
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">()&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
@@ -202,7 +202,7 @@
     <span class="c"># To strip negative and zero counts, add-in an empty counter:</span>
     <span class="c">#       c += Counter()</span>
 
-    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="Counter.__add__"><a class="viewcode-back" href="../../ivy.html#ivy.storage.Counter.__add__">[docs]</a>    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add counts from two counters.</span>
 
 <span class="sd">        &gt;&gt;&gt; Counter(&#39;abbb&#39;) + Counter(&#39;bcc&#39;)</span>
@@ -218,8 +218,8 @@
             <span class="k">if</span> <span class="n">newcount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="n">newcount</span>
         <span class="k">return</span> <span class="n">result</span>
-
-    <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="Counter.__sub__"><a class="viewcode-back" href="../../ivy.html#ivy.storage.Counter.__sub__">[docs]</a>    <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Subtract count, but keep only results with positive counts.</span>
 
 <span class="sd">        &gt;&gt;&gt; Counter(&#39;abbbc&#39;) - Counter(&#39;bccd&#39;)</span>
@@ -234,8 +234,8 @@
             <span class="k">if</span> <span class="n">newcount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="n">newcount</span>
         <span class="k">return</span> <span class="n">result</span>
-
-    <span class="k">def</span> <span class="nf">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="Counter.__or__"><a class="viewcode-back" href="../../ivy.html#ivy.storage.Counter.__or__">[docs]</a>    <span class="k">def</span> <span class="nf">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Union is the maximum of value in either of the input counters.</span>
 
 <span class="sd">        &gt;&gt;&gt; Counter(&#39;abbb&#39;) | Counter(&#39;bcc&#39;)</span>
@@ -251,8 +251,8 @@
             <span class="k">if</span> <span class="n">newcount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="n">newcount</span>
         <span class="k">return</span> <span class="n">result</span>
-
-    <span class="k">def</span> <span class="nf">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="Counter.__and__"><a class="viewcode-back" href="../../ivy.html#ivy.storage.Counter.__and__">[docs]</a>    <span class="k">def</span> <span class="nf">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Intersection is the minimum of corresponding counts.</span>
 
 <span class="sd">        &gt;&gt;&gt; Counter(&#39;abbb&#39;) &amp; Counter(&#39;bcc&#39;)</span>
@@ -270,7 +270,7 @@
             <span class="k">if</span> <span class="n">newcount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="n">newcount</span>
         <span class="k">return</span> <span class="n">result</span>
-</div>
+</div></div>
 <div class="viewcode-block" id="convert"><a class="viewcode-back" href="../../ivy.html#ivy.storage.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
     <span class="s">&quot;convert a (potentially nested) dict to Storage&quot;</span>
     <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">DictType</span>
