@@ -591,7 +591,7 @@ read in a tree.
     examples/primates.newick
     Tree parsed and assigned to variable 'root'
     In [*]: root
-    Out[*]: Out[38]: Node(139904996110480, root, 'root')
+    Out[*]: Node(139904996110480, root, 'root')
 
 
 .. image:: _images/visualization_1.png
@@ -669,8 +669,7 @@ Large Trees
 
 Oftentimes, the tree you are working with is too large to comfortably fit on
 one page. ``ivy`` has many tools for working with large trees and creating
-legible, printable figures of them. Let's try working on an example plant
-tree.
+legible, printable figures of them. Let's try working on the plant phylogeny.
 
 .. sourcecode:: ipython
 
@@ -737,7 +736,18 @@ autocomplete, just like with any other autocompletion in ipython.
     In [*]: fig.root["Symplocaceae"]
     Out[*]: Node(139904995827408, leaf, 'Symplocaceae')
 
+``ivy`` also has tools for printing large figures across multiple pages. The 
+figure method ``hardcopy`` creates an object that has methods for creating
+PDFs that can be printed or placed in documents. To print a large figure
+across multiple pages, you can use the ``render_multipage`` method of a 
+``hardcopy`` object. For more information, look at the documentation for
+``render_multipage``. The following code will create a PDF that has the figure
+spread across 4x4 letter-size pages.
 
+.. sourcecode:: ipython
+
+    In [*]: h = fig.hardcopy()
+    In [*]: h.render_multipage(outfile="plants.pdf", dims = [34.0, 44.4])
 
 Performing analyses
 ===================
@@ -753,28 +763,32 @@ root node and a dictionary mapping node labels to character traits as inputs
 and outputs a dictionary mappinginternal nodes to tuples containing ancestral
 state, its variance (error), the contrast, and the contrasts's variance.
 
+.. TODO:: Add citation for tree
+
+The following example uses a consensus tree fro Sarkinen et al. 2013 and
+Ziegler et al. unpub. data.
+
 Note: This function requires that the root node have a length that is not none.
 Note: this function currently cannot handle polytomies.
 
 .. sourcecode:: ipython
 
     In [*]: import ivy
-    In [*]: r = ivy.tree.read("examples/primates.newick")
-    In [*]: r.length = 0.0 # Setting the root length to 0
-    In [*]: char1 = {
-                    "Homo": 4.09434,
-                    "Pongo": 3.61092,
-                    "Macaca": 2.37024,
-                    "Ateles": 2.02815,
-                    "Galago": -1.46968
-                    }
-    In [*]: c = ivy.contrasts.PIC(r, char1)
-    In [*]: for k,v in c.items():
-                print k.label, v
-    root (1.1837246133953971, 0.3757434703904836, 4.25050357912179, 1.6019055509527755)
-    A (3.85263, 0.385, 0.48341999999999974, 0.42)
-    B (3.2003784000000004, 0.3456, 1.48239, 0.875)
-    C (2.78082357912179, 0.6019055509527755, 1.1722284000000003, 0.9656)
+    In [*]: import csv
+    In [*]: import matplotlib.pyplot as plt
+    In [*]: r = ivy.tree.read("examples/solanaceae_sarkinen2013.newick")
+    In [*]: polvol = {}; stylen = {}
+    In [*]: with open("examples/pollenvolume_stylelength.csv", "r") as csvfile:
+                traits = csv.DictReader(csvfile, delimiter = ",", quotechar = '"')
+                for i in traits:
+                    polvol[i["Binomial"]] = float(i["PollenVolume"])
+                    stylen[i["Binomial"]] = float(i["StyleLength"])
+
+    In [*]: p = ivy.contrasts.PIC(r, polvol) # Contrasts for log-transformed pollen volume
+    In [*]: s = ivy.contrasts.PIC(r, stylen) # Contrasts for log-transformed style length
+    In [*]: pcons, scons = zip(*[ [p[key][2], s[key][2]] for key in p.keys() ])
+    In [*]: plt.scatter(scons,pcons)
+    In [*]: plt.show()
 
 
 Lineages Through Time
@@ -863,7 +877,7 @@ node n+1.
 
 .. sourcecode:: ipython
 
-    In [*]: r = ivy.tree.read(treefile, type="newick")
+    In [*]: r = ivy.tree.read(treefile, format="newick")
     In [*]: i = 1
     In [*]: for lf in r.leaves():
             lf.apeidx = i
@@ -879,6 +893,8 @@ color-coded by rate along the branch.
 
 .. sourcecode:: ipython
 
+    In [*]: segments = []
+    In [*]: values = []
     In [*]: for n in r.descendants():
             n.rates = netdiv[nodeidx==n.apeidx]
             c = f.detail.n2c[n]
