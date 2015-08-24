@@ -61,7 +61,6 @@ class Node(object):
         comment: Comments for tree
 
     """
-    def __init__(self, **kwargs):
         self.id = None
         self.ni = None # node index
         self.li = None # leaf index
