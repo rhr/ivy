@@ -1,11 +1,52 @@
 """
 Layer functions to add to a tree plot with the addlayer method
 """
+import sys, time, bisect, math, types, os, operator, functools
+from collections import defaultdict
+from itertools import chain
+from pprint import pprint
+from ivy import tree, bipart
+from ivy.layout import cartesian
+from ivy.storage import Storage
+from ivy import pyperclip as clipboard
+#from ..nodecache import NodeCache
+import matplotlib, numpy
+import matplotlib.pyplot as pyplot
+from matplotlib.figure import SubplotParams, Figure
+from matplotlib.axes import Axes, subplot_class_factory
+from matplotlib.patches import PathPatch, Rectangle, Arc
+from matplotlib.path import Path
+from matplotlib.widgets import RectangleSelector
+from matplotlib.transforms import Bbox, offset_copy, IdentityTransform, \
+     Affine2D
+from matplotlib import cm as mpl_colormap
+from matplotlib import colors as mpl_colors
+from matplotlib.colorbar import Colorbar
+from matplotlib.collections import RegularPolyCollection, LineCollection, \
+     PatchCollection
+from matplotlib.lines import Line2D
+try:
+    from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+except ImportError:
+    pass
+from matplotlib._png import read_png
+from matplotlib.ticker import MaxNLocator, FuncFormatter, NullLocator
+from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from ivy.vis import symbols, colors
+from ivy.vis import hardcopy as HC
+from ivy.vis import events
+try:
+    import Image
+except ImportError:
+    from PIL import Image
+    
+_tango = colors.tango()
 
-def addlabel(treeplot, labeltype, leaf_offset = 4, leaf_valign = "center",
-             leaf_halign = "left", leaf_fontsize = 10, branch_offset = -5,
-             branch_valign = "center", branch_halign = "right", 
-             branch_fontsize = "10"):
+def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center",
+             leaf_halign="left", leaf_fontsize=10, branch_offset=-5,
+             branch_valign="center", branch_halign="right", 
+             branch_fontsize="10"):
     """
     Add text labels to tree
     
@@ -15,13 +56,11 @@ def addlabel(treeplot, labeltype, leaf_offset = 4, leaf_valign = "center",
         
     """
     assert labeltype in ["leaf", "branch"]
-    treeplot.node2label = {}
     n2c = treeplot.n2c
-    txt = []
     for node, coords in n2c.items():
         x = coords.x; y = coords.y
         if node.isleaf and node.label and labeltype == "leaf":
-            ntxt = treeplot.annotate(
+            txt = treeplot.annotate(
                 node.label,
                 xy=(x, y),
                 xytext=(leaf_offset, 0),
@@ -30,14 +69,14 @@ def addlabel(treeplot, labeltype, leaf_offset = 4, leaf_valign = "center",
                 horizontalalignment=leaf_halign,
                 fontsize=leaf_fontsize,
                 clip_on=True,
-                picker=True
+                picker=True,
+                visible=vis
             )
-            ntxt.node = node
-            ntxt.set_visible(True)
-            txt.append(ntxt)
+            txt.node = node
+            treeplot.node2label[node]=txt
 
         if (not node.isleaf) and node.label and labeltype == "branch":
-            ntxt = treeplot.annotate(
+            txt = treeplot.annotate(
                 node.label,
                 xy=(x, y),
                 xytext=(branch_offset,0),
@@ -47,12 +86,168 @@ def addlabel(treeplot, labeltype, leaf_offset = 4, leaf_valign = "center",
                 fontsize=branch_fontsize,
                 bbox=dict(fc="lightyellow", ec="none", alpha=0.8),
                 clip_on=True,
-                picker=True
+                picker=True,
+                visible=vis
             )
-            ## txt.set_visible(False)
-            ntxt.node = node
-            ntxt.set_visible(True)
-            txt.append(ntxt)
+            txt.node = node
+            treeplot.node2label[node]=txt
     treeplot.figure.canvas.draw_idle()
-    return txt
+    
+    
+    
+def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
+    """
+    Highlight nodes
+
+    Args:
+        x: Str or list of Strs or Node or list of Nodes
+        width (float): Width of highlighted lines. Defaults to 5
+        color (str): Color of highlighted lines. Defaults to red
+        vis (bool): Whether or not the object is visible. Defaults to true
+    """
+    if x:
+        nodes = set()
+        if type(x) in types.StringTypes:
+            nodes = treeplot.root.findall(x)
+        elif isinstance(x, tree.Node):
+            nodes = set(x)
+        else:
+            for n in x:
+                if type(n) in types.StringTypes:
+                    found = treeplot.root.findall(n)
+                    if found:
+                        nodes |= set(found)
+                elif isinstance(n, tree.Node):
+                    nodes.add(n)
+
+        highlighted = nodes
+    else:
+        highlighted = set()
+    
+    if len(highlighted)>1:
+        mrca = treeplot.root.mrca(highlighted)
+        if not mrca:
+            return
+    else:
+        mrca = list(nodes)[0]    
+    
+    M = Path.MOVETO; L = Path.LINETO
+    verts = []
+    codes = []
+    
+    seen = set()
+    for node, coords in [ x for x in treeplot.n2c.items() if x[0] in nodes ]:
+        x = coords.x; y = coords.y
+        p = node.parent
+        while p:
+            pcoords = treeplot.n2c[p]
+            px = pcoords.x; py = pcoords.y
+            if node not in seen:
+                verts.append((x, y)); codes.append(M)
+                verts.append((px, y)); codes.append(L)
+                verts.append((px, py)); codes.append(L)
+                seen.add(node)
+            if p == mrca or node == mrca:
+                break
+            node = p
+            coords = treeplot.n2c[node]
+            x = coords.x; y = coords.y
+            p = node.parent
+    px, py = verts[-1]
+    verts.append((px, py)); codes.append(M)
+
+    highlightpath = Path(verts, codes)
+    highlightpatch = PathPatch(
+        highlightpath, fill=False, linewidth=width, edgecolor=color, visible=vis
+        )
+    treeplot.add_patch(highlightpatch)
+    treeplot.figure.canvas.draw_idle()
+    
+def add_cbar(treeplot, nodes, color=None, label=None, x=None, width=8, xoff=10,
+         showlabel=True, mrca=True, leaf_valign="center", leaf_halign="left", 
+         leaf_fontsize=10):
+        """
+        Draw a 'clade' bar (i.e., along the y-axis) indicating a
+        clade.  *nodes* are assumed to be one or more nodes in the
+        tree.  If just one, it should be the internal node
+        representing the clade of interest; otherwise, the clade of
+        interest is the most recent common ancestor of the specified
+        nodes.  *label* is an optional string to be drawn next to the
+        bar, *offset* by the specified number of display units.  If
+        *label* is ``None`` then the clade's label is used instead.
+
+        Args:
+            nodes: Node or list of nodes
+            color (str): Color of the bar. Optional, defaults to None.
+              If None, will cycle through a color palette
+            label (str): Optional label for bar. If None, the clade's
+              label is used instead. Defaults to None.
+            width (float): Width of bar
+            xoff (float): Offset from label to bar
+            showlabel (bool): Whether or not to draw the label
+            mrca (bool): Whether to draw the bar encompassing all descendants
+              of the MRCA of ``nodes``
+        """
+        xlim = treeplot.get_xlim(); ylim = treeplot.get_ylim()
+        if color is None: color = _tango.next()
+        transform = treeplot.transData.inverted().transform        
+    
+        if mrca:
+            if isinstance(nodes, tree.Node):
+                spec = nodes
+            elif type(nodes) in types.StringTypes:
+                spec = treeplot.root.get(nodes)
+            else:
+                spec = treeplot.root.mrca(nodes)
+
+            assert spec in treeplot.root
+            label = label or spec.label
+            leaves = spec.leaves()
+
+        else:
+            leaves = nodes
+
+        n2c = treeplot.n2c    
+    
+        y = sorted([ n2c[n].y for n in leaves ])
+        ymin = y[0]; ymax = y[-1]; y = (ymax+ymin)*0.5
+
+        if x is None:
+            x = max([ n2c[n].x for n in leaves ])
+            _x = 0
+            for lf in leaves:
+                txt = treeplot.node2label.get(lf)
+                if txt and txt.get_visible():
+                    _x = max(_x, transform(txt.get_window_extent())[1,0])
+            if _x > x: x = _x
+
+        v = sorted(list(transform(((0,0),(xoff,0)))[:,0]))
+        xoff = v[1]-v[0]
+        x += xoff
+
+        Axes.plot(treeplot, [x,x], [ymin, ymax], '-', 
+                  linewidth=width, color=color)
+
+        if showlabel and label:
+            xo = treeplot.leaf_offset
+            if xo > 0:
+                xo += width*0.5
+            else:
+                xo -= width*0.5
+            txt = self.annotate(
+                label,
+                xy=(x, y),
+                xytext=(xo, 0),
+                textcoords="offset points",
+                verticalalignment=leaf_valign,
+                horizontalalignment=leaf_halign,
+                fontsize=leaf_fontsize,
+                clip_on=True,
+                picker=False
+                )
+
+        treeplot.set_xlim(xlim); treeplot.set_ylim(ylim)    
+    
+    
+    
                 

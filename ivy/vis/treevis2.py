@@ -3,7 +3,7 @@ interactive viewers for trees, etc. using matplotlib
 
 Re-written to have a layer-based API
 """
-import sys, time, bisect, math, types, os, operator
+import sys, time, bisect, math, types, os, operator, functools
 from collections import defaultdict
 from itertools import chain
 from pprint import pprint
@@ -111,7 +111,7 @@ class TreeFigure(object):
         fig = pyplot.figure(subplotpars=pars, facecolor="white")
         events.connect_events(fig.canvas)
         self.figure = fig
-        self.layers = []
+        self.layers = dict()
         self.initialize_subplots()
     def initialize_subplots(self):
         tp = TreePlot(self.figure, 1, 2, 2, app=self, name=self.name,
@@ -120,13 +120,12 @@ class TreeFigure(object):
         tree.set_root(self.root)
         tree.plot_tree()
         self.tree = tree
-        self.layers.append(self.tree)
         self.set_positions()
-        if self.leaflabels:
-            self.addlayer(layers.addlabel, "leaf")
-        if self.branchlabels:
-            self.addlayer(layers.addlabel, "branch")
-        
+        self.add_layer(layers.add_label, "leaf", store = "leaflabels", 
+                       vis=self.leaflabels) # set visibility
+        self.add_layer(layers.add_label, "branch", store = "branchlabels",
+                       vis=self.branchlabels)
+    
     def __get_selected_nodes(self):
         return list(self.tree.selected_nodes)
 
@@ -182,6 +181,8 @@ class TreeFigure(object):
         """
         self.tree.redraw()
         self.set_positions()
+        for lay in self.layers.keys():
+            self.layers[lay]()
         self.figure.canvas.draw_idle()
 
     def find(self, x):
@@ -225,8 +226,12 @@ class TreeFigure(object):
     def zy(self, factor=0.1):
         """Zoom y axis by *factor*."""
         self.tree.zoom(0, factor)
-        self.figure.canvas.draw_idle()        
-    def addlayer(self, func, *args):
+        self.figure.canvas.draw_idle()
+        
+    ##################################    
+    # Layer API
+    ##################################
+    def add_layer(self, func, *args, **kwargs):
         """
         Add a new layer. New layers include:
         
@@ -235,14 +240,76 @@ class TreeFigure(object):
         - Dataplot
         - Decorations
         
+        If *kwargs* contains
+        the key-value pair ('store', *name*), the layer function
+        is stored in self.layers and called upon every redraw
+        
         Args:
             func (function): Function that takes a TreePlot (self.tree)
               as input and returns (and draws) an Artist
         
         """
-        self.layers.append(func(self.tree, *args))
+        self.redraw()
+        name = kwargs.pop("store", None)
+        vis = kwargs.pop("vis", True)
+        # Using functools to store 
+        if name: 
+            self.layers[name]=functools.partial(func, self.tree, vis=vis, *args, **kwargs)
+        func(self.tree, *args, **kwargs)
+    def remove_layer(self, layername):
+        """
+        Remove a layer by name.
         
-         
+        Args:
+            layername (str): Name of the layer to remove. See all layers
+              with self.layers
+        """
+        del self.layers[layername]
+        self.redraw()
+    def toggle_layer(self, layername):
+        """
+        Set a layer to be visible/invisible (but still stored in self.layers)
+        
+        Args:
+            layername (str): Name of the layer to toggle. See all layers with
+              self.layers.
+        """
+        isvis = self.layers[layername].keywords["vis"]
+        if isvis:
+            # Functools allows previously-defined arguments to be overwritten
+            self.layers[layername] = functools.partial(self.layers[layername], vis = False)
+        else:
+            self.layers[layername] = functools.partial(self.layers[layername], vis = True)
+        self.redraw()
+    
+    ############################    
+    # Convenience functions
+    ############################
+        
+    def toggle_branchlabels(self):
+        """
+        Toggle visibility of branchlabels 
+        (equivalent to toggle_layer("branchlabels"))
+        """
+        self.toggle_layer("branchlabels")
+    def toggle_leaflabels(self):
+        """
+        Toggle visibility of branchlabels 
+        (equivalent to self.toggle_layer("leaflabels"))
+        """      
+        self.toggle_layer("leaflabels")
+    def highlight(self, x, *args, **kwargs):
+        """
+        Convenience function for highlighting nodes
+        
+        Args:
+            x: Str or list of Strs or Node or list of Nodes
+            width (float): Width of highlighted lines. Defaults to 5
+            color (str): Color of highlighted lines. Defaults to red
+            vis (bool): Whether or not the object is visible. Defaults to true
+        """
+        self.add_layer(layers.add_highlight, x, *args, **kwargs)
+        
 class Tree(Axes):
     """
     Subclass for rendering trees
@@ -284,7 +351,8 @@ class Tree(Axes):
         self.spines["top"].set_visible(False)
         self.spines["left"].set_visible(False)
         self.spines["right"].set_visible(False)
-        self.xaxis.set_ticks_position("bottom")    
+        self.xaxis.set_ticks_position("bottom")
+        self.node2label = {}   
         
     def p2y(self):
         "Convert a single display point to y-units"
@@ -588,6 +656,7 @@ class Tree(Axes):
         self.adjust_xspine()
 
         if self.interactive: pyplot.ion()
+        
         def fmt(x, pos=None):
             if x<0: return ""
             return ""
