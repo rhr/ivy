@@ -113,7 +113,7 @@ Viewing
 -------
 
 There are a number of ways you can view trees in Ivy. For a simple display
-without needing to create a plot, Ivy can create ascii trees that can be
+without needing to create a plot, ``ivy`` can create ascii trees that can be
 printed to the console.
 
 .. sourcecode:: ipython
@@ -160,11 +160,12 @@ Navigating
 
 A node in Ivy is a container. It recursively contains its descendants,
 as well as itself. You can navigate a tree using the Python idioms that
-you are used to.
+you are used to using.
 
 Let's start by iterating over all of the children contained within the root
 node. By default, iteration over a node happens in preorder sequence, starting
-with the root node.
+with the root node. To iterate over a node in a specific sequence, you can use
+the ``preorder`` and ``postorder`` methods.
 
 .. sourcecode:: ipython
 
@@ -280,7 +281,7 @@ first argument and returns a ``bool``.
 Testing
 -------
 
-We can test many attributes of a node in Ivy.
+We can test many attributes of a node in ``ivy``.
 
 We can test whether a node contains another node
 
@@ -327,7 +328,7 @@ We can test if a group of leaves is monophyletic
 Modifying
 ---------
 
-The Ivy Node object has many methods for modifying a tree in place.
+The ``ivy`` ``Node`` object has many methods for modifying a tree in place.
 
 
 Removing
@@ -491,12 +492,14 @@ Rerooting
     This reroot function has not been thouroughly tested. Use with caution.
 
 All trees in ``ivy`` are rooted. If you read in a tree that has been incorrectly
-rooted, you may want to reroot it. You can do this with the ``reroot_new`` 
-function. This function returns the root node of the rerooted tree.
+rooted, you may want to reroot it. You can do this with the ``reroot`` 
+function. This function returns the root node of the rerooted tree. Note that
+unlike previous functions, the reroot function returns a *new* tree. The
+old tree is not modified.
 
 .. sourcecode:: ipython
 
-    In [*]: r2 = r.reroot_new(r["Galago"])
+    In [*]: r2 = r.reroot(r["Galago"])
     In [*]: print r2.ascii()
     ----------------------------------------+ Galago 
     +                                                
@@ -508,6 +511,17 @@ function. This function returns the root node of the rerooted tree.
                         ----------+                  
                                   ----------+ Macaca 
 
+Dropping Tips
+~~~~~~~~~~~~~
+
+You can remove leaf nodes with the ``drop_tips`` function. Note that
+this function returns a *new* tree. The old tree is not modified.
+This function takes a list of tip labels.
+
+
+.. sourcecode:: ipython
+
+    In [*]: r3 = r.drop_tips(["Pongo", "Macaca"])
 
 Writing
 -------
@@ -521,7 +535,7 @@ currently only write in newick format.
 .. sourcecode:: ipython
 
     In [*]: f = open("examples/primates_mangled.newick", "w")
-    In [*]: ivy.tree.write(r2, outfile = f)
+    In [*]: ivy.tree.write(r3, outfile = f)
     In [*]: f.close()
 
 
@@ -677,7 +691,8 @@ legible, printable figures of them. Let's try working on the plant phylogeny.
     In [*]: fig = treefig(r)
 
 .. image:: _images/plants_fig1.png
-
+    :width: 700
+    
 When a tree has a large number of tips (>100), ``ivy`` automatically includes an
 overview on the side. This tree looks rather cluttered. We can try to clean it
 up by ladderizing the tree and toggling off the node labels
@@ -688,7 +703,8 @@ up by ladderizing the tree and toggling off the node labels
     In [*]: fig.toggle_branchlabels()
 
 .. image:: _images/plants_fig2.png
-
+    :width: 700
+    
 Here you can see that when all of the labels do not fit on the tree, the plot
 automatically only draws as many labels as will fit.
 
@@ -702,7 +718,8 @@ trees.
     In [*]: fig.highlight(sol)
 
 .. image:: _images/plants_fig3.png
-
+    :width: 700
+    
 We can zoom to this clade with the ``zoom_clade`` function.
 
 .. sourcecode:: ipython
@@ -710,11 +727,13 @@ We can zoom to this clade with the ``zoom_clade`` function.
     In [*]: fig.zoom_clade(sol)
 
 .. image:: _images/plants_fig4.png
-
+    :width: 700
+    
 Maybe we want to zoom out a little. We can select a few clades...
 
 .. image:: _images/plants_fig5.png
-
+    :width: 700
+    
 And then zoom to the MRCA of the selected nodes
 
 .. sourcecode:: ipython
@@ -723,7 +742,8 @@ And then zoom to the MRCA of the selected nodes
     In [*]: fig.zoom_clade(c)
 
 .. image:: _images/plants_fig6.png
-
+    :width: 700
+    
 Another benefit to using ``ivy`` interactively is ``ivy``'s node autocompelte
 function. You can type in the partial name of a node and hit ``tab`` to 
 autocomplete, just like with any other autocompletion in ipython. 

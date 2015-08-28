@@ -78,6 +78,7 @@ class TreeFigure(object):
     * fig.toggle_leaflabels() - ditto for leaf labels
     * fig.decorate(func) - decorate the tree with a function (see
       :ref:`decorating TreeFigures <decorating-trees>`)
+
     """
     def __init__(self, data, name=None, scaled=True, div=0.25,
                  branchlabels=True, leaflabels=True, mark_named=True,
