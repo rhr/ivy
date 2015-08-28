@@ -203,34 +203,34 @@ class Node(object):
         self.children = []
         return p
 
-    def copy(self, recurse=False):
-        """
-        Return a shallow copy of the node, but not copies of children, parent,
-        or any attribute that is a Node.
-
-        If `recurse` is True, recursively copy child nodes.
-
-        Args:
-            recurse (bool): Whether or not to copy children as well as self.
-
-        Returns:
-            Node: A copy of self.
-
-        TODO: test this function.
-
-        RR: This function runs rather slowly -CZ
-        """
-        newnode = Node()
-        for attr, value in self.__dict__.items():
-            if (attr not in ("children", "parent") and
-                not isinstance(value, Node)):
-                setattr(newnode, attr, _copy(value))
-            if recurse:
-                newnode.children = [
-                    child.copy(True) for child in self.children
-                    ]
-        return newnode
-    def copy_new(self, recurse=True, _par=None):
+#    def copy_old(self, recurse=False):
+#        """
+#        Return a shallow copy of the node, but not copies of children, parent,
+#        or any attribute that is a Node.
+#
+#        If `recurse` is True, recursively copy child nodes.
+#
+#        Args:
+#            recurse (bool): Whether or not to copy children as well as self.
+#
+#        Returns:
+#            Node: A copy of self.
+#
+#        
+#
+#        RR: This function runs rather slowly -CZ
+#        """
+#        newnode = Node()
+#        for attr, value in self.__dict__.items():
+#            if (attr not in ("children", "parent") and
+#                not isinstance(value, Node)):
+#                setattr(newnode, attr, _copy(value))
+#            if recurse:
+#                newnode.children = [
+#                    child.copy(True) for child in self.children
+#                    ]
+#        return newnode
+    def copy(self, recurse=True, _par=None):
         """
         Return a shallow copy of self. If recurse = False, do not copy children,
         parents, or any attribute that is Node.
@@ -249,7 +249,7 @@ class Node(object):
                 setattr(newnode, attr, _copy(value))
         if recurse:
             newnode.children = [
-                child.copy_new(True, _par = newnode) for child in self.children
+                child.copy(True, _par = newnode) for child in self.children
                 ]
             if _par:
                 newnode.parent = _par
@@ -539,16 +539,18 @@ class Node(object):
         return v
     def drop_tip(self, *nodes):
         """
-        Drop given leaf nodes from the tree
+        Return a NEW TREE with the given tips dropped from it. Does not 
+        affect old tree.
         
         Args:
             *nodes: Leaf nodes or labels of leaf nodes
         Returns:
-            Node (Node): Root node with tips dropped
+            Node (Node): New root node with tips dropped
         """
-        nodes = [ self[x] for x in nodes ]
+        t = self.copy()
+        nodes = [ t[x] for x in nodes ]
         assert all([ x.isleaf for x in nodes ]), "All nodes given must be tips"
-        root = self
+        root = t
         for node in nodes:
             cp = node.parent
             cp.remove_child(node)
@@ -558,7 +560,7 @@ class Node(object):
                 try: 
                     cp.excise()
                 except AssertionError:
-                    self.isroot = False
+                    t.isroot = False
                     root = cp.children[0]
                     root.parent = None
                     
@@ -888,7 +890,7 @@ class Node(object):
             cp.length = node.length
         return newroot
 
-    def reroot(self, newroot):
+    def reroot_org2(self, newroot):
         """
         RR: I can't get this to work properly -CZ
         """
@@ -908,20 +910,22 @@ class Node(object):
         newroot.isroot = True
         return newroot
         
-    def reroot_new(self, newroot):
+    def reroot(self, newroot):
         """
-        Create a new node in between newroot and its current parent and sets that
-        as the new root node. By default, the new node is halfway in between
+        Reroot the tree between newroot and its parent.
+        By default, the new node is halfway in between
         newroot and its current parent. Works by unrooting the tree, then
         rerooting it at the new node.
         
+        Returns a NEW tree. Does not affect old tree
+        
         Args:
-            newroot: Node or str of node label. Cannot be descended from 
+            newroot: Node or str of node label. Cannot be child of 
               current root.
         Returns:
             Node: Root node of new rerooted tree.
         """
-        oldroot = self
+        oldroot = self.copy()
         oldroot.isroot = False
         newroot = oldroot[newroot]
         assert newroot in oldroot
