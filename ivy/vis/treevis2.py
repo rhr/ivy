@@ -184,6 +184,7 @@ class TreeFigure(object):
         for lay in self.layers.keys():
             self.layers[lay]()
         self.figure.canvas.draw_idle()
+        matplotlib.pyplot.draw()
 
     def find(self, x):
         """
@@ -309,6 +310,32 @@ class TreeFigure(object):
             vis (bool): Whether or not the object is visible. Defaults to true
         """
         self.add_layer(layers.add_highlight, x, *args, **kwargs)
+    def cbar(self, nodes, *args, **kwargs):
+        """
+        Convenience function for adding clade bar along y axis
+        
+        Draw a 'clade' bar (i.e., along the y-axis) indicating a
+        clade.  *nodes* are assumed to be one or more nodes in the
+        tree.  If just one, it should be the internal node
+        representing the clade of interest; otherwise, the clade of
+        interest is the most recent common ancestor of the specified
+        nodes.  *label* is an optional string to be drawn next to the
+        bar, *offset* by the specified number of display units.  If
+        *label* is ``None`` then the clade's label is used instead.
+
+        Args:
+            nodes: Node or list of nodes or string or list of strings.
+            color (str): Color of the bar. Optional, defaults to None.
+              If None, will cycle through a color palette
+            label (str): Optional label for bar. If None, the clade's
+              label is used instead. Defaults to None.
+            width (float): Width of bar
+            xoff (float): Offset from label to bar
+            showlabel (bool): Whether or not to draw the label
+            mrca (bool): Whether to draw the bar encompassing all descendants
+              of the MRCA of ``nodes``
+        """
+        self.add_layer(layers.add_cbar, nodes, *args, **kwargs)
         
 class Tree(Axes):
     """

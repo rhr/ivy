@@ -73,6 +73,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
                 visible=vis
             )
             txt.node = node
+            #print "Setting node label to", str(txt), str(id(txt))
             treeplot.node2label[node]=txt
 
         if (not node.isleaf) and node.label and labeltype == "branch":
@@ -163,9 +164,9 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
     treeplot.add_patch(highlightpatch)
     treeplot.figure.canvas.draw_idle()
     
-def add_cbar(treeplot, nodes, color=None, label=None, x=None, width=8, xoff=10,
+def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8, xoff=10,
          showlabel=True, mrca=True, leaf_valign="center", leaf_halign="left", 
-         leaf_fontsize=10):
+         leaf_fontsize=10, leaf_offset=4):
         """
         Draw a 'clade' bar (i.e., along the y-axis) indicating a
         clade.  *nodes* are assumed to be one or more nodes in the
@@ -177,7 +178,7 @@ def add_cbar(treeplot, nodes, color=None, label=None, x=None, width=8, xoff=10,
         *label* is ``None`` then the clade's label is used instead.
 
         Args:
-            nodes: Node or list of nodes
+            nodes: Node or list of nodes or string or list of strings.
             color (str): Color of the bar. Optional, defaults to None.
               If None, will cycle through a color palette
             label (str): Optional label for bar. If None, the clade's
@@ -211,13 +212,15 @@ def add_cbar(treeplot, nodes, color=None, label=None, x=None, width=8, xoff=10,
     
         y = sorted([ n2c[n].y for n in leaves ])
         ymin = y[0]; ymax = y[-1]; y = (ymax+ymin)*0.5
-
+        treeplot.figure.canvas.draw_idle()
         if x is None:
             x = max([ n2c[n].x for n in leaves ])
             _x = 0
             for lf in leaves:
                 txt = treeplot.node2label.get(lf)
+                #print "Accessing", str(txt), str(id(txt))
                 if txt and txt.get_visible():
+                    treeplot.figure.canvas.draw_idle()
                     _x = max(_x, transform(txt.get_window_extent())[1,0])
             if _x > x: x = _x
 
@@ -226,15 +229,15 @@ def add_cbar(treeplot, nodes, color=None, label=None, x=None, width=8, xoff=10,
         x += xoff
 
         Axes.plot(treeplot, [x,x], [ymin, ymax], '-', 
-                  linewidth=width, color=color)
+                  linewidth=width, color=color, visible=vis)
 
         if showlabel and label:
-            xo = treeplot.leaf_offset
+            xo = leaf_offset
             if xo > 0:
                 xo += width*0.5
             else:
                 xo -= width*0.5
-            txt = self.annotate(
+            txt = treeplot.annotate(
                 label,
                 xy=(x, y),
                 xytext=(xo, 0),
