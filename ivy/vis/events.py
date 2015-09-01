@@ -97,6 +97,10 @@ def ondrag(e):
         ax.set_xlim(midx+xdelta-xspan*0.5, midx+xdelta+xspan*0.5)
         ax.set_ylim(midy+ydelta-yspan*0.5, midy+ydelta+yspan*0.5)
         ax.adjust_xspine()
+        try: 
+            ax.draw_labels()
+        except:
+            pass
         ax.figure.canvas.draw_idle() # WARNING: I had to add this line
                                      # for button2 panning to work, but it isn't
                                      # present in the original. I'm not sure

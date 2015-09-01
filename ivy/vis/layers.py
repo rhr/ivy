@@ -70,7 +70,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
                 fontsize=leaf_fontsize,
                 clip_on=True,
                 picker=True,
-                visible=vis
+                visible=False
             )
             txt.node = node
             #print "Setting node label to", str(txt), str(id(txt))
@@ -92,7 +92,45 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
             )
             txt.node = node
             treeplot.node2label[node]=txt
+            
+    # Drawing the leaves so that only as many labels as will fit get rendered
+    if labeltype == "leaf":        
+        leaves = list(filter(lambda x:x[0].isleaf,
+                             treeplot.get_visible_nodes(labeled_only=True)))
+        psep = treeplot.leaf_pixelsep()
+        fontsize = min(leaf_fontsize, max(psep, 8))
+        n2l = treeplot.node2label
+        transform = treeplot.transData.transform
+        sub = operator.sub
+
+        for n in leaves:
+            n2l[n[0]].set_visible(False)
+
+        # draw leaves
+        leaves_drawn = []
+        for n, x, y in leaves:
+            txt = treeplot.node2label[n]
+            if not leaves_drawn:
+                txt.set_visible(vis)
+                leaves_drawn.append(txt)
+                treeplot.figure.canvas.draw_idle()
+                matplotlib.pyplot.show()
+                continue
+
+            txt2 = leaves_drawn[-1]
+            y0 = y; y1 = txt2.xy[1]
+            sep = sub(*transform(([0,y0],[0,y1]))[:,1])
+            if sep > fontsize:
+                txt.set_visible(vis)
+                txt.set_size(fontsize)
+                leaves_drawn.append(txt)
+        treeplot.figure.canvas.draw_idle()
+        matplotlib.pyplot.show()
+
+        if leaves_drawn:
+            leaves_drawn[0].set_size(fontsize)
     treeplot.figure.canvas.draw_idle()
+    matplotlib.pyplot.show()
     
     
     
@@ -249,7 +287,43 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
                 picker=False
                 )
 
-        treeplot.set_xlim(xlim); treeplot.set_ylim(ylim)    
+        treeplot.set_xlim(xlim); treeplot.set_ylim(ylim)
+
+def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
+              yoff=4, halign=0.0, valign=0.0, xycoords='data',
+              boxcoords=('offset points')):
+    """
+    Add images to a plot at the given nodes.
+    
+    Args:
+        x: Node/label or list of nodes/labels.
+    """
+    assert len(x) == len(imgfiles)
+    if x:
+        nodes = []
+    if type(x) in types.StringTypes:
+        nodes = treeplot.root[x]
+    elif isinstance(x, tree.Node):
+        nodes = [x]
+    else:
+        for n in x:
+            if type(n) in types.StringTypes:
+                nodes.append(treeplot.root[n])
+            elif isinstance(n, tree.Node):
+                nodes.append(n)
+    for node, imgfile in zip(nodes, imgfiles):
+        coords = treeplot.n2c[node]
+        img = Image.open(imgfile)
+        if max(img.size) > maxdim:
+            img.thumbnail((maxdim, maxdim))
+        imgbox = OffsetImage(img)
+        abox = AnnotationBbox(imgbox, (coords.x, coords.y),
+                              xybox= (xoff, yoff), xycoords=xycoords,
+                              box_alignment=(halign, valign),
+                              pad=0.0,
+                              boxcoords=boxcoords)
+        treeplot.add_artist(abox)
+    plot.figure.canvas.draw_idle()
     
     
     

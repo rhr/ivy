@@ -4,7 +4,7 @@ interactive viewers for trees, etc. using matplotlib
 Re-written to have a layer-based API
 """
 import sys, time, bisect, math, types, os, operator, functools
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from itertools import chain
 from pprint import pprint
 from ivy import tree, bipart
@@ -44,7 +44,6 @@ except ImportError:
     from PIL import Image
     
 _tango = colors.tango()
-
 class TreeFigure(object):
     """
     mpl Figure for plotting trees.
@@ -85,18 +84,28 @@ class TreeFigure(object):
     * fig.toggle_overview() - toggle visibility of the overview pane
     * fig.toggle_branchlabels() - ditto for branch labels
     * fig.toggle_leaflabels() - ditto for leaf labels
-    * fig.decorate(func) - decorate the tree with a function (see
+    * fig.decorate(func) - decorate the tree with a function (seeimport ivy
+from ivy.vis import treevis2
+from ivy.vis import layers
+r = ivy.tree.read("examples/plants.newick")
+fig = ivy.vis.treevis2.TreeFigure(r)
+fig.show()
+fig.cbar("Papilionoideae")
       :ref:`decorating TreeFigures <decorating-trees>`)
     
     """
     def __init__(self, data, name=None, scaled=True, div=0.25,
-                 branchlabels=True, leaflabels=True, xoff=0, yoff=0):
+                 branchlabels=True, leaflabels=True, xoff=0, yoff=0,
+                 mark_named=True, overview=True):
+        self.overview = None
+        self.overview_width = div
         self.name = name
         self.scaled = scaled
         self.branchlabels = branchlabels
         self.leaflabels = leaflabels
         self.xoff = xoff
         self.yoff = yoff
+        self.mark_named=mark_named # Drawing a circle at named nodes
         if isinstance(data, tree.Node):
             root = data
         else:
@@ -111,21 +120,38 @@ class TreeFigure(object):
         fig = pyplot.figure(subplotpars=pars, facecolor="white")
         events.connect_events(fig.canvas)
         self.figure = fig
-        self.layers = dict()
-        self.initialize_subplots()
-    def initialize_subplots(self):
+        self.layers = OrderedDict()
+        self.ovlayers = OrderedDict()
+        self.initialize_subplots(overview)
+        #if self.tree.interactive:
+        #    self.figure.canvas.callbacks.connect("scroll_event", self.redraw(True))
+        
+    def initialize_subplots(self, overview=True):
         tp = TreePlot(self.figure, 1, 2, 2, app=self, name=self.name,
-                  scaled=self.scaled)
+                  scaled=self.scaled, tf=self)
         tree = self.figure.add_subplot(tp)
         tree.set_root(self.root)
         tree.plot_tree()
         self.tree = tree
-        self.set_positions()
-        self.add_layer(layers.add_label, "leaf", store = "leaflabels", 
+        self.add_layer(layers.add_label, "leaf", store = "leaflabels", ov=False, 
                        vis=self.leaflabels) # set visibility
-        self.add_layer(layers.add_label, "branch", store = "branchlabels",
-                       vis=self.branchlabels)
-    
+        self.add_layer(layers.add_label, "branch", store = "branchlabels", 
+                       ov=False, vis=self.branchlabels)
+        
+        tp = OverviewTreePlot(
+            self.figure, 121, app=self, scaled=self.scaled,
+            branchlabels=False, leaflabels=False,
+            mark_named=self.mark_named,
+            target=self.tree, tf=self)
+        ov = self.figure.add_subplot(tp)
+        ov.set_root(self.root)
+        ov.plot_tree()
+        self.overview = ov
+        if not overview:
+            self.toggle_overview(False)
+        self.set_positions()
+        if self.tree.nleaves < 50:
+            self.toggle_overview(False)
     def __get_selected_nodes(self):
         return list(self.tree.selected_nodes)
 
@@ -170,21 +196,41 @@ class TreeFigure(object):
         self.figure.show()
 
     def set_positions(self):
+        ov = self.overview
         p = self.tree
         height = 1.0-p.xoffset()
+        if ov:
+            box = [0, p.xoffset(), self.overview_width, height]
+            ov.set_position(box)
         w = 1.0
-        p.set_position([0, p.xoffset(), w, height])
+        if ov:
+            w -= self.overview_width
+        p.set_position([self.overview_width, p.xoffset(), w, height])
         self.figure.canvas.draw_idle()    
-    def redraw(self):
+    def redraw(self, keeptemp=False, *args, **kwargs):
         """
         Replot the figure and overview
         """
         self.tree.redraw()
         self.set_positions()
+        if not keeptemp:
+            self.layers.pop("temp", None)
+
         for lay in self.layers.keys():
             self.layers[lay]()
+            matplotlib.pyplot.draw()
+        
+        if self.overview: 
+            self.overview.redraw()
+            if not keeptemp:
+                self.ovlayers.pop("temp", None)
+            for lay in self.ovlayers.keys():
+                self.ovlayers[lay]()
+                matplotlib.pyplot.draw()
+                
         self.figure.canvas.draw_idle()
         matplotlib.pyplot.draw()
+        
 
     def find(self, x):
         """
@@ -217,8 +263,6 @@ class TreeFigure(object):
     def zoom(self, factor=0.1):
         """Zoom both axes by *factor* (relative display size)."""
         self.tree.zoom(factor, factor)
-        self.figure.canvas.draw_idle()
-
     def zx(self, factor=0.1):
         """Zoom x axis by *factor*."""
         self.tree.zoom(factor, 0)
@@ -227,7 +271,24 @@ class TreeFigure(object):
     def zy(self, factor=0.1):
         """Zoom y axis by *factor*."""
         self.tree.zoom(0, factor)
-        self.figure.canvas.draw_idle()
+    def toggle_overview(self, val=None):
+        """
+        Toggle overview
+        """
+        if val is None:
+            if self.overview.get_visible():
+                self.overview.set_visible(False)
+                self.overview_width = 0.001
+            else:
+                self.overview.set_visible(True)
+                self.overview_width = 0.25
+        elif val:
+            self.overview.set_visible(True)
+            self.overview_width = val
+        else:
+            self.overview.set_visible(False)
+            self.overview_width = 0.001
+        self.set_positions()
         
     ##################################    
     # Layer API
@@ -251,12 +312,15 @@ class TreeFigure(object):
         
         """
         self.redraw()
-        name = kwargs.pop("store", None)
-        vis = kwargs.pop("vis", True)
+        name = kwargs.pop("store", "temp") # Storing the plot to be redrawn
+        vis = kwargs.pop("vis", True) # Is the layer visible?
+        ov = kwargs.pop("ov", True) # Show the layer on the overview
         # Using functools to store 
-        if name: 
-            self.layers[name]=functools.partial(func, self.tree, vis=vis, *args, **kwargs)
+        self.layers[name]=functools.partial(func, self.tree, vis=vis, *args, **kwargs)
         func(self.tree, *args, **kwargs)
+        if ov:
+            self.ovlayers[name]=functools.partial(func, self.overview, vis=vis, *args, **kwargs)
+            func(self.overview, *args, **kwargs)
     def remove_layer(self, layername):
         """
         Remove a layer by name.
@@ -266,8 +330,10 @@ class TreeFigure(object):
               with self.layers
         """
         del self.layers[layername]
+        if ov:
+            del self.ovlayers[layername]
         self.redraw()
-    def toggle_layer(self, layername):
+    def toggle_layer(self, layername, val=None):
         """
         Set a layer to be visible/invisible (but still stored in self.layers)
         
@@ -275,30 +341,34 @@ class TreeFigure(object):
             layername (str): Name of the layer to toggle. See all layers with
               self.layers.
         """
-        isvis = self.layers[layername].keywords["vis"]
-        if isvis:
-            # Functools allows previously-defined arguments to be overwritten
-            self.layers[layername] = functools.partial(self.layers[layername], vis = False)
+        if val is None:
+            vis = not self.layers[layername].keywords["vis"]
         else:
-            self.layers[layername] = functools.partial(self.layers[layername], vis = True)
-        self.redraw()
+            vis = val
+            # Functools allows previously-defined arguments to be overwritten
+        self.layers[layername] = functools.partial(self.layers[layername], vis = vis)
+        if self.overview:
+            try:
+                self.ovlayers[layername] = functools.partial(self.ovlayers[layername], vis = vis)
+            except: pass
+        self.redraw(keeptemp=True)
     
     ############################    
     # Convenience functions
     ############################
         
-    def toggle_branchlabels(self):
+    def toggle_branchlabels(self, val=None):
         """
         Toggle visibility of branchlabels 
         (equivalent to toggle_layer("branchlabels"))
         """
-        self.toggle_layer("branchlabels")
-    def toggle_leaflabels(self):
+        self.toggle_layer("branchlabels", val)
+    def toggle_leaflabels(self, val=None):
         """
-        Toggle visibility of branchlabels 
+        Toggle visibility of leafabels 
         (equivalent to self.toggle_layer("leaflabels"))
         """      
-        self.toggle_layer("leaflabels")
+        self.toggle_layer("leaflabels", val)
     def highlight(self, x, *args, **kwargs):
         """
         Convenience function for highlighting nodes
@@ -310,6 +380,7 @@ class TreeFigure(object):
             vis (bool): Whether or not the object is visible. Defaults to true
         """
         self.add_layer(layers.add_highlight, x, *args, **kwargs)
+        
     def cbar(self, nodes, *args, **kwargs):
         """
         Convenience function for adding clade bar along y axis
@@ -341,8 +412,9 @@ class Tree(Axes):
     """
     Subclass for rendering trees
     """
-    def __init__(self, fig, rect, *args, **kwargs):
+    def __init__(self, fig, rect, tf=None, *args, **kwargs):
         self.root = None
+        self.tf = tf
         self.app = kwargs.pop("app", None)
         self.support = kwargs.pop("support", 70.0)
         self.scaled = kwargs.pop("scaled", True)
@@ -351,6 +423,8 @@ class Tree(Axes):
         self.branch_width = kwargs.pop("branch_width", 1)
         self.branch_color = kwargs.pop("branch_color", "black")
         self.interactive = kwargs.pop("interactive", True)
+        self.leaflabels = kwargs.pop("leaflabels", True)
+        self.branchlabels = kwargs.pop("branchlabels", True)
         ## if self.decorators:
         ##     print >> sys.stderr, "got %s decorators" % len(self.decorators)
         self.xoff = kwargs.pop("xoff", 0)
@@ -379,7 +453,13 @@ class Tree(Axes):
         self.spines["left"].set_visible(False)
         self.spines["right"].set_visible(False)
         self.xaxis.set_ticks_position("bottom")
-        self.node2label = {}   
+        self.node2label = {}
+        self.label_extents = {}
+        self.leaf_pixelsep
+        #def testprint(*args):
+        #    print "test"
+        #if self.interactive:
+        #    self.callbacks.connect("ylim_changed", testprint)
         
     def p2y(self):
         "Convert a single display point to y-units"
@@ -501,6 +581,7 @@ class Tree(Axes):
         yoff = (cy-ymid)*y
         self.set_ylim(ymid-deltay+yoff, ymid+deltay+yoff)
         self.adjust_xspine()
+        self.draw_labels()
         self.figure.canvas.draw_idle() # Added draw_idle
 
     def zoom(self, x=0.1, y=0.1, cx=None, cy=None):
@@ -521,6 +602,7 @@ class Tree(Axes):
         self.set_xlim(xlim[0]+deltax, xlim[1]-deltax)
         self.set_ylim(ylim[0]+deltay, ylim[1]-deltay)
         self.adjust_xspine()
+        self.draw_labels()
         self.figure.canvas.draw_idle() # Added draw_idle
 
     def center_y(self, y):
@@ -531,6 +613,7 @@ class Tree(Axes):
         yoff = (ymax - ymin) * 0.5
         self.set_ylim(y-yoff, y+yoff)
         self.adjust_xspine()
+        self.draw_labels()
 
     def center_x(self, x, offset=0.3):
         """
@@ -551,6 +634,7 @@ class Tree(Axes):
         self.center_y(y)
         x = c.x
         self.center_x(x, 0.2)
+        self.draw_labels()
 
     def find(self, s):
         """
@@ -559,6 +643,7 @@ class Tree(Axes):
         nodes = list(self.root.find(s))
         if nodes:
             self.zoom_nodes(nodes)
+            self.draw_labels()
 
     def zoom_nodes(self, nodes, border=1.2):
         y0, y1 = self.get_ylim(); x0, x1 = self.get_xlim()
@@ -585,6 +670,7 @@ class Tree(Axes):
         y0, y1 = points[:,1]
         self.set_xlim(x0, x1)
         self.set_ylim(y0, y1)
+        self.draw_labels()
 
     def zoom_clade(self, anc, border=1.2):
         if anc.isleaf:
@@ -592,6 +678,7 @@ class Tree(Axes):
 
         else:
             self.zoom_nodes(list(anc), border)
+        self.draw_labels()
         self.figure.canvas.draw_idle() # Added draw_idle
             
     def ypp(self):
@@ -614,6 +701,7 @@ class Tree(Axes):
         else:
             self.set_xlim(*xlim)
             self.set_ylim(*ylim)
+    
 
     def set_name(self, name):
         self.name = name
@@ -721,17 +809,6 @@ class Tree(Axes):
             h[n] = (y1-y0)/ypp
         return h
 
-    def _decimate_nodes(self, n=500):
-        leaves = self.leaves
-        nleaves = len(leaves)
-        if nleaves > n:
-            indices = numpy.linspace(0, nleaves-1, n).astype(int)
-            leaves = [ leaves[i] for i in indices ]
-            return set(list(chain.from_iterable([ list(x.rootpath())
-                                                  for x in leaves ])))
-        else:
-            return self.root
-
     def create_branch_artists(self):
         """
         Use MPL Paths to draw branches
@@ -782,6 +859,7 @@ class Tree(Axes):
         self.set_xlim(xmin-xpad, xmax+xpad*2)
         self.set_ylim(ymin-ypad, ymax+ypad)
         self.adjust_xspine()
+        self.draw_labels()
         self.figure.canvas.draw_idle() # Warning: Had to add this line for this to work. Still don't know why.
 
     def scroll(self, x, y):
@@ -792,11 +870,72 @@ class Tree(Axes):
         self.set_xlim(x0+xd, x1+xd)
         self.set_ylim(y0+yd, y1+yd)
         self.adjust_xspine()
+        self.draw_labels()
+        
+    def leaf_pixelsep(self):
+        y0, y1 = self.get_ylim()
+        y0 = max(0, y0)
+        y1 = min(self.nleaves, y1)
+        display_points = self.transData.transform(((0, y0), (0, y1)))
+        # height in pixels (visible y data extent)
+        height = operator.sub(*reversed(display_points[:,1]))
+        pixelsep = height/((y1-y0)/self.leaf_hsep)
+        return pixelsep
+    def draw_labels(self, *args):
+        if not self.leaflabels:
+            return
+        [ l.set_visible(False) for l in self.node2label.values() ]
+        self.tf.layers["leaflabels"]()
+        fs = 10
+        nodes = self.get_visible_nodes(labeled_only=True)
+        ## print [ x[0].id for x in nodes ]
+        branches = list(filter(lambda x:(not x[0].isleaf), nodes))
+        n2l = self.node2label
+        for n, x, y in branches:
+            t = n2l[n]
+            t.set_visible(True)
+            t.set_size(fs)
+
+class OverviewTree(Tree):
+    def __init__(self, *args, **kwargs):
+        kwargs["leaflabels"] = False
+        kwargs["branchlabels"] = False
+        Tree.__init__(self, *args, **kwargs)
+        self.xaxis.set_visible(False)
+        self.spines["bottom"].set_visible(False)
+        self.add_overview_rect()
+
+    def set_target(self, target):
+        self.target = target
+
+    def add_overview_rect(self):
+        rect = UpdatingRect([0, 0], 0, 0, facecolor='black', edgecolor='red')
+        rect.set_alpha(0.2)
+        rect.target = self.target
+        rect.set_bounds(*self.target.viewLim.bounds)
+        self.zoomrect = rect
+        self.add_patch(rect)
+        ## if pyplot.isinteractive():
+        self.target.callbacks.connect('xlim_changed', rect)
+        self.target.callbacks.connect('ylim_changed', rect)
+
+    def redraw(self):
+        Tree.redraw(self)
+        self.add_overview_rect()
+        self.figure.canvas.draw_idle()
+    def redraw_keeptemp(self):
+        Tree.redraw_keeptemp(self)
+        self.add_overview_rect()
+        self.figure.canvas.draw_idle()
 
 
+class UpdatingRect(Rectangle): # Used in overview plot
+    def __call__(self, p):
+        self.set_bounds(*p.viewLim.bounds)
+        p.figure.canvas.draw_idle()
 
 TreePlot = subplot_class_factory(Tree)
-
+OverviewTreePlot = subplot_class_factory(OverviewTree)
 
 
 
