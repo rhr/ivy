@@ -36,7 +36,7 @@ from matplotlib.ticker import MaxNLocator, FuncFormatter, NullLocator
 from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from ivy.vis import symbols, colors
-from ivy.vis import hardcopy as HC
+from ivy.vis import hardcopy2 as HC
 from ivy.vis import events, layers
 try:
     import Image
@@ -84,19 +84,13 @@ class TreeFigure(object):
     * fig.toggle_overview() - toggle visibility of the overview pane
     * fig.toggle_branchlabels() - ditto for branch labels
     * fig.toggle_leaflabels() - ditto for leaf labels
-    * fig.decorate(func) - decorate the tree with a function (seeimport ivy
-from ivy.vis import treevis2
-from ivy.vis import layers
-r = ivy.tree.read("examples/plants.newick")
-fig = ivy.vis.treevis2.TreeFigure(r)
-fig.show()
-fig.cbar("Papilionoideae")
+    * fig.decorate(func) - decorate the tree with a function (see
       :ref:`decorating TreeFigures <decorating-trees>`)
     
     """
     def __init__(self, data, name=None, scaled=True, div=0.25,
                  branchlabels=True, leaflabels=True, xoff=0, yoff=0,
-                 mark_named=True, overview=True):
+                 mark_named=True, overview=True, interactive=True):
         self.overview = None
         self.overview_width = div
         self.name = name
@@ -123,6 +117,7 @@ fig.cbar("Papilionoideae")
         self.layers = OrderedDict()
         self.ovlayers = OrderedDict()
         self.initialize_subplots(overview)
+        self.home()
         #if self.tree.interactive:
         #    self.figure.canvas.callbacks.connect("scroll_event", self.redraw(True))
         
@@ -247,6 +242,7 @@ fig.cbar("Papilionoideae")
         """
         Return plot to initial size and location.
         """
+        if self.overview: self.overview.home()
         self.tree.home()
 
     def zoom_clade(self, x):
@@ -289,7 +285,20 @@ fig.cbar("Papilionoideae")
             self.overview.set_visible(False)
             self.overview_width = 0.001
         self.set_positions()
-        
+    def hardcopy(self, fname=None, relwidth=None, leafpad=1.5):
+        if not relwidth:
+            bbox = self.tree.get_tightbbox(self.figure.canvas.get_renderer())
+            relwidth = bbox.width/bbox.height
+        f = self.tree.hardcopy(
+            relwidth=relwidth,
+            leafpad=leafpad
+            )
+        f.axes.home()
+        #f.axes.set_xlim(*self.detail.get_xlim())
+        #f.axes.set_ylim(*self.detail.get_ylim())
+        if fname:
+            f.savefig(fname)
+        return f
     ##################################    
     # Layer API
     ##################################
@@ -895,7 +904,17 @@ class Tree(Axes):
             t = n2l[n]
             t.set_visible(True)
             t.set_size(fs)
-
+    def hardcopy(self, relwidth=0.5, leafpad=1.5):
+        p = HC.TreeFigure(self.root, relwidth=relwidth, leafpad=leafpad,
+                          name=self.name, 
+                          branch_width=self.branch_width,
+                          branch_color=self.branch_color,
+                          branchlabels=self.branchlabels,
+                          layers=self.tf.layers,
+                          leaflabels=self.leaflabels,
+                          xlim=self.get_xlim(),
+                          ylim=self.get_ylim())
+        return p
 class OverviewTree(Tree):
     def __init__(self, *args, **kwargs):
         kwargs["leaflabels"] = False
@@ -904,6 +923,7 @@ class OverviewTree(Tree):
         self.xaxis.set_visible(False)
         self.spines["bottom"].set_visible(False)
         self.add_overview_rect()
+        
 
     def set_target(self, target):
         self.target = target

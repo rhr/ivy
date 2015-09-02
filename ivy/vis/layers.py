@@ -25,6 +25,7 @@ from matplotlib.colorbar import Colorbar
 from matplotlib.collections import RegularPolyCollection, LineCollection, \
      PatchCollection
 from matplotlib.lines import Line2D
+from matplotlib.cm import coolwarm
 try:
     from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 except ImportError:
@@ -55,7 +56,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
         labeltype (str): "leaf" or "branch"
         
     """
-    assert labeltype in ["leaf", "branch"]
+    assert labeltype in ["leaf", "branch"], "invalid label type: %s" % labeltype
     n2c = treeplot.n2c
     for node, coords in n2c.items():
         x = coords.x; y = coords.y
@@ -297,6 +298,9 @@ def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
     
     Args:
         x: Node/label or list of nodes/labels.
+        imgfiles: String or list of strings of image files 
+    Note:
+        x and imgfiles must be the same length
     """
     assert len(x) == len(imgfiles)
     if x:
@@ -325,6 +329,22 @@ def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
         treeplot.add_artist(abox)
     plot.figure.canvas.draw_idle()
     
+def add_phylorate(treeplot, rates):
+    """
+    Add phylorate plot generated from data analyzed with BAMM
+    (http://bamm-project.org/introduction.html)
+    
+    Args:
+        rates (array): Array of rates along branches created by (TBA function)
+    """
+    # Give nodes ape index numbers - possibly should be its own function
+    i = 1
+    for lf in treeplot.root.leaves():
+        lf.apeidx = i
+        i += 1
+    for n in treeplot.root.clades():
+        n.apeidx = i
+        i += 1
     
     
                 
