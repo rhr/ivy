@@ -90,11 +90,15 @@ class TreeFigure(object):
     """
     def __init__(self, data, name=None, scaled=True, div=0.25,
                  branchlabels=True, leaflabels=True, xoff=0, yoff=0,
-                 mark_named=True, overview=True, interactive=True):
+                 mark_named=True, overview=True, interactive=True, 
+                 radial=False):
         self.overview = None
         self.overview_width = div
         self.name = name
         self.scaled = scaled
+        self.radial = radial
+        if radial:
+            self.leaflabels = False
         self.branchlabels = branchlabels
         self.leaflabels = leaflabels
         self.xoff = xoff
@@ -118,21 +122,44 @@ class TreeFigure(object):
         self.ovlayers = OrderedDict()
         self.initialize_subplots(overview)
         self.home()
+        self.redraw()
         #if self.tree.interactive:
         #    self.figure.canvas.callbacks.connect("scroll_event", self.redraw(True))
         
     def initialize_subplots(self, overview=True):
-        tp = TreePlot(self.figure, 1, 2, 2, app=self, name=self.name,
-                  scaled=self.scaled, tf=self)
-        tree = self.figure.add_subplot(tp)
-        tree.set_root(self.root)
-        tree.plot_tree()
-        self.tree = tree
-        self.add_layer(layers.add_label, "leaf", store = "leaflabels", ov=False, 
-                       vis=self.leaflabels) # set visibility
-        self.add_layer(layers.add_label, "branch", store = "branchlabels", 
-                       ov=False, vis=self.branchlabels)
-        
+        """
+        Initialize treeplot (a matplotlib.axes.Axes) and add it to the figure.
+        Also initialize overview. If overview=False, toggle off overview.
+        """
+        if not self.radial:
+            tp = TreePlot(self.figure, 1, 2, 2, app=self, name=self.name,
+                      scaled=self.scaled, mark_named=self.mark_named, tf=self,
+                      plottype="phylogram", leaflabels=self.leaflabels,
+                      branchlabels=self.branchlabels)
+            tree = self.figure.add_subplot(tp)
+            tree.set_root(self.root)
+            tree.plot_tree()
+            self.tree = tree
+            self.add_layer(layers.add_label, "leaf", store = "leaflabels", ov=False, 
+                           vis=self.leaflabels)
+            self.add_layer(layers.add_label, "branch", store = "branchlabels", 
+                           ov=False, vis=self.branchlabels)
+       
+            
+        else:
+            tp = RadialTreePlot(self.figure, 111, app=self, name=self.name,
+                                scaled=self.scaled, mark_named=self.mark_named,
+                                tf=self, plottype="radial", leaflabels=self.leaflabels,
+                                branchlabels=self.branchlabels)
+            tree = self.figure.add_subplot(tp)
+            tree.set_root(self.root)
+            tree.plot_tree()
+            self.tree = tree
+            self.add_layer(layers.add_label, "leaf", store = "leaflabels", ov=False, 
+                           vis=self.leaflabels)
+            self.add_layer(layers.add_label, "branch", store = "branchlabels", 
+                           ov=False, vis=self.branchlabels)
+            overview=False # No support for overview for radial trees (yet?)
         tp = OverviewTreePlot(
             self.figure, 121, app=self, scaled=self.scaled,
             branchlabels=False, leaflabels=False,
@@ -325,8 +352,8 @@ class TreeFigure(object):
         vis = kwargs.pop("vis", True) # Is the layer visible?
         ov = kwargs.pop("ov", True) # Show the layer on the overview
         # Using functools to store 
-        self.layers[name]=functools.partial(func, self.tree, vis=vis, *args, **kwargs)
         func(self.tree, *args, **kwargs)
+        self.layers[name]=functools.partial(func, self.tree, vis=vis, *args, **kwargs)
         if ov:
             self.ovlayers[name]=functools.partial(func, self.overview, vis=vis, *args, **kwargs)
             func(self.overview, *args, **kwargs)
@@ -424,6 +451,7 @@ class Tree(Axes):
     def __init__(self, fig, rect, tf=None, *args, **kwargs):
         self.root = None
         self.tf = tf
+        self.plottype = kwargs.pop("plottype", "phylogram")
         self.app = kwargs.pop("app", None)
         self.support = kwargs.pop("support", 70.0)
         self.scaled = kwargs.pop("scaled", True)
@@ -891,19 +919,19 @@ class Tree(Axes):
         pixelsep = height/((y1-y0)/self.leaf_hsep)
         return pixelsep
     def draw_labels(self, *args):
-        if not self.leaflabels:
-            return
-        [ l.set_visible(False) for l in self.node2label.values() ]
-        self.tf.layers["leaflabels"]()
-        fs = 10
-        nodes = self.get_visible_nodes(labeled_only=True)
-        ## print [ x[0].id for x in nodes ]
-        branches = list(filter(lambda x:(not x[0].isleaf), nodes))
-        n2l = self.node2label
-        for n, x, y in branches:
-            t = n2l[n]
-            t.set_visible(True)
-            t.set_size(fs)
+        if self.tf.layers["leaflabels"].keywords["vis"]:
+            [ l.set_visible(False) for l in self.node2label.values() ]
+            self.tf.layers["leaflabels"]()
+            fs = 10
+            nodes = self.get_visible_nodes(labeled_only=True)
+            ## print [ x[0].id for x in nodes ]
+            if self.tf.layers["branchlabels"].keywords["vis"]:
+                branches = list(filter(lambda x:(not x[0].isleaf), nodes))
+                n2l = self.node2label
+                for n, x, y in branches:
+                    t = n2l[n]
+                    t.set_visible(True)
+                    t.set_size(fs)
     def hardcopy(self, relwidth=0.5, leafpad=1.5):
         p = HC.TreeFigure(self.root, relwidth=relwidth, leafpad=leafpad,
                           name=self.name, 
@@ -915,6 +943,58 @@ class Tree(Axes):
                           xlim=self.get_xlim(),
                           ylim=self.get_ylim())
         return p
+
+class RadialTree(Tree):
+    """
+    Matplotlib axes subclass for rendering radial trees
+    """
+    def layout(self):
+        from ..layout_polar import calc_node_positions
+        start = self.start if hasattr(self, 'start') else 0
+        end = self.end if hasattr(self, 'end') else None
+        self.n2c = calc_node_positions(self.root, scaled=self.scaled,
+                                       start=start, end=end)
+        sv = sorted([
+            [c.y, c.x, n] for n, c in self.n2c.items()
+            ])
+        self.coords = sv
+
+    ## def _path_to_parent(self, node, width=None, color=None):
+    ##     c = self.n2c[node]; theta1 = c.angle; r = c.depth
+    ##     M = Path.MOVETO; L = Path.LINETO
+    ##     pc = self.n2c[node.parent]; theta2 = pc.angle
+    ##     px1 = math.cos(math.radians(c.angle))*pc.depth
+    ##     py1 = math.sin(math.radians(c.angle))*pc.depth
+    ##     verts = [(c.x,c.y),(px1,py1)]; codes = [M,L]
+    ##     #verts.append((pc.x,pc.y)); codes.append(L)
+    ##     path = PathPatch(Path(verts, codes), fill=False,
+    ##                      linewidth=width or self.branch_width,
+    ##                      edgecolor=color or self.branch_color)
+    ##     diam = pc.depth*2
+    ##     t1, t2 = tuple(sorted((theta1,theta2)))
+    ##     arc = Arc((0,0), diam, diam, theta1=t1, theta2=t2,
+    ##               edgecolor=color or self.branch_color,
+    ##               linewidth=width or self.branch_width)
+    ##     return [path, arc]
+
+    def _path_to_parent(self, node):
+        c = self.n2c[node]; theta1 = c.angle; r = c.depth
+        M = Path.MOVETO; L = Path.LINETO
+        pc = self.n2c[node.parent]; theta2 = pc.angle
+        px1 = math.cos(math.radians(c.angle))*pc.depth
+        py1 = math.sin(math.radians(c.angle))*pc.depth
+        verts = [(c.x,c.y),(px1,py1)]; codes = [M,L]
+        t1, t2 = tuple(sorted((theta1,theta2)))
+        diam = pc.depth*2
+        arc = Arc((0,0), diam, diam, theta1=t1, theta2=t2)
+        arcpath = arc.get_path()
+        av = arcpath.vertices * pc.depth
+        ac = arcpath.codes
+        verts.extend(av.tolist())
+        codes.extend(ac.tolist())
+        return verts, codes
+
+
 class OverviewTree(Tree):
     def __init__(self, *args, **kwargs):
         kwargs["leaflabels"] = False
@@ -923,6 +1003,7 @@ class OverviewTree(Tree):
         self.xaxis.set_visible(False)
         self.spines["bottom"].set_visible(False)
         self.add_overview_rect()
+        self.plottype="overview"
         
 
     def set_target(self, target):
@@ -955,6 +1036,7 @@ class UpdatingRect(Rectangle): # Used in overview plot
         p.figure.canvas.draw_idle()
 
 TreePlot = subplot_class_factory(Tree)
+RadialTreePlot = subplot_class_factory(RadialTree)
 OverviewTreePlot = subplot_class_factory(OverviewTree)
 
 
