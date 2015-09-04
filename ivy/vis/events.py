@@ -80,6 +80,8 @@ def onkeypress(e):
 
 def ondrag(e):
     ax = e.inaxes
+    if ax is None or ax.plottype=="overview":
+        return
     button = e.button
     if ax and button == 2:
         if not ax.pan_start:
@@ -109,6 +111,8 @@ def ondrag(e):
 
 def onbuttonrelease(e):
     ax = e.inaxes
+    if ax is None or ax.plottype=="overview":
+        return
     button = e.button
     if ax and button == 2:
         ## print "pan end"
@@ -116,11 +120,15 @@ def onbuttonrelease(e):
 
 def onpick(e):
     ax = e.mouseevent.inaxes
+    if ax is None or ax.plottype=="overview":
+        return
     if ax:
         ax.picked(e)
 
 def onscroll(e):
     ax = e.inaxes
+    if ax is None or ax.plottype=="overview":
+        return
     if ax:
         b = e.button
         ## print b
@@ -165,6 +173,8 @@ def onclick(e):
         ax.figure.canvas.draw_idle()
 
     if ax and e.button==2:
+        if ax is None or ax.plottype=="overview":
+            return
         ## print "pan start", (e.xdata, e.ydata)
         ax.pan_start = (e.xdata, e.ydata)
         
