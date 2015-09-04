@@ -14,7 +14,7 @@ import matplotlib, numpy
 import matplotlib.pyplot as pyplot
 from matplotlib.figure import SubplotParams, Figure
 from matplotlib.axes import Axes, subplot_class_factory
-from matplotlib.patches import PathPatch, Rectangle, Arc
+from matplotlib.patches import PathPatch, Rectangle, Arc, Wedge, Circle
 from matplotlib.path import Path
 from matplotlib.widgets import RectangleSelector
 from matplotlib.transforms import Bbox, offset_copy, IdentityTransform, \
@@ -27,7 +27,7 @@ from matplotlib.collections import RegularPolyCollection, LineCollection, \
 from matplotlib.lines import Line2D
 from matplotlib.cm import coolwarm
 try:
-    from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+    from matplotlib.offsetbox import OffsetImage, AnnotationBbox, DrawingArea
 except ImportError:
     pass
 from matplotlib._png import read_png
@@ -37,12 +37,28 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from ivy.vis import symbols, colors
 from ivy.vis import hardcopy as HC
 from ivy.vis import events
+import numpy as np
+from numpy import pi, array
 try:
     import Image
 except ImportError:
     from PIL import Image
     
 _tango = colors.tango()
+
+
+def xy(plot, p):
+    if isinstance(p, tree.Node):
+        c = plot.n2c[p]
+        p = (c.x, c.y)
+    elif type(p) in types.StringTypes:
+        c = plot.n2c[plot.root[p]]
+        p = c.x, c.y
+    elif isinstance(p, (list, tuple)):
+        p = [ xy(plot, x) for x in p ]
+    else:
+        pass
+    return p
 
 def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center",
              leaf_halign="left", leaf_fontsize=10, branch_offset=-5,
@@ -61,21 +77,46 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
     for node, coords in n2c.items():
         x = coords.x; y = coords.y
         if node.isleaf and node.label and labeltype == "leaf":
-            txt = treeplot.annotate(
-                node.label,
-                xy=(x, y),
-                xytext=(leaf_offset, 0),
-                textcoords="offset points",
-                verticalalignment=leaf_valign,
-                horizontalalignment=leaf_halign,
-                fontsize=leaf_fontsize,
-                clip_on=True,
-                picker=True,
-                visible=False
-            )
-            txt.node = node
-            #print "Setting node label to", str(txt), str(id(txt))
-            treeplot.node2label[node]=txt
+            if treeplot.plottype == "phylogram":
+                txt = treeplot.annotate(
+                    node.label,
+                    xy=(x, y),
+                    xytext=(leaf_offset, 0),
+                    textcoords="offset points",
+                    verticalalignment=leaf_valign,
+                    horizontalalignment=leaf_halign,
+                    fontsize=leaf_fontsize,
+                    clip_on=True,
+                    picker=True,
+                    visible=False
+                )
+                txt.node = node
+                #print "Setting node label to", str(txt), str(id(txt))
+                treeplot.node2label[node]=txt
+            else:
+                if coords.angle < 90 or coords.angle > 270:
+                    ha = "left"
+                    va = "center"
+                    rotate = (coords.angle-360)
+                else:
+                    ha = "right"
+                    va = "center"
+                    rotate = (coords.angle-180)
+                    
+                txt = treeplot.annotate(
+                    node.label,
+                    xy=(x,y),
+                    verticalalignment=va,
+                    fontsize=leaf_fontsize,
+                    clip_on=True,
+                    picker=True,
+                    visible=vis,
+                    horizontalalignment=ha,
+                    rotation=rotate,
+                    rotation_mode="anchor")
+                
+                txt.node = node
+                treeplot.node2label[node]=txt
 
         if (not node.isleaf) and node.label and labeltype == "branch":
             txt = treeplot.annotate(
@@ -95,7 +136,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
             treeplot.node2label[node]=txt
             
     # Drawing the leaves so that only as many labels as will fit get rendered
-    if labeltype == "leaf":        
+    if (labeltype == "leaf") & (treeplot.plottype=="phylogram"):        
         leaves = list(filter(lambda x:x[0].isleaf,
                              treeplot.get_visible_nodes(labeled_only=True)))
         psep = treeplot.leaf_pixelsep()
@@ -130,6 +171,9 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
 
         if leaves_drawn:
             leaves_drawn[0].set_size(fontsize)
+    else:
+        leaves = list(filter(lambda x:x[0].isleaf,
+                             treeplot.get_visible_nodes(labeled_only=True)))
     treeplot.figure.canvas.draw_idle()
     matplotlib.pyplot.show()
     
@@ -183,23 +227,32 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
             pcoords = treeplot.n2c[p]
             px = pcoords.x; py = pcoords.y
             if node not in seen:
-                verts.append((x, y)); codes.append(M)
-                verts.append((px, y)); codes.append(L)
-                verts.append((px, py)); codes.append(L)
-                seen.add(node)
+                if treeplot.plottype == "phylogram":
+                    verts.append((x, y)); codes.append(M)
+                    verts.append((px, y)); codes.append(L)
+                    verts.append((px, py)); codes.append(L)
+                    seen.add(node)
+                elif treeplot.plottype == "radial":
+                    v, c = treeplot._path_to_parent(node)
+                    verts.extend(v)
+                    codes.extend(c)
+                    seen.add(node)
+                    
             if p == mrca or node == mrca:
                 break
             node = p
             coords = treeplot.n2c[node]
             x = coords.x; y = coords.y
             p = node.parent
-    px, py = verts[-1]
-    verts.append((px, py)); codes.append(M)
+    if treeplot.plottype == "phylogram":
+        px, py = verts[-1]
+        verts.append((px, py)); codes.append(M)
 
     highlightpath = Path(verts, codes)
     highlightpatch = PathPatch(
         highlightpath, fill=False, linewidth=width, edgecolor=color, visible=vis
         )
+        
     treeplot.add_patch(highlightpatch)
     treeplot.figure.canvas.draw_idle()
     
@@ -228,6 +281,7 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
             mrca (bool): Whether to draw the bar encompassing all descendants
               of the MRCA of ``nodes``
         """
+        assert treeplot.plottype == "Phylogram", "No cbar for radial trees"
         xlim = treeplot.get_xlim(); ylim = treeplot.get_ylim()
         if color is None: color = _tango.next()
         transform = treeplot.transData.inverted().transform        
@@ -329,13 +383,46 @@ def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
         treeplot.add_artist(abox)
     plot.figure.canvas.draw_idle()
     
-def add_phylorate(treeplot, rates):
+def add_squares(treeplot, nodes, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
+            zorder=1000):
+    """
+    Draw a square at given node
+
+    Args:
+        plot (Tree): A Tree plot instance
+        p: A node or list of nodes or string or list of strings
+        colors: Str or list of strs. Colors of squares to be drawn.
+          Optional, defaults to 'r' (red)
+        size (float): Size of the squares. Optional, defaults to 15
+        xoff, yoff (float): Offset for x and y dimensions. Optional,
+          defaults to 0.
+        alpha (float): between 0 and 1. Alpha transparency of squares.
+          Optional, defaults to 1 (fully opaque)
+        zorder (int): The drawing order. Higher numbers appear on top
+          of lower numbers. Optional, defaults to 1000.
+
+    """
+    points = xy(treeplot, nodes)
+    trans = offset_copy(
+        treeplot.transData, fig=treeplot.figure, x=xoff, y=yoff, units='points')
+
+    col = RegularPolyCollection(
+        numsides=4, rotation=pi*0.25, sizes=(size*size,),
+        offsets=points, facecolors=colors, transOffset=trans,
+        edgecolors='none', alpha=alpha, zorder=zorder
+        )
+
+    treeplot.add_collection(col)
+    treeplot.figure.canvas.draw_idle()
+    
+def add_phylorate(treeplot, rates, nodeidx, vis=True):
     """
     Add phylorate plot generated from data analyzed with BAMM
     (http://bamm-project.org/introduction.html)
-    
+   
     Args:
         rates (array): Array of rates along branches created by (TBA function)
+        nodeidx (array): Array of node indices matching rates
     """
     # Give nodes ape index numbers - possibly should be its own function
     i = 1
@@ -345,6 +432,26 @@ def add_phylorate(treeplot, rates):
     for n in treeplot.root.clades():
         n.apeidx = i
         i += 1
+        
+    segments = []
+    values = []
     
-    
+    for n in treeplot.root.descendants():
+        n.rates = rates[nodeidx==n.apeidx]
+        c = treeplot.n2c[n]
+        pc = treeplot.n2c[n.parent]
+        seglen = (c.x-pc.x)/len(n.rates)
+        for i, rate in enumerate(n.rates):
+            x0 = pc.x + i*seglen
+            x1 = x0 + seglen
+            segments.append(((x0, c.y), (x1, c.y)))
+            values.append(rate)
+        segments.append(((pc.x, pc.y), (pc.x, c.y)))
+        values.append(n.rates[0])
+        
+        lc = LineCollection(segments, cmap=coolwarm, lw=2)
+        lc.set_array(np.array(values))
+        treeplot.add_collection(lc)
+        lc.set_visible(vis)
+        treeplot.figure.canvas.draw_idle()
                 

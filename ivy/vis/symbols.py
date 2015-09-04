@@ -215,7 +215,7 @@ def tipsquares(plot, p, colors='r', size=15, pad=2, edgepad=10):
     Args:
         plot (Tree): A Tree plot instance.
         p (Node): A Node object (Should be a leaf node).
-        colors (str): olor of drawn square. Optional, defaults to 'r' (red)
+        colors (str): color of drawn square. Optional, defaults to 'r' (red)
         size (float): Size of square. Optional, defaults to 15
         pad: RR: I am unsure what this does. Does not seem to have visible
           effect when I change it. -CZ
