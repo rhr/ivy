@@ -67,7 +67,7 @@ class TreeFigure:
 
         self.treefigure.figure.set_size_inches(self.width, self.height)
         self.treefigure.redraw(keeptemp=True)
-        for lay in self.layers:
+        for lay in self.layers: # Draw the layers. Pretty hackish, can probably be improved.
             self.layers[lay].func(self.axes, *self.layers[lay].args[1:], **self.layers[lay].keywords)
             plt.draw()
         plt.close()
