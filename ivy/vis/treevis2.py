@@ -91,7 +91,7 @@ class TreeFigure(object):
     def __init__(self, data, name=None, scaled=True, div=0.25,
                  branchlabels=True, leaflabels=True, xoff=0, yoff=0,
                  mark_named=True, overview=True, interactive=True, 
-                 radial=False):
+                 radial=False, leaf_fontsize=10, branch_fontsize=10):
         self.overview = None
         self.overview_width = div
         self.name = name
@@ -120,12 +120,12 @@ class TreeFigure(object):
         self.figure = fig
         self.layers = OrderedDict()
         self.ovlayers = OrderedDict()
-        self.initialize_subplots(overview)
+        self.initialize_subplots(overview, leaf_fontsize, branch_fontsize)
         self.home()
         #if self.tree.interactive:
         #    self.figure.canvas.callbacks.connect("scroll_event", self.redraw(True))
         
-    def initialize_subplots(self, overview=True):
+    def initialize_subplots(self, overview=True, leaf_fontsize=10, branch_fontsize=10):
         """
         Initialize treeplot (a matplotlib.axes.Axes) and add it to the figure.
         Also initialize overview. If overview=False, toggle off overview.
@@ -134,15 +134,16 @@ class TreeFigure(object):
             tp = TreePlot(self.figure, 1, 2, 2, app=self, name=self.name,
                       scaled=self.scaled, mark_named=self.mark_named, tf=self,
                       plottype="phylogram", leaflabels=self.leaflabels,
-                      branchlabels=self.branchlabels)
+                      branchlabels=self.branchlabels, leaf_fontsize=leaf_fontsize,
+                      branch_fontsize=branch_fontsize)
             tree = self.figure.add_subplot(tp)
             tree.set_root(self.root)
             tree.plot_tree()
             self.tree = tree
             self.add_layer(layers.add_label, "leaf", store = "leaflabels", ov=False, 
-                           vis=self.leaflabels)
+                           vis=self.leaflabels, fontsize=leaf_fontsize)
             self.add_layer(layers.add_label, "branch", store = "branchlabels", 
-                           ov=False, vis=self.branchlabels)
+                           ov=False, vis=self.branchlabels, fontsize=branch_fontsize)
        
             
         else:
@@ -155,9 +156,9 @@ class TreeFigure(object):
             tree.plot_tree()
             self.tree = tree
             self.add_layer(layers.add_label, "leaf", store = "leaflabels", ov=False, 
-                           vis=self.leaflabels)
+                           vis=self.leaflabels, fontsize=leaf_fontsize)
             self.add_layer(layers.add_label, "branch", store = "branchlabels", 
-                           ov=False, vis=self.branchlabels)
+                           ov=False, vis=self.branchlabels, fontsize=branch_fontsize)
             overview=False # No support for overview for radial trees (yet?)
         tp = OverviewTreePlot(
             self.figure, 121, app=self, scaled=self.scaled,
@@ -353,7 +354,7 @@ class TreeFigure(object):
         # Using functools to store 
         func(self.tree, *args, **kwargs)
         self.layers[name]=functools.partial(func, self.tree, vis=vis, *args, **kwargs)
-        if ov:
+        if ov and self.overview_width > 0.001: # Hackish way to check if overview is visible. Maybe should change
             self.ovlayers[name]=functools.partial(func, self.overview, vis=vis, *args, **kwargs)
             func(self.overview, *args, **kwargs)
     def remove_layer(self, layername):
@@ -456,6 +457,8 @@ class Tree(Axes):
         self.scaled = kwargs.pop("scaled", True)
         self._mark_named = kwargs.pop("mark_named", True)
         self.name = None
+        self.leaf_fontsize = kwargs.pop("leaf_fontsize", 10)
+        self.branch_fontsize = kwargs.pop("branch_fontsize", 10)
         self.branch_width = kwargs.pop("branch_width", 1)
         self.branch_color = kwargs.pop("branch_color", "black")
         self.interactive = kwargs.pop("interactive", True)
@@ -934,13 +937,16 @@ class Tree(Axes):
     def hardcopy(self, relwidth=0.5, leafpad=1.5):
         p = HC.TreeFigure(self.root, relwidth=relwidth, leafpad=leafpad,
                           name=self.name, 
+                          leaf_fontsize = self.leaf_fontsize,
+                          branch_fontsize = self.branch_fontsize,
                           branch_width=self.branch_width,
                           branch_color=self.branch_color,
                           branchlabels=self.branchlabels,
                           layers=self.tf.layers,
                           leaflabels=self.leaflabels,
                           xlim=self.get_xlim(),
-                          ylim=self.get_ylim())
+                          ylim=self.get_ylim(),
+                          plottype=self.plottype)
         return p
 
 class RadialTree(Tree):
@@ -1049,6 +1055,7 @@ class OverviewTree(Tree):
 class UpdatingRect(Rectangle): # Used in overview plot
     def __call__(self, p):
         self.set_bounds(*p.viewLim.bounds)
+        p.draw_labels()
         p.figure.canvas.draw_idle()
 
 TreePlot = subplot_class_factory(Tree)

@@ -23,7 +23,7 @@ from matplotlib import cm as mpl_colormap
 from matplotlib import colors as mpl_colors
 from matplotlib.colorbar import Colorbar
 from matplotlib.collections import RegularPolyCollection, LineCollection, \
-     PatchCollection
+     PatchCollection, CircleCollection
 from matplotlib.lines import Line2D
 from matplotlib.cm import coolwarm
 try:
@@ -63,7 +63,7 @@ def xy(plot, p):
 def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center",
              leaf_halign="left", leaf_fontsize=10, branch_offset=-5,
              branch_valign="center", branch_halign="right", 
-             branch_fontsize="10"):
+             fontsize="10"):
     """
     Add text labels to tree
     
@@ -85,7 +85,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
                     textcoords="offset points",
                     verticalalignment=leaf_valign,
                     horizontalalignment=leaf_halign,
-                    fontsize=leaf_fontsize,
+                    fontsize=fontsize,
                     clip_on=True,
                     picker=True,
                     visible=False
@@ -126,7 +126,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
                 textcoords="offset points",
                 verticalalignment=branch_valign,
                 horizontalalignment=branch_halign,
-                fontsize=branch_fontsize,
+                fontsize=fontsize,
                 bbox=dict(fc="lightyellow", ec="none", alpha=0.8),
                 clip_on=True,
                 picker=True,
@@ -140,7 +140,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
         leaves = list(filter(lambda x:x[0].isleaf,
                              treeplot.get_visible_nodes(labeled_only=True)))
         psep = treeplot.leaf_pixelsep()
-        fontsize = min(leaf_fontsize, max(psep, 8))
+        fontsize = min(fontsize, max(psep, 8))
         n2l = treeplot.node2label
         transform = treeplot.transData.transform
         sub = operator.sub
@@ -420,7 +420,6 @@ def add_squares(treeplot, nodes, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
     Draw a square at given node
 
     Args:
-        plot (Tree): A Tree plot instance
         p: A node or list of nodes or string or list of strings
         colors: Str or list of strs. Colors of squares to be drawn.
           Optional, defaults to 'r' (red)
@@ -445,6 +444,127 @@ def add_squares(treeplot, nodes, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
 
     treeplot.add_collection(col)
     treeplot.figure.canvas.draw_idle()
+
+def add_circles(treeplot, nodes, colors="g", size=15, xoff=0, yoff=0):
+    """
+    Draw circles on plot
+
+    Args:
+        nodes: A node object or list of Node objects or label or list of labels
+        colors: Str or list of strs. Colors of the circles. Optional,
+          defaults to 'g' (green)
+        size (float): Size of the circles. Optional, defaults to 15
+        xoff, yoff (float): X and Y offset. Optional, defaults to 0.
+    
+    """
+    points = xy(treeplot, nodes)
+    trans = offset_copy(
+        treeplot.transData, fig=treeplot.figure, x=xoff, y=yoff, units='points'
+        )
+
+    col = CircleCollection(
+        sizes=(pi*size*size*0.25,),
+        offsets=points, facecolors=colors, transOffset=trans,
+        edgecolors='none'
+        )
+
+    treeplot.add_collection(col)
+    treeplot.figure.canvas.draw_idle()
+    
+def add_pie(treeplot, node, values, colors=None, size=16, norm=True,
+        xoff=0, yoff=0,
+        halign=0.5, valign=0.5,
+        xycoords='data', boxcoords=('offset points')):
+    """
+    Draw a pie chart
+
+    Args:
+    node (Node): A single Node object or node label
+    values (list): A list of floats.
+    colors (list): A list of strings to pull colors from. Optional.
+    size (float): Diameter of the pie chart
+    norm (bool): Whether or not to normalize the values so they
+      add up to 360
+    xoff, yoff (float): X and Y offset. Optional, defaults to 0
+    halign, valign (float): Horizontal and vertical alignment within
+      box. Optional, defaults to 0.5
+
+    """
+    x, y = xy(treeplot, node)
+    da = DrawingArea(size, size); r = size*0.5; center = (r,r)
+    x0 = 0
+    S = 360.0
+    if norm: S = 360.0/sum(values)
+    if not colors:
+        c = _tango
+        colors = [ c.next() for v in values ]
+    for i, v in enumerate(values):
+        theta = v*S
+        if v: da.add_artist(Wedge(center, r, x0, x0+theta,
+                                  fc=colors[i], ec='none'))
+        x0 += theta
+    box = AnnotationBbox(da, (x,y), pad=0, frameon=False,
+                         xybox=(xoff, yoff),
+                         xycoords=xycoords,
+                         box_alignment=(halign,valign),
+                         boxcoords=boxcoords)
+    treeplot.add_artist(box)
+    treeplot.figure.canvas.draw_idle()
+    return box   
+    
+def add_text(treeplot, x, y, s, color='black', xoff=0, yoff=0, valign='center',
+         halign='left', fontsize=10):
+    """
+    Add text to the plot.
+
+    Args:
+        x, y (float): x and y coordinates to place the text
+        s (str): The text to write
+        color (str): The color of the text. Optional, defaults to "black"
+        xoff, yoff (float): x and y offset
+        valign (str): Vertical alignment. Can be: 'center', 'top',
+          'bottom', or 'baseline'. Defaults to 'center'.
+        halign (str): Horizontal alignment. Can be: 'center', 'right',
+          or 'left'. Defaults to 'left'
+        fontsize (float): Font size. Optional, defaults to 10
+
+    """
+    txt = treeplot.annotate(
+        s, xy=(x, y),
+        xytext=(xoff, yoff),
+        textcoords="offset points",
+        verticalalignment=valign,
+        horizontalalignment=halign,
+        fontsize=fontsize,
+        clip_on=True,
+        picker=True
+    )
+    txt.set_visible(True)
+    return txt    
+    
+def add_legend(treeplot, colors, labels, shape='rectangle', loc='upper left', **kwargs):
+    """
+    Add legend mapping colors/shapes to labels
+    
+    Args:
+        colors (list): List of colors
+        labels (list): List of labels
+        shape (str): Shape of label icon. Either rectangle or circle
+        loc (str): Location of label. Defaults to upper left
+    """
+    handles = []
+    if shape == 'rectangle':
+        for col, lab in zip(colors, labels):
+            handles.append(matplotlib.patches.Patch(color=col, label=lab))
+            #shapes = [ CircleCollection([10],facecolors=[c]) for c in colors ]
+    elif shape == "circle":
+        for col, lab in zip(colors, labels):
+            handles.append(matplotlib.pyplot.Line2D(range(1), range(1), color="white", 
+                           label=lab, marker="o", markersize = 10,
+                           markerfacecolor=col))
+
+    treeplot.legend(handles=handles, loc=loc, numpoints=1, **kwargs)    
+    
     
 def add_phylorate(treeplot, rates, nodeidx, vis=True):
     """
