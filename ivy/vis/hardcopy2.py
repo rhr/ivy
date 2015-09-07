@@ -23,7 +23,7 @@ class TreeFigure:
                  branchlabels=True, leaflabels=True, layers=[],
                  xoff=0, yoff=0,
                  xlim=None, ylim=None,
-                 height=None, width=None):
+                 height=None, width=None, plottype="phylogram"):
         self.root = root
         self.relwidth = relwidth
         self.leafpad = leafpad
@@ -47,6 +47,7 @@ class TreeFigure:
         h = height or (nleaves*self.leaf_fontsize*self.leafpad)/self.dpi
         self.height = h
         self.width = width or self.height*self.relwidth
+        self.plottype = plottype
         ## p = min(self.width, self.height)*0.1
         ## self.height += p
         ## self.width += p
@@ -57,7 +58,8 @@ class TreeFigure:
                           leaflabels=self.leaflabels,
                           interactive=False,
                           xoff=self.xoff, yoff=self.yoff,
-                          name=self.name, overview=False)
+                          name=self.name, overview=False, radial=self.plottype=="radial")
+
         self.axes = self.treefigure.tree
         self.axes.spines["top"].set_visible(False)
         self.axes.spines["left"].set_visible(False)
