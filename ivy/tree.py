@@ -386,9 +386,15 @@ class Node(object):
         child.isroot = False
         self.nchildren += 1
 
-    def bisect_branch(self):
+    def bisect_branch(self, distance = 0.5):
         """
         Add new node as parent to self in the middle of branch to parent.
+        
+        Args:
+            distance (float): What percentage along branch to place
+              new node. Defaults to 0.5 (bisection). Higher numbers
+              set the new node closer to the parent, lower
+              numbers set it closer to child.
 
         Returns:
             Node: A new node.
@@ -398,8 +404,8 @@ class Node(object):
         parent = self.prune()
         n = Node()
         if self.length:
-            n.length = self.length/2.0
-            self.length /= 2.0
+            n.length = self.length * (1-distance)
+            self.length *= distance
         parent.add_child(n)
         n.add_child(self)
         return n
@@ -910,7 +916,7 @@ class Node(object):
         newroot.isroot = True
         return newroot
         
-    def reroot(self, newroot):
+    def reroot(self, newroot, distance = 0.5):
         """
         Reroot the tree between newroot and its parent.
         By default, the new node is halfway in between
@@ -922,6 +928,10 @@ class Node(object):
         Args:
             newroot: Node or str of node label. Cannot be child of 
               current root.
+            distance (float): What percentage along branch to place
+              new node. Defaults to 0.5 (bisection). Higher numbers
+              set the new node closer to the parent, lower
+              numbers set it closer to child.
         Returns:
             Node: Root node of new rerooted tree.
         """
@@ -930,7 +940,7 @@ class Node(object):
         newroot = oldroot[newroot]
         assert newroot in oldroot
         assert newroot not in oldroot.children
-        t = newroot.bisect_branch()
+        t = newroot.bisect_branch(distance)
         
         v = list(t.rootpath())
         t.parent = None
