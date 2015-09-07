@@ -122,7 +122,6 @@ class TreeFigure(object):
         self.ovlayers = OrderedDict()
         self.initialize_subplots(overview)
         self.home()
-        self.redraw()
         #if self.tree.interactive:
         #    self.figure.canvas.callbacks.connect("scroll_event", self.redraw(True))
         
@@ -1004,6 +1003,23 @@ class OverviewTree(Tree):
         self.spines["bottom"].set_visible(False)
         self.add_overview_rect()
         self.plottype="overview"
+        
+    def home(self):
+        td = self.transData
+        trans = td.inverted().transform
+        xmax = xmin = ymax = ymin = 0
+
+        v = self.n2c.values()
+        ymin = min([ c.y for c in v ])
+        ymax = max([ c.y for c in v ])
+        xmin = min(xmin, min([ c.x for c in v ]))
+        xmax = max(xmax, max([ c.x for c in v ]))
+        xspan = xmax - xmin; xpad = xspan*0.05
+        yspan = ymax - ymin; ypad = yspan*0.05
+        self.set_xlim(xmin-xpad, xmax+xpad*2)
+        self.set_ylim(ymin-ypad, ymax+ypad)
+        self.adjust_xspine()
+        self.figure.canvas.draw_idle() # Warning: Had to add this line for this to work. Still don't know why.        
         
 
     def set_target(self, target):

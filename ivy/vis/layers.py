@@ -136,7 +136,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
             treeplot.node2label[node]=txt
             
     # Drawing the leaves so that only as many labels as will fit get rendered
-    if (labeltype == "leaf") & (treeplot.plottype=="phylogram"):        
+    if labeltype == "leaf":        
         leaves = list(filter(lambda x:x[0].isleaf,
                              treeplot.get_visible_nodes(labeled_only=True)))
         psep = treeplot.leaf_pixelsep()
@@ -150,6 +150,16 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
 
         # draw leaves
         leaves_drawn = []
+        if treeplot.plottype == "radial":
+            # Changing the order to start at bottom of tree 
+            # and go counter-clockwise
+            endid = len(leaves) - 1 + len(leaves)%2
+            a = range(0, endid, 2)
+            b = range(endid - (len(leaves)%2) *2 , 0, -2)
+            
+            leaves = [ leaves[i] for i in a+b ]
+            
+            
         for n, x, y in leaves:
             txt = treeplot.node2label[n]
             if not leaves_drawn:
@@ -160,12 +170,33 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
                 continue
 
             txt2 = leaves_drawn[-1]
-            y0 = y; y1 = txt2.xy[1]
-            sep = sub(*transform(([0,y0],[0,y1]))[:,1])
+            y0 = y; x0 = x; y1 = txt2.xy[1]; x1 = txt2.xy[0]
+            if treeplot.plottype == "phylogram":
+                sep = sub(*transform(([0,y0],[0,y1]))[:,1])
+            else:
+                d = transform(([x0,y0],[x1,y1]))
+                xd = (d[0][0])-(d[1][0])
+                yd = (d[0][1])-(d[1][1])
+                sep = math.hypot(xd, yd)
             if sep > fontsize:
                 txt.set_visible(vis)
                 txt.set_size(fontsize)
                 leaves_drawn.append(txt)
+        if treeplot.plottype == "radial":
+            # Checking to see if the last label overlaps with the first one
+            txt = leaves_drawn[-1]
+            txt2 = leaves_drawn[0]
+            y0 = txt.xy[1]; x0 = txt.xy[0]; y1 = txt2.xy[1]; x1 = txt2.xy[0]
+            d = transform(([x0,y0],[x1,y1]))
+            xd = (d[0][0])-(d[1][0])
+            yd = (d[0][1])-(d[1][1])
+            sep = math.hypot(xd, yd)
+            
+            if sep <= fontsize:
+                txt.set_visible(False)
+                del leaves_drawn[-1]
+            
+            
         treeplot.figure.canvas.draw_idle()
         matplotlib.pyplot.show()
 
