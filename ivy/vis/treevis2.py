@@ -366,8 +366,10 @@ class TreeFigure(object):
               with self.layers
         """
         del self.layers[layername]
-        if ov:
+        try:
             del self.ovlayers[layername]
+        except:
+            pass
         self.redraw()
     def toggle_layer(self, layername, val=None):
         """

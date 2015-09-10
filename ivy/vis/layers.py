@@ -26,6 +26,7 @@ from matplotlib.collections import RegularPolyCollection, LineCollection, \
      PatchCollection, CircleCollection
 from matplotlib.lines import Line2D
 from matplotlib.cm import coolwarm
+from matplotlib.cm import RdYlBu_r as RdYlBu
 try:
     from matplotlib.offsetbox import OffsetImage, AnnotationBbox, DrawingArea
 except ImportError:
@@ -600,9 +601,55 @@ def add_phylorate(treeplot, rates, nodeidx, vis=True):
         segments.append(((pc.x, pc.y), (pc.x, c.y)))
         values.append(n.rates[0])
         
-        lc = LineCollection(segments, cmap=coolwarm, lw=2)
-        lc.set_array(np.array(values))
-        treeplot.add_collection(lc)
-        lc.set_visible(vis)
-        treeplot.figure.canvas.draw_idle()
+    lc = LineCollection(segments, cmap=RdYlBu, lw=2)
+    lc.set_array(np.array(values))
+    treeplot.add_collection(lc)
+    lc.set_visible(vis)
+    
+    #matplotlib.colorbar.ColorbarBase(ax=treeplot, cmap=coolwarm, values=[min(values), max(values)],
+    #                                 orientation="horizontal")
+    colorbar_legend(treeplot, values, RdYlBu)
+        
+    
+    treeplot.figure.canvas.draw_idle()
+                
+                
+                
+                
+def colorbar_legend(ax, values, cmap):
+    """
+    Add a vertical colorbar legend to a plot
+    """
+    x_range = ax.get_xlim()[1]-ax.get_xlim()[0]
+    y_range = ax.get_ylim()[1]-ax.get_ylim()[0]             
+    
+    x = [ax.get_xlim()[0]+x_range*0.05]
+    y = [ax.get_ylim()[1]-(y_range * 0.25), ax.get_ylim()[1]-(y_range*0.05)]
+    
+    segs = []
+    vals=[]
+    p = (x[0], y[0]+((y[1]-y[0])/256.0))
+    for i in range(2, 257):
+        n = (x[0], y[0]+((y[1]-y[0])/256.0)*i)
+        segs.append((p, n))
+        p = segs[-1][-1]
+        vals.append(min(values)+((max(values)-min(values))/256.0)*(i-1))
+    lcbar = lc = LineCollection(segs, cmap=cmap, lw=15)
+    lcbar.set_array(np.array(vals))
+    ax.add_collection(lc)
+    
+    minlab = str(min(values))[:6]
+    maxlab = str(max(values))[:6]
+    
+    ax.text(x[0]+x_range*.02, y[0], minlab, verticalalignment="bottom")
+    ax.text(x[0]+x_range*.02, y[1], maxlab, verticalalignment="top")
+    
+        
+        
+                
+                
+                
+                
+                
+                
                 
