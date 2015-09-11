@@ -44,7 +44,7 @@ try:
     import Image
 except ImportError:
     from PIL import Image
-    
+
 _tango = colors.tango()
 
 
@@ -63,15 +63,15 @@ def xy(plot, p):
 
 def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center",
              leaf_halign="left", leaf_fontsize=10, branch_offset=-5,
-             branch_valign="center", branch_halign="right", 
+             branch_valign="center", branch_halign="right",
              fontsize="10"):
     """
     Add text labels to tree
-    
+
     Args:
         treeplot: treeplot (fig.tree)
         labeltype (str): "leaf" or "branch"
-        
+
     """
     assert labeltype in ["leaf", "branch"], "invalid label type: %s" % labeltype
     n2c = treeplot.n2c
@@ -103,7 +103,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
                     ha = "right"
                     va = "center"
                     rotate = (coords.angle-180)
-                    
+
                 txt = treeplot.annotate(
                     node.label,
                     xy=(x,y),
@@ -115,7 +115,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
                     horizontalalignment=ha,
                     rotation=rotate,
                     rotation_mode="anchor")
-                
+
                 txt.node = node
                 treeplot.node2label[node]=txt
 
@@ -135,9 +135,9 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
             )
             txt.node = node
             treeplot.node2label[node]=txt
-            
+
     # Drawing the leaves so that only as many labels as will fit get rendered
-    if labeltype == "leaf":        
+    if labeltype == "leaf":
         leaves = list(filter(lambda x:x[0].isleaf,
                              treeplot.get_visible_nodes(labeled_only=True)))
         psep = treeplot.leaf_pixelsep()
@@ -152,15 +152,15 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
         # draw leaves
         leaves_drawn = []
         if treeplot.plottype == "radial":
-            # Changing the order to start at bottom of tree 
+            # Changing the order to start at bottom of tree
             # and go counter-clockwise
             endid = len(leaves) - 1 + len(leaves)%2
             a = range(0, endid, 2)
             b = range(endid - (len(leaves)%2) *2 , 0, -2)
-            
+
             leaves = [ leaves[i] for i in a+b ]
-            
-            
+
+
         for n, x, y in leaves:
             txt = treeplot.node2label[n]
             if not leaves_drawn:
@@ -192,12 +192,12 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
             xd = (d[0][0])-(d[1][0])
             yd = (d[0][1])-(d[1][1])
             sep = math.hypot(xd, yd)
-            
+
             if sep <= fontsize:
                 txt.set_visible(False)
                 del leaves_drawn[-1]
-            
-            
+
+
         treeplot.figure.canvas.draw_idle()
         matplotlib.pyplot.show()
 
@@ -208,9 +208,9 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
                              treeplot.get_visible_nodes(labeled_only=True)))
     treeplot.figure.canvas.draw_idle()
     matplotlib.pyplot.show()
-    
-    
-    
+
+
+
 def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
     """
     Highlight nodes
@@ -239,18 +239,18 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
         highlighted = nodes
     else:
         highlighted = set()
-    
+
     if len(highlighted)>1:
         mrca = treeplot.root.mrca(highlighted)
         if not mrca:
             return
     else:
-        mrca = list(nodes)[0]    
-    
+        mrca = list(nodes)[0]
+
     M = Path.MOVETO; L = Path.LINETO
     verts = []
     codes = []
-    
+
     seen = set()
     for node, coords in [ x for x in treeplot.n2c.items() if x[0] in nodes ]:
         x = coords.x; y = coords.y
@@ -269,7 +269,7 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
                     verts.extend(v)
                     codes.extend(c)
                     seen.add(node)
-                    
+
             if p == mrca or node == mrca:
                 break
             node = p
@@ -284,12 +284,12 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
     highlightpatch = PathPatch(
         highlightpath, fill=False, linewidth=width, edgecolor=color, visible=vis
         )
-        
+
     treeplot.add_patch(highlightpatch)
     treeplot.figure.canvas.draw_idle()
-    
+
 def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8, xoff=10,
-         showlabel=True, mrca=True, leaf_valign="center", leaf_halign="left", 
+         showlabel=True, mrca=True, leaf_valign="center", leaf_halign="left",
          leaf_fontsize=10, leaf_offset=4):
         """
         Draw a 'clade' bar (i.e., along the y-axis) indicating a
@@ -316,8 +316,8 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
         assert treeplot.plottype == "Phylogram", "No cbar for radial trees"
         xlim = treeplot.get_xlim(); ylim = treeplot.get_ylim()
         if color is None: color = _tango.next()
-        transform = treeplot.transData.inverted().transform        
-    
+        transform = treeplot.transData.inverted().transform
+
         if mrca:
             if isinstance(nodes, tree.Node):
                 spec = nodes
@@ -333,8 +333,8 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
         else:
             leaves = nodes
 
-        n2c = treeplot.n2c    
-    
+        n2c = treeplot.n2c
+
         y = sorted([ n2c[n].y for n in leaves ])
         ymin = y[0]; ymax = y[-1]; y = (ymax+ymin)*0.5
         treeplot.figure.canvas.draw_idle()
@@ -353,7 +353,7 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
         xoff = v[1]-v[0]
         x += xoff
 
-        Axes.plot(treeplot, [x,x], [ymin, ymax], '-', 
+        Axes.plot(treeplot, [x,x], [ymin, ymax], '-',
                   linewidth=width, color=color, visible=vis)
 
         if showlabel and label:
@@ -377,18 +377,17 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
         treeplot.set_xlim(xlim); treeplot.set_ylim(ylim)
 
 def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
-              yoff=4, halign=0.0, valign=0.0, xycoords='data',
+              yoff=4, halign=0.0, valign=0.5, xycoords='data',
               boxcoords=('offset points')):
     """
     Add images to a plot at the given nodes.
-    
+
     Args:
         x: Node/label or list of nodes/labels.
-        imgfiles: String or list of strings of image files 
+        imgfiles: String or list of strings of image files
     Note:
         x and imgfiles must be the same length
     """
-    assert len(x) == len(imgfiles)
     if x:
         nodes = []
     if type(x) in types.StringTypes:
@@ -401,6 +400,9 @@ def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
                 nodes.append(treeplot.root[n])
             elif isinstance(n, tree.Node):
                 nodes.append(n)
+    if isinstance(imgfiles, str):
+        imgfiles = [imgfiles]
+    assert len(nodes) == len(imgfiles), "%s nodes, %s images" % (len(x), len(imgfiles))
     for node, imgfile in zip(nodes, imgfiles):
         coords = treeplot.n2c[node]
         img = Image.open(imgfile)
@@ -413,8 +415,8 @@ def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
                               pad=0.0,
                               boxcoords=boxcoords)
         treeplot.add_artist(abox)
-    plot.figure.canvas.draw_idle()
-    
+    treeplot.figure.canvas.draw_idle()
+
 def add_squares(treeplot, nodes, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
             zorder=1000):
     """
@@ -456,7 +458,7 @@ def add_circles(treeplot, nodes, colors="g", size=15, xoff=0, yoff=0):
           defaults to 'g' (green)
         size (float): Size of the circles. Optional, defaults to 15
         xoff, yoff (float): X and Y offset. Optional, defaults to 0.
-    
+
     """
     points = xy(treeplot, nodes)
     trans = offset_copy(
@@ -471,7 +473,7 @@ def add_circles(treeplot, nodes, colors="g", size=15, xoff=0, yoff=0):
 
     treeplot.add_collection(col)
     treeplot.figure.canvas.draw_idle()
-    
+
 def add_pie(treeplot, node, values, colors=None, size=16, norm=True,
         xoff=0, yoff=0,
         halign=0.5, valign=0.5,
@@ -511,8 +513,8 @@ def add_pie(treeplot, node, values, colors=None, size=16, norm=True,
                          boxcoords=boxcoords)
     treeplot.add_artist(box)
     treeplot.figure.canvas.draw_idle()
-    return box   
-    
+    return box
+
 def add_text(treeplot, x, y, s, color='black', xoff=0, yoff=0, valign='center',
          halign='left', fontsize=10):
     """
@@ -541,12 +543,12 @@ def add_text(treeplot, x, y, s, color='black', xoff=0, yoff=0, valign='center',
         picker=True
     )
     txt.set_visible(True)
-    return txt    
-    
+    return txt
+
 def add_legend(treeplot, colors, labels, shape='rectangle', loc='upper left', **kwargs):
     """
     Add legend mapping colors/shapes to labels
-    
+
     Args:
         colors (list): List of colors
         labels (list): List of labels
@@ -556,22 +558,22 @@ def add_legend(treeplot, colors, labels, shape='rectangle', loc='upper left', **
     handles = []
     if shape == 'rectangle':
         for col, lab in zip(colors, labels):
-            handles.append(matplotlib.patches.Patch(color=col, label=lab))
+            handles.append(Patch(color=col, label=lab))
             #shapes = [ CircleCollection([10],facecolors=[c]) for c in colors ]
     elif shape == "circle":
         for col, lab in zip(colors, labels):
-            handles.append(matplotlib.pyplot.Line2D(range(1), range(1), color="white", 
+            handles.append(matplotlib.pyplot.Line2D(range(1), range(1), color="white",
                            label=lab, marker="o", markersize = 10,
                            markerfacecolor=col))
 
-    treeplot.legend(handles=handles, loc=loc, numpoints=1, **kwargs)    
-    
-    
+    treeplot.legend(handles=handles, loc=loc, numpoints=1, **kwargs)
+
+
 def add_phylorate(treeplot, rates, nodeidx, vis=True):
     """
     Add phylorate plot generated from data analyzed with BAMM
     (http://bamm-project.org/introduction.html)
-   
+
     Args:
         rates (array): Array of rates along branches created by (TBA function)
         nodeidx (array): Array of node indices matching rates
@@ -584,48 +586,78 @@ def add_phylorate(treeplot, rates, nodeidx, vis=True):
     for n in treeplot.root.clades():
         n.apeidx = i
         i += 1
-        
+
     segments = []
     values = []
-    
-    for n in treeplot.root.descendants():
-        n.rates = rates[nodeidx==n.apeidx]
-        c = treeplot.n2c[n]
-        pc = treeplot.n2c[n.parent]
-        seglen = (c.x-pc.x)/len(n.rates)
-        for i, rate in enumerate(n.rates):
-            x0 = pc.x + i*seglen
-            x1 = x0 + seglen
-            segments.append(((x0, c.y), (x1, c.y)))
-            values.append(rate)
-        segments.append(((pc.x, pc.y), (pc.x, c.y)))
-        values.append(n.rates[0])
-        
+
+    if treeplot.plottype == "radial": # For use in drawing arcs for radial plots
+        radpatches = []
+
+        for n in treeplot.root.descendants():
+            n.rates = rates[nodeidx==n.apeidx]
+            c = treeplot.n2c[n]
+            pc = treeplot._path_to_parent(n)[0][1]
+            xd = c.x - pc[0]
+            yd = c.y - pc[1]
+            xseg = xd/len(n.rates)
+            yseg = yd/len(n.rates)
+            for i, rate in enumerate(n.rates):
+                x0 = pc[0] + i*xseg
+                y0 = pc[1] + i*yseg
+                x1 = x0 + xseg
+                y1 = y0 + yseg
+
+                segments.append(((x0, y0), (x1, y1)))
+                values.append(rate)
+
+            curverts = treeplot._path_to_parent(n)[0][2:]
+            curcodes = treeplot._path_to_parent(n)[1][2:]
+            curcol = RdYlBu(n.rates[0])
+
+            radpatches.append(PathPatch(
+                       Path(curverts, curcodes), lw=2, color = curcol, fill=False))
+    else:
+        for n in treeplot.root.descendants():
+            n.rates = rates[nodeidx==n.apeidx]
+            c = treeplot.n2c[n]
+            pc = treeplot.n2c[n.parent]
+            seglen = (c.x-pc.x)/len(n.rates)
+            for i, rate in enumerate(n.rates):
+                x0 = pc.x + i*seglen
+                x1 = x0 + seglen
+                segments.append(((x0, c.y), (x1, c.y)))
+                values.append(rate)
+            segments.append(((pc.x, pc.y), (pc.x, c.y)))
+            values.append(n.rates[0])
+
     lc = LineCollection(segments, cmap=RdYlBu, lw=2)
     lc.set_array(np.array(values))
     treeplot.add_collection(lc)
+    if treeplot.plottype == "radial":
+        for p in radpatches:
+            treeplot.add_patch(p)
     lc.set_visible(vis)
-    
+
     #matplotlib.colorbar.ColorbarBase(ax=treeplot, cmap=coolwarm, values=[min(values), max(values)],
     #                                 orientation="horizontal")
     colorbar_legend(treeplot, values, RdYlBu)
-        
-    
+
+
     treeplot.figure.canvas.draw_idle()
-                
-                
-                
-                
+
+
+
+
 def colorbar_legend(ax, values, cmap):
     """
     Add a vertical colorbar legend to a plot
     """
     x_range = ax.get_xlim()[1]-ax.get_xlim()[0]
-    y_range = ax.get_ylim()[1]-ax.get_ylim()[0]             
-    
+    y_range = ax.get_ylim()[1]-ax.get_ylim()[0]
+
     x = [ax.get_xlim()[0]+x_range*0.05]
     y = [ax.get_ylim()[1]-(y_range * 0.25), ax.get_ylim()[1]-(y_range*0.05)]
-    
+
     segs = []
     vals=[]
     p = (x[0], y[0]+((y[1]-y[0])/256.0))
@@ -637,19 +669,9 @@ def colorbar_legend(ax, values, cmap):
     lcbar = lc = LineCollection(segs, cmap=cmap, lw=15)
     lcbar.set_array(np.array(vals))
     ax.add_collection(lc)
-    
+
     minlab = str(min(values))[:6]
     maxlab = str(max(values))[:6]
-    
+
     ax.text(x[0]+x_range*.02, y[0], minlab, verticalalignment="bottom")
     ax.text(x[0]+x_range*.02, y[1], maxlab, verticalalignment="top")
-    
-        
-        
-                
-                
-                
-                
-                
-                
-                
