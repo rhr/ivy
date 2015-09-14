@@ -61,7 +61,8 @@ def xy(plot, p):
         pass
     return p
 
-def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center",
+def add_label(treeplot, labeltype, vis=True, leaf_offset=4,
+             leaf_valign="center",
              leaf_halign="left", leaf_fontsize=10, branch_offset=-5,
              branch_valign="center", branch_halign="right",
              fontsize="10"):
@@ -137,75 +138,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4, leaf_valign="center"
             treeplot.node2label[node]=txt
 
     # Drawing the leaves so that only as many labels as will fit get rendered
-    if labeltype == "leaf":
-        leaves = list(filter(lambda x:x[0].isleaf,
-                             treeplot.get_visible_nodes(labeled_only=True)))
-        psep = treeplot.leaf_pixelsep()
-        fontsize = min(fontsize, max(psep, 8))
-        n2l = treeplot.node2label
-        transform = treeplot.transData.transform
-        sub = operator.sub
 
-        for n in leaves:
-            n2l[n[0]].set_visible(False)
-
-        # draw leaves
-        leaves_drawn = []
-        if treeplot.plottype == "radial":
-            # Changing the order to start at bottom of tree
-            # and go counter-clockwise
-            endid = len(leaves) - 1 + len(leaves)%2
-            a = range(0, endid, 2)
-            b = range(endid - (len(leaves)%2) *2 , 0, -2)
-
-            leaves = [ leaves[i] for i in a+b ]
-
-
-        for n, x, y in leaves:
-            txt = treeplot.node2label[n]
-            if not leaves_drawn:
-                txt.set_visible(vis)
-                leaves_drawn.append(txt)
-                treeplot.figure.canvas.draw_idle()
-                matplotlib.pyplot.show()
-                continue
-
-            txt2 = leaves_drawn[-1]
-            y0 = y; x0 = x; y1 = txt2.xy[1]; x1 = txt2.xy[0]
-            if treeplot.plottype == "phylogram":
-                sep = sub(*transform(([0,y0],[0,y1]))[:,1])
-            else:
-                d = transform(([x0,y0],[x1,y1]))
-                xd = (d[0][0])-(d[1][0])
-                yd = (d[0][1])-(d[1][1])
-                sep = math.hypot(xd, yd)
-            if sep > fontsize:
-                txt.set_visible(vis)
-                txt.set_size(fontsize)
-                leaves_drawn.append(txt)
-        if treeplot.plottype == "radial":
-            # Checking to see if the last label overlaps with the first one
-            txt = leaves_drawn[-1]
-            txt2 = leaves_drawn[0]
-            y0 = txt.xy[1]; x0 = txt.xy[0]; y1 = txt2.xy[1]; x1 = txt2.xy[0]
-            d = transform(([x0,y0],[x1,y1]))
-            xd = (d[0][0])-(d[1][0])
-            yd = (d[0][1])-(d[1][1])
-            sep = math.hypot(xd, yd)
-
-            if sep <= fontsize:
-                txt.set_visible(False)
-                del leaves_drawn[-1]
-
-
-        treeplot.figure.canvas.draw_idle()
-        matplotlib.pyplot.show()
-
-        if leaves_drawn:
-            leaves_drawn[0].set_size(fontsize)
-    else:
-        leaves = list(filter(lambda x:x[0].isleaf,
-                             treeplot.get_visible_nodes(labeled_only=True)))
     treeplot.figure.canvas.draw_idle()
     matplotlib.pyplot.show()
 
@@ -259,7 +192,7 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
             pcoords = treeplot.n2c[p]
             px = pcoords.x; py = pcoords.y
             if node not in seen:
-                if treeplot.plottype == "phylogram":
+                if treeplot.plottype in ("phylogram", "overview"):
                     verts.append((x, y)); codes.append(M)
                     verts.append((px, y)); codes.append(L)
                     verts.append((px, py)); codes.append(L)
@@ -276,7 +209,7 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
             coords = treeplot.n2c[node]
             x = coords.x; y = coords.y
             p = node.parent
-    if treeplot.plottype == "phylogram":
+    if treeplot.plottype in ("phylogram", "overview"):
         px, py = verts[-1]
         verts.append((px, py)); codes.append(M)
 
@@ -288,9 +221,9 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
     treeplot.add_patch(highlightpatch)
     treeplot.figure.canvas.draw_idle()
 
-def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8, xoff=10,
-         showlabel=True, mrca=True, leaf_valign="center", leaf_halign="left",
-         leaf_fontsize=10, leaf_offset=4):
+def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
+         xoff=10, showlabel=True, mrca=True, leaf_valign="center",
+         leaf_halign="left", leaf_fontsize=10, leaf_offset=4):
         """
         Draw a 'clade' bar (i.e., along the y-axis) indicating a
         clade.  *nodes* are assumed to be one or more nodes in the
@@ -313,7 +246,7 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
             mrca (bool): Whether to draw the bar encompassing all descendants
               of the MRCA of ``nodes``
         """
-        assert treeplot.plottype == "Phylogram", "No cbar for radial trees"
+        assert treeplot.plottype != "radial", "No cbar for radial trees"
         xlim = treeplot.get_xlim(); ylim = treeplot.get_ylim()
         if color is None: color = _tango.next()
         transform = treeplot.transData.inverted().transform
@@ -402,7 +335,8 @@ def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
                 nodes.append(n)
     if isinstance(imgfiles, str):
         imgfiles = [imgfiles]
-    assert len(nodes) == len(imgfiles), "%s nodes, %s images" % (len(x), len(imgfiles))
+    assert len(nodes) == len(imgfiles), "%s nodes, %s images" % (len(x),
+                                                                 len(imgfiles))
     for node, imgfile in zip(nodes, imgfiles):
         coords = treeplot.n2c[node]
         img = Image.open(imgfile)
@@ -545,7 +479,8 @@ def add_text(treeplot, x, y, s, color='black', xoff=0, yoff=0, valign='center',
     txt.set_visible(True)
     return txt
 
-def add_legend(treeplot, colors, labels, shape='rectangle', loc='upper left', **kwargs):
+def add_legend(treeplot, colors, labels, shape='rectangle',
+               loc='upper left', **kwargs):
     """
     Add legend mapping colors/shapes to labels
 
@@ -562,7 +497,8 @@ def add_legend(treeplot, colors, labels, shape='rectangle', loc='upper left', **
             #shapes = [ CircleCollection([10],facecolors=[c]) for c in colors ]
     elif shape == "circle":
         for col, lab in zip(colors, labels):
-            handles.append(matplotlib.pyplot.Line2D(range(1), range(1), color="white",
+            handles.append(matplotlib.pyplot.Line2D(range(1), range(1),
+                           color="white",
                            label=lab, marker="o", markersize = 10,
                            markerfacecolor=col))
 
@@ -578,20 +514,13 @@ def add_phylorate(treeplot, rates, nodeidx, vis=True):
         rates (array): Array of rates along branches created by (TBA function)
         nodeidx (array): Array of node indices matching rates
     """
-    # Give nodes ape index numbers - possibly should be its own function
-    i = 1
-    for lf in treeplot.root.leaves():
-        lf.apeidx = i
-        i += 1
-    for n in treeplot.root.clades():
-        n.apeidx = i
-        i += 1
-
+    if not treeplot.root.apeidx:
+        treeplot.root.ape_node_idx()
     segments = []
     values = []
 
-    if treeplot.plottype == "radial": # For use in drawing arcs for radial plots
-        radpatches = []
+    if treeplot.plottype == "radial":
+        radpatches = [] # For use in drawing arcs for radial plots
 
         for n in treeplot.root.descendants():
             n.rates = rates[nodeidx==n.apeidx]
@@ -615,7 +544,8 @@ def add_phylorate(treeplot, rates, nodeidx, vis=True):
             curcol = RdYlBu(n.rates[0])
 
             radpatches.append(PathPatch(
-                       Path(curverts, curcodes), lw=2, color = curcol, fill=False))
+                       Path(curverts, curcodes), lw=2, color = curcol,
+                            fill=False))
     else:
         for n in treeplot.root.descendants():
             n.rates = rates[nodeidx==n.apeidx]
@@ -636,12 +566,9 @@ def add_phylorate(treeplot, rates, nodeidx, vis=True):
     if treeplot.plottype == "radial":
         for p in radpatches:
             treeplot.add_patch(p)
+            p.set_visible(vis)
     lc.set_visible(vis)
-
-    #matplotlib.colorbar.ColorbarBase(ax=treeplot, cmap=coolwarm, values=[min(values), max(values)],
-    #                                 orientation="horizontal")
     colorbar_legend(treeplot, values, RdYlBu)
-
 
     treeplot.figure.canvas.draw_idle()
 

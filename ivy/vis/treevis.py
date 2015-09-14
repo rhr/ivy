@@ -125,7 +125,8 @@ class TreeFigure(object):
         #if self.tree.interactive:
         #    self.figure.canvas.callbacks.connect("scroll_event", self.redraw(True))
 
-    def initialize_subplots(self, overview=True, leaf_fontsize=10, branch_fontsize=10):
+    def initialize_subplots(self, overview=True, leaf_fontsize=10,
+        branch_fontsize=10):
         """
         Initialize treeplot (a matplotlib.axes.Axes) and add it to the figure.
         Also initialize overview. If overview=False, toggle off overview.
@@ -134,31 +135,37 @@ class TreeFigure(object):
             tp = TreePlot(self.figure, 1, 2, 2, app=self, name=self.name,
                       scaled=self.scaled, mark_named=self.mark_named, tf=self,
                       plottype="phylogram", leaflabels=self.leaflabels,
-                      branchlabels=self.branchlabels, leaf_fontsize=leaf_fontsize,
+                      branchlabels=self.branchlabels,
+                      leaf_fontsize=leaf_fontsize,
                       branch_fontsize=branch_fontsize)
             tree = self.figure.add_subplot(tp)
             tree.set_root(self.root)
             tree.plot_tree()
             self.tree = tree
-            self.add_layer(layers.add_label, "leaf", store = "leaflabels", ov=False,
-                           vis=self.leaflabels, fontsize=leaf_fontsize)
+            self.add_layer(layers.add_label, "leaf", store = "leaflabels",
+                           ov=False, vis=self.leaflabels,
+                           fontsize=leaf_fontsize)
             self.add_layer(layers.add_label, "branch", store = "branchlabels",
-                           ov=False, vis=self.branchlabels, fontsize=branch_fontsize)
+                           ov=False, vis=self.branchlabels,
+                           fontsize=branch_fontsize)
 
 
         else:
             tp = RadialTreePlot(self.figure, 111, app=self, name=self.name,
                                 scaled=self.scaled, mark_named=self.mark_named,
-                                tf=self, plottype="radial", leaflabels=self.leaflabels,
+                                tf=self, plottype="radial",
+                                leaflabels=self.leaflabels,
                                 branchlabels=self.branchlabels)
             tree = self.figure.add_subplot(tp)
             tree.set_root(self.root)
             tree.plot_tree()
             self.tree = tree
-            self.add_layer(layers.add_label, "leaf", store = "leaflabels", ov=False,
-                           vis=self.leaflabels, fontsize=leaf_fontsize)
+            self.add_layer(layers.add_label, "leaf", store = "leaflabels",
+                           ov=False, vis=self.leaflabels,
+                           fontsize=leaf_fontsize)
             self.add_layer(layers.add_label, "branch", store = "branchlabels",
-                           ov=False, vis=self.branchlabels, fontsize=branch_fontsize)
+                           ov=False, vis=self.branchlabels,
+                           fontsize=branch_fontsize)
             overview=False # No support for overview for radial trees (yet?)
         tp = OverviewTreePlot(
             self.figure, 121, app=self, scaled=self.scaled,
@@ -174,6 +181,7 @@ class TreeFigure(object):
         self.set_positions()
         if self.tree.nleaves < 50:
             self.toggle_overview(False)
+        self.redraw()
     def __get_selected_nodes(self):
         return list(self.tree.selected_nodes)
 
@@ -249,7 +257,8 @@ class TreeFigure(object):
             for lay in self.ovlayers.keys():
                 self.ovlayers[lay]()
                 matplotlib.pyplot.draw()
-
+        try: self.tree.draw.labels()
+        except: pass
         self.figure.canvas.draw_idle()
         matplotlib.pyplot.draw()
 
@@ -353,9 +362,11 @@ class TreeFigure(object):
         ov = kwargs.pop("ov", True) # Show the layer on the overview
         # Using functools to store
         func(self.tree, *args, **kwargs)
-        self.layers[name]=functools.partial(func, self.tree, vis=vis, *args, **kwargs)
+        self.layers[name]=functools.partial(func, self.tree,
+                                            vis=vis, *args, **kwargs)
         if ov and self.overview_width > 0.001: # Hackish way to check if overview is visible. Maybe should change
-            self.ovlayers[name]=functools.partial(func, self.overview, vis=vis, *args, **kwargs)
+            self.ovlayers[name]=functools.partial(func, self.overview,
+                                                  vis=vis, *args, **kwargs)
             func(self.overview, *args, **kwargs)
     def remove_layer(self, layername):
         """
@@ -384,10 +395,12 @@ class TreeFigure(object):
         else:
             vis = val
             # Functools allows previously-defined arguments to be overwritten
-        self.layers[layername] = functools.partial(self.layers[layername], vis = vis)
+        self.layers[layername] = functools.partial(self.layers[layername],
+                                                   vis = vis)
         if self.overview:
             try:
-                self.ovlayers[layername] = functools.partial(self.ovlayers[layername], vis = vis)
+                self.ovlayers[layername] = functools.partial(
+                                            self.ovlayers[layername], vis = vis)
             except: pass
         self.redraw(keeptemp=True)
 
@@ -575,6 +588,7 @@ class Tree(Axes):
         ##     print "Selected:"
         ##     for n in s:
         ##         print " ", n
+
 
     def picked(self, e):
         if hasattr(self, "app") and self.app:
@@ -925,11 +939,62 @@ class Tree(Axes):
     def draw_labels(self, *args):
         if self.tf.layers["leaflabels"].keywords["vis"]:
             [ l.set_visible(False) for l in self.node2label.values() ]
-            self.tf.layers["leaflabels"]()
             fs = 10
-            nodes = self.get_visible_nodes(labeled_only=True)
-            ## print [ x[0].id for x in nodes ]
+            leaves = list(filter(lambda x:x[0].isleaf,
+                                 self.get_visible_nodes(labeled_only=True)))
+            psep = self.leaf_pixelsep()
+            fontsize = min(self.leaf_fontsize, max(psep, 8))
+            n2l = self.node2label
+            transform = self.transData.transform
+            sub = operator.sub
+
+            # draw leaves
+            leaves_drawn = []
+            for n, x, y in leaves:
+                txt = self.node2label[n]
+                if not leaves_drawn:
+                    txt.set_visible(True)
+                    leaves_drawn.append(txt)
+                    self.figure.canvas.draw_idle()
+                    matplotlib.pyplot.show()
+                    continue
+
+                txt2 = leaves_drawn[-1]
+                y0 = y; x0 = x; y1 = txt2.xy[1]; x1 = txt2.xy[0]
+                if self.plottype == "phylogram":
+                    sep = sub(*transform(([0,y0],[0,y1]))[:,1])
+                else:
+                    d = transform(([x0,y0],[x1,y1]))
+                    xd = (d[0][0])-(d[1][0])
+                    yd = (d[0][1])-(d[1][1])
+                    sep = math.hypot(xd, yd)
+                if sep > fontsize:
+                    txt.set_visible(True)
+                    txt.set_size(fontsize)
+                    leaves_drawn.append(txt)
+            if self.plottype == "radial":
+                # Checking to see if the last label overlaps with the first one
+                txt = leaves_drawn[-1]
+                txt2 = leaves_drawn[0]
+                y0 = txt.xy[1]; x0 = txt.xy[0]; y1 = txt2.xy[1]; x1 = txt2.xy[0]
+                d = transform(([x0,y0],[x1,y1]))
+                xd = (d[0][0])-(d[1][0])
+                yd = (d[0][1])-(d[1][1])
+                sep = math.hypot(xd, yd)
+
+                if sep <= fontsize:
+                    txt.set_visible(False)
+                    del leaves_drawn[-1]
+
+
+            self.figure.canvas.draw_idle()
+            matplotlib.pyplot.show()
+
+            if leaves_drawn:
+                leaves_drawn[0].set_size(fontsize)
+        ## print [ x[0].id for x in nodes ]
             if self.tf.layers["branchlabels"].keywords["vis"]:
+                nodes = self.get_visible_nodes(labeled_only=True)
                 branches = list(filter(lambda x:(not x[0].isleaf), nodes))
                 n2l = self.node2label
                 for n, x, y in branches:
@@ -961,10 +1026,11 @@ class RadialTree(Tree):
         end = self.end if hasattr(self, 'end') else None
         self.n2c = calc_node_positions(self.root, scaled=self.scaled,
                                        start=start, end=end)
+        # Sort by angle for polar coordinates
         sv = sorted([
-            [c.y, c.x, n] for n, c in self.n2c.items()
+            [c.angle,c.y,c.x, n] for n, c in self.n2c.items()
             ])
-        self.coords = sv
+        self.coords = [ i[1:] for i in sv ] # We only want coords, not angle
 
     ## def _path_to_parent(self, node, width=None, color=None):
     ##     c = self.n2c[node]; theta1 = c.angle; r = c.depth

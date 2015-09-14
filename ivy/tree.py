@@ -80,6 +80,7 @@ class Node(object):
         self.comment = ""
         self.length_comment = ""
         self.label_comment = ""
+        self.apeidx = None
         if kwargs:
             for k, v in kwargs.items():
                 setattr(self, k, v)
@@ -164,6 +165,15 @@ class Node(object):
                 return n
         raise IndexError(str(x))
 
+    def ape_node_idx(self): # For use in phylorate plot
+        i = 1
+        for lf in self.leaves():
+            lf.apeidx = i
+            i += 1
+        for n in self.clades():
+            n.apeidx = i
+            i += 1
+
     def ascii(self, *args, **kwargs):
         """
         Create ascii tree.
@@ -216,7 +226,7 @@ class Node(object):
 #        Returns:
 #            Node: A copy of self.
 #
-#        
+#
 #
 #        RR: This function runs rather slowly -CZ
 #        """
@@ -234,7 +244,7 @@ class Node(object):
         """
         Return a shallow copy of self. If recurse = False, do not copy children,
         parents, or any attribute that is Node.
-        
+
         Args:
             recurse (bool): Whether or not to copy children as well as self.
 
@@ -254,8 +264,8 @@ class Node(object):
             if _par:
                 newnode.parent = _par
         return newnode
-        
-        
+
+
 
     def leafsets(self, d=None, labels=False):
         """return a mapping of nodes to leaf sets (nodes or labels)"""
@@ -389,7 +399,7 @@ class Node(object):
     def bisect_branch(self, distance = 0.5):
         """
         Add new node as parent to self in the middle of branch to parent.
-        
+
         Args:
             distance (float): What percentage along branch to place
               new node. Defaults to 0.5 (bisection). Higher numbers
@@ -439,7 +449,7 @@ class Node(object):
         Return a list of leaves. Can be filtered with f.
 
         Args:
-            f (function): A function that evaluates to True if called with 
+            f (function): A function that evaluates to True if called with
               desired node as the first input
 
         Returns:
@@ -454,7 +464,7 @@ class Node(object):
         Return a list nodes that have children (internal nodes)
 
         Args:
-            f (function): A function that evaluates to true if called with 
+            f (function): A function that evaluates to true if called with
               desired node as the first input
 
         Returns:
@@ -545,9 +555,9 @@ class Node(object):
         return v
     def drop_tip(self, *nodes):
         """
-        Return a NEW TREE with the given tips dropped from it. Does not 
+        Return a NEW TREE with the given tips dropped from it. Does not
         affect old tree.
-        
+
         Args:
             *nodes: Leaf nodes or labels of leaf nodes
         Returns:
@@ -562,14 +572,14 @@ class Node(object):
             cp.remove_child(node)
             if cp.length:
                 node.length += cp.length
-            if len(cp.children) == 1: 
-                try: 
+            if len(cp.children) == 1:
+                try:
                     cp.excise()
                 except AssertionError:
                     t.isroot = False
                     root = cp.children[0]
                     root.parent = None
-                    
+
         return root
 
     def get(self, f, *args, **kwargs):
@@ -756,7 +766,7 @@ class Node(object):
         Args:
             end (Node): A Node object to iterate to (instead of iterating
               towards root). Optional, defaults to None
-            stop (function): A function that returns True if desired node is 
+            stop (function): A function that returns True if desired node is
               called as the first parameter. Optional, defaults to None
 
         Yields:
@@ -915,18 +925,18 @@ class Node(object):
             cp.label = node.label
         newroot.isroot = True
         return newroot
-        
+
     def reroot(self, newroot, distance = 0.5):
         """
         Reroot the tree between newroot and its parent.
         By default, the new node is halfway in between
         newroot and its current parent. Works by unrooting the tree, then
         rerooting it at the new node.
-        
+
         Returns a NEW tree. Does not affect old tree
-        
+
         Args:
-            newroot: Node or str of node label. Cannot be child of 
+            newroot: Node or str of node label. Cannot be child of
               current root.
             distance (float): What percentage along branch to place
               new node. Defaults to 0.5 (bisection). Higher numbers
@@ -941,11 +951,11 @@ class Node(object):
         assert newroot in oldroot
         assert newroot not in oldroot.children
         t = newroot.bisect_branch(distance)
-        
+
         v = list(t.rootpath())
         t.parent = None
         t.children.append(v[0])
-        
+
         newparent = t
         newlen = t.length
         for node in v:
@@ -961,13 +971,13 @@ class Node(object):
             v[-1].excise()
         except:
             pass
-        
+
         t.isroot = True
         return t
-            
-            
-        
-        
+
+
+
+
 
     def makeroot(self, shift_labels=False):
         """
