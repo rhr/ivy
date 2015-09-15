@@ -352,7 +352,7 @@ def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
     treeplot.figure.canvas.draw_idle()
 
 def add_squares(treeplot, nodes, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
-            zorder=1000):
+            zorder=1000, vis=True):
     """
     Draw a square at given node
 
@@ -511,8 +511,10 @@ def add_phylorate(treeplot, rates, nodeidx, vis=True):
     (http://bamm-project.org/introduction.html)
 
     Args:
-        rates (array): Array of rates along branches created by (TBA function)
-        nodeidx (array): Array of node indices matching rates
+        rates (array): Array of rates along branches
+          created by r_funcs.phylorate
+        nodeidx (array): Array of node indices matching rates (also created
+          by r_funcs.phylorate)
     """
     if not treeplot.root.apeidx:
         treeplot.root.ape_node_idx()
@@ -568,14 +570,14 @@ def add_phylorate(treeplot, rates, nodeidx, vis=True):
             treeplot.add_patch(p)
             p.set_visible(vis)
     lc.set_visible(vis)
-    colorbar_legend(treeplot, values, RdYlBu)
+    colorbar_legend(treeplot, values, RdYlBu, vis=vis)
 
     treeplot.figure.canvas.draw_idle()
 
 
 
 
-def colorbar_legend(ax, values, cmap):
+def colorbar_legend(ax, values, cmap, vis=True):
     """
     Add a vertical colorbar legend to a plot
     """
@@ -594,11 +596,12 @@ def colorbar_legend(ax, values, cmap):
         p = segs[-1][-1]
         vals.append(min(values)+((max(values)-min(values))/256.0)*(i-1))
     lcbar = lc = LineCollection(segs, cmap=cmap, lw=15)
+    lcbar.set_visible(vis)
     lcbar.set_array(np.array(vals))
     ax.add_collection(lc)
 
     minlab = str(min(values))[:6]
     maxlab = str(max(values))[:6]
 
-    ax.text(x[0]+x_range*.02, y[0], minlab, verticalalignment="bottom")
-    ax.text(x[0]+x_range*.02, y[1], maxlab, verticalalignment="top")
+    ax.text(x[0]+x_range*.02, y[0], minlab, verticalalignment="bottom", visible=vis)
+    ax.text(x[0]+x_range*.02, y[1], maxlab, verticalalignment="top", visible=vis)

@@ -148,6 +148,7 @@ class TreeFigure(object):
             self.add_layer(layers.add_label, "branch", store = "branchlabels",
                            ov=False, vis=self.branchlabels,
                            fontsize=branch_fontsize)
+            self.tree.draw_labels()
 
 
         else:
@@ -257,7 +258,7 @@ class TreeFigure(object):
             for lay in self.ovlayers.keys():
                 self.ovlayers[lay]()
                 matplotlib.pyplot.draw()
-        try: self.tree.draw.labels()
+        try: self.tree.draw_labels()
         except: pass
         self.figure.canvas.draw_idle()
         matplotlib.pyplot.draw()
