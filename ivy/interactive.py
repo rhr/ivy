@@ -13,7 +13,7 @@ def readtree(data, *args, **kwargs): return ivy.tree.read(data, *args, **kwargs)
 def readaln(data, *args, **kwargs): return ivy.align.read(data, *args, **kwargs)
 
 def treefig(*args, **kwargs):
-    from ivy.vis import TreeFigure, MultiTreeFigure
+    from ivy.vis.treevis import TreeFigure
     if len(args) == 1:
         fig = TreeFigure(args[0], **kwargs)
     else:

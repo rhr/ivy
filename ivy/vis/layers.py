@@ -90,7 +90,8 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4,
                     fontsize=fontsize,
                     clip_on=True,
                     picker=True,
-                    visible=False
+                    visible=False,
+                    zorder=1
                 )
                 txt.node = node
                 #print "Setting node label to", str(txt), str(id(txt))
@@ -115,7 +116,8 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4,
                     visible=vis,
                     horizontalalignment=ha,
                     rotation=rotate,
-                    rotation_mode="anchor")
+                    rotation_mode="anchor",
+                    zorder=1)
 
                 txt.node = node
                 treeplot.node2label[node]=txt
@@ -132,7 +134,8 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4,
                 bbox=dict(fc="lightyellow", ec="none", alpha=0.8),
                 clip_on=True,
                 picker=True,
-                visible=vis
+                visible=vis,
+                zorder=1
             )
             txt.node = node
             treeplot.node2label[node]=txt
@@ -215,8 +218,8 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
 
     highlightpath = Path(verts, codes)
     highlightpatch = PathPatch(
-        highlightpath, fill=False, linewidth=width, edgecolor=color, visible=vis
-        )
+        highlightpath, fill=False, linewidth=width, edgecolor=color,
+        visible=vis, zorder=1)
 
     treeplot.add_patch(highlightpatch)
     treeplot.figure.canvas.draw_idle()
@@ -287,7 +290,7 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
         x += xoff
 
         Axes.plot(treeplot, [x,x], [ymin, ymax], '-',
-                  linewidth=width, color=color, visible=vis)
+                  linewidth=width, color=color, visible=vis, zorder=1)
 
         if showlabel and label:
             xo = leaf_offset
@@ -304,7 +307,8 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
                 horizontalalignment=leaf_halign,
                 fontsize=leaf_fontsize,
                 clip_on=True,
-                picker=False
+                picker=False,
+                zorder=1
                 )
 
         treeplot.set_xlim(xlim); treeplot.set_ylim(ylim)
@@ -347,12 +351,13 @@ def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
                               xybox= (xoff, yoff), xycoords=xycoords,
                               box_alignment=(halign, valign),
                               pad=0.0,
-                              boxcoords=boxcoords)
+                              boxcoords=boxcoords,
+                              zorder=1)
         treeplot.add_artist(abox)
     treeplot.figure.canvas.draw_idle()
 
 def add_squares(treeplot, nodes, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
-            zorder=1000, vis=True):
+                vis=True):
     """
     Draw a square at given node
 
@@ -376,7 +381,7 @@ def add_squares(treeplot, nodes, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
     col = RegularPolyCollection(
         numsides=4, rotation=pi*0.25, sizes=(size*size,),
         offsets=points, facecolors=colors, transOffset=trans,
-        edgecolors='none', alpha=alpha, zorder=zorder
+        edgecolors='none', alpha=alpha, zorder=1
         )
 
     treeplot.add_collection(col)
@@ -402,7 +407,7 @@ def add_circles(treeplot, nodes, colors="g", size=15, xoff=0, yoff=0):
     col = CircleCollection(
         sizes=(pi*size*size*0.25,),
         offsets=points, facecolors=colors, transOffset=trans,
-        edgecolors='none'
+        edgecolors='none', zorder=1
         )
 
     treeplot.add_collection(col)
@@ -444,7 +449,7 @@ def add_pie(treeplot, node, values, colors=None, size=16, norm=True,
                          xybox=(xoff, yoff),
                          xycoords=xycoords,
                          box_alignment=(halign,valign),
-                         boxcoords=boxcoords)
+                         boxcoords=boxcoords, zorder=1)
     treeplot.add_artist(box)
     treeplot.figure.canvas.draw_idle()
     return box
@@ -474,7 +479,8 @@ def add_text(treeplot, x, y, s, color='black', xoff=0, yoff=0, valign='center',
         horizontalalignment=halign,
         fontsize=fontsize,
         clip_on=True,
-        picker=True
+        picker=True,
+        zorder=1
     )
     txt.set_visible(True)
     return txt
@@ -515,6 +521,11 @@ def add_phylorate(treeplot, rates, nodeidx, vis=True):
           created by r_funcs.phylorate
         nodeidx (array): Array of node indices matching rates (also created
           by r_funcs.phylorate)
+
+    WARNING:
+        Ladderizing the tree can cause incorrect assignment of Ape node index
+        numbers. To prevent this, call this function or root.ape_node_idx()
+        before ladderizing the tree to assign correct Ape node index numbers.
     """
     if not treeplot.root.apeidx:
         treeplot.root.ape_node_idx()
@@ -546,7 +557,7 @@ def add_phylorate(treeplot, rates, nodeidx, vis=True):
             curcol = RdYlBu(n.rates[0])
 
             radpatches.append(PathPatch(
-                       Path(curverts, curcodes), lw=2, color = curcol,
+                       Path(curverts, curcodes), lw=2, edgecolor = curcol,
                             fill=False))
     else:
         for n in treeplot.root.descendants():
@@ -565,10 +576,13 @@ def add_phylorate(treeplot, rates, nodeidx, vis=True):
     lc = LineCollection(segments, cmap=RdYlBu, lw=2)
     lc.set_array(np.array(values))
     treeplot.add_collection(lc)
+    lc.set_zorder(1)
     if treeplot.plottype == "radial":
-        for p in radpatches:
-            treeplot.add_patch(p)
-            p.set_visible(vis)
+        arccol = matplotlib.collections.PatchCollection(radpatches,
+                                                        match_original=True)
+        treeplot.add_collection(arccol)
+        arccol.set_visible(vis)
+        arccol.set_zorder(1)
     lc.set_visible(vis)
     colorbar_legend(treeplot, values, RdYlBu, vis=vis)
 
@@ -595,10 +609,12 @@ def colorbar_legend(ax, values, cmap, vis=True):
         segs.append((p, n))
         p = segs[-1][-1]
         vals.append(min(values)+((max(values)-min(values))/256.0)*(i-1))
-    lcbar = lc = LineCollection(segs, cmap=cmap, lw=15)
+    lcbar =  LineCollection(segs, cmap=cmap, lw=15)
     lcbar.set_visible(vis)
     lcbar.set_array(np.array(vals))
-    ax.add_collection(lc)
+    ax.add_collection(lcbar)
+    lcbar.set_zorder(1)
+
 
     minlab = str(min(values))[:6]
     maxlab = str(max(values))[:6]

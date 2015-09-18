@@ -198,6 +198,18 @@ class TreeFigure(object):
 
     def on_nodes_selected(self, treeplot):
         pass
+    def select_nodes(self, nodes=None):
+        """
+        Select nodes on the plot
+
+        Args:
+            nodes: A node or list of ndoes
+        Notes:
+            If only one node is given, all of the node's ancestors are
+            also selected. If a list of nodes is given (even if it has only
+            one node), only the given node(s) are selected.
+        """
+        self.tree.select_nodes(nodes)
 
     @property
     def axes(self):
@@ -248,7 +260,8 @@ class TreeFigure(object):
             self.layers.pop("temp", None)
 
         for lay in self.layers.keys():
-            self.layers[lay]()
+            if self.layers[lay].keywords["vis"]:
+                self.layers[lay]()
             matplotlib.pyplot.draw()
 
         if self.overview:
@@ -404,6 +417,25 @@ class TreeFigure(object):
                                             self.ovlayers[layername], vis = vis)
             except: pass
         self.redraw(keeptemp=True)
+    def reorder_layers(self, neworder):
+        """
+        Reorder layers and redraw figure
+
+        Args:
+          neworder (list): New order of layers. Must include all layers
+            currently in the figure. See all layers with `fig.layers`
+        """
+        assert sorted(neworder) == sorted(self.layers.keys()),\
+          "Must specify order of all layers"
+
+        new = OrderedDict()
+        for i in neworder:
+            new[i] = self.layers[i]
+
+        self.layers = new.copy()
+
+        fig.redraw(keeptemp=True)
+
 
     ############################
     # Convenience functions
@@ -520,9 +552,19 @@ class Tree(Axes):
         "Convert a single display point to y-units"
         transform = self.transData.inverted().transform
         return transform([0,1])[1] - transform([0,0])[1]
-
-    def p2x(self):
-        "Convert a single display point to x-units"
+    def rectselect(self, e0, e1):
+        xlim = self.get_xlim()
+        ylim = self.get_ylim()
+        s = set()
+        x0, x1 = sorted((e0.xdata, e1.xdata))
+        y0, y1 = sorted((e0.ydata, e1.ydata))
+        add = e0.key == 'shift'
+        for n, c in self.n2c.items():
+            if (x0 < c.x < x1) and (y0 < c.y < y1):
+                s.add(n)
+        self.select_nodes(nodes = s, add = add)
+        self.set_xlim(xlim)
+        self.set_ylim(ylim)
         transform = self.transData.inverted().transform
         return transform([0,0])[1] - transform([1,0])[1]
 
@@ -877,7 +919,8 @@ class Tree(Axes):
         self.branchpatch = PathPatch(
             Path(verts, codes), fill=False,
             linewidth=self.branch_width,
-            edgecolor=self.branch_color
+            edgecolor=self.branch_color,
+            zorder=0
             )
         self.add_patch(self.branchpatch)
 
@@ -1095,6 +1138,17 @@ class OverviewTree(Tree):
         self.set_ylim(ymin-ypad, ymax+ypad)
         self.adjust_xspine()
         self.figure.canvas.draw_idle() # Warning: Had to add this line for this to work. Still don't know why.
+
+    def rectselect(self, e0, e1):
+        xlim = self.get_xlim()
+        ylim = self.get_ylim()
+        s = set()
+        x0, x1 = sorted((e0.xdata, e1.xdata))
+        y0, y1 = sorted((e0.ydata, e1.ydata))
+
+
+        self.target.set_xlim(x0, x1)
+        self.target.set_ylim(y0, y1)
 
 
     def set_target(self, target):

@@ -39,7 +39,7 @@ try:
     import Image
 except ImportError:
     from PIL import Image
-    
+
 _tango = colors.tango()
 
 def axes_enter(e):
@@ -102,7 +102,7 @@ def ondrag(e):
         ax.set_xlim(midx+xdelta-xspan*0.5, midx+xdelta+xspan*0.5)
         ax.set_ylim(midy+ydelta-yspan*0.5, midy+ydelta+yspan*0.5)
         ax.adjust_xspine()
-        try: 
+        try:
             ax.draw_labels()
         except:
             pass
@@ -171,18 +171,18 @@ def onscroll(e):
 
 def onclick(e):
     ax = e.inaxes
-    if ax and e.button==1 and hasattr(ax, "zoomrect") and ax.zoomrect:
-        # overview clicked; reposition zoomrect
-        r = ax.zoomrect
-        x = e.xdata
-        y = e.ydata
-        arr = ax.transData.inverted().transform(r.get_extents())
-        xoff = (arr[1][0]-arr[0][0])*0.5
-        yoff = (arr[1][1]-arr[0][1])*0.5
-        r.target.set_xlim(x-xoff,x+xoff)
-        r.target.set_ylim(y-yoff,y+yoff)
-        r(r.target)
-        ax.figure.canvas.draw_idle()
+    # if ax and e.button==1 and hasattr(ax, "zoomrect") and ax.zoomrect:
+    #     # overview clicked; reposition zoomrect
+    #     r = ax.zoomrect
+    #     x = e.xdata
+    #     y = e.ydata
+    #     arr = ax.transData.inverted().transform(r.get_extents())
+    #     xoff = (arr[1][0]-arr[0][0])*0.5
+    #     yoff = (arr[1][1]-arr[0][1])*0.5
+    #     r.target.set_xlim(x-xoff,x+xoff)
+    #     r.target.set_ylim(y-yoff,y+yoff)
+    #     r(r.target)
+    #     ax.figure.canvas.draw_idle()
 
     if ax and e.button==2:
         try:
@@ -192,14 +192,14 @@ def onclick(e):
             return
         ## print "pan start", (e.xdata, e.ydata)
         ax.pan_start = (e.xdata, e.ydata)
-        
+
 class UpdatingRect(Rectangle):
     def __call__(self, p):
         self.set_bounds(*p.viewLim.bounds)
         p.figure.canvas.draw_idle()
 
 
-        
+
 def connect_events(canvas):
     mpl_connect = canvas.mpl_connect
     mpl_connect("button_press_event", onclick)
@@ -210,5 +210,3 @@ def connect_events(canvas):
     mpl_connect("key_press_event", onkeypress)
     mpl_connect("axes_enter_event", axes_enter)
     mpl_connect("axes_leave_event", axes_leave)
-    
-    
