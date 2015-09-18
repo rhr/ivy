@@ -553,18 +553,18 @@ class Node(object):
             if child.children:
                 child.descendants(order, v, f)
         return v
-    def drop_tip(self, *nodes):
+    def drop_tip(self, nodes):
         """
         Return a NEW TREE with the given tips dropped from it. Does not
         affect old tree.
 
         Args:
-            *nodes: Leaf nodes or labels of leaf nodes
+            nodes (list): Leaf nodes or labels of leaf nodes
         Returns:
             Node (Node): New root node with tips dropped
         """
         t = self.copy()
-        nodes = [ t[x] for x in nodes ]
+        nodes = [ t[self[x].id] for x in nodes ]
         assert all([ x.isleaf for x in nodes ]), "All nodes given must be tips"
         root = t
         for node in nodes:
@@ -581,6 +581,20 @@ class Node(object):
                     root.parent = None
 
         return root
+    def keep_tip(self, nodes):
+        """
+        Return a NEW TREE containing only the given tips.
+
+        Args:
+            nodes (list): Leaf nodes or labels of leaf notes
+        Returns:
+            Node (Node): New root node containing only given tips
+        """
+        nodes = [ self[x] for x in nodes ]
+        assert all([ x.isleaf for x in nodes ]), "All nodes given must be tips"
+        to_drop = [ l for l in self.leaves() if not l in nodes ]
+
+        return self.drop_tip(to_drop)
 
     def get(self, f, *args, **kwargs):
         """
