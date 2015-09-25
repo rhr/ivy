@@ -26,5 +26,6 @@ setup(name="ivy-phylo",
       license="GPL",
       platforms="All",
       packages=packages,
-      package_data=package_data)
+      package_data=package_data,
+      classifiers=["Programming Language :: Python :: 2.7"])
 
