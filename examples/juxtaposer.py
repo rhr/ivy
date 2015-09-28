@@ -40,7 +40,7 @@ class JuxtaposerFigure(ivy.vis.MultiTreeFigure):
                 p.figure.canvas.draw_idle()
 
 fig = JuxtaposerFigure()
-fig.add("its.newick")
-fig.add("matk.newick")
+fig.add("examples/its.newick")
+fig.add("examples/matk.newick")
 fig.ladderize()
 fig.show()

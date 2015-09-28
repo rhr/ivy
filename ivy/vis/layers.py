@@ -76,6 +76,8 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4,
     """
     assert labeltype in ["leaf", "branch"], "invalid label type: %s" % labeltype
     n2c = treeplot.n2c
+    if leaf_halign == "right": leaf_offset *= -1 # Padding in correct direction
+    if branch_halign == "right": branch_offset *= -1
     for node, coords in n2c.items():
         x = coords.x; y = coords.y
         if node.isleaf and node.label and labeltype == "leaf":

@@ -91,7 +91,8 @@ class TreeFigure(object):
     def __init__(self, data, name=None, scaled=True, div=0.25,
                  branchlabels=True, leaflabels=True, xoff=0, yoff=0,
                  mark_named=True, overview=True, interactive=True,
-                 radial=False, leaf_fontsize=10, branch_fontsize=10):
+                 radial=False, leaf_fontsize=10, branch_fontsize=10,
+                 direction="rightwards"):
         self.overview = None
         self.overview_width = div
         self.name = name
@@ -103,6 +104,9 @@ class TreeFigure(object):
         self.leaflabels = leaflabels
         self.xoff = xoff
         self.yoff = yoff
+        self.direction=direction
+        self.leaf_anchor = "left" if self.direction == "rightwards" else "right"
+        self.branch_anchor = "right" if self.direction == "rightwards" else "left"
         self.mark_named=mark_named # Drawing a circle at named nodes
         if isinstance(data, tree.Node):
             root = data
@@ -137,17 +141,20 @@ class TreeFigure(object):
                       plottype="phylogram", leaflabels=self.leaflabels,
                       branchlabels=self.branchlabels,
                       leaf_fontsize=leaf_fontsize,
-                      branch_fontsize=branch_fontsize)
+                      branch_fontsize=branch_fontsize,
+                      direction=self.direction)
             tree = self.figure.add_subplot(tp)
             tree.set_root(self.root)
             tree.plot_tree()
             self.tree = tree
             self.add_layer(layers.add_label, "leaf", store = "leaflabels",
                            ov=False, vis=self.leaflabels,
-                           fontsize=leaf_fontsize)
+                           fontsize=leaf_fontsize, leaf_halign = self.leaf_anchor,
+                           branch_halign = self.branch_anchor)
             self.add_layer(layers.add_label, "branch", store = "branchlabels",
                            ov=False, vis=self.branchlabels,
-                           fontsize=branch_fontsize)
+                           fontsize=branch_fontsize, leaf_halign = self.leaf_anchor,
+                           branch_halign = self.branch_anchor)
             self.tree.draw_labels()
 
 
@@ -163,16 +170,18 @@ class TreeFigure(object):
             self.tree = tree
             self.add_layer(layers.add_label, "leaf", store = "leaflabels",
                            ov=False, vis=self.leaflabels,
-                           fontsize=leaf_fontsize)
+                           fontsize=leaf_fontsize, leaf_halign = self.leaf_anchor,
+                           branch_halign = self.branch_anchor)
             self.add_layer(layers.add_label, "branch", store = "branchlabels",
                            ov=False, vis=self.branchlabels,
-                           fontsize=branch_fontsize)
+                           fontsize=branch_fontsize, leaf_halign = self.leaf_anchor,
+                           branch_halign = self.branch_anchor)
             overview=False # No support for overview for radial trees (yet?)
         tp = OverviewTreePlot(
             self.figure, 121, app=self, scaled=self.scaled,
             branchlabels=False, leaflabels=False,
             mark_named=self.mark_named,
-            target=self.tree, tf=self)
+            target=self.tree, tf=self, direction = self.direction)
         ov = self.figure.add_subplot(tp)
         ov.set_root(self.root)
         ov.plot_tree()
@@ -242,13 +251,21 @@ class TreeFigure(object):
         ov = self.overview
         p = self.tree
         height = 1.0-p.xoffset()
-        if ov:
-            box = [0, p.xoffset(), self.overview_width, height]
-            ov.set_position(box)
         w = 1.0
+
         if ov:
+            if self.direction == "rightwards":
+                left = 0
+            elif self.direction == "leftwards":
+                left = w - self.overview_width
+            box = [left, p.xoffset(), self.overview_width, height]
+            ov.set_position(box)
             w -= self.overview_width
-        p.set_position([self.overview_width, p.xoffset(), w, height])
+        if self.direction == "rightwards":
+            left = self.overview_width
+        else:
+            left = 0
+        p.set_position([left, p.xoffset(), w, height])
         self.figure.canvas.draw_idle()
     def redraw(self, keeptemp=False, *args, **kwargs):
         """
@@ -512,6 +529,9 @@ class Tree(Axes):
         self.interactive = kwargs.pop("interactive", True)
         self.leaflabels = kwargs.pop("leaflabels", True)
         self.branchlabels = kwargs.pop("branchlabels", True)
+        self.direction = kwargs.pop("direction", "rightwards")
+        self.leaf_anchor = "left" if self.direction == "rightwards" else "right"
+        self.branch_anchor = self.leaf_anchor
         ## if self.decorators:
         ##     print >> sys.stderr, "got %s decorators" % len(self.decorators)
         self.xoff = kwargs.pop("xoff", 0)
@@ -951,8 +971,14 @@ class Tree(Axes):
         v = self.n2c.values()
         ymin = min([ c.y for c in v ])
         ymax = max([ c.y for c in v ])
-        xmin = min(xmin, min([ c.x for c in v ]))
-        xmax = max(xmax, max([ c.x for c in v ]))
+
+        if self.direction == "rightwards":
+            xmin = min(xmin, min([ c.x for c in v ]))
+            xmax = max(xmax, max([ c.x for c in v ]))
+        elif self.direction == "leftwards":
+            xmax = min(xmin, min([ c.x for c in v ]))
+            xmin = max(xmax, max([ c.x for c in v ]))
+
         xspan = xmax - xmin; xpad = xspan*0.05
         yspan = ymax - ymin; ypad = yspan*0.05
         self.set_xlim(xmin-xpad, xmax+xpad*2)
@@ -1130,8 +1156,13 @@ class OverviewTree(Tree):
         v = self.n2c.values()
         ymin = min([ c.y for c in v ])
         ymax = max([ c.y for c in v ])
-        xmin = min(xmin, min([ c.x for c in v ]))
-        xmax = max(xmax, max([ c.x for c in v ]))
+
+        if self.direction == "rightwards":
+            xmin = min(xmin, min([ c.x for c in v ]))
+            xmax = max(xmax, max([ c.x for c in v ]))
+        elif self.direction == "leftwards":
+            xmax = min(xmin, min([ c.x for c in v ]))
+            xmin = max(xmax, max([ c.x for c in v ]))
         xspan = xmax - xmin; xpad = xspan*0.05
         yspan = ymax - ymin; ypad = yspan*0.05
         self.set_xlim(xmin-xpad, xmax+xpad*2)
@@ -1140,12 +1171,17 @@ class OverviewTree(Tree):
         self.figure.canvas.draw_idle() # Warning: Had to add this line for this to work. Still don't know why.
 
     def rectselect(self, e0, e1):
+        """
+        Zoom to the selected region
+        """
         xlim = self.get_xlim()
         ylim = self.get_ylim()
         s = set()
         x0, x1 = sorted((e0.xdata, e1.xdata))
         y0, y1 = sorted((e0.ydata, e1.ydata))
 
+        if self.direction == "leftwards":
+            x0,x1 = x1,x0
 
         self.target.set_xlim(x0, x1)
         self.target.set_ylim(y0, y1)
@@ -1173,7 +1209,123 @@ class OverviewTree(Tree):
         Tree.redraw_keeptemp(self)
         self.add_overview_rect()
         self.figure.canvas.draw_idle()
+class MultiTreeFigure(TreeFigure):
+    """
+    Class for drawing multiple trees in one figure
+    """
+    def __init__(self, trees=None, name=None, support=70,
+                 scaled=True, branchlabels=False, radial=False):
+        """
+        *trees* are assumed to be objects suitable for passing to
+        ivy.tree.read()
+        """
+        self.root = []
+        self.name = name
+        self.name2plot = {}
+        self.plot = []
+        self.scaled = scaled
+        self.branchlabels = branchlabels
+        self.radial = radial
+        self.highlighted = set()
+        self.divs = []
+        pars = SubplotParams(
+            left=0, right=1, bottom=0.05, top=1, wspace=0.04
+            )
+        fig = pyplot.figure(subplotpars=pars)
+        events.connect_events(fig.canvas)
+        self.figure = fig
 
+        for x in trees or []:
+            self.add(x, support=support, scaled=scaled,
+                     branchlabels=branchlabels)
+
+    def add(self, data, name=None, support=70, scaled=True,
+            branchlabels=False, leaflabels=True, *args, **kwargs):
+        """
+        Add tree to existing figure
+        """
+        root = None
+        if isinstance(data, tree.Node):
+            root = data
+        else:
+            root = tree.read(data)
+        if not root:
+            raise IOError, "cannot coerce data into tree.Node"
+
+        name = name or root.treename
+        self.root.append(root)
+
+        fig = self.figure
+        N = len(self.plot)+1
+        for i, p in enumerate(self.plot):
+            p.change_geometry(1, N, i+1)
+        plt = TreePlot(fig, 1, N, N, tf=self, app=self, name=name, support=support,
+                       scaled=scaled, branchlabels=branchlabels,
+                       leaflabels=leaflabels, *args, **kwargs)
+        p = fig.add_subplot(plt)
+        p.set_root(root)
+        p.plot_tree()
+        p.index = N-1
+        self.plot.append(p)
+        if name:
+            assert name not in self.name2plot
+            self.name2plot[name] = p
+    def show(self):
+        self.figure.show()
+
+    def redraw(self):
+        for p in self.plot:
+            p.redraw()
+        self.figure.canvas.draw_idle()
+
+    def ladderize(self, reverse=False):
+        for n in self.root:
+            n.ladderize(reverse)
+        self.redraw()
+    def home(self):
+        for p in self.plot: p.home()
+        ## global IP
+        ## if IP:
+        ##     def f(shell, s):
+        ##         self.highlight(s)
+        ##         return sorted([ x.label for x in self.highlighted ])
+        ##     IP.expose_magic("highlight", f)
+        ##     def f(shell, s):
+        ##         self.root.ladderize()
+        ##         self.redraw()
+        ##     IP.expose_magic("ladderize", f)
+        ##     def f(shell, s):
+        ##         self.show()
+        ##     IP.expose_magic("show", f)
+        ##     def f(shell, s):
+        ##         self.redraw()
+        ##     IP.expose_magic("redraw", f)
+        return p
+    def on_nodes_selected(self, treeplot):
+        pass
+
+    def clear(self):
+        self.root = []
+        self.name2plot = {}
+        self.highlighted = set()
+        self.divs = []
+        self.figure.clf()
+
+    def picked(self, e):
+        try:
+            if e.mouseevent.button==1:
+                print e.artist.get_text()
+                sys.stdout.flush()
+        except:
+            pass
+
+    def getplot(self, x):
+        p = None
+        try:
+            i = self.root.index(x)
+            return self.plot[i]
+        except ValueError:
+            return self.name2plot.get(x)
 
 class UpdatingRect(Rectangle): # Used in overview plot
     def __call__(self, p):
