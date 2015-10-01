@@ -1,81 +1,45 @@
 import numpy as np
+cimport numpy as np
+
+DTYPE = np.double # Fixing a datatype for the arrays
+ctypedef np.double_t DTYPE_t
 
 cdef extern:
     void f_dexpm(int nstates, double* H, double t, double* expH)
-    void f_dexpm_wsp(int nstates, double* H, double t, int i, double* wsp,
-                     double* expH)
 
-def dexpm(q, double t):
+def dexpm_slice(np.ndarray q, double t, np.ndarray p, int i):
     """
-    Compute exp(q*t) and return the exponentiated array.
+    Compute exp(q*t) for one branch on a tree and place results in pre-
+    allocated array p
 
-    q must be a C-contiguous numpy square array
+    Args:
+        q (np.array): Q matrix for the tree
+        t (np.array): Array of doubles indicating branch lengths
+        p (np.array): Pre-allocated array to store results
+        i (int): Index of branch length and p-array
+
+    Returns:
+        np.array: 3-D Array of P matrices
     """
-    assert len(q.shape)==2 and q.shape[0]==q.shape[1], 'q must be square'
-    p = np.empty(q.shape, dtype=np.double, order='C')
-    cdef double[:,::1] qview = q
-    cdef double[:,::1] pview = p
+    cdef DTYPE_t[:,::1] qview = q
+    cdef DTYPE_t[:,::1] pview = p[i]
     f_dexpm(q.shape[0], &qview[0,0], t, &pview[0,0])
+
+
+def dexpm_tree(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
+    """
+    Compute exp(q*t) for all branches on tree and return array of all
+    p-matrices
+    """
+    assert q.shape[0]==q.shape[1], 'q must be square'
+
+    assert (t > 0).all(), "All branch lengths must be greater than zero"
+
+    cdef int i
+    cdef double blen
+
+    cdef np.ndarray[DTYPE_t, ndim=3] p = np.empty([len(t), q.shape[0], q.shape[1]], dtype = DTYPE, order="C")
+    for i, blen in enumerate(t):
+        dexpm_slice(q, blen, p, i)
+
     return p
-
-def test_dexpm():
-    q = np.array([[-1,1,0,0],
-                  [0,-1,1,0],
-                  [0,0,-1,1],
-                  [0,0,0,0]], dtype=np.double, order='C')
-    print 'q is:'
-    print q
-    print
-    cdef double t = 1.0
-    cdef int n = 4
-
-    p = np.zeros((4,4), dtype=np.double, order='C')
-
-    cdef double[:,::1] qview = q
-    cdef double[:,::1] pview = p
-    f_dexpm(n, &qview[0,0], t, &pview[0,0])
-    print 'p is:'
-    print p
-    print
-
-def test_dexpm_wsp():
-    q = np.array([[-1,1,0,0],
-                  [0,-1,1,0],
-                  [0,0,-1,1],
-                  [0,0,0,0]], dtype=np.double, order='C')
-    print 'q is:'
-    print q
-    print
-    cdef double t = 1.0
-    cdef int n = 4
-    ideg = 6
-    wsp = np.empty(4*n*n + ideg + 1)
-
-    p = np.zeros((4,4), dtype=np.double, order='C')
-
-    cdef double[:,::1] qview = q
-    cdef double[:,::1] pview = p
-    cdef double[:] wspview = wsp
-    f_dexpm_wsp(n, &qview[0,0], t, ideg, &wspview[0], &pview[0,0])
-    print 'p is:'
-    print p
-    print
-
-def test_dexpm_slice():
-    q = np.array([
-        [[-1,1,0,0],
-         [0,-1,1,0],
-         [0,0,-1,1],
-         [0,0,0,0]],
-        [[-2,2,0,0],
-         [0,-2,2,0],
-         [0,0,-2,2],
-         [0,0,0,0]]], dtype=np.double, order='C')
-    p = np.empty(q.shape, dtype=np.double, order='C')
-    cdef double[:,:,:] qview = q
-    cdef double[:,:,:] pview = p
-    cdef double t = 1.0
-    cdef int n = 4
-    f_dexpm(n, &qview[0,0,0], t, &pview[0,0,0])
-    return p
-    
