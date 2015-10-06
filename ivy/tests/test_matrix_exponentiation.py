@@ -1,53 +1,57 @@
+"""
+Unittests for matrix exponentiation
+"""
+
 import unittest
 import ivy
 from ivy.chars.expokit import cyexpokit
 import numpy as np
 
-class Dexpm_sliceMethods(unittest.TestCase):
-    def test_dexpmslice_oneQoneT2by2_returnsP(self):
-        """
-        Basic test case for exponentiating a matrix and storing it in a pre-allocated
-        array. 2 x 2 Q matrix
-        """
-        Q = np.array([[-1,1,],
-                      [1,-1,]], dtype=np.double, order="C")
-        t = 1.0 # Branch length
-
-        expectedP = np.array([[0.56766765, 0.43233236], # The expected value of e^Q
-                                   [0.43233236, 0.56766764]],
-                                    dtype=np.double, order="C")
-        i = 0 # Index of the p array we are supposed to use
-        p = np.empty([1, Q.shape[0], Q.shape[1]], dtype=np.double, order="C") # Empty p array to store values in
-
-        cyexpokit.dexpm_slice(Q, t, p, i) # Important to note that this changes p in place
-
-        self.assertTrue(np.allclose(expectedP, p))
-
-    def test_dexpmslice_oneQoneT4by4_returnsP(self):
-        """
-        Basic test case for exponentiating a matrix and storing it in a pre-allocated
-        array. 4 x 4 Q matrix.
-        """
-        Q = np.array([[-1,1,0,0],
-                      [0,-1,1,0],
-                      [0,0,-1,1],
-                      [0,0,0,0]], dtype=np.double, order='C')
-        t = 1.0 # Branch length
-
-        expectedP = np.array([[0.36787944, 0.36787944, 0.18393972, 0.0803014], # The expected value of e^Q*t
-                              [0, 0.36787944, 0.36787944,0.26424112],
-                              [0, 0, 0.36787944, 0.63212056],
-                              [0,0,0,1]],
-                               dtype=np.double, order="C")
-        i = 0 # Index of the p array we are supposed to use
-        p = np.empty([1, Q.shape[0], Q.shape[1]], dtype=np.double, order="C") # Empty p array to store values in
-
-        cyexpokit.dexpm_slice(Q, t, p, i) # Important to note that this changes p in place
-
-        try:
-            np.testing.assert_allclose(expectedP, p)
-        except:
-            self.fail
+# class Dexpm_sliceMethods(unittest.TestCase):
+#     def test_dexpmslice_oneQoneT2by2_returnsP(self):
+#         """
+#         Basic test case for exponentiating a matrix and storing it in a pre-allocated
+#         array. 2 x 2 Q matrix
+#         """
+#         Q = np.array([[-1,1,],
+#                       [1,-1,]], dtype=np.double, order="C")
+#         t = 1.0 # Branch length
+#
+#         expectedP = np.array([[0.56766765, 0.43233236], # The expected value of e^Q
+#                                    [0.43233236, 0.56766764]],
+#                                     dtype=np.double, order="C")
+#         i = 0 # Index of the p array we are supposed to use
+#         p = np.empty([1, Q.shape[0], Q.shape[1]], dtype=np.double, order="C") # Empty p array to store values in
+#
+#         cyexpokit.dexpm_slice(Q, t, p, i) # Important to note that this changes p in place
+#
+#         self.assertTrue(np.allclose(expectedP, p))
+#
+#     def test_dexpmslice_oneQoneT4by4_returnsP(self):
+#         """
+#         Basic test case for exponentiating a matrix and storing it in a pre-allocated
+#         array. 4 x 4 Q matrix.
+#         """
+#         Q = np.array([[-1,1,0,0],
+#                       [0,-1,1,0],
+#                       [0,0,-1,1],
+#                       [0,0,0,0]], dtype=np.double, order='C')
+#         t = 1.0 # Branch length
+#
+#         expectedP = np.array([[0.36787944, 0.36787944, 0.18393972, 0.0803014], # The expected value of e^Q*t
+#                               [0, 0.36787944, 0.36787944,0.26424112],
+#                               [0, 0, 0.36787944, 0.63212056],
+#                               [0,0,0,1]],
+#                                dtype=np.double, order="C")
+#         i = 0 # Index of the p array we are supposed to use
+#         p = np.empty([1, Q.shape[0], Q.shape[1]], dtype=np.double, order="C") # Empty p array to store values in
+#
+#         cyexpokit.dexpm_slice(Q, t, p, i) # Important to note that this changes p in place
+#
+#         try:
+#             np.testing.assert_allclose(expectedP, p)
+#         except:
+#             self.fail
 
 
 class Dexpm_treeMethods(unittest.TestCase):
@@ -106,6 +110,20 @@ class Dexpm_treeMethods(unittest.TestCase):
                 self.fail()
             except AssertionError, e:
                 self.assertEquals('q must be square', e.message)
+        def test_dexpmtree_twithzeroes_assertionerror(self):
+            """
+            Test that dexpm_tree returns an assertion error if given a t-array
+            with zero or negative values
+            """
+            Q = np.array([[-1,1,],
+                          [1,-1,]], dtype=np.double, order="C")
+            t = np.array([0.0, 1.0])
+
+            try:
+                cyexpokit.dexpm_tree(Q, t)
+                self.fail
+            except AssertionError, e:
+                self.assertEquals("All branch lengths must be greater than zero", e.message)
 
 
 
