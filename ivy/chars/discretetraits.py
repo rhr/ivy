@@ -64,7 +64,8 @@ def treeLikelihood(tree, chars, Q):
                         likelihoodStateNCh.append(ch.pmat[state, chState] * ch.likelihoodNode[chState])
                     likelihoodStateN.append(sum(likelihoodStateNCh))
                 node.likelihoodNode[state]=np.product(likelihoodStateN)
-    return sum(chartree.likelihoodNode.values())
+    nchar = len(chartree.likelihoodNode.values())
+    return sum([ i/nchar for i in chartree.likelihoodNode.values() ]) # Assuming a flat pi
 
 
 def estimateQBayesian(tree, chars):
