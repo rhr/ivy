@@ -692,6 +692,27 @@ class Node(object):
         """Return a list of found nodes."""
         return list(self.find(f, *args, **kwargs))
 
+    def isSameTree(self, tree, check_id=False):
+        """
+        Test if two trees are the same (same topology, characteristics, labels,
+        etc.) Ignores IDs by default.
+
+        Args:
+            tree (Node): Another tree to compare to
+            check_id (bool): Whether or not to compare IDs. Defaults to False
+        Returns:
+            bool: Whether or not the trees are the same.
+        """
+        assert self.isroot and tree.isroot, "Must compare root nodes"
+
+        aNoLabel = self.copy()
+        bNoLabel = tree.copy()
+
+        for node in aNoLabel:
+            node.id = None
+        for node in bNoLabel:
+            node.id = None
+
     def prune(self):
         """
         Remove self if self is not root.
