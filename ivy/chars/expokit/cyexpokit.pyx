@@ -46,6 +46,7 @@ def dexpm_tree(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
 
 def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
     assert q.shape[0]==q.shape[1], 'q must be square'
+    assert np.allclose(q.sum(1), 0), 'rows of q must sum to zero'
 
     assert (t > 0).all(), "All branch lengths must be greater than zero"
 

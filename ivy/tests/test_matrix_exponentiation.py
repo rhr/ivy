@@ -74,7 +74,7 @@ class Dexpm_treeMethods(unittest.TestCase):
             try:
                 np.testing.assert_allclose(expectedP, p)
             except:
-                self.fail
+                self.fail("expectedP != p")
 
         def test_dexpmtree_oneQtwoT2by2difT_returnsP(self):
             """
@@ -95,7 +95,7 @@ class Dexpm_treeMethods(unittest.TestCase):
             try:
                 np.testing.assert_allclose(expectedP, p)
             except:
-                self.fail
+                self.fail("expectedP != p")
         def test_dexpmtree_nonsquareQ_assertionerror(self):
             """
             Test that dexpm_tree returns an assertion error if given a non-square
@@ -121,7 +121,7 @@ class Dexpm_treeMethods(unittest.TestCase):
 
             try:
                 cyexpokit.dexpm_tree(Q, t)
-                self.fail
+                self.fail()
             except AssertionError, e:
                 self.assertEquals("All branch lengths must be greater than zero", e.message)
 
