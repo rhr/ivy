@@ -4,7 +4,7 @@ Unittests for likelihood calculation of discrete traits
 import unittest
 import ivy
 from ivy.chars.expokit import cyexpokit
-from ivy.chars import discretetraits
+from ivy.chars import discrete
 import numpy as np
 import math
 
@@ -43,7 +43,7 @@ class NodelikelihoodMethods(unittest.TestCase):
         node = tree
 
         predictedLikelihood = 0.16483997131
-        calculatedLikelihood = discretetraits.nodeLikelihood(node)
+        calculatedLikelihood = discrete.nodeLikelihood(node)
         self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
 
     def test_nodelikelihood_2tiptreesinglenodeAsymmetricQ2x2_returnslikelihood(self):
@@ -63,7 +63,7 @@ class NodelikelihoodMethods(unittest.TestCase):
         node = tree
 
         predictedLikelihood = 0.2218622277515326
-        calculatedLikelihood = discretetraits.nodeLikelihood(node)
+        calculatedLikelihood = discrete.nodeLikelihood(node)
         self.assertTrue((predictedLikelihood, calculatedLikelihood))
 
     def test_nodelikelihood_2tiptreesinglenodeSymmetricQ3x3_returnslikelihood(self):
@@ -83,7 +83,7 @@ class NodelikelihoodMethods(unittest.TestCase):
         node = tree
 
         predictedLikelihood = 0.0863939177214389
-        calculatedLikelihood = discretetraits.nodeLikelihood(node)
+        calculatedLikelihood = discrete.nodeLikelihood(node)
         self.assertTrue((predictedLikelihood, calculatedLikelihood))
 
     def test_nodelikelihood_2tiptreeSymmetricQ2x2difblens_returnslikelihood(self):
@@ -103,7 +103,7 @@ class NodelikelihoodMethods(unittest.TestCase):
         node = tree
 
         predictedLikelihood = 0.22559418195297778
-        calculatedLikelihood = discretetraits.nodeLikelihood(node)
+        calculatedLikelihood = discrete.nodeLikelihood(node)
         self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
 
 class mkMethods(unittest.TestCase):
@@ -162,11 +162,11 @@ class mkMethods(unittest.TestCase):
         L0r = (P00C * L0C + P01C * L1C) * (P00D * L0D + P01D * L1D)
         L1r = (P10C * L0C + P11C * L1C) * (P10D * L0D + P11D * L1D)
 
-        predictedLikelihood = L0r * 0.5 + L1r * 0.5
-        calculatedLikelihood = discretetraits.mk(tree, chars, Q)
+        predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
+        calculatedLikelihood = discrete.mk(tree, chars, Q)
 
         self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
-    def test_mkFlatroo_2tiptreeSymmetricQ2x2difblens_returnslikelihood(self):
+    def test_mkFlatroot_2tiptreeSymmetricQ2x2difblens_returnslikelihood(self):
         charstates = self.charstates_01
         tree = self.simpletreedifblens
 
@@ -182,8 +182,8 @@ class mkMethods(unittest.TestCase):
             node.pmat = p[i]
         node = tree
 
-        predictedLikelihood = 0.11279709097648889
-        calculatedLikelihood = discretetraits.mk(tree, charstates, Q)
+        predictedLikelihood = math.log(0.11279709097648889)
+        calculatedLikelihood = discrete.mk(tree, charstates, Q)
 
         self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
 
@@ -193,10 +193,9 @@ class mkMethods(unittest.TestCase):
         Q = self.randQ
 
         phytoolslogLikelihood = -8.298437
-        calculatedLikelihood = discretetraits.mk(tree, charstates, Q)
-        calculatedlogLikelihood = math.log(calculatedLikelihood)
+        calculatedLogLikelihood = discrete.mk(tree, charstates, Q)
 
-        self.assertTrue(np.isclose(phytoolslogLikelihood, calculatedlogLikelihood))
+        self.assertTrue(np.isclose(phytoolslogLikelihood, calculatedLogLikelihood))
 
     def test_mkFlatroot_randtree5_matchesPhytools(self):
         charstates = self.randchars5
@@ -204,16 +203,33 @@ class mkMethods(unittest.TestCase):
         Q = self.randQ
 
         phytoolslogLikelihood = -6.223166
-        calculatedLikelihood = discretetraits.mk(tree, charstates, Q)
-        calculatedlogLikelihood = math.log(calculatedLikelihood)
+        calculatedLogLikelihood = discrete.mk(tree, charstates, Q)
 
 
-        self.assertTrue(np.isclose(phytoolslogLikelihood, calculatedlogLikelihood))
+
+        self.assertTrue(np.isclose(phytoolslogLikelihood, calculatedLogLikelihood))
+    def test_mk_fitzjohn_matchesDiversitree(self):
+        charstates = [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1]
+        tree =  ivy.tree.read("support/randtree100tipsscale2.newick")
+        Q = np.array([[-2.09613850e-01, 1.204029e-01, 8.921095e-02],
+                      [5.654382e-01, -5.65438217e-01, 1.713339e-08],
+                      [2.415020e-06, 5.958744e-07, -3.01089440e-06]])
+
+        expectedLikelihood = -32.79025
+
+        calculatedLogLikelihood = discrete.mk(tree, charstates, Q,
+                                                 pi ="Fitzjohn")
+        self.assertTrue(np.isclose(expectedLikelihood, calculatedLogLikelihood))
 
 class estimateQMethods(unittest.TestCase):
     def setUp(self):
         self.randTree100 = ivy.tree.read("support/randtree100tips.newick")
         self.randTree100Scale2 = ivy.tree.read("support/randtree100tipsscale2.newick")
+        self.randTree100Scale5 = ivy.tree.read("support/randtree100tipsscale5.newick")
 
         self.simChars100states2 = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
                             0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -230,7 +246,12 @@ class estimateQMethods(unittest.TestCase):
                                         0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                         0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1]
-    def test_EqualRatesQ2traits_matchesPhytools(self):
+        self.simChars100states3Scale5 = [0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+                                            2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 1, 1, 2, 2, 2, 2, 1, 0, 0, 0, 0, 1, 0, 0, 2, 1, 1, 1, 1,
+                                            0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0]
+    def test_EqualRatesEqualPiQ2traits_matchesPhytools(self):
 
         tree = self.randTree100
         chars = self.simChars100states2 # Generated with a 2x2 Q matrix where alpha=beta=0.5
@@ -238,17 +259,18 @@ class estimateQMethods(unittest.TestCase):
         expectedParam = np.array([[-0.4549581,0.4549581],[0.4549581,-0.4549581]])
         expectedLogLikelihood = -27.26863
 
-        calculatedParam, calculatedLogLikelihood = discretetraits.fitMkER(tree, chars)
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="Equal", pi="Equal")
 
         try:
-            np.testing.assert_allclose(expectedParam, calculatedParam)
+            np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-4)
         except:
             self.fail("expectedParam != calculatedParam")
 
         self.assertTrue(np.isclose(expectedLogLikelihood,
                                    calculatedLogLikelihood))
 
-    def test_EqualRatesQ3traits_matchesPhytools(self):
+    def test_EqualRatesEqualPiQ3traits_matchesPhytools(self):
 
         tree = self.randTree100
         chars = self.simChars100states3
@@ -258,7 +280,8 @@ class estimateQMethods(unittest.TestCase):
                                   [0.278108,0.278108,-0.556216]])
         expectedLogLikelihood = -41.508675
 
-        calculatedParam, calculatedLogLikelihood = discretetraits.fitMkER(tree, chars)
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="Equal", pi="Equal")
 
         try:
             np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-5)
@@ -266,8 +289,28 @@ class estimateQMethods(unittest.TestCase):
             self.fail("expectedParam != calculatedParam")
         self.assertTrue(np.isclose(expectedLogLikelihood,
                                    calculatedLogLikelihood))
+    def test_SymRatesEqualPiQ2traits_matchesPhytools(self):
+        """
+        Note that this is the same as an equal-rates 2-trait Q matrix
+        """
 
-    def test_SymRatesQ3traits_matchesPhytools(self):
+        tree = self.randTree100
+        chars = self.simChars100states2 # Generated with a 2x2 Q matrix where alpha=beta=0.5
+
+        expectedParam = np.array([[-0.4549581,0.4549581],[0.4549581,-0.4549581]])
+        expectedLogLikelihood = -27.26863
+
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="Sym", pi="Equal")
+
+        try:
+            np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-5)
+        except AssertionError:
+            self.fail("expectedParam != calculatedParam")
+
+        self.assertTrue(np.isclose(expectedLogLikelihood, calculatedLogLikelihood))
+
+    def test_SymRatesEqualPiQ3traits_matchesPhytools(self):
 
         tree = self.randTree100
         chars = self.simChars100states3
@@ -277,7 +320,8 @@ class estimateQMethods(unittest.TestCase):
                         [0.168128,0.000000,-0.168128]])
         expectedLogLikelihood = -39.141458
 
-        calculatedParam, calculatedLogLikelihood = discretetraits.fitMkSym(tree, chars)
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="Sym", pi="Equal")
 
         try:
             np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-5)
@@ -286,7 +330,27 @@ class estimateQMethods(unittest.TestCase):
 
         self.assertTrue(np.isclose(expectedLogLikelihood, calculatedLogLikelihood))
 
-    def test_ARDQ3traits_matchesPhytools(self):
+    def test_ARDEqualPiQ2traits_matchesPhytools(self):
+
+        tree = self.randTree100
+        chars = self.simChars100states2
+
+        expectedParam = np.array([[-0.261398, 0.261398],
+                         [0.978787, -0.978787]])
+
+        expectedLogLikelihood = -25.813332
+
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="ARD", pi="Equal")
+
+        try: # Need high tolerance for this test
+            np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-3)
+        except AssertionError:
+            self.fail("expectedParam != calculatedParam")
+
+        self.assertTrue(np.isclose(expectedLogLikelihood, calculatedLogLikelihood))
+
+    def test_ARDEqualPiQ3traits_matchesPhytools(self):
 
         tree = self.randTree100Scale2
         chars = self.simChars100states3Scale2
@@ -297,7 +361,8 @@ class estimateQMethods(unittest.TestCase):
 
         expectedLogLikelihood = -32.697278
 
-        calculatedParam, calculatedLogLikelihood = discretetraits.fitMkARD(tree, chars)
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="ARD", pi="Equal")
 
         try: # Need high tolerance for this test
             np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-3)
@@ -306,6 +371,213 @@ class estimateQMethods(unittest.TestCase):
 
         self.assertTrue(np.isclose(expectedLogLikelihood, calculatedLogLikelihood))
 
+    def test_EqualRatesEquilibriumPiQ2_matchesPhytools(self):
+        """
+        The same as a flat pi
+        """
+        tree = self.randTree100
+        chars = self.simChars100states2
+
+        expectedParam = np.array([[-0.4549581,0.4549581],[0.4549581,-0.4549581]])
+        expectedLogLikelihood = -27.26863
+
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="Equal", pi="Equilibrium")
+
+        try: # Need high tolerance for this test
+            np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-3)
+        except AssertionError:
+            self.fail("expectedParam != calculatedParam")
+
+        self.assertTrue(np.isclose(expectedLogLikelihood, calculatedLogLikelihood))
+
+    def test_EqualRatesEquilibriumPiQ3_matchesPhytools(self):
+        """
+        The same as a flat pi
+        """
+        tree = self.randTree100
+        chars = self.simChars100states3
+
+        expectedParam = np.array([[-0.556216,0.278108,0.278108],
+                                  [0.278108,-0.556216,0.278108],
+                                  [0.278108,0.278108,-0.556216]])
+        expectedLogLikelihood = -41.508675
+
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="Equal", pi="Equilibrium")
+
+        try: # Need high tolerance for this test
+            np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-3)
+        except AssertionError:
+            self.fail("expectedParam != calculatedParam")
+
+        self.assertTrue(np.isclose(expectedLogLikelihood, calculatedLogLikelihood))
+
+    def test_SymRatesEquilibriumPiQ2_matchesPhytools(self):
+        """
+        The same as a flat pi
+        """
+        tree = self.randTree100
+        chars = self.simChars100states2
+
+        expectedParam = np.array([[-0.4549581,0.4549581],[0.4549581,-0.4549581]])
+        expectedLogLikelihood = -27.26863
+
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="Sym", pi="Equilibrium")
+
+        try: # Need high tolerance for this test
+            np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-3)
+        except AssertionError:
+            self.fail("expectedParam != calculatedParam")
+
+        self.assertTrue(np.isclose(expectedLogLikelihood, calculatedLogLikelihood))
+
+    def test_SymRatesEquilibriumPiQ3_matchesPhytools(self):
+        """
+        The same as a flat pi
+        """
+        tree = self.randTree100Scale2
+        chars = self.simChars100states3Scale2
+
+        expectedParam = np.array([[-0.220576,0.129755,0.090821],
+                                  [0.129755,-0.129755,0.000000],
+                                  [0.090821,0.000000,-0.090821]])
+        expectedLogLikelihood = -34.398614
+
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="Sym", pi="Equilibrium")
+
+        try: # Need high tolerance for this test
+            np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-3)
+        except AssertionError:
+            self.fail("expectedParam != calculatedParam")
+
+        self.assertTrue(np.isclose(expectedLogLikelihood, calculatedLogLikelihood))
+
+    def test_ARDQEquilibriumPiQ2_matchesPhytools(self):
+
+        tree = self.randTree100
+        chars = self.simChars100states2
+
+        expectedParam = np.array([[-0.275857, 0.275857],
+                                  [0.882763, -0.882763]])
+        expectedLogLikelihood = -25.671774
+
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="ARD", pi="Equilibrium")
+
+        try: # Need high tolerance for this test
+            np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-3)
+        except AssertionError:
+            self.fail("expectedParam != calculatedParam")
+
+        self.assertTrue(np.isclose(expectedLogLikelihood, calculatedLogLikelihood))
+
+    def test_ARDEquilibriumPiQ3_matchesPhytools(self):
+
+        tree = self.randTree100Scale2
+        chars = self.simChars100states3Scale2
+
+        expectedParam = np.array([[-0.305796,0.129642,0.176154],
+                                  [0.790583,-0.790583,0.000000],
+                                  [3.107009,0.000000,-3.107009]])
+        expectedLogLikelihood = -32.536296
+
+        calculatedParam, calculatedLogLikelihood = discrete.fitMk(tree,
+                                                   chars, Q="ARD", pi="Equilibrium")
+
+        try: # Need high tolerance for this test
+            np.testing.assert_allclose(expectedParam, calculatedParam, atol = 1e-3)
+        except AssertionError:
+            self.fail("expectedParam != calculatedParam")
+
+        self.assertTrue(np.isclose(expectedLogLikelihood, calculatedLogLikelihood))
+
+
+
+    def test_fitMk_fixedQ_returnsQandLogik(self):
+        tree = self.randTree100Scale2
+        chars = self.simChars100states3Scale2
+
+        Q = np.array([[-.2,.1,.1],[.1,-.2,.1],[.1,.1,-.2]], dtype = np.double)
+
+        calcq, calclik = discrete.fitMk(tree, chars, Q)
+
+        self.assertTrue(np.array_equal(Q,calcq) & np.isclose(calclik, -34.7215))
+    def test_fitMk_ARDQequilibriumpi_matchesPhytools(self):
+        tree = self.randTree100Scale2
+        chars = self.simChars100states3Scale2
+
+        calcq, calclik = discrete.fitMk(tree, chars, Q="ARD", pi="Equilibrium")
+
+    def test_fitMk_equalQ3traits_matchesPhytools(self):
+        pass
+
+
+    def test_qsd_ARDQ2_matchesphytools(self):
+        Q = np.array([[-.3,.1,.2],[.05,-.3,.25],[.05,.1,-.15]], dtype = np.double)
+
+        calculatedPi = discrete.qsd(Q)
+
+        expectedPi = np.array([0.1428571,0.2500000,0.6071429])
+
+        try: # Results will vary slightly from phytools (order of 1e-3)
+             # Possibly due to differences in optimization implementation?
+            np.testing.assert_allclose(expectedPi, calculatedPi, atol=1e-3)
+        except AssertionError:
+            self.fail("expectedPi != calculatedPi")
+
+    def test_qsd_ERQ3_returnsflatpi(self):
+        Q = np.array([[-.2,.2],[.1, -.1]], dtype = np.double)
+
+        calculatedPi = discrete.qsd(Q)
+
+        expectedPi = np.array([1.0/3.0, 2.0/3.0])
+
+        try:
+            np.testing.assert_allclose(expectedPi, calculatedPi)
+        except AssertionError:
+            self.fail("expectedPi != calculatedPi")
+
+    def test_qsd_symmetricQ3_returnsflatpi(self):
+        Q = np.array([[-.3,.1,.2],[.1,-.2,.1],[.2,.1,-.3]], dtype = np.double)
+
+        calculatedPi = discrete.qsd(Q)
+
+        expectedPi = np.array([1.0/3.0]*3)
+
+        try:
+            np.testing.assert_allclose(expectedPi, calculatedPi)
+        except AssertionError:
+            self.fail("expectedPi != calculatedPi")
+
+    def test_qsd_ARDQ3_matchesphytools(self):
+        Q = np.array([[-.3,.1,.2],[.05,-.3,.25],[.05,.1,-.15]], dtype = np.double)
+
+        calculatedPi = discrete.qsd(Q)
+
+        expectedPi = np.array([0.1428571,0.2500000,0.6071429])
+
+        try:
+            np.testing.assert_allclose(expectedPi, calculatedPi, atol=1e-5)
+        except AssertionError:
+            self.fail("expectedPi != calculatedPi")
+
+    def test_qsd_ARDQ4_matchesphytools(self):
+        Q = np.array([[-.6,.1,.2,.3],
+                      [.05,-.4,.25,.1],
+                      [.05,.1,-.15, 0],
+                      [.1, .1, .1, -.3]], dtype = np.double)
+
+        calculatedPi = discrete.qsd(Q)
+
+        expectedPi = np.array([0.08888889,0.200000,0.555555555,0.155555556])
+
+        try:
+            np.testing.assert_allclose(expectedPi, calculatedPi, atol=1e-5)
+        except AssertionError:
+            self.fail("expectedPi != calculatedPi")
     def test_fitMk_invalidQstring_raisesValueError(self):
         tree = self.randTree100Scale2
         chars = self.simChars100states3Scale2
@@ -313,7 +585,7 @@ class estimateQMethods(unittest.TestCase):
         Q = "This is not a valid Q"
 
         try:
-            discretetraits.fitMk(tree, chars, Q)
+            discrete.fitMk(tree, chars, Q)
             self.fail("Value error not raised")
         except ValueError, e:
             self.assertEquals("Q str must be one of: 'Equal', 'Sym', 'ARD'",
@@ -327,7 +599,7 @@ class estimateQMethods(unittest.TestCase):
         Q = np.ones([3,3])
 
         try:
-            discretetraits.fitMk(tree, chars, Q)
+            discrete.fitMk(tree, chars, Q)
             self.fail("Assertion error not raised")
         except AssertionError, e:
             self.assertEquals("rows of q must sum to zero", e.message)
@@ -337,20 +609,14 @@ class estimateQMethods(unittest.TestCase):
         chars = self.simChars100states3Scale2
 
         try:
-            discretetraits.fitMk(tree, chars, pi = "invalid pi")
+            discrete.fitMk(tree, chars, pi = "invalid pi")
             self.fail("Assertion error not raised")
         except AssertionError, e:
-            self.assertEquals("Pi must be one of: 'Equal', 'Fitzjohn'", e.message)
+            self.assertEquals("Pi must be one of: 'Equal', 'Fitzjohn', 'Equilibrium'", e.message)
 
-    def test_fitMk_fixedQ_returnsQandLogik(self):
-        tree = self.randTree100Scale2
-        chars = self.simChars100states3Scale2
 
-        Q = np.array([[-.2,.1,.1],[.1,-.2,.1],[.1,.1,-.2]], dtype = np.double)
 
-        calcq, calclik = discretetraits.fitMk(tree, chars, Q)
 
-        self.assertTrue(np.array_equal(Q,calcq) & np.isclose(calclik, -34.7215))
 
 if __name__ == "__main__":
     unittest.main()
