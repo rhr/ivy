@@ -20,9 +20,9 @@ from ivy.chars import discretetraits
 # Tree generated in R, history simulated in R using
 # the following Q matrix:
 
-trueQ = np.array([[-0.2, 0.4, 0.15],
-                  [0.05, -0.5, 0.25],
-                  [0.15, 0.1, -0.4]], dtype=np.double)
+trueQ = np.array([[-0.55, 0.4, 0.15],
+                  [0.05, -0.30, 0.25],
+                  [0.15, 0.1, -0.25]], dtype=np.double)
 
 
 tree = ivy.tree.read("../support/randtree100tipsscale5.newick")

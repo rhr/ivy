@@ -55,3 +55,6 @@ def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t,
 
     for i, blen in enumerate(t):
         dexpm_slice(q, blen, p, i)
+
+def cy_mk(np.ndarray[dtype=DTYPE_t, ndim=2] tree, int chars,
+          np.ndarray[dtype=DTYPE_t, ndim=2] q, str pi):
