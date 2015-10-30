@@ -163,7 +163,7 @@ class mkMethods(unittest.TestCase):
         L1r = (P10C * L0C + P11C * L1C) * (P10D * L0D + P11D * L1D)
 
         predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
-        calculatedLikelihood = discrete.cy_mk(tree, chars, Q)
+        calculatedLikelihood = discrete.mk(tree, chars, Q)
 
         self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
     def test_mkFlatroot_2tiptreeSymmetricQ2x2difblens_returnslikelihood(self):
@@ -183,7 +183,7 @@ class mkMethods(unittest.TestCase):
         node = tree
 
         predictedLikelihood = math.log(0.11279709097648889)
-        calculatedLikelihood = discrete.cy_mk(tree, charstates, Q)
+        calculatedLikelihood = discrete.mk(tree, charstates, Q)
 
         self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
 
@@ -193,7 +193,7 @@ class mkMethods(unittest.TestCase):
         Q = self.randQ
 
         phytoolslogLikelihood = -8.298437
-        calculatedLogLikelihood = discrete.cy_mk(tree, charstates, Q)
+        calculatedLogLikelihood = discrete.mk(tree, charstates, Q)
 
         self.assertTrue(np.isclose(phytoolslogLikelihood, calculatedLogLikelihood))
 
@@ -203,7 +203,7 @@ class mkMethods(unittest.TestCase):
         Q = self.randQ
 
         phytoolslogLikelihood = -6.223166
-        calculatedLogLikelihood = discrete.cy_mk(tree, charstates, Q)
+        calculatedLogLikelihood = discrete.mk(tree, charstates, Q)
 
 
 
@@ -558,6 +558,7 @@ class estimateQMethods(unittest.TestCase):
         calclik = calculated["Log-likelihood"]
 
         self.assertTrue(np.array_equal(Q,calcq) & np.isclose(calclik, -34.7215))
+
     def test_fitMk_ARDQequilibriumpi_matchesPhytools(self):
         tree = self.randTree100Scale2
         chars = self.simChars100states3Scale2
