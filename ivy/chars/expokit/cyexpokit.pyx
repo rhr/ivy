@@ -9,12 +9,12 @@ cdef extern:
 
 cdef dexpm_slice(np.ndarray q, double t, np.ndarray p, int i):
     """
-    Compute exp(q*t) for one branch on a tree and place results in pre-
+    Compute exp(q*t) for one branch on a tree and place result in pre-
     allocated array p
 
     Args:
-        q (np.array): Q matrix for the tree
-        t (np.array): Array of doubles indicating branch lengths
+        q (np.array): Q matrix
+        t (np.array): Double indicating branch length
         p (np.array): Pre-allocated array to store results
         i (int): Index of branch length and p-array
 
@@ -55,6 +55,21 @@ def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t,
 
     for i, blen in enumerate(t):
         dexpm_slice(q, blen, p, i)
+
+def dexpm_treeMulti_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=3] q,
+                     np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p,
+                     np.ndarray ind):
+    assert q.shape[1]==q.shape[2], 'qs must be square'
+    assert np.allclose(q.sum(1), 0, atol= 1e-6), 'rows of q must sum to zero'
+
+    assert (t > 0).all(), "All branch lengths must be greater than zero"
+
+    cdef int i
+    cdef double blen
+
+    for i, blen in enumerate(t):
+        dexpm_slice(q[ind[i]], blen, p, i)
+
 
 def cy_mk(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
           np.ndarray[dtype=DTYPE_t, ndim=3] p,
