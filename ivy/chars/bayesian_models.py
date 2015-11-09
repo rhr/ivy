@@ -140,11 +140,17 @@ chars = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-Qparams = pymc.Exponential("Qparams", beta=1.0)
+N=2
 
+Qparams_0 = pymc.Exponential("Qparams", beta=1.0)
+Qparams = np.empty(N, dtype=object)
+Qparams[0] = Qparams_0
+
+for i in range(1, N):
+    Qparams[i] = pymc.Exponential("Qparams_%i" %i, beta=1.0)
 
 @pymc.potential
 def lik(q = Qparams):
-    l = create_likelihood_function_mk(tree=tree, chars=chars, Qtype="ER",
+    l = discrete.create_likelihood_function_mk(tree=tree, chars=chars, Qtype="ARD",
                                   pi="Equal", min=False)
     return l(q)
