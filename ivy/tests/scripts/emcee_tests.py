@@ -21,4 +21,4 @@ chars = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-modobjects = create_mk_model(tree, chars, Qtype="ARD", pi="Equal")
+modelout = ivy.chars.bayesian_models.fit_mk_bayes(tree, chars, Qtype="ARD", pi="Equal")
