@@ -856,6 +856,8 @@ class estimateQMethods(unittest.TestCase):
         truevals = np.array([ 0.09226348,  0.49886642])
 
         try:
+            print truevals
+            print optim.x
             np.testing.assert_allclose(truevals, optim.x)
         except AssertionError:
             self.fail("expectedQs != calculatedQs")

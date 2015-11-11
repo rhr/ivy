@@ -9,3 +9,5 @@ pyparsing
 graph_tool
 # used in ivy/treebase.py and ivy/ubio.py
 lxml
+# used in ivy/vis/hardcopy.py 
+pypdf
