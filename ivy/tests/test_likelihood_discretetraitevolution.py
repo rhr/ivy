@@ -236,7 +236,7 @@ class mkMethods(unittest.TestCase):
 
         Qs = np.array([Q1,Q2])
 
-        inds = np.array([[0,1,2],[3,]])
+        inds = np.array([[1,2,3],[4,]])
 
         L0A = 1;L1A = 0;L0B = 0;L1B = 1;L0D = 0;L1D = 1
 
@@ -279,7 +279,7 @@ class mkMethods(unittest.TestCase):
         Q1 = np.array([[-0.1,0.1],[0.1,-0.1]], dtype=np.double)
         Q2 = np.array([[-0.2,0.2],[0.2,-0.2]], dtype=np.double)
         Qs = np.array([Q1,Q2])
-        inds = np.array([[0,1,2],[3,4,5]])
+        inds = np.array([[1,2,3],[4,5,6]])
         L0A = 1;L1A = 0;L0B = 0;L1B = 1;L0D = 0;L1D = 1;L0F = 1;L1F = 0
 
         P00A = 0.90936538

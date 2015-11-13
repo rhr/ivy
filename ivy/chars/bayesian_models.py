@@ -16,7 +16,6 @@ def create_mk_model(tree, chars, Qtype, pi):
     Creates Qparams and likelihood function
     """
     nchar = len(set(chars))
-
     if Qtype=="ER":
         N = 1
     elif Qtype=="Sym":
@@ -27,9 +26,11 @@ def create_mk_model(tree, chars, Qtype, pi):
         ValueError("Qtype must be one of: ER, Sym, ARD")
 
     # Setting a Dirichlet prior with Jeffrey's hyperprior of 1/2
-    theta = [1.0/2.0]*N
-    Qparams_init = pymc.Dirichlet("Qparams_init", theta)
-    Qparams_init_full = pymc.CompletedDirichlet("Qparams_init_full", Qparams_init)
+    if N != 1:
+        Qparams_init = pymc.Dirichlet("Qparams_init", theta)
+        Qparams_init_full = pymc.CompletedDirichlet("Qparams_init_full", Qparams_init)
+    else:
+        Qparams_init_full = [[1.0]]
 
     # Exponential scaling factor for Qparams
     scaling_factor = pymc.Exponential(name="scaling_factor", beta=1.0)
@@ -43,22 +44,14 @@ def create_mk_model(tree, chars, Qtype, pi):
             Qs[i] = q[0][i]*s
         return Qs
 
-
-    # Qparams_0 = pymc.Exponential(name="Qparams", beta=1.0)
-    # Qparams = np.empty(N, dtype=object)
-    # Qparams[0] = Qparams_0
-
-    # for i in range(1, N):
-    #     Qparams[i] = pymc.Exponential("Qparams_%i" %i, beta=1.0)
-
+    l = discrete.create_likelihood_function_mk(tree=tree, chars=chars, Qtype=Qtype,
+                                  pi="Equal", min=False)
     @pymc.potential
     def mklik(q = Qparams_scaled, name="mklik"):
-        l = discrete.create_likelihood_function_mk(tree=tree, chars=chars, Qtype=Qtype,
-                                      pi="Equal", min=False)
         return l(q)
     return locals()
 
-    
+
 def fit_mk_bayes(tree, chars, Qtype, pi, *kwargs):
     """
     Fit an mk model to a given tree and list of characters. Return
@@ -107,3 +100,180 @@ def fit_mk_bayes(tree, chars, Qtype, pi, *kwargs):
     mp.fit()
 
     return (mc, mp)
+
+def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
+    """
+    Create an mk model with multiple regimes to be sampled from with MCMC.
+
+    Regime number is fixed and the location of the regime shift is allowed
+    to change
+    """
+    # Preparations
+    nchar = len(set(chars))
+    if Qtype=="ER":
+        N = 1
+    elif Qtype=="Sym":
+        N = int(binom(nchar, 2))
+    elif Qtype=="ARD":
+        N = int((nchar ** 2 - nchar))
+    else:
+        ValueError("Qtype must be one of: ER, Sym, ARD")
+    # This model has 2 components: Q parameters and a switchpoint
+    # They are combined in a custom likelihood function
+
+    ###########################################################################
+    # Switchpoint:
+    ###########################################################################
+    # Modeling the movement of the regime shift(s) is the tricky part
+    # Regime shifts will only be allowed to happen at a node
+    # Regime shift: Uniform categorical distribution
+    valid_switches = [i.ni for i in tree if not (i.isleaf or i.isroot)]
+    # Uniform
+    switch_ind = pymc.DiscreteUniform("switch_ind",lower=0, upper=len(valid_switches)-1)
+    @pymc.deterministic(dtype=int)
+    def switch(name="switch",switch_ind=switch_ind):
+        return valid_switches[switch_ind]
+    ###########################################################################
+    # Qparams:
+    ###########################################################################
+    # Unscaled Q param: Dirichlet distribution
+    # Setting a Dirichlet prior with Jeffrey's hyperprior of 1/2
+    theta = [1.0/2.0]*N
+
+    # One set of Q-parameters per regime
+    allQparams_init = np.empty(nregime, dtype=object)
+    allQparams_init_full = np.empty(nregime, dtype=object)
+    allScaling_factors = np.empty(nregime, dtype=object)
+    for i in range(nregime):
+        if N != 1:
+            allQparams_init[i] = pymc.Dirichlet("allQparams_init"+str(i), theta)
+            allQparams_init_full[i] = pymc.CompletedDirichlet("allQparams_init_full"+str(i), Qparams_init[i])
+        else: # Dirichlet function does not like creating a distribution
+              # with only 1 state. Set it to 1 by hand
+            allQparams_init_full[i] = [[1.0]]
+        # Exponential scaling factor for Qparams
+        allScaling_factors[i] = pymc.Exponential(name="allScaling_factors"+str(i), beta=1.0)
+        # Scaled Qparams; we would not expect them to necessarily add
+        # to 1 as would be the case in a Dirichlet distribution
+    @pymc.deterministic(plot=False)
+    def Qparams_scaled(q=allQparams_init_full, s=allScaling_factors):
+        Qs = np.empty([N, nregime])
+        for n in range(N):
+            for i in range(nregime):
+                Qs[n][i] = q[i][0][n]*s[i]
+        return Qs
+    ###########################################################################
+    # Likelihood
+    ###########################################################################
+    # The likelihood function
+
+    # Pre-allocating arrays
+    qarray = np.zeros([N,nregime])
+    locsarray = np.empty([2], dtype=object)
+
+    print "generating likelihood function"
+    l = discrete.create_likelihood_function_multimk_b(tree=tree, chars=chars,
+        Qtype=Qtype,
+        pi="Equal", min=False, nregime=2)
+
+    @pymc.potential
+    def multi_mklik(q = Qparams_scaled, switch=switch, name="multi_mklik"):
+
+        locs = discrete.locs_from_switchpoint(tree,tree[int(switch)],locsarray)
+
+        # l = discrete.create_likelihood_function_multimk(tree=tree, chars=chars,
+        #     Qtype=Qtype, locs = locs,
+        #     pi="Equal", min=False)
+        np.copyto(qarray, q)
+        return l(qarray[0], locs)
+    return locals()
+
+
+def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
+    """
+    Create an mk model with multiple regimes to be sampled from with MCMC.
+
+    Allows multiple switches between regimes
+
+    Regime number is fixed and the location of the regime shift is allowed
+    to change
+    """
+    # Preparations
+    nchar = len(set(chars))
+    if Qtype=="ER":
+        N = 1
+    elif Qtype=="Sym":
+        N = int(binom(nchar, 2))
+    elif Qtype=="ARD":
+        N = int((nchar ** 2 - nchar))
+    else:
+        ValueError("Qtype must be one of: ER, Sym, ARD")
+    # This model has 2 components: Q parameters and a switchpoint
+    # They are combined in a custom likelihood function
+
+    ###########################################################################
+    # Regime locations
+    ###########################################################################
+    # Modeling the movement of the regime shift(s) is the tricky part
+    # Regime shifts will only be allowed to happen at a node
+    # Regime shift: Uniform categorical distribution
+    valid_switches = [i.ni for i in tree if not (i.isleaf or i.isroot)]
+    # Uniform
+    switch_ind = pymc.DiscreteUniform("switch_ind",lower=0, upper=len(valid_switches)-1)
+    @pymc.deterministic(dtype=int)
+    def switch(name="switch",switch_ind=switch_ind):
+        return valid_switches[switch_ind]
+    ###########################################################################
+    # Qparams:
+    ###########################################################################
+    # Unscaled Q param: Dirichlet distribution
+    # Setting a Dirichlet prior with Jeffrey's hyperprior of 1/2
+    theta = [1.0/2.0]*N
+
+    # One set of Q-parameters per regime
+    allQparams_init = np.empty(nregime, dtype=object)
+    allQparams_init_full = np.empty(nregime, dtype=object)
+    allScaling_factors = np.empty(nregime, dtype=object)
+    for i in range(nregime):
+        if N != 1:
+            allQparams_init[i] = pymc.Dirichlet("allQparams_init"+str(i), theta)
+            allQparams_init_full[i] = pymc.CompletedDirichlet("allQparams_init_full"+str(i), Qparams_init[i])
+        else: # Dirichlet function does not like creating a distribution
+              # with only 1 state. Set it to 1 by hand
+            allQparams_init_full[i] = [[1.0]]
+        # Exponential scaling factor for Qparams
+        allScaling_factors[i] = pymc.Exponential(name="allScaling_factors"+str(i), beta=1.0)
+        # Scaled Qparams; we would not expect them to necessarily add
+        # to 1 as would be the case in a Dirichlet distribution
+    @pymc.deterministic(plot=False)
+    def Qparams_scaled(q=allQparams_init_full, s=allScaling_factors):
+        Qs = np.empty([N, nregime])
+        for n in range(N):
+            for i in range(nregime):
+                Qs[n][i] = q[i][0][n]*s[i]
+        return Qs
+    ###########################################################################
+    # Likelihood
+    ###########################################################################
+    # The likelihood function
+
+    # Pre-allocating arrays
+    qarray = np.zeros([N,nregime])
+    locsarray = np.empty([2], dtype=object)
+
+    print "generating likelihood function"
+    l = discrete.create_likelihood_function_multimk_b(tree=tree, chars=chars,
+        Qtype=Qtype,
+        pi="Equal", min=False, nregime=2)
+
+    @pymc.potential
+    def multi_mklik(q = Qparams_scaled, switch=switch, name="multi_mklik"):
+
+        locs = discrete.locs_from_switchpoint(tree,tree[int(switch)],locsarray)
+
+        # l = discrete.create_likelihood_function_multimk(tree=tree, chars=chars,
+        #     Qtype=Qtype, locs = locs,
+        #     pi="Equal", min=False)
+        np.copyto(qarray, q)
+        return l(qarray[0], locs)
+    return locals()
