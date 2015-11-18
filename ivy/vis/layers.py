@@ -8,7 +8,7 @@ from pprint import pprint
 from ivy import tree, bipart
 from ivy.layout import cartesian
 from ivy.storage import Storage
-from ivy import pyperclip as clipboard
+import pyperclip as clipboard
 #from ..nodecache import NodeCache
 import matplotlib, numpy
 import matplotlib.pyplot as pyplot
@@ -25,7 +25,7 @@ from matplotlib.colorbar import Colorbar
 from matplotlib.collections import RegularPolyCollection, LineCollection, \
      PatchCollection, CircleCollection
 from matplotlib.lines import Line2D
-from matplotlib.cm import coolwarm
+from matplotlib.cm import coolwarm, afmhot
 from matplotlib.cm import RdYlBu_r as RdYlBu
 try:
     from matplotlib.offsetbox import OffsetImage, AnnotationBbox, DrawingArea
@@ -385,11 +385,12 @@ def add_squares(treeplot, nodes, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
         offsets=points, facecolors=colors, transOffset=trans,
         edgecolors='none', alpha=alpha, zorder=1
         )
+    col.set_visible(vis)
 
     treeplot.add_collection(col)
     treeplot.figure.canvas.draw_idle()
 
-def add_circles(treeplot, nodes, colors="g", size=15, xoff=0, yoff=0):
+def add_circles(treeplot, nodes, colors="g", size=15, xoff=0, yoff=0, vis=True):
     """
     Draw circles on plot
 
@@ -411,6 +412,7 @@ def add_circles(treeplot, nodes, colors="g", size=15, xoff=0, yoff=0):
         offsets=points, facecolors=colors, transOffset=trans,
         edgecolors='none', zorder=1
         )
+    col.set_visible(vis)
 
     treeplot.add_collection(col)
     treeplot.figure.canvas.draw_idle()
@@ -623,3 +625,27 @@ def colorbar_legend(ax, values, cmap, vis=True):
 
     ax.text(x[0]+x_range*.02, y[0], minlab, verticalalignment="bottom", visible=vis)
     ax.text(x[0]+x_range*.02, y[1], maxlab, verticalalignment="top", visible=vis)
+
+def add_node_heatmap(treeplot, nodelist, vis=True):
+    """
+    Plot circles on nodes with colors indicating how frequently each node
+    appears in nodelist. For use with plotting potential regime
+    shift locations
+
+    Args:
+        nodelist (list): list of node objects. Repeats allowed (and expected)
+    """
+    nodeset = list(set(nodelist))
+    n = len(nodelist)
+
+    # Don't plot any values that appear so infrequently as to be less than
+    # what the minimum color would be
+    cutoff = round(n*(1.0/255))
+
+    nodeset = [x for x in nodeset if nodelist.count(x) >= cutoff]
+
+    cols = [ afmhot(float(i)/n) for i in [nodelist.count(x) for x in nodeset] ]
+
+
+
+    add_circles(treeplot, nodes=nodeset, colors=cols, size=6, vis=vis)

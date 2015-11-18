@@ -29,13 +29,11 @@ from ivy.interactive import *
 #
 #
 # switch_node.add_child(fast_tree)
-#
 # mr_tree["f99"].rootpath_length()
 #
 #
 # # multi-regime tree
-mr_tree = ivy.tree.read("/home/cziegler/src/christie-master/ivy/ivy/tests/support/Mk_two_regime_tree.newick")
-
+mr_tree = ivy.tree.read("support/Mk_two_regime_tree.newick")
 
 
 
@@ -76,7 +74,7 @@ m = bayesian_models.create_multi_mk_model(mr_tree, mr_chars, Qtype="ER", pi="Equ
 
 
 mc = pymc.MCMC(m)
-mc.sample(5000, burn=200)
+mc.sample(2000, burn=200)
 
 
 
@@ -84,9 +82,12 @@ mc.sample(5000, burn=200)
 out = {"Qparams":mc.trace("Qparams_scaled")[:],
        "switch":mc.trace("switch")[:]}
 
-with open("/home/cziegler/src/christie-master/ivy/ivy/tests/scripts/multiregime_test.pickle",
-          "wb") as handle:
-    pickle.dump(out, handle)
+switchids = [ int(i) for i in out["switch"] ]
+switchnodes = [ mr_tree[i] for i in switchids ]
+#
+# with open("/home/cziegler/src/christie-master/ivy/ivy/tests/scripts/multiregime_test.pickle",
+#           "wb") as handle:
+#     pickle.dump(out, handle)
 
 
 Q1 = [ i[0][0] for i in out["Qparams"] ] # fast
@@ -101,6 +102,14 @@ np.percentile(Q2, 50)
 
 # Estimated switchpoint
 scipy.stats.mode(out["switch"])[0]
+
+
+fig = treefig(mr_tree)
+fig.toggle_branchlabels()
+fig.tip_chars(mr_chars, store="tips")
+fig.add_layer(layers.add_node_heatmap, switchnodes, store="switch")
+
+
 
 # Comparing to an otherwise identical single-regime model
 single_regime = create_mk_model(mr_tree, mr_chars, Qtype="ER",
