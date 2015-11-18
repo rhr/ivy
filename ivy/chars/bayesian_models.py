@@ -214,15 +214,65 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
     ###########################################################################
     # Regime locations
     ###########################################################################
-    # Modeling the movement of the regime shift(s) is the tricky part
-    # Regime shifts will only be allowed to happen at a node
-    # Regime shift: Uniform categorical distribution
-    valid_switches = [i.ni for i in tree if not (i.isleaf or i.isroot)]
-    # Uniform
-    switch_ind = pymc.DiscreteUniform("switch_ind",lower=0, upper=len(valid_switches)-1)
+
+    # Sampling without replacement from a vector into N bins, where
+    # N is the number of regimes
+    def split_into_bins(nbin, vector):
+        """
+        Randomly split vector into nbin number of bins, each of random size
+        """
+        permutation = list(np.random.permutation(vector))
+
+        splits = sorted(np.random.choice(range(1,len(vector)), nbin-1, replace=False))
+
+        bins = [[]]*nbin
+
+        start = 0
+        end = splits[0]
+
+        for i in range(nbin):
+            bins[i] = permutation[start:end]
+            start = end
+            try:
+                end = splits[i+1]
+            except IndexError:
+                end = len(vector)
+
+        return bins
+
+    @pymc.stochastic(dtype=object)
+    def regimeIndices(value = np.array([[1],range(2,(len(tree.descendants())+1))], dtype=object), nbin=nregime, vector=range(1,len(tree.descendants())+1)):
+        def logp(nbin, vector, value):
+            return np.log(1.0/len(tree.descendants()))
+        def random(nbin, vector):
+            return np.array(split_into_bins(nbin, vector))
+
+    # Counting the number of steps involved in a regime
+    inds = np.zeros(len(tree.descendants()))
+    def get_indices(tree, locs, inds=inds):
+        for i,n in enumerate(tree.descendants()):
+            inds[i] =[ j for j,l in enumerate(locs) if n.ni in l ][0]
+        return inds
+    def nshifts(node, inds, n=0):
+        if not node.children:
+            return n
+        elif node.isroot:
+            n = nshifts(node.children[0], inds) + nshifts(node.children[1], inds)
+            return n
+        else:
+            st = inds[node.ni-1]
+            for i in node.children:
+                if inds[i.ni-1] != st:
+                    n += 1
+                    n = nshifts(i, inds, n)
+                else:
+                    n = nshifts(i,inds,n)
+            return n
     @pymc.deterministic(dtype=int)
-    def switch(name="switch",switch_ind=switch_ind):
-        return valid_switches[switch_ind]
+        def nswitches(regimeIndices, tree):
+            inds = get_indices(tree, regimeIndices, inds=inds)
+            return nshifts(tree, inds)
+
     ###########################################################################
     # Qparams:
     ###########################################################################
@@ -259,17 +309,12 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
 
     # Pre-allocating arrays
     qarray = np.zeros([N,nregime])
-    locsarray = np.empty([2], dtype=object)
-
-    print "generating likelihood function"
     l = discrete.create_likelihood_function_multimk_b(tree=tree, chars=chars,
         Qtype=Qtype,
         pi="Equal", min=False, nregime=2)
 
     @pymc.potential
-    def multi_mklik(q = Qparams_scaled, switch=switch, name="multi_mklik"):
-
-        locs = discrete.locs_from_switchpoint(tree,tree[int(switch)],locsarray)
+    def multi_mklik(q = Qparams_scaled, locs=regimeIndices, name="multi_mklik"):
 
         # l = discrete.create_likelihood_function_multimk(tree=tree, chars=chars,
         #     Qtype=Qtype, locs = locs,
@@ -277,3 +322,34 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
         np.copyto(qarray, q)
         return l(qarray[0], locs)
     return locals()
+
+
+def nshifts(node, inds, n=0):
+    if not node.children:
+        return n
+    elif node.isroot:
+        n = nshifts(node.children[0], inds) + nshifts(node.children[1], inds)
+        return n
+    else:
+        st = inds[node.ni-1]
+        for i in node.children:
+            if inds[i.ni-1] != st:
+                n += 1
+                n = nshifts(i, inds, n)
+            else:
+                n = nshifts(i,inds,n)
+        return n
+
+# def get_indices(list_of_lists):
+#     indices = [0] * sum(map(len, list_of_lists))
+#
+#     for listno, alist in enumerate(list_of_lists):
+#             for n in alist:
+#                 indices[n-1] = listno
+#     return indices
+
+inds = np.zeros(len(tree.descendants()))
+def get_indices(tree, locs, inds=inds):
+    for i,n in enumerate(tree.descendants()):
+        inds[i] =[ j for j,l in enumerate(locs) if n.ni in l ][0]
+    return inds

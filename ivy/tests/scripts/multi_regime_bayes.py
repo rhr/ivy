@@ -148,13 +148,20 @@ print singleregime_likelihood
 
 lr = -2*singleregime_likelihood + 2*multiregime_likelihood
 
-
-
-
-
-
-
-
-
 # We want to test what happens if this model is given a single-regime
 # tree and character set. Does it incorrectly give evidence for two regimes?
+
+
+
+
+
+
+
+
+
+
+
+# mk model 2
+m2 = create_multi_mk_model_2(mr_tree, mr_chars, Qtype="ER", pi="Equal", nregime=2)
+mc2 = pymc.MCMC(m2)
+mc2.sample(1000)
