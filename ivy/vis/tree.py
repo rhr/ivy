@@ -8,7 +8,7 @@ from pprint import pprint
 from .. import tree, bipart
 from ..layout import cartesian
 from ..storage import Storage
-import pyperclip as clipboard
+from ivy import pyperclip as clipboard
 #from ..nodecache import NodeCache
 import matplotlib, numpy
 import matplotlib.pyplot as pyplot

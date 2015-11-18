@@ -146,13 +146,13 @@ elif os.name == 'mac' or platform.system() == 'Darwin':
     getcb = macGetClipboard
     setcb = macSetClipboard
 elif os.name == 'posix' or platform.system() == 'Linux':
-    xclipExists = call(['which', 'xclip'], 
+    xclipExists = call(['which', 'xclip'],
                 stdout=PIPE, stderr=PIPE) == 0
     if xclipExists:
         getcb = xclipGetClipboard
         setcb = xclipSetClipboard
     else:
-        xselExists = call(['which', 'xsel'], 
+        xselExists = call(['which', 'xsel'],
                 stdout=PIPE, stderr=PIPE) == 0
         if xselExists:
             getcb = xselGetClipboard

@@ -1,4 +1,5 @@
 # Goal: find the MAP estimate for Q for a one-rate, two-state mk model using emcee
+from ivy import vis
 import ivy
 import numpy as np
 import math
@@ -12,6 +13,7 @@ from ivy.chars import bayesian_models
 from matplotlib import pyplot as plt
 import pymc
 from ivy.interactive import *
+from ivy.vis import layers
 
 
 # slow_tree = ivy.tree.read("/home/cziegler/src/christie-master/ivy/ivy/tests/support/Mk_slow_regime_tree.newick")
@@ -72,6 +74,8 @@ l = discrete.mk_multi_regime(mr_tree, mr_chars, trueQs, trueLocs, pi="Equal")
 
 m = bayesian_models.create_multi_mk_model(mr_tree, mr_chars, Qtype="ER", pi="Equal", nregime=2)
 
+sr_m = bayesian_models.create_multi_mk_model(mr_tree, sr_chars, Qtype="ER", pi="Equal", nregime=2)
+
 
 mc = pymc.MCMC(m)
 mc.sample(2000, burn=200)
@@ -112,7 +116,7 @@ fig.add_layer(layers.add_node_heatmap, switchnodes, store="switch")
 
 
 # Comparing to an otherwise identical single-regime model
-single_regime = create_mk_model(mr_tree, mr_chars, Qtype="ER",
+single_regime = bayesian_models.create_mk_model(mr_tree, mr_chars, Qtype="ER",
                                                 pi="Equal")
 single_regime_mc = pymc.MCMC(single_regime)
 single_regime_mc.sample(1000)
@@ -148,8 +152,8 @@ singleregime_likelihood = discrete.mk(mr_tree, mr_chars, singleregime_Q,
                                       pi="Equal")
 
 
-print multiregime_likelihood
-print singleregime_likelihood
+multiregime_likelihood
+singleregime_likelihood
 
 
 # Likelihood ratio test: we can do this because the 1-regime model
@@ -157,20 +161,80 @@ print singleregime_likelihood
 
 lr = -2*singleregime_likelihood + 2*multiregime_likelihood
 
+# pchisq(19.4675329194382, 1, lower.tail=FALSE)
+# 1.023242e-05
+# Strong support for two regimes
+
+
+
 # We want to test what happens if this model is given a single-regime
 # tree and character set. Does it incorrectly give evidence for two regimes?
 
 
+sr_chars = [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+            0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1]
 
 
 
 
 
 
+sr_m = bayesian_models.create_multi_mk_model(mr_tree, sr_chars, Qtype="ER", pi="Equal", nregime=2)
 
 
 
-# mk model 2
-m2 = create_multi_mk_model_2(mr_tree, mr_chars, Qtype="ER", pi="Equal", nregime=2)
-mc2 = pymc.MCMC(m2)
-mc2.sample(1000)
+
+
+
+sr_mc = pymc.MCMC(sr_m)
+sr_mc.sample(2000, burn=200)
+sr_switchnodes = list(sr_mc.trace("switch")[:])
+sr_switch = scipy.stats.mode(sr_mc.trace("switch")[:])[0]
+
+sr_qs = sr_mc.trace("Qparams_scaled")[:]
+
+sr_q1s = ([i[0][0] for i in sr_qs])
+sr_q2s = ([i[0][1] for i in sr_qs])
+
+sr_q1 = np.median(sr_q1s)
+sr_q2 = np.median(sr_q2s)
+
+sr_switchnodes = [mr_tree[int(i)] for i in sr_switchnodes]
+
+sr_fig = treefig(mr_tree)
+sr_fig.toggle_branchlabels()
+sr_fig.tip_chars(sr_chars, store="tips", colors=["black", "red"])
+sr_fig.add_layer(layers.add_node_heatmap, sr_switchnodes, store="switch")
+
+
+# Now to fit a single-regime model
+
+sr_sm = bayesian_models.create_mk_model(mr_tree, sr_chars, Qtype="ER", pi="Equal")
+sr_smc = pymc.MCMC(sr_sm)
+sr_smc.sample(2000, burn=200)
+
+srsm_switches = sr_smc
+
+lr = -2*singleregime_likelihood + 2*multiregime_likelihood
+
+
+#
+# # mk model 2
+#
+# fig = treefig(mr_tree)
+# fig.toggle_branchlabels()
+# fig.tip_chars(mr_chars, store="tips")
+# fig.add_layer(layers.add_node_heatmap, switchnodes, store="switch")

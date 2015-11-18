@@ -237,22 +237,7 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
                 end = splits[i+1]
             except IndexError:
                 end = len(vector)
-
         return bins
-
-    @pymc.stochastic(dtype=object)
-    def regimeIndices(value = np.array([[1],range(2,(len(tree.descendants())+1))], dtype=object), nbin=nregime, vector=range(1,len(tree.descendants())+1)):
-        def logp(nbin, vector, value):
-            return np.log(1.0/len(tree.descendants()))
-        def random(nbin, vector):
-            return np.array(split_into_bins(nbin, vector))
-
-    # Counting the number of steps involved in a regime
-    inds = np.zeros(len(tree.descendants()))
-    def get_indices(tree, locs, inds=inds):
-        for i,n in enumerate(tree.descendants()):
-            inds[i] =[ j for j,l in enumerate(locs) if n.ni in l ][0]
-        return inds
     def nshifts(node, inds, n=0):
         if not node.children:
             return n
@@ -268,10 +253,21 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
                 else:
                     n = nshifts(i,inds,n)
             return n
-    @pymc.deterministic(dtype=int)
-        def nswitches(regimeIndices, tree):
-            inds = get_indices(tree, regimeIndices, inds=inds)
-            return nshifts(tree, inds)
+    # Counting the number of steps involved in a regime
+    def get_indices(tree, locs, inds=inds):
+        for i,n in enumerate(tree.descendants()):
+            inds[i] =[ j for j,l in enumerate(locs) if n.ni in l ][0]
+        return inds
+
+    @pymc.stochastic(dtype=object)
+    def regimeIndices(value = np.array([[1],range(2,(len(tree.descendants())+1))], dtype=object), nbin=nregime, vector=range(1,len(tree.descendants())+1), tree=tree):
+        def logp(nbin, vector, value):
+            inds = get_indices(tree, value)
+            ns = nshifts(node.children[0], inds) + nshifts(node.children[1], inds)
+            return pymc.exponential_like(ns, beta=1) # WHAT SHOULD THE PRIOR ON THE NUMBER OF SHIFTS BE?
+        def random(nbin, vector):
+            return split_into_bins(nbin, vector)
+
 
     ###########################################################################
     # Qparams:
@@ -347,9 +343,3 @@ def nshifts(node, inds, n=0):
 #             for n in alist:
 #                 indices[n-1] = listno
 #     return indices
-
-inds = np.zeros(len(tree.descendants()))
-def get_indices(tree, locs, inds=inds):
-    for i,n in enumerate(tree.descendants()):
-        inds[i] =[ j for j,l in enumerate(locs) if n.ni in l ][0]
-    return inds

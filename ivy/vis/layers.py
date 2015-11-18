@@ -58,7 +58,7 @@ def xy(plot, p):
     elif isinstance(p, (list, tuple)):
         p = [ xy(plot, x) for x in p ]
     else:
-        pass
+        raise ValueError("Could not coerce %s to node" % [p])
     return p
 
 def add_label(treeplot, labeltype, vis=True, leaf_offset=4,
