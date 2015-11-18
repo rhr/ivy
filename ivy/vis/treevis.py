@@ -10,7 +10,7 @@ from pprint import pprint
 from ivy import tree, bipart
 from ivy.layout import cartesian
 from ivy.storage import Storage
-from ivy import pyperclip as clipboard
+import pyperclip as clipboard
 #from ..nodecache import NodeCache
 import matplotlib, numpy
 import matplotlib.pyplot as pyplot
@@ -508,6 +508,27 @@ class TreeFigure(object):
               of the MRCA of ``nodes``
         """
         self.add_layer(layers.add_cbar, nodes, *args, **kwargs)
+    def tip_chars(self, chars, nodes=None, *args, **kwargs):
+        """
+        Convenience function for drawing color-coded circles at tips indicating
+        character states.
+
+        Args:
+            chars (list): Character states in the form of [0,1, etc.]. should
+              be in the same order as nodes.
+            nodes (list): List of nodes or node labels. Optional, defaults
+              to all tip labels in preorder sequence
+            colors (list): List of strs of the same length as the number
+              of unique characters. Optional, defaults to tango colorscheme
+
+        """
+        if nodes is None:
+            nodes = self.root.leaves()
+        cols = kwargs.pop("colors", None)
+        if not cols:
+            cols = [ _tango.next() for char in set(chars) ]
+        col_list = [ cols[i] for i in chars ]
+        self.add_layer(layers.add_circles, nodes, colors=col_list, size=6, *args, **kwargs)
 
 class Tree(Axes):
     """
