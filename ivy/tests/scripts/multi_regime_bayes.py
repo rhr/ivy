@@ -78,13 +78,14 @@ sr_m = bayesian_models.create_multi_mk_model(mr_tree, sr_chars, Qtype="ER", pi="
 
 
 mc = pymc.MCMC(m)
-mc.sample(2000, burn=200)
+mc.sample(20000, burn=0, thin=10)
 
 
 
 
 out = {"Qparams":mc.trace("Qparams_scaled")[:],
        "switch":mc.trace("switch")[:]}
+
 
 switchids = [ int(i) for i in out["switch"] ]
 switchnodes = [ mr_tree[i] for i in switchids ]
@@ -96,6 +97,13 @@ switchnodes = [ mr_tree[i] for i in switchids ]
 
 Q1 = [ i[0][0] for i in out["Qparams"] ] # fast
 Q2 = [ i[0][1] for i in out["Qparams"] ] # slow
+
+
+q1p = plt.plot(Q1)
+plt.figure()
+q2p = plt.plot(Q2)
+plt.figure()
+swp = plt.plot(out["switch"])
 
 # Estimated Q values
 

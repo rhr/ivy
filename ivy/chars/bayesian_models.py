@@ -27,6 +27,7 @@ def create_mk_model(tree, chars, Qtype, pi):
 
     # Setting a Dirichlet prior with Jeffrey's hyperprior of 1/2
     if N != 1:
+        theta = [1.0/2.0]*N
         Qparams_init = pymc.Dirichlet("Qparams_init", theta)
         Qparams_init_full = pymc.CompletedDirichlet("Qparams_init_full", Qparams_init)
     else:
@@ -38,7 +39,7 @@ def create_mk_model(tree, chars, Qtype, pi):
     # Scaled Qparams; we would not expect them to necessarily add
     # to 1 as would be the case in a Dirichlet distribution
     @pymc.deterministic(plot=False)
-    def Qparams_scaled(q=Qparams_init_full, s=scaling_factor):
+    def Qparams(q=Qparams_init_full, s=scaling_factor):
         Qs = np.empty(N)
         for i in range(N):
             Qs[i] = q[0][i]*s
@@ -47,7 +48,7 @@ def create_mk_model(tree, chars, Qtype, pi):
     l = discrete.create_likelihood_function_mk(tree=tree, chars=chars, Qtype=Qtype,
                                   pi="Equal", min=False)
     @pymc.potential
-    def mklik(q = Qparams_scaled, name="mklik"):
+    def mklik(q = Qparams, name="mklik"):
         return l(q)
     return locals()
 

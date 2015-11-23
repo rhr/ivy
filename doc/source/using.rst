@@ -106,7 +106,7 @@ to create a deep copy.
 Viewing
 -------
 
-There are a number of ways you can view trees in Ivy. For a simple display
+There are a number of ways you can view trees in ``ivy``. For a simple display
 without needing to create a plot, ``ivy`` can create ascii trees that can be
 printed to the console.
 
@@ -123,9 +123,9 @@ printed to the console.
         :
         ------------------------------------+ Galago
 
-For a more detailed and interactive tree, Ivy can create a plot using
-``Matplotlib``. More detail about visualization using Matplotlib will follow
-later in the guide.
+For a more detailed and interactive tree, ``ivy`` can create a plot using
+``matplotlib``. More detail about visualization using ``matplotlib`` are in the
+"Visualization with matplotlib" section.
 
 .. sourcecode:: ipython
 
@@ -314,10 +314,6 @@ We can test if a group of leaves is monophyletic
     Out[*]: True
     In [*]: r.ismono(r["Homo"], r["Pongo"], r["Galago"])
     Out[*]: False
-
-.. warning::
-    `ismono` does not return an error if an internal node is given to it,
-    but it does produce undesired results.
 
 Modifying
 ---------
@@ -889,7 +885,7 @@ The following analysis is done using the whales dataset provided with BAMMtools.
 
 .. sourcecode:: ipython
 
-    In [*]  from ivy.r_funcs import phylorate
+    In [*]:  from ivy.r_funcs import phylorate
     In [*]: e = "whaleEvents.csv" # Event data created with BAMM
     In [*]: treefile = "whales.tre"
     In [*]: rates = phylorate(e, treefile, "netdiv")
@@ -899,13 +895,169 @@ in ``ivy.vis.layers``
 
 .. sourcecode:: ipython
 
-    In [*] from ivy.vis import layers
-    In [*] r = readtree(treefile)
-    In [*] fig = treefig(r)
-    In [*] fig.add_layer(layers.add_phylorate, rates[0], rates[1], ov=False,
+    In [*]: from ivy.vis import layers
+    In [*]: r = readtree(treefile)
+    In [*]: fig = treefig(r)
+    In [*]: fig.add_layer(layers.add_phylorate, rates[0], rates[1], ov=False,
            store="netdiv")
 
 
 
 .. image:: _images/phylorate_plot.png
     :width: 700
+
+Mk models
+---------
+``ivy`` has functions to fit an Mk model given a tree and a list of character
+states. There are functions to fit the Mk model using both maximum likelihood
+and Bayesian MCMC methods.
+
+To fit an Mk model, you need a tree and a list of character states. This list
+should only contain integers 0,1,2,...,N, with each integer corresponding to
+a state. The list of characters should be provided in preorder sequence.
+
+Let's read in some example data: plant habit in tobacco. We can load in a
+csv containing binomials and character states using the ``loadChars`` function.
+This gives us a dictionary mapping binomials to character states.
+
+.. sourcecode:: ipython
+
+    In [*]: tree = ivy.tree.read("examples/nicotiana.newick")
+    In [*]: chars = ivy.tree.loadChars("examples/nicotianaHabit.csv")
+
+Let's get our data into the correct format: we need to convert `chars` into
+a list of 0's and 1's matching the character states in preorder sequence
+
+.. sourcecode:: ipython
+
+    In [*]: charsPreorder = [ chars[n.label] for n in tree.leaves() ]
+    In [*]: charList = map(lambda x: 0 if x=="Herb" else 1, charsPreorder)
+
+We can take a look at how the states are distributed on the tree using the
+``tip_chars`` method on a tree figure object. In this case "Herb" will be
+represented by green and "Shrub" will be represented by brown.
+
+.. sourcecode:: ipython
+
+    In [*]: fig = ivy.vis.treevis.TreeFigure(tree)
+    In [*]: fig.tip_chars(charList, colors=["green", "brown"])
+
+.. image:: _images/nicotiana_1.png
+    :width: 700
+
+Now we are ready to fit the model. We will go over the maximum likelihood
+approach first.
+
+Maximum Likelihood
+~~~~~~~~~~~~~~~~~~
+Perhaps the simplest way to fit an Mk model is with the maximum likelihood
+approach. We will make use of the ``optimize`` module of ``scipy`` to find
+the maximum likelihood values of this model.
+
+First, we must consider what type of model to fit. `ivy` allows you to
+specify what kind of instantaneous rate matrix (Q matrix) to use.
+The options are:
+
+* **"ER"**: An equal-rates Q matrix has only one parameter: the forward and
+  backswards rates for all characters are all equal.
+* **"Sym"**: A symmetrical rates Q matrix forces forward and reverse rates
+  to be equal, but allows rates for different characters to differ. It has
+  a number of parameters equal to (N^2 - N)/2, where N is the number of
+  characters.
+* **"ARD"**: An all-rates different Q matrix allows all rates to vary freely.
+  It has a number of parameters equal to (N^2 - N).
+
+In this case, we will fit an ARD Q matrix.
+
+We also need to specify how the prior at the root is handled. There are a
+few ways to handle weighting the likelihood at the root:
+
+* **"Equal"**: When the likelihood at the root is set to equal, no weighting
+  is given to the root being in any particular state. All likelihoods
+  for all states are given equal weighting
+* **"Equilibrium"**: This setting causes the likelihoods at the root to be
+  weighted by the stationary distribution of the Q matrix, as is described
+  in Maddison et al 2007.
+* **"Fitzjohn"**: This setting causes the likelihoods at the root to be
+  weighted by how well each root state would explain the data at the tips,
+  as is described in Fitzjohn 2009.
+
+In this case we will use the "Fitzjohn" method.
+
+We can use the ``fitMk`` method with these settings to fit the model. This
+function returns a ``dict`` containing the fitted Q matrix, the log-likelihood,
+and the weighting at the root node.
+
+.. sourcecode:: ipython
+
+    In [*]: from ivy.chars import discrete
+    In [*]: mk_results = discrete.fitMk(tree, charList, Q="ARD", pi="Fitzjohn")
+    In [*]: print mk_results["Q"]
+    [[-0.01246449  0.01246449]
+     [ 0.09898439 -0.09898439]]
+    In [*]: print mk_results["Log-likelihood"]
+    -11.3009106093
+    In [*]: print mk_results["pi"]
+    {0: 0.088591248260230959, 1: 0.9114087517397691}
+
+Even this simple example has produced some interesting results. It is
+interesting to see that the model has placed a higher weight on the root
+being shrubby because transitions to shrubbiness are less common than the
+reverse.
+
+Bayesian
+~~~~~~~~
+``ivy`` has a framework in place for using ``pymc`` to sample from a Bayesian
+Mk model. The process of fitting a Bayesian Mk model is very similar to fitting
+a maximum likelihood model.
+
+The module ``bayesian_models`` has a function ``create_mk_model`` that takes
+the same input as ``fitMk`` and creates a ``pymc`` model that can  be sampled
+with an MCMC chain
+
+First we create the model.
+
+.. sourcecode:: ipython
+
+    In [*]: from ivy.chars import bayesian_models
+    In [*]: from ivy.chars.bayesian_models import create_mk_model
+    In [*]: mk_mod = create_mk_model(tree, charList, Qtype="ARD", pi="Fitzjohn")
+
+Now that we have the model, we can use ``pymc`` syntax to set up an MCMC chain.
+
+.. sourcecode:: ipython
+
+    In [*]: import pymc
+    In [*]: mk_mcmc = pymc.MCMC(mk_mod)
+    In [*]: mk_mcmc.sample(4000, burn=200, thin = 2)
+    [-----------------100%-----------------] 2000 of 2000 complete in 4.7 sec
+
+We can access the results using the ``trace`` method of the mcmc object and
+giving it the name of the parameter we want. In this case, we want "Qparams"
+
+.. sourcecode:: ipython
+
+    In [*]: mk_mcmc.trace("Qparams")[:]
+    array([[ 0.01756608,  0.07222648],
+       [ 0.03266443,  0.05712813],
+       [ 0.03266443,  0.05712813],
+       ...,
+       [ 0.01170189,  0.03909211],
+       [ 0.01170189,  0.03909211],
+       [ 0.00989616,  0.03305975]])
+
+Each element of the trace is an array containing the two fitted Q parameters.
+Let's get the 5%, 50%, and 95% percentiles for both parameters
+
+.. sourcecode:: ipython
+
+    In [*]: import numpy as np
+    In [*]: Q01 = [ i[0] for i in mk_mcmc.trace("Qparams")[:] ]
+    In [*]: Q10 = [ i[1] for i in mk_mcmc.trace("Qparams")[:] ]
+    In [*]: np.percentile(Q01, [5,50,95])
+    Out[*]: array([ 0.00308076,  0.01844342,  0.06290078])
+    In [*]: np.percentile(Q10, [5,50,95])
+    Out[*]: array([ 0.03294584,  0.09525662,  0.21803742])
+    
+Unsurprisingly, the results are similar to the ones we got from the maximum
+likelihood analysis

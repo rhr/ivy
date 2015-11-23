@@ -11,6 +11,7 @@ from copy import copy as _copy
 from matrix import vcv
 import newick
 from itertools import izip_longest
+import csv
 
 ## class Tree(object):
 ##     """
@@ -349,9 +350,8 @@ class Node(object):
         Returns:
             bool: Are the leaf descendants monophyletic?
 
-        RR: Should this function have a check to make sure the input nodes are
-        leaves? There is some strange behavior if you input internal nodes -CZ
         """
+        assert all([ n.isleaf for n in leaves ]), "All given nodes must be leaves"
         if len(leaves) == 1:
             leaves = list(leaves)[0]
         assert len(leaves) > 1, (
@@ -1286,3 +1286,17 @@ def C(leaves, internals):
             m[n.ii,lf.li] = v
             v += n.length if n.length is not None else 1
     return m.tocsc()
+
+def loadChars(filename, rowNames=True):
+    """
+    Given a filename pointing to a CSV with species names as column one
+    and a character as column two, return a dictionary mapping
+    names to characters
+    """
+    chars = {}
+    with open(filename, "r") as f:
+        read = csv.reader(f, delimiter=",", quotechar='"')
+        for i,row in enumerate(read):
+            if not (rowNames and i==0):
+                chars[row[0]] = row[1]
+    return chars
