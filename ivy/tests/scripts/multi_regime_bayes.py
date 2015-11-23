@@ -74,11 +74,10 @@ l = discrete.mk_multi_regime(mr_tree, mr_chars, trueQs, trueLocs, pi="Equal")
 
 m = bayesian_models.create_multi_mk_model(mr_tree, mr_chars, Qtype="ER", pi="Equal", nregime=2)
 
-sr_m = bayesian_models.create_multi_mk_model(mr_tree, sr_chars, Qtype="ER", pi="Equal", nregime=2)
 
 
 mc = pymc.MCMC(m)
-mc.sample(2000, burn=200)
+mc.sample(5000, burn=200)
 
 
 
@@ -226,9 +225,19 @@ sr_sm = bayesian_models.create_mk_model(mr_tree, sr_chars, Qtype="ER", pi="Equal
 sr_smc = pymc.MCMC(sr_sm)
 sr_smc.sample(2000, burn=200)
 
-srsm_switches = sr_smc
+srsm_q = np.median(sr_smc.trace("Qparams_scaled")[:])
 
-lr = -2*singleregime_likelihood + 2*multiregime_likelihood
+sr_multi_Qs = np.array([[[-sr_q1, sr_q1],[sr_q1, -sr_q1]],
+                        [[-sr_q2, sr_q2],[sr_q2, -sr_q2]]])
+sr_single_Q = np.array([[-srsm_q,srsm_q],[srsm_q,-srsm_q]])
+
+
+sr_multi_locs = discrete.locs_from_switchpoint(mr_tree, mr_tree[int(sr_switch[0])])
+sr_multi_like = discrete.mk_multi_regime(mr_tree, sr_chars, sr_multi_Qs, sr_multi_locs,
+                                         pi="Equal")
+sr_single_like = discrete.mk(mr_tree, sr_chars, sr_single_Q, pi="Equal")
+
+lr = -2*singleregime_likelihood -sr_q1, sr_q1, sr_q1, -sr_q1 2*multiregime_likelihood
 
 
 #
@@ -238,3 +247,25 @@ lr = -2*singleregime_likelihood + 2*multiregime_likelihood
 # fig.toggle_branchlabels()
 # fig.tip_chars(mr_chars, store="tips")
 # fig.add_layer(layers.add_node_heatmap, switchnodes, store="switch")
+
+
+
+
+m2 = create_multi_mk_model_2(mr_tree, mr_chars, Qtype="ER", pi="Equal")
+m2mc = pymc.MCMC(m2)
+m2mc.sample(100000)
+
+m2mc.trace("nswitches")[:]
+
+
+
+#
+
+
+# tests
+
+t_locs = discrete.locs_from_switchpoint(mr_tree, 262)
+
+
+
+nshifts(mr_tree, get_indices(t_locs))

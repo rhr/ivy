@@ -170,8 +170,6 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
     # Pre-allocating arrays
     qarray = np.zeros([N,nregime])
     locsarray = np.empty([2], dtype=object)
-
-    print "generating likelihood function"
     l = discrete.create_likelihood_function_multimk_b(tree=tree, chars=chars,
         Qtype=Qtype,
         pi="Equal", min=False, nregime=2)
@@ -214,59 +212,31 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
     ###########################################################################
     # Regime locations
     ###########################################################################
+    # def get_indices(tree, locs, inds=inds):
+    #     for i,n in enumerate(tree.descendants()):
+    #         inds[i] =[ j for j,l in enumerate(locs) if n.ni in l ][0]
+    #     return inds
+    @pymc.stochastic
+    def branchRegimes(tree=tree, nregime=nregime):
+        def logp (value, tree, nregime):
+            locs = np.empty(nregime, dtype=object)
+            for reg in range(nregime):
+                locs[reg] = [i+1 for i,v in enumerate(value) if v==reg]
+            nswitches = nshifts(tree, value)
+            # WHAT SHOULD BE THE PRIOR ON NUMBER OF SWITCHES?
+            return pymc.exponential_like(nswitches, beta=1)
 
-    # Sampling without replacement from a vector into N bins, where
-    # N is the number of regimes
-    def split_into_bins(nbin, vector):
-        """
-        Randomly split vector into nbin number of bins, each of random size
-        """
-        permutation = list(np.random.permutation(vector))
+        def random(tree, nregime):
+            br = np.random.choice(a=nregime, size=len(tree.descendants()))
+            return br
 
-        splits = sorted(np.random.choice(range(1,len(vector)), nbin-1, replace=False))
-
-        bins = [[]]*nbin
-
-        start = 0
-        end = splits[0]
-
-        for i in range(nbin):
-            bins[i] = permutation[start:end]
-            start = end
-            try:
-                end = splits[i+1]
-            except IndexError:
-                end = len(vector)
-        return bins
-    def nshifts(node, inds, n=0):
-        if not node.children:
-            return n
-        elif node.isroot:
-            n = nshifts(node.children[0], inds) + nshifts(node.children[1], inds)
-            return n
-        else:
-            st = inds[node.ni-1]
-            for i in node.children:
-                if inds[i.ni-1] != st:
-                    n += 1
-                    n = nshifts(i, inds, n)
-                else:
-                    n = nshifts(i,inds,n)
-            return n
-    # Counting the number of steps involved in a regime
-    def get_indices(tree, locs, inds=inds):
-        for i,n in enumerate(tree.descendants()):
-            inds[i] =[ j for j,l in enumerate(locs) if n.ni in l ][0]
-        return inds
-
-    @pymc.stochastic(dtype=object)
-    def regimeIndices(value = np.array([[1],range(2,(len(tree.descendants())+1))], dtype=object), nbin=nregime, vector=range(1,len(tree.descendants())+1), tree=tree):
-        def logp(nbin, vector, value):
-            inds = get_indices(tree, value)
-            ns = nshifts(node.children[0], inds) + nshifts(node.children[1], inds)
-            return pymc.exponential_like(ns, beta=1) # WHAT SHOULD THE PRIOR ON THE NUMBER OF SHIFTS BE?
-        def random(nbin, vector):
-            return split_into_bins(nbin, vector)
+    @pymc.deterministic(dtype=int)
+    def nswitches(br = branchRegimes, tree=tree, nregime=nregime):
+        locs = np.empty(nregime, dtype=object)
+        for reg in range(nregime):
+            locs[reg] = [i+1 for i,v in enumerate(br) if v==reg]
+        nswitches = nshifts(tree, br)
+        return nswitches
 
 
     ###########################################################################
@@ -275,7 +245,6 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
     # Unscaled Q param: Dirichlet distribution
     # Setting a Dirichlet prior with Jeffrey's hyperprior of 1/2
     theta = [1.0/2.0]*N
-
     # One set of Q-parameters per regime
     allQparams_init = np.empty(nregime, dtype=object)
     allQparams_init_full = np.empty(nregime, dtype=object)
@@ -305,13 +274,15 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
 
     # Pre-allocating arrays
     qarray = np.zeros([N,nregime])
+    locs = np.empty(nregime, dtype=object)
     l = discrete.create_likelihood_function_multimk_b(tree=tree, chars=chars,
         Qtype=Qtype,
         pi="Equal", min=False, nregime=2)
 
     @pymc.potential
-    def multi_mklik(q = Qparams_scaled, locs=regimeIndices, name="multi_mklik"):
-
+    def multi_mklik(q = Qparams_scaled, br=branchRegimes.random(), nregime=nregime, name="multi_mklik"):
+        for reg in range(nregime):
+            locs[reg] = [i+1 for i,v in enumerate(br) if v==reg]
         # l = discrete.create_likelihood_function_multimk(tree=tree, chars=chars,
         #     Qtype=Qtype, locs = locs,
         #     pi="Equal", min=False)
@@ -336,10 +307,10 @@ def nshifts(node, inds, n=0):
                 n = nshifts(i,inds,n)
         return n
 
-# def get_indices(list_of_lists):
-#     indices = [0] * sum(map(len, list_of_lists))
-#
-#     for listno, alist in enumerate(list_of_lists):
-#             for n in alist:
-#                 indices[n-1] = listno
-#     return indices
+def get_indices(list_of_lists):
+    indices = [0] * sum(map(len, list_of_lists))
+
+    for listno, alist in enumerate(list_of_lists):
+            for n in alist:
+                indices[n-1] = listno
+    return indices
