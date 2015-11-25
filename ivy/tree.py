@@ -166,6 +166,25 @@ class Node(object):
                 return n
         raise IndexError(str(x))
 
+    def reindex(self):
+        """
+        Super cheaty way to re-assign indices until I can figure
+        out how newick.parse works
+        """
+        assert self.isroot, "Only the root can be reindexed"
+        newickstr = self.write()
+
+        newtree = read(newickstr)
+
+        vars_to_index = ["pi", "ni", "ii", "li", "back", "next",
+                         "right", "left"]
+
+        for i,n in enumerate(self):
+            for var in vars(n):
+                if var in vars_to_index:
+                    print var
+                    n.var = newtree[i].var
+
     def ape_node_idx(self): # For use in phylorate plot
         i = 1
         for lf in self.leaves():
@@ -174,6 +193,12 @@ class Node(object):
         for n in self.clades():
             n.apeidx = i
             i += 1
+
+    def get_root(self):
+        if not self.isroot:
+            return self.parent.get_root()
+        else:
+            return self
 
     def ascii(self, *args, **kwargs):
         """
@@ -212,6 +237,7 @@ class Node(object):
             if add and (c.length is not None):
                 c.length += self.length
         self.children = []
+        p.get_root().reindex()
         return p
 
 #    def copy_old(self, recurse=False):
@@ -345,15 +371,20 @@ class Node(object):
         Test if leaf descendants are monophyletic
 
         Args:
-            *leaves (Node): At least two leaf Node objects
+            *leaves (Node): At least two leaf Node objects or labels
 
         Returns:
             bool: Are the leaf descendants monophyletic?
 
         """
-        assert all([ n.isleaf for n in leaves ]), "All given nodes must be leaves"
+
         if len(leaves) == 1:
-            leaves = list(leaves)[0]
+            # The only valid input of length 1 is a list of leaves.
+            assert type(leaves[0]) == list, "Need more than one leaf for ismono(), got %s" % leaves
+
+            leaves = leaves[0]
+        assert all([ self[n].isleaf for n in leaves ]), "All given nodes must be leaves"
+
         assert len(leaves) > 1, (
             "Need more than one leaf for ismono(), got %s" % leaves
             )
@@ -490,7 +521,7 @@ class Node(object):
 
         Args:
             f (function): A function that evaluates to true if called with
-            desired node as the first input
+            desired node as the first input. Optional
 
         Yields:
             Node: Nodes descended from self (including self) in
@@ -692,7 +723,7 @@ class Node(object):
         """Return a list of found nodes."""
         return list(self.find(f, *args, **kwargs))
 
-    def isSameTree(self, tree, check_id=False):
+    def is_same_tree(self, tree, check_id=False, verbose=False):
         """
         Test if two trees are the same (same topology, characteristics, labels,
         etc.) Ignores IDs by default.
@@ -700,18 +731,35 @@ class Node(object):
         Args:
             tree (Node): Another tree to compare to
             check_id (bool): Whether or not to compare IDs. Defaults to False
+            verbose (bool): Whether or not to print a message containing
+              the non-matching properties
         Returns:
             bool: Whether or not the trees are the same.
         """
         assert self.isroot and tree.isroot, "Must compare root nodes"
+        # Recursively check properties of both trees EXCEPT for IDs and children/parents
+        # (IDs are ignored by default and children/parents will be checked
+        # during the enumeration of all nodes)
+        a_tree = self.copy()
+        b_tree = tree.copy()
 
-        aNoLabel = self.copy()
-        bNoLabel = tree.copy()
+        ignoreProps = ["children", "parent", "left", "right", "back","pi","next"]
+        if not check_id:
+            ignoreProps.append("id")
 
-        for node in aNoLabel:
-            node.id = None
-        for node in bNoLabel:
-            node.id = None
+        for i,node in enumerate(a_tree):
+            for property, value in vars(node).iteritems():
+                if property in ignoreProps:
+                    pass
+                else:
+                    if vars(a_tree[i])[property] != vars(b_tree[i])[property]:
+                        if verbose:
+                            print (str(["Nonmatching properties:",
+                                property, str(vars(a_tree[i])[property]),
+                                str(vars(b_tree[i])[property])]))
+                        return False
+
+        return True
 
     def prune(self):
         """
@@ -1044,7 +1092,7 @@ class Node(object):
 
 reroot = Node.reroot
 
-def index(node, n=0, d=0):
+def index(node, n=0, d=0, ni=0, li=0, ii=0,pi=0):
     """
     recursively attach 'next', 'back', (and 'left', 'right'), 'ni',
     'ii', 'pi', and 'node_depth' attributes to nodes
@@ -1055,6 +1103,8 @@ def index(node, n=0, d=0):
     else:
         node.node_depth = node.parent.node_depth + 1
     n += 1
+    # node.ni = ni; ni+=1
+    # node.ii = ii; ii +=1
     for i, c in enumerate(node.children):
         if i > 0:
             n = node.children[i-1].back + 1
@@ -1064,7 +1114,7 @@ def index(node, n=0, d=0):
         node.back = node.right = node.children[-1].back + 1
     else:
         node.back = node.right = n
-    return node.back
+#    return node.back
 
 def remove_singletons(root, add=True):
     "Remove descendant nodes that are the sole child of their parent"
