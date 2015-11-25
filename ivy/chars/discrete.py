@@ -788,29 +788,30 @@ def create_likelihood_function_multimk_b(tree, chars, Qtype, nregime, pi="Equal"
     def likelihood_function(Qparams, locs):
         # Enforcing upper bound on parameters
 
-        # TODO: replace with sum of each Q
-        if (sum(Qparams)/len(locs) > var["upperbound"]) or any(Qparams <= 0):
-            return var["nullval"]
+        # # TODO: replace with sum of each Q
+        # if (sum(Qparams)/len(locs) > var["upperbound"]) or any(Qparams <= 0):
+        #     return var["nullval"]
 
         # Filling Q matrices:
         if Qtype == "ER":
             for i,qmat in enumerate(var["Q"]):
-                qmat.fill(Qparams[i])
+                qmat.fill(float(Qparams[i]))
                 qmat[np.diag_indices(nchar)] = -Qparams[i] * (nchar-1)
+
         # elif Qtype == "Sym":
         #     var["Q"].fill(0.0) # Re-filling with zeroes
         #     xs,ys = np.triu_indices(nchar,k=1)
         #     var["Q"][xs,ys] = Qparams
         #     var["Q"][ys,xs] = Qparams
         #     var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
-        # elif Qtype == "ARD":
-        #     var["Q"].fill(0.0) # Re-filling with zeroes
-        #     var["Q"][np.triu_indices(nchar, k=1)] = Qparams[:len(Qparams)/2]
-        #     var["Q"][np.tril_indices(nchar, k=-1)] = Qparams[len(Qparams)/2:]
-        #     var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
+        elif Qtype == "ARD":
+            for i,qmat in enumerate(var["Q"]):
+                qmat.fill(0.0) # Re-filling with zeroes
+                qmat[np.triu_indices(nchar, k=1)] = Qparams[i][:len(Qparams[i])/2]
+                qmat[np.tril_indices(nchar, k=-1)] = Qparams[i][len(Qparams[i])/2:]
+                qmat[np.diag_indices(nchar)] = 0-np.sum(qmat, 1)
         else:
             raise ValueError, "Qtype must be one of: ER, Sym, ARD"
-
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)

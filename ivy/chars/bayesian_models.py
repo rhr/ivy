@@ -148,7 +148,7 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
     for i in range(nregime):
         if N != 1:
             allQparams_init[i] = pymc.Dirichlet("allQparams_init"+str(i), theta)
-            allQparams_init_full[i] = pymc.CompletedDirichlet("allQparams_init_full"+str(i), Qparams_init[i])
+            allQparams_init_full[i] = pymc.CompletedDirichlet("allQparams_init_full"+str(i), allQparams_init[i])
         else: # Dirichlet function does not like creating a distribution
               # with only 1 state. Set it to 1 by hand
             allQparams_init_full[i] = [[1.0]]
@@ -156,12 +156,14 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
         allScaling_factors[i] = pymc.Exponential(name="allScaling_factors"+str(i), beta=1.0)
         # Scaled Qparams; we would not expect them to necessarily add
         # to 1 as would be the case in a Dirichlet distribution
+
+    # Regimes are grouped by rows. Each row is a regime.
     @pymc.deterministic(plot=False)
     def Qparams_scaled(q=allQparams_init_full, s=allScaling_factors):
-        Qs = np.empty([N, nregime])
+        Qs = np.empty([nregime,N])
         for n in range(N):
             for i in range(nregime):
-                Qs[n][i] = q[i][0][n]*s[i]
+                Qs[i][n] = q[i][0][n]*s[i]
         return Qs
     ###########################################################################
     # Likelihood
@@ -169,7 +171,7 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
     # The likelihood function
 
     # Pre-allocating arrays
-    qarray = np.zeros([N,nregime])
+    qarray = np.zeros([nregime,N])
     locsarray = np.empty([2], dtype=object)
     l = discrete.create_likelihood_function_multimk_b(tree=tree, chars=chars,
         Qtype=Qtype,
@@ -184,7 +186,7 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
         #     Qtype=Qtype, locs = locs,
         #     pi="Equal", min=False)
         np.copyto(qarray, q)
-        return l(qarray[0], locs)
+        return l(qarray, locs=locs)
     return locals()
 
 

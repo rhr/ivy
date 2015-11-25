@@ -37,7 +37,7 @@ from ivy.vis import layers
 # # multi-regime tree
 mr_tree = ivy.tree.read("support/Mk_two_regime_tree.newick")
 
-
+tree = mr_tree
 
 mr_chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
@@ -54,6 +54,9 @@ mr_chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0]
+chars = mr_chars
+
+sr_mrmodel = bayesian_models.create_multi_mk_model(tree, chars, Qtype="ER", pi="Fitzjohn", nregime=2)
 
 # fig = treefig(mr_tree)
 # cols = map(lambda x: "black" if x==0 else "red", mr_chars)
@@ -77,13 +80,8 @@ m = bayesian_models.create_multi_mk_model(mr_tree, mr_chars, Qtype="ER", pi="Equ
 
 
 mc = pymc.MCMC(m)
-<<<<<<< HEAD
-mc.sample(20000, burn=0, thin=10)
-=======
+
 mc.sample(5000, burn=200)
->>>>>>> origin/christie-master
-
-
 
 
 out = {"Qparams":mc.trace("Qparams_scaled")[:],
