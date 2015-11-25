@@ -1,0 +1,4 @@
+- Create non-interactive mode for treevis for use in notebooks
+- Write function to re-index trees after they are altered
+
+

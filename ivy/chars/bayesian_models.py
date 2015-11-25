@@ -8,6 +8,7 @@ from scipy.optimize import minimize
 from scipy.special import binom
 from ivy.chars import discrete
 import pymc
+import matplotlib.pyplot as plt
 
 def create_mk_model(tree, chars, Qtype, pi):
     """
@@ -159,7 +160,7 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
 
     # Regimes are grouped by rows. Each row is a regime.
     @pymc.deterministic(plot=False)
-    def Qparams_scaled(q=allQparams_init_full, s=allScaling_factors):
+    def Qparams(q=allQparams_init_full, s=allScaling_factors):
         Qs = np.empty([nregime,N])
         for n in range(N):
             for i in range(nregime):
@@ -178,7 +179,7 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
         pi="Equal", min=False, nregime=2)
 
     @pymc.potential
-    def multi_mklik(q = Qparams_scaled, switch=switch, name="multi_mklik"):
+    def multi_mklik(q = Qparams, switch=switch, name="multi_mklik"):
 
         locs = discrete.locs_from_switchpoint(tree,tree[int(switch)],locsarray)
 
@@ -264,7 +265,7 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
         # Scaled Qparams; we would not expect them to necessarily add
         # to 1 as would be the case in a Dirichlet distribution
     @pymc.deterministic(plot=False)
-    def Qparams_scaled(q=allQparams_init_full, s=allScaling_factors):
+    def Qparams(q=allQparams_init_full, s=allScaling_factors):
         Qs = np.empty([N, nregime])
         for n in range(N):
             for i in range(nregime):
@@ -283,7 +284,7 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
         pi="Equal", min=False, nregime=2)
 
     @pymc.potential
-    def multi_mklik(q = Qparams_scaled, br=branchRegimes.random(), nregime=nregime, name="multi_mklik"):
+    def multi_mklik(q = Qparams, br=branchRegimes.random(), nregime=nregime, name="multi_mklik"):
         for reg in range(nregime):
             locs[reg] = [i+1 for i,v in enumerate(br) if v==reg]
         # l = discrete.create_likelihood_function_multimk(tree=tree, chars=chars,
@@ -317,3 +318,47 @@ def get_indices(list_of_lists):
             for n in alist:
                 indices[n-1] = listno
     return indices
+
+def Mk_results(mcmc_obj):
+    """
+    Create summary graphs and statistics for an mk model
+
+    Args:
+        mcmc_obj: A pymc MCMC object that has been sampled
+    Returns:
+        dict: Trace plots, histograms, and summary statistics
+    """
+    varsToPlot = ["Qparams"]
+    if "switch" in [ i.__name__ for i in mcmc_obj.variables ]:
+        varsToPlot.append("switch")
+
+    traces = {}
+    hists = {}
+    traceplots = {}
+    summary = {}
+
+    for var in varsToPlot:
+        if var == "Qparams":
+            traces[var] = {}
+            hists[var] = {}
+            traceplots[var] = {}
+            summary[var] = {}
+            for i in range(mcmc_obj.trace(var)[:].shape[1]):
+                if "switch" in varsToPlot:
+                    for k in range(mcmc_obj.trace(var)[:].shape[2]):
+                        traces[var][str([i,k])] = [ m[i][k] for m in mcmc_obj.trace(var)[:] ]
+                        hists[var][str([i,k])] = plt.hist(traces[var][str([i,k])])
+                        traceplots[var][str([i,k])] = plt.plot(traces[var][str([i,k])])
+                        summary[var][str([i,k])] = np.percentile(traces[var][str([i,k])], [2.5, 50, 97.5])
+                else:
+                    traces[var][str(i)] = [ m[i] for m in mcmc_obj.trace(var)[:]]
+                    hists[var][str(i)] = plt.hist(traces[var][str(i)])
+                    traceplots[var][str(i)] = plt.plot(traces[var][str(i)])
+                    summary[var][str(i)] = np.percentile(traces[var][str(i)], [2.5, 50, 97.5])
+
+        else:
+            traces[var] = [ m for m in mcmc_obj.trace(var)[:] ]
+            hists[var] = plt.hist(traces[var])
+            traceplots[var] = plt.plot(traces[var])
+            summary[var] = scipy.stats.mode(traces[var])[0]
+    return {"traces":traces, "hists":hists, "traceplots":traceplots, "summary":summary}

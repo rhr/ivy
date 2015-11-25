@@ -15,24 +15,24 @@ import pymc
 from ivy.interactive import *
 from ivy.vis import layers
 
-
-# slow_tree = ivy.tree.read("/home/cziegler/src/christie-master/ivy/ivy/tests/support/Mk_slow_regime_tree.newick")
+#
+# # slow_tree = ivy.tree.read("/home/cziegler/src/christie-master/ivy/ivy/tests/support/Mk_slow_regime_tree.newick")
 # fast_tree = ivy.tree.read("/home/cziegler/src/christie-master/ivy/ivy/tests/support/Mk_fast_regime_tree.newick")
-# fast_tree.length = 0.0001
-# #fast_tree.children[0].length -= .0001
-# #fast_tree.children[1].length -=.0001
+# fast_tree.length = 0.005
+# fast_tree.children[0].length -= .005
+# fast_tree.children[1].length -=.005
 #
 # mr_tree = slow_tree.copy()
 #
-# x = (0.5001 - slow_tree["s99"].rootpath_length(slow_tree["292"]))/slow_tree["292"].length
+# x = (0.500 - slow_tree["s144"].rootpath_length(slow_tree["518"]))/slow_tree["518"].length
 #
 #
-# switch_node = mr_tree["292"].bisect_branch(x)
+# switch_node = mr_tree["518"].bisect_branch(x)
 #
 #
 # switch_node.add_child(fast_tree)
-# mr_tree["f99"].rootpath_length()
-#
+# mr_tree["t99"].rootpath_length()
+
 #
 # # multi-regime tree
 mr_tree = ivy.tree.read("support/Mk_two_regime_tree.newick")
