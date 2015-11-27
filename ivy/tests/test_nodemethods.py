@@ -127,11 +127,42 @@ class alterTreeMethods(tree_methods):
         tree["A"].collapse()
 
         self.primatesBPoly.treename = "primates"
-        print tree.ascii()
-        print self.primatesBPoly.ascii()
 
         self.assertTrue(tree.is_same_tree(self.primatesBPoly, verbose=True))
+    def test_collapse_root_returnsAssertionError(self):
+        tree = self.primates
+        try:
+            tree.collapse()
+            self.fail()
+        except AssertionError:
+            pass
+    def test_collapse_addlength_returnsCorrectLength(self):
+        tree = self.primates
 
+        expectedLenHomo = tree["Homo"].length + tree["A"].length
+        expectedLenPongo = tree["Pongo"].length + tree["A"].length
+
+        tree["A"].collapse(add=True)
+
+        treePoly = self.primatesBPoly
+
+        treePoly["Homo"].length = expectedLenHomo
+        treePoly["Pongo"].length = expectedLenPongo
+
+        self.assertTrue(tree.is_same_tree(treePoly))
+
+    def test_copy_copytree_returnsSameTree(self):
+        tree = self.primates
+        tree2 = tree.copy()
+
+        self.assertTrue(tree.is_same_tree(tree2, check_id=True))
+    def test_addNewChild_createsPolytomy(self):
+        tree = self.primates
+
+        newNode = ivy.tree.Node()
+        newNode.label="N"
+
+        tree["A"].append(newNode)
 
 
 
@@ -162,5 +193,17 @@ class is_same_tree_Methods(tree_methods):
         b = ivy.tree.read("../../examples/plants.newick")
 
         self.assertFalse(a.is_same_tree(b))
+    def test_sameTreeLadderized_returnsTrue(self):
+        """
+        Unsure what behavior should be. Will return true for now
+        """
+        a = self.primates
+        b = a.copy()
+
+        b.ladderize()
+
+        self.assertTrue(a.is_same_tree(b))
+
+
 if __name__ == "__main__":
     unittest.main()

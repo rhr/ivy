@@ -174,16 +174,30 @@ class Node(object):
         assert self.isroot, "Only the root can be reindexed"
         newickstr = self.write()
 
-        newtree = read(newickstr)
+        ni = 0
+        li = 0
+        ii = 0
 
-        vars_to_index = ["pi", "ni", "ii", "li", "back", "next",
-                         "right", "left"]
-
-        for i,n in enumerate(self):
-            for var in vars(n):
-                if var in vars_to_index:
-                    print var
-                    n.var = newtree[i].var
+        for n in self:
+            n.ni = ni
+            ni += 1
+            if n.isleaf:
+                n.li = li
+                li += 1
+            else:
+                n.ii = ii
+                ii += 1
+    #
+    #     newtree = read(newickstr)
+    #
+    #     vars_to_index = ["pi", "ni", "ii", "li", "back", "next",
+    #                      "right", "left"]
+    #
+    #     for i,n in enumerate(self):
+    #         for var in vars(n):
+    #             if var in vars_to_index:
+    #                 print var
+    #                 n.var = newtree[i].var
 
     def ape_node_idx(self): # For use in phylorate plot
         i = 1
@@ -743,7 +757,7 @@ class Node(object):
         a_tree = self.copy()
         b_tree = tree.copy()
 
-        ignoreProps = ["children", "parent", "left", "right", "back","pi","next"]
+        ignoreProps = ["children", "parent", "left", "right", "back","pi","next","treename"]
         if not check_id:
             ignoreProps.append("id")
 
