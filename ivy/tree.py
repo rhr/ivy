@@ -12,6 +12,7 @@ from matrix import vcv
 import newick
 from itertools import izip_longest
 import csv
+import numpy as np
 
 ## class Tree(object):
 ##     """
@@ -168,11 +169,9 @@ class Node(object):
 
     def reindex(self):
         """
-        Super cheaty way to re-assign indices until I can figure
-        out how newick.parse works
+        Can only assign ni, li, and ii
         """
         assert self.isroot, "Only the root can be reindexed"
-        newickstr = self.write()
 
         ni = 0
         li = 0
@@ -456,6 +455,7 @@ class Node(object):
 
         """
         assert self.parent
+        assert 0 < distance < 1
         parent = self.prune()
         n = Node()
         if self.length:
@@ -473,7 +473,7 @@ class Node(object):
             child (Node): A node object that is a child of self
 
         """
-        assert child in self.children
+        assert child in self.children, "node '%s' not child of node '%s'" % (child.label or child.id, self.label or self.id)
         self.children.remove(child)
         child.parent = None
         self.nchildren -= 1
@@ -625,6 +625,7 @@ class Node(object):
                     root = cp.children[0]
                     root.parent = None
 
+        root.reindex()
         return root
     def keep_tip(self, nodes):
         """
@@ -766,14 +767,27 @@ class Node(object):
                 if property in ignoreProps:
                     pass
                 else:
-                    if vars(a_tree[i])[property] != vars(b_tree[i])[property]:
-                        if verbose:
-                            print (str(["Nonmatching properties:",
-                                property, str(vars(a_tree[i])[property]),
-                                str(vars(b_tree[i])[property])]))
-                        return False
-
-        return True
+                    if (type(vars(a_tree[i])[property]) != float) or (type(vars(b_tree[i])[property]) != float):
+                        try: #Trycatch in case property does not exist in both trees
+                            if vars(a_tree[i])[property] != vars(b_tree[i])[property]:
+                                if verbose:
+                                    print (str(["Nonmatching properties:",
+                                        property, str(vars(a_tree[i])[property]),
+                                        str(vars(b_tree[i])[property])]))
+                                return False
+                        except KeyError:
+                            if verbose:
+                                print "Missing Property", str(property)
+                                return False
+                    else: # Want to test if floats are close, not identical
+                        if not np.isclose(vars(a_tree[i])[property], vars(b_tree[i])[property]):
+                            if verbose:
+                                print (str(["Nonmatching properties:",
+                                    property, str(vars(a_tree[i])[property]),
+                                    str(vars(b_tree[i])[property])]))
+                            return False
+        else:
+            return True
 
     def prune(self):
         """
@@ -1071,7 +1085,6 @@ class Node(object):
 
         t.isroot = True
         return t
-
 
 
 

@@ -9,8 +9,10 @@ class tree_methods(unittest.TestCase):
     def setUp(self):
         self.primates = ivy.tree.read("../../examples/primates.newick")
         self.plants = ivy.tree.read("../../examples/plants.newick")
+        self.nicotiana = ivy.tree.read("../../examples/nicotiana.newick")
 
         self.primatesBPoly = ivy.tree.read("support/primatesBPoly.newick")
+        self.primatesAPoly = ivy.tree.read("support/primatesAPoly.newick")
 
 class tree_properties_methods(tree_methods):
     ## Ape IDX
@@ -125,44 +127,122 @@ class alterTreeMethods(tree_methods):
     def test_collapse_A_returnsBpolytomy(self):
         tree = self.primates
         tree["A"].collapse()
-
         self.primatesBPoly.treename = "primates"
-
         self.assertTrue(tree.is_same_tree(self.primatesBPoly, verbose=True))
     def test_collapse_root_returnsAssertionError(self):
         tree = self.primates
         try:
             tree.collapse()
-            self.fail()
-        except AssertionError:
-            pass
+            self.fail("AssertionErrorNotRaised")
+        except AssertionError, e:
+            if e.message == "AssertionErrorNotRaised":
+                self.fail("AssertionErrorNotRaised")
     def test_collapse_addlength_returnsCorrectLength(self):
         tree = self.primates
-
         expectedLenHomo = tree["Homo"].length + tree["A"].length
         expectedLenPongo = tree["Pongo"].length + tree["A"].length
-
         tree["A"].collapse(add=True)
-
         treePoly = self.primatesBPoly
-
         treePoly["Homo"].length = expectedLenHomo
         treePoly["Pongo"].length = expectedLenPongo
-
         self.assertTrue(tree.is_same_tree(treePoly))
+
 
     def test_copy_copytree_returnsSameTree(self):
         tree = self.primates
         tree2 = tree.copy()
-
         self.assertTrue(tree.is_same_tree(tree2, check_id=True))
-    def test_addNewChild_createsPolytomy(self):
+
+
+    def test_addChild_createsPolytomy(self):
         tree = self.primates
+        tree2 = self.nicotiana
+        newNode = tree2["Nicotiana_tomentosa"]
+        tree["A"].add_child(newNode)
 
-        newNode = ivy.tree.Node()
-        newNode.label="N"
+        tree.reindex()
+        self.assertTrue(tree.is_same_tree(self.primatesAPoly, verbose=True))
+    def test_addChild_childInChildren_assertionError(self):
+        tree = self.primates
+        try:
+            tree["A"].add_child(tree["Homo"])
+            self.fail("AssertionErrorNotRaised")
+        except AssertionError, e:
+            if e.message == "AssertionErrorNotRaised":
+                self.fail("AssertionErrorNotRaised")
 
-        tree["A"].append(newNode)
+    def test_bisectBranch_distance50_returnsKnee(self):
+        tree = self.primates
+        tree["A"].bisect_branch()
+        kneeTree = ivy.tree.read("support/primatesAKnee.newick")
+        tree.reindex()
+        self.assertTrue(tree.is_same_tree(kneeTree))
+    def test_bisectBranch_distance75_returnsKnee(self):
+        tree = self.primates
+        tree["A"].bisect_branch(distance=.75)
+        kneeTree = ivy.tree.read("support/primatesAKnee2.newick")
+        tree.reindex()
+        self.assertTrue(tree.is_same_tree(kneeTree, verbose=True))
+    def test_bisectBranch_root_assertionError(self):
+        tree = self.primates
+        try:
+            tree.bisect_branch()
+            self.fail("AssertionErrorNotRaised")
+        except AssertionError, e:
+            if e.message == "AssertionErrorNotRaised":
+                self.fail("AssertionErrorNotRaised")
+    def test_bisectBranch_distancenegative_assertionError(self):
+        tree = self.primates
+        try:
+            tree["A"].bisect_branch(-1.0)
+            self.fail("AssertionErrorNotRaised")
+        except AssertionError, e:
+            if e.message == "AssertionErrorNotRaised":
+                self.fail("AssertionErrorNotRaised")
+
+    def test_removeChild_removeChild_createsKnee(self):
+        tree = self.primates
+        tree["A"].remove_child(tree["Homo"])
+        tree.reindex()
+        treeAOneChild = ivy.tree.read("support/primatesAOneChild.newick")
+        self.assertTrue(tree.is_same_tree(treeAOneChild))
+    def test_removeChild_removeOnlyChild_createsLeaf(self):
+        tree = self.primates
+        tree["A"].remove_child(tree["Homo"])
+        tree["A"].remove_child(tree["Pongo"])
+        tree.reindex()
+        self.assertTrue(tree["A"].isleaf)
+        treeNoChild = ivy.tree.read("support/primatesANoChildren.newick")
+        self.assertTrue(tree.is_same_tree(treeNoChild))
+    def test_removeChild_notChild_raisesAssertionError(self):
+        tree = self.primates
+        try:
+            tree["A"].remove_child(tree["B"])
+            self.fail("AssertionError not raised")
+        except AssertionError, e:
+            self.assertEquals(e.message, "node 'B' not child of node 'A'")
+
+    def test_dropTip_primatesDropOneTip_returnsTree(self):
+        tree = self.primates
+        tree2 = tree.drop_tip(["Homo"])
+        trueTree = ivy.tree.read("support/primatesHomoDropped.newick")
+        self.assertTrue(tree2.is_same_tree(trueTree))
+    def test_dropTip_primatesDropTwoTips_returnsTree(self):
+        tree = self.primates
+        tree2 = tree.drop_tip(["Homo", "Ateles"])
+        trueTree = ivy.tree.read("support/primatesHomoAtelesDropped.newick")
+        self.assertTrue(tree2.is_same_tree(trueTree))
+    def test_dropTip_plantsDropOneClade_returnsTree(self):
+        pass
+    def test_dropTip_plantsDropMultipleClades_returnsTree(self):
+        pass
+    def test_dropTip_plantsDropNextToRoot_returnsTree(self):
+        pass
+    def test_dropTip_plantsdropthenladderize_returnsTree(self):
+        pass
+    def test_dropTip_plantsLadderizeThenDrop_returnsTree(self):
+        pass
+
 
 
 
