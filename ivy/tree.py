@@ -13,6 +13,7 @@ import newick
 from itertools import izip_longest
 import csv
 import numpy as np
+import itertools
 
 ## class Tree(object):
 ##     """
@@ -181,9 +182,17 @@ class Node(object):
             n.ni = ni
             ni += 1
             if n.isleaf:
+                try: # Delete leftover properties that no longer apply
+                    del(n.ii)
+                except:
+                    pass
                 n.li = li
                 li += 1
             else:
+                try:
+                    del(n.li)
+                except:
+                    pass
                 n.ii = ii
                 ii += 1
     #
@@ -424,6 +433,7 @@ class Node(object):
 
     def ladderize(self, reverse=False):
         self.order_subtrees_by_size(recurse=True, reverse=reverse)
+        self.reindex()
         return self
 
     def add_child(self, child):
@@ -610,8 +620,11 @@ class Node(object):
         """
         t = self.copy()
         nodes = [ t[self[x].id] for x in nodes ]
+        nodes = sorted(nodes, key=lambda x: x.ni)
         assert all([ x.isleaf for x in nodes ]), "All nodes given must be tips"
         root = t
+
+
         for node in nodes:
             cp = node.parent
             cp.remove_child(node)
@@ -624,7 +637,24 @@ class Node(object):
                     t.isroot = False
                     root = cp.children[0]
                     root.parent = None
-
+            elif len(cp.children) == 0:
+                cpp = cp.parent
+                cp.parent.remove_child(cp)
+                if cpp.nchildren == 1:
+                    try:
+                        cpp.excise()
+                    except AssertionError:
+                        t.isroot = False
+                        root = cpp.children[0]
+                        root.parent = None
+                        root.isroot = True
+        for n in root.descendants():
+            # This removes all knees in the tree. It mimics what ape's
+            # drop.tip function does. Unsure what the behavior
+            # should actually be.
+            if n.nchildren == 1:
+                n.excise()
+        root.isroot = True
         root.reindex()
         return root
     def keep_tip(self, nodes):
@@ -738,19 +768,59 @@ class Node(object):
         """Return a list of found nodes."""
         return list(self.find(f, *args, **kwargs))
 
-    def is_same_tree(self, tree, check_id=False, verbose=False):
-        """
-        Test if two trees are the same (same topology, characteristics, labels,
-        etc.) Ignores IDs by default.
-
-        Args:
-            tree (Node): Another tree to compare to
-            check_id (bool): Whether or not to compare IDs. Defaults to False
-            verbose (bool): Whether or not to print a message containing
-              the non-matching properties
-        Returns:
-            bool: Whether or not the trees are the same.
-        """
+    # def is_same_tree(self, tree, check_id=False, verbose=False):
+    #     """
+    #     Test if two trees are the same (same topology, characteristics, labels,
+    #     etc.) Ignores IDs by default.
+    #
+    #     Args:
+    #         tree (Node): Another tree to compare to
+    #         check_id (bool): Whether or not to compare IDs. Defaults to False
+    #         verbose (bool): Whether or not to print a message containing
+    #           the non-matching properties
+    #     Returns:
+    #         bool: Whether or not the trees are the same.
+    #     """
+    #     assert self.isroot and tree.isroot, "Must compare root nodes"
+    #     # Recursively check properties of both trees EXCEPT for IDs and children/parents
+    #     # (IDs are ignored by default and children/parents will be checked
+    #     # during the enumeration of all nodes)
+    #     a_tree = self.copy()
+    #     b_tree = tree.copy()
+    #
+    #     # a_tree.ladderize()
+    #     # b_tree.ladderize()
+    #
+    #     ignoreProps = ["children", "parent", "left", "right", "back","pi","next","treename"]
+    #     if not check_id:
+    #         ignoreProps.append("id")
+    #
+    #     for i,node in enumerate(a_tree):
+    #         for property, value in vars(node).iteritems():
+    #             if property in ignoreProps:
+    #                 pass
+    #             else:
+    #                 if (type(vars(a_tree[i])[property]) != float) or (type(vars(b_tree[i])[property]) != float):
+    #                     try: #Trycatch in case property does not exist in both trees
+    #                         if vars(a_tree[i])[property] != vars(b_tree[i])[property]:
+    #                             if verbose:
+    #                                 print (str(["Nonmatching properties:",
+    #                                     property, str(vars(a_tree[i])[property]),
+    #                                     str(vars(b_tree[i])[property]), a_tree[i], b_tree[i]]))
+    #                             return False
+    #                     except KeyError:
+    #                         if verbose:
+    #                             print "Missing Property", str(property)
+    #                         return False
+    #                 else: # Want to test if floats are close, not identical
+    #                     if not np.isclose(vars(a_tree[i])[property], vars(b_tree[i])[property]):
+    #                         if verbose:
+    #                             print (str(["Nonmatching properties:",
+    #                                 property, str(vars(a_tree[i])[property]),
+    #                                 str(vars(b_tree[i])[property])]))
+    #                         return False
+    #     return True
+    def is_same_tree(self, tree):
         assert self.isroot and tree.isroot, "Must compare root nodes"
         # Recursively check properties of both trees EXCEPT for IDs and children/parents
         # (IDs are ignored by default and children/parents will be checked
@@ -758,36 +828,32 @@ class Node(object):
         a_tree = self.copy()
         b_tree = tree.copy()
 
-        ignoreProps = ["children", "parent", "left", "right", "back","pi","next","treename"]
-        if not check_id:
-            ignoreProps.append("id")
+        return a_tree._is_isomorphic(b_tree)
 
-        for i,node in enumerate(a_tree):
-            for property, value in vars(node).iteritems():
-                if property in ignoreProps:
-                    pass
-                else:
-                    if (type(vars(a_tree[i])[property]) != float) or (type(vars(b_tree[i])[property]) != float):
-                        try: #Trycatch in case property does not exist in both trees
-                            if vars(a_tree[i])[property] != vars(b_tree[i])[property]:
-                                if verbose:
-                                    print (str(["Nonmatching properties:",
-                                        property, str(vars(a_tree[i])[property]),
-                                        str(vars(b_tree[i])[property])]))
-                                return False
-                        except KeyError:
-                            if verbose:
-                                print "Missing Property", str(property)
-                                return False
-                    else: # Want to test if floats are close, not identical
-                        if not np.isclose(vars(a_tree[i])[property], vars(b_tree[i])[property]):
-                            if verbose:
-                                print (str(["Nonmatching properties:",
-                                    property, str(vars(a_tree[i])[property]),
-                                    str(vars(b_tree[i])[property])]))
-                            return False
-        else:
+    def _is_isomorphic(self, node):
+        """
+        Two nodes are isomorphic if all of their properties are identical;
+        Two leaves with identical properties are isomorphic
+        Two internals are identical if either their child nodes are identical
+        in any order.
+
+        """
+        propsToCheck = ["age", "apeidx", "isleaf", "isroot",
+                        "label", "length", "ni", "support", "nchildren"]
+
+        for prop in propsToCheck:
+            if getattr(self, prop) != getattr(node, prop):
+                print "false"
+                return False
+        if self.nchildren == 0 and node.nchildren == 0:
             return True
+        else:
+            for s in itertools.permutations(self.children):
+                if all([ n._is_isomorphic(node.children[i]) for i,n in enumerate(s) ]):
+                    return True
+
+        print self, node
+        return False
 
     def prune(self):
         """

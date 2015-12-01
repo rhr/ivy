@@ -233,15 +233,53 @@ class alterTreeMethods(tree_methods):
         trueTree = ivy.tree.read("support/primatesHomoAtelesDropped.newick")
         self.assertTrue(tree2.is_same_tree(trueTree))
     def test_dropTip_plantsDropOneClade_returnsTree(self):
-        pass
+        tree = self.plants
+        tree2 = tree.drop_tip(tree["Fabids"].leaves())
+
+        trueTree = ivy.tree.read("support/plantsNoFabids.newick")
+
+        self.assertTrue(tree2.is_same_tree(trueTree, verbose=True))
+    def test_dropTip_plantsDrop100randtips_returnsTree(self):
+        tree = self.plants
+        tipsToKeep = ["Vavilovia", "Dalbergiella", "Albizia", "Tripodion", "Balsaminaceae",
+                    "Chapmannia", "Psophocarpus", "Thermopsis", "Maackia", "Brachyelytrum",
+                    "Dahlstedtia", "Acacia", "Cornaceae", "Schefflerodendron", "Siparunaceae",
+                    "Macadamia_jansenii", "Pinales", "Talinaceae", "Trochodendraceae",
+                    "Uncaria", "Aspalathus", "Hamamelidaceae", "Collaea", "Suberanthus_neriifolius",
+                    "Geoffroea", "Asteliaceae", "Angylocalyx", "Hicksbeachia", "Lansium",
+                    "Ornithopus", "Eremosparton", "Grevillea", "Sartoria", "Cercis",
+                    "Amorpha", "Erythrophleum", "Daviesia", "Coussarea", "Almaleea",
+                    "Peteria", "Boryaceae", "Hindsia", "Lablab", "Nertera", "Brongniartia",
+                    "Portlandia", "Lardizabalaceae", "Hydrangeaceae", "Dirachmaceae",
+                    "Hamelia", "Desmodium", "Tessmannia", "Petalostylis", "Aphanamixis",
+                    "Berberidopsidaceae", "Arachnothryx_leucophylla", "Merxmuelleraa",
+                    "Bonnetiaceae", "Scorpiurus", "Avena", "Melianthaceae", "Alseuosmiaceae",
+                    "Aeschynomene_b", "Camptosema", "Tropaeolaceae", "Erithalis",
+                    "Stipagrostis", "Paeoniaceae", "Colchicaceae", "Oreophysa", "Lonchocarpus",
+                    "Synoum", "Pseudosamanea", "Alexa", "Gynerium", "Liparia", "Sipaneopsis",
+                    "Platycyamus", "Diplotropis", "Moringaceae", "Pseudoprosopis",
+                    "Alzateaceae", "Harleyodendron", "Ophrestia", "Gardenia", "Pennisetum",
+                    "Uraria", "Tamaricaceae", "Ammothamnus", "Tetragonolobus", "Baphia",
+                    "Desmanthus", "Resedaceae", "Lythraceae", "Otoptera", "Phylacium",
+                    "Ebenus", "Linderniaceae", "Jacksonia", "Platylobium"]
+        tree2 = tree.drop_tip(tipsToDrop)
+        trueTree = ivy.tree.read("support/plantsDrop100.newick")
+
+        self.assertTrue(tree2.is_same_tree(trueTree, verbose=True))
     def test_dropTip_plantsDropMultipleClades_returnsTree(self):
         pass
     def test_dropTip_plantsDropNextToRoot_returnsTree(self):
         pass
     def test_dropTip_plantsdropthenladderize_returnsTree(self):
         pass
-    def test_dropTip_plantsLadderizeThenDrop_returnsTree(self):
+T        pass
+    def test_dropTip_polytomies_returnsTree(self):
         pass
+    def test_dropTip_knees_returnsTree(self):
+        pass
+    def test_dropTip_kneesAndPolytomies_returnsTree(self):
+        pass
+
 
 
 
