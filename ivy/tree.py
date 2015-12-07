@@ -821,6 +821,17 @@ class Node(object):
     #                         return False
     #     return True
     def is_same_tree(self, tree):
+        """
+        Test if two trees are the same (same topology, characteristics, labels,
+        etc.) Ignores IDs by default.
+
+        Args:
+            tree (Node): Another tree to compare to
+            verbose (bool): Whether or not to print a message containing
+              the non-matching properties
+        Returns:
+            bool: Whether or not the trees are the same.
+        """
         assert self.isroot and tree.isroot, "Must compare root nodes"
         # Recursively check properties of both trees EXCEPT for IDs and children/parents
         # (IDs are ignored by default and children/parents will be checked
@@ -839,12 +850,15 @@ class Node(object):
 
         """
         propsToCheck = ["age", "apeidx", "isleaf", "isroot",
-                        "label", "length", "ni", "support", "nchildren"]
+                        "label", "length", "support", "nchildren"]
 
         for prop in propsToCheck:
-            if getattr(self, prop) != getattr(node, prop):
-                print "false"
-                return False
+            if (type(getattr(self, prop))) == float and (type(getattr(node, prop)) == float ):
+                if not np.isclose(getattr(self, prop), getattr(node, prop)):
+                    return False
+            else:
+                if getattr(self, prop) != getattr(node, prop):
+                    return False
         if self.nchildren == 0 and node.nchildren == 0:
             return True
         else:
@@ -852,12 +866,13 @@ class Node(object):
                 if all([ n._is_isomorphic(node.children[i]) for i,n in enumerate(s) ]):
                     return True
 
-        print self, node
         return False
 
     def prune(self):
         """
         Remove self if self is not root.
+
+        All descendants of self are also removed
 
         Returns:
             Node: Parent of self. If parent had only two children,
@@ -1430,16 +1445,21 @@ def C(leaves, internals):
             v += n.length if n.length is not None else 1
     return m.tocsc()
 
-def loadChars(filename, rowNames=True):
+def load_chars(filename, colNames=True, rowNames=False):
     """
     Given a filename pointing to a CSV with species names as column one
-    and a character as column two, return a dictionary mapping
+    and characters as remaining columns, return a dictionary mapping
     names to characters
     """
     chars = {}
     with open(filename, "r") as f:
         read = csv.reader(f, delimiter=",", quotechar='"')
         for i,row in enumerate(read):
-            if not (rowNames and i==0):
-                chars[row[0]] = row[1]
+            if colNames and i==0:
+                charNames = row[1:]
+            elif i==0:
+                charNames = [ "c"+i for i in range(len(row[1:])) ]
+                chars[row[0]] = { char:row[j+1] for j, char in enumerate(charNames) }
+            else:
+                chars[row[0]] = { char:row[j+1] for j, char in enumerate(charNames) }
     return chars

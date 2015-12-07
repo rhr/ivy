@@ -850,3 +850,111 @@ def locs_from_switchpoint(tree, switch, locs=None):
     locs[0]=r1
     locs[1]=r2
     return locs
+
+
+def hrm_mk(tree, chars, Q, p=None, pi="Fitzjohn",returnPi=False,
+          preallocated_arrays=None):
+    """
+    Return log-likelihood of hidden-rates-model mk as described in
+    Beaulieu et al. 2013
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        Q (np.array): Instantaneous rate matrix
+        p (np.array): Optional pre-allocated p matrix
+        pi (str or np.array): Option to weight the root node by given values.
+           Either a string containing the method or an array
+           of weights. Weights should be given in order.
+
+           Accepted methods of weighting root:
+
+           Equal: flat prior
+           Equilibrium: Prior equal to stationary distribution
+             of Q matrix
+           Fitzjohn: Root states weighted by how well they
+             explain the data at the tips.
+        returnPi (bool): Whether or not to return the final values of root
+          node weighting
+        preallocated_arrays (dict): Dict of pre-allocated arrays to improve
+          speed by avoiding creating and destroying new arrays
+    """
+    nchar = Q.shape[0]
+    if preallocated_arrays is None:
+        # Creating arrays to be used later
+        preallocated_arrays = {}
+        t = [node.length for node in tree.postiter() if not node.isroot]
+        t = np.array(t, dtype=np.double)
+        preallocated_arrays["charlist"] = range(Q.shape[0])
+        preallocated_arrays["t"] = t
+
+
+    if p is None: # Instantiating empty array
+        p = np.empty([len(preallocated_arrays["t"]), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
+    # Creating probability matrices from Q matrix and branch lengths
+    cyexpokit.dexpm_tree_preallocated_p(Q, preallocated_arrays["t"], p) # This changes p in place
+
+    if len(preallocated_arrays.keys())==2:
+        # Creating more arrays
+        nnode = len(tree.descendants())+1
+        preallocated_arrays["nodelist"] = np.zeros((nnode, nchar+1))
+        leafind = [ n.isleaf for n in tree.postiter()]
+        # Reordering character states to be in postorder sequence
+        preleaves = [ n for n in tree.preiter() if n.isleaf ]
+        postleaves = [n for n in tree.postiter() if n.isleaf ]
+        postnodes = list(tree.postiter());prenodes = list(tree.preiter())
+        postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
+        # Filling in the node list. It contains all of the information needed
+        # to calculate the likelihoods at each node
+        for k,ch in enumerate(postChars):
+            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][ch] = 1.0
+            for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
+                n[nchar] = postnodes.index(postnodes[i].parent)
+
+        # Setting initial node likelihoods to 1.0 for calculations
+        preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
+
+        # Empty array to store root priors
+        preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
+
+    # Calculating the likelihoods for each node in post-order sequence
+    cyexpokit.cy_mk(preallocated_arrays["nodelist"], p, preallocated_arrays["charlist"])
+    # The last row of nodelist contains the likelihood values at the root
+
+    # Applying the correct root prior
+    if type(pi) != str:
+        assert len(pi) == nchar, "length of given pi does not match Q dimensions"
+        assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
+        assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
+
+        np.copyto(preallocated_arrays["root_priors"], pi)
+
+        li = sum([ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ])
+        logli = math.log(li)
+
+    elif pi == "Equal":
+        preallocated_arrays["root_priors"].fill(1.0/nchar)
+        li = sum([ float(i)/nchar for i in preallocated_arrays["nodelist"][-1] ])
+
+        logli = math.log(li)
+
+    elif pi == "Fitzjohn":
+        np.copyto(preallocated_arrays["root_priors"],
+                  [preallocated_arrays["nodelist"][-1,:-1][charstate]/
+                   sum(preallocated_arrays["nodelist"][-1,:-1]) for
+                   charstate in set(chars) ])
+
+        li = sum([ preallocated_arrays["nodelist"][-1,:-1][charstate] *
+                     preallocated_arrays["root_priors"][charstate] for charstate in set(chars) ])
+        logli = math.log(li)
+    elif pi == "Equilibrium":
+        # Equilibrium pi from the stationary distribution of Q
+        np.copyto(preallocated_arrays["root_priors"],qsd(Q))
+        li = sum([ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ])
+        logli = math.log(li)
+    if returnPi:
+        return (logli, {k:v for k,v in enumerate(preallocated_arrays["root_priors"])})
+    else:
+        return logli

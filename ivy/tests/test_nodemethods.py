@@ -128,7 +128,7 @@ class alterTreeMethods(tree_methods):
         tree = self.primates
         tree["A"].collapse()
         self.primatesBPoly.treename = "primates"
-        self.assertTrue(tree.is_same_tree(self.primatesBPoly, verbose=True))
+        self.assertTrue(tree.is_same_tree(self.primatesBPoly))
     def test_collapse_root_returnsAssertionError(self):
         tree = self.primates
         try:
@@ -151,7 +151,7 @@ class alterTreeMethods(tree_methods):
     def test_copy_copytree_returnsSameTree(self):
         tree = self.primates
         tree2 = tree.copy()
-        self.assertTrue(tree.is_same_tree(tree2, check_id=True))
+        self.assertTrue(tree.is_same_tree(tree2))
 
 
     def test_addChild_createsPolytomy(self):
@@ -161,7 +161,7 @@ class alterTreeMethods(tree_methods):
         tree["A"].add_child(newNode)
 
         tree.reindex()
-        self.assertTrue(tree.is_same_tree(self.primatesAPoly, verbose=True))
+        self.assertTrue(tree.is_same_tree(self.primatesAPoly))
     def test_addChild_childInChildren_assertionError(self):
         tree = self.primates
         try:
@@ -182,7 +182,7 @@ class alterTreeMethods(tree_methods):
         tree["A"].bisect_branch(distance=.75)
         kneeTree = ivy.tree.read("support/primatesAKnee2.newick")
         tree.reindex()
-        self.assertTrue(tree.is_same_tree(kneeTree, verbose=True))
+        self.assertTrue(tree.is_same_tree(kneeTree))
     def test_bisectBranch_root_assertionError(self):
         tree = self.primates
         try:
@@ -238,10 +238,10 @@ class alterTreeMethods(tree_methods):
 
         trueTree = ivy.tree.read("support/plantsNoFabids.newick")
 
-        self.assertTrue(tree2.is_same_tree(trueTree, verbose=True))
+        self.assertTrue(tree2.is_same_tree(trueTree))
     def test_dropTip_plantsDrop100randtips_returnsTree(self):
         tree = self.plants
-        tipsToKeep = ["Vavilovia", "Dalbergiella", "Albizia", "Tripodion", "Balsaminaceae",
+        tipsToDrop = ["Vavilovia", "Dalbergiella", "Albizia", "Tripodion", "Balsaminaceae",
                     "Chapmannia", "Psophocarpus", "Thermopsis", "Maackia", "Brachyelytrum",
                     "Dahlstedtia", "Acacia", "Cornaceae", "Schefflerodendron", "Siparunaceae",
                     "Macadamia_jansenii", "Pinales", "Talinaceae", "Trochodendraceae",
@@ -264,15 +264,18 @@ class alterTreeMethods(tree_methods):
                     "Ebenus", "Linderniaceae", "Jacksonia", "Platylobium"]
         tree2 = tree.drop_tip(tipsToDrop)
         trueTree = ivy.tree.read("support/plantsDrop100.newick")
-
-        self.assertTrue(tree2.is_same_tree(trueTree, verbose=True))
+        self.assertTrue(tree2.is_same_tree(trueTree))
     def test_dropTip_plantsDropMultipleClades_returnsTree(self):
-        pass
+        tree = self.plants
+        trueTree = ivy.tree.read("support/plants3CladesDropped.newick")
+        toDrop = [n.leaves() for n in tree if n.label in ["Papilionoideae","Asterids", "Poaceae"]]
+        toDrop = [n for s in toDrop for n in s]
+        tree2 = tree.drop_tip(toDrop)
+        self.assertTrue(tree2.is_same_tree(trueTree))
     def test_dropTip_plantsDropNextToRoot_returnsTree(self):
         pass
     def test_dropTip_plantsdropthenladderize_returnsTree(self):
         pass
-T        pass
     def test_dropTip_polytomies_returnsTree(self):
         pass
     def test_dropTip_knees_returnsTree(self):
@@ -294,17 +297,11 @@ class is_same_tree_Methods(tree_methods):
 
         self.assertTrue(a.is_same_tree(b))
 
-    def test_sameTreeDifIDScheckID_returnsFalse(self):
-        a = ivy.tree.read("../../examples/primates.newick")
-        b = ivy.tree.read("../../examples/primates.newick")
-
-        self.assertFalse(a.is_same_tree(b, check_id=True))
-
     def test_sameTreeSameIDScheckID_returnsTrue(self):
         a = ivy.tree.read("../../examples/primates.newick")
         b = a.copy()
 
-        self.assertTrue(a.is_same_tree(b, check_id=True))
+        self.assertTrue(a.is_same_tree(b))
 
     def test_difTrees_returnsFalse(self):
         a = ivy.tree.read("../../examples/primates.newick")

@@ -67,7 +67,7 @@ def fit_mk_bayes(tree, chars, Qtype, pi, *kwargs):
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root node. Defaults to "Equal"
           Method "Fitzjohn" is not thouroughly tested, use with caution
-        Q: Either a string specifying how to esimate values for Q or a
+        Qtype: Either a string specifying how to esimate values for Q or a
           numpy array of a pre-specified Q matrix.
 
           Valid strings for Q:
@@ -261,6 +261,7 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
               # with only 1 state. Set it to 1 by hand
             allQparams_init_full[i] = [[1.0]]
         # Exponential scaling factor for Qparams
+        # Represents the base rate of state change
         allScaling_factors[i] = pymc.Exponential(name="allScaling_factors"+str(i), beta=1.0)
         # Scaled Qparams; we would not expect them to necessarily add
         # to 1 as would be the case in a Dirichlet distribution
@@ -362,3 +363,20 @@ def Mk_results(mcmc_obj):
             traceplots[var] = plt.plot(traces[var])
             summary[var] = scipy.stats.mode(traces[var])[0]
     return {"traces":traces, "hists":hists, "traceplots":traceplots, "summary":summary}
+
+
+def hrm_bayesian(tree, chars, Qtype, nstates, pi="Fitzjohn"):
+    """
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be in the form of 0,1,2,...
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root node. Defaults to "Equal"
+          Method "Fitzjohn" is not thouroughly tested, use with caution
+        Qtype: Either a string specifying how to esimate values for Q or a
+          numpy array of a pre-specified Q matrix.
+        nstates (int): Number of hidden states. nstates = 0 is
+          equivalent to a vanilla Mk model
+    """

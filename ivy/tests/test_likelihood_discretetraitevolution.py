@@ -862,6 +862,56 @@ class estimateQMethods(unittest.TestCase):
         except AssertionError:
             self.fail("expectedQs != calculatedQs")
 
+class Mk_hrm(mkMethods):
+    def test_hrmMk_threetiptree_matchesByHand(self):
+        """
+        Two observed states: 0 and 1
+        Two hidden states per observed state: fast and slow
+        """
+        tree = self.treetiptree
+        chars = [0,1,1]
+
+        # Qarray rows: 0S, 1S, 0F, 1F
+        # State transitions more likely than rate transitions
+        Q = np.array([[-.15, .1, 0.05, 0],[0.05,-.12,0,0.07],[0.06,0,-.26, .2],[0,0.08,0.3,-.38]])
+        t = np.array([i.length for i in tree.descendants()])
+        # Tips are assumed to be in both hidden states at once
+        # Likelihoods for tip A
+        L0SA = 1;L0FA = 1;L1SA = 0;L1FA = 0
+        # Likelhoods for tip B
+        L0SB = 0;L0FB = 0;L1SB = 1;L1FB = 1
+        # Likelihoods for tip D
+        L0SD = 0;L0FD = 0;L1SD = 1;L1FD = 1
+
+        p = cyexpokit.dexpm_tree(Q, t)
+
+        pvals = {}
+        for i,node in enumerate(["C","A","B","D"]):
+            for i1,state1 in enumerate(["0S","1S","0F","1F"]):
+                for i2,state2 in enumerate(["0S","1S","0F","1F"]):
+                    pvals[state1 + state2 + node] = p[i,i1,i2]
+
+        L0SC = (pvals["0S0SA"] * L0SA + pvals["0S1SA"] * L1SA + pvals["0S0FA"] * L0FA + pvals["0S1FA"] * L1FA) *\
+               (pvals["0S0SB"] * L0SB + pvals["0S1SB"] * L1SB + pvals["0S0FB"] * L0FB + pvals["0S1FB"] * L1FB)
+        L0FC = (pvals["0F0SA"] * L0SA + pvals["0F1SA"] * L1SA + pvals["0F0FA"] * L0FA + pvals["0F1FA"] * L1FA) *\
+               (pvals["0F0SB"] * L0SB + pvals["0F1SB"] * L1SB + pvals["0F0FB"] * L0FB + pvals["0F1FB"] * L1FB)
+        L1SC = (pvals["1S0SA"] * L0SA + pvals["1S1SA"] * L1SA + pvals["1S0FA"] * L0FA + pvals["1S1FA"] * L1FA) *\
+               (pvals["1S0SB"] * L0SB + pvals["1S1SB"] * L1SB + pvals["1S0FB"] * L0FB + pvals["1S1FB"] * L1FB)
+        L1FC = (pvals["1F0SA"] * L0SA + pvals["1F1SA"] * L1SA + pvals["1F0FA"] * L0FA + pvals["1F1FA"] * L1FA) *\
+               (pvals["1F0SB"] * L0SB + pvals["1F1SB"] * L1SB + pvals["1F0FB"] * L0FB + pvals["1F1FB"] * L1FB)
+
+        L0Sr = (pvals["0S0SC"] * L0SC + pvals["0S1SC"] * L1SC + pvals["0S0FC"] * L0FC + pvals["0S1FC"] * L1FC) *\
+               (pvals["0S0SD"] * L0SD + pvals["0S1SD"] * L1SD + pvals["0S0FD"] * L0FD + pvals["0S1FD"] * L1FD)
+        L0Fr = (pvals["0F0SC"] * L0SC + pvals["0F1SC"] * L1SC + pvals["0F0FC"] * L0FC + pvals["0F1FC"] * L1FC) *\
+               (pvals["0F0SD"] * L0SD + pvals["0F1SD"] * L1SD + pvals["0F0FD"] * L0FD + pvals["0F1FD"] * L1FD)
+        L1Sr = (pvals["1S0SC"] * L0SC + pvals["1S1SC"] * L1SC + pvals["1S0FC"] * L0FC + pvals["1S1FC"] * L1FC) *\
+               (pvals["1S0SD"] * L0SD + pvals["1S1SD"] * L1SD + pvals["1S0FD"] * L0FD + pvals["1S1FD"] * L1FD)
+        L1Fr = (pvals["1F0SC"] * L0SC + pvals["1F1SC"] * L1SC + pvals["1F0FC"] * L0FC + pvals["1F1FC"] * L1FC) *\
+               (pvals["1F0SD"] * L0SD + pvals["1F1SD"] * L1SD + pvals["1F0FD"] * L0FD + pvals["1F1FD"] * L1FD)
+
+        predictedLikelihood = math.log(L0Sr*.25 + L0Fr*.25 + L1Sr * .25 + L1Fr *.25)
+
+
 
 
 
