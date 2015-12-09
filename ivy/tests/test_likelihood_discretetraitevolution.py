@@ -911,6 +911,7 @@ class Mk_hrm(mkMethods):
 
         predictedLikelihood = math.log(L0Sr*.25 + L0Fr*.25 + L1Sr * .25 + L1Fr *.25)
 
+        corHMMLikelihood = -2.980018
 
 
 
