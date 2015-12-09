@@ -852,7 +852,7 @@ def locs_from_switchpoint(tree, switch, locs=None):
     return locs
 
 
-def hrm_mk(tree, chars, Q, p=None, pi="Fitzjohn",returnPi=False,
+def hrm_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
           preallocated_arrays=None):
     """
     Return log-likelihood of hidden-rates-model mk as described in
@@ -882,6 +882,7 @@ def hrm_mk(tree, chars, Q, p=None, pi="Fitzjohn",returnPi=False,
           speed by avoiding creating and destroying new arrays
     """
     nchar = Q.shape[0]
+    nobschar = nchar/nregime
     if preallocated_arrays is None:
         # Creating arrays to be used later
         preallocated_arrays = {}
@@ -908,8 +909,13 @@ def hrm_mk(tree, chars, Q, p=None, pi="Fitzjohn",returnPi=False,
         postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
         # Filling in the node list. It contains all of the information needed
         # to calculate the likelihoods at each node
+
+        # Q matrix is in the form of "0S, 1S, 0F, 1F" etc. Probabilities
+        # set to 1 for all hidden states of the observed state.
         for k,ch in enumerate(postChars):
-            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][ch] = 1.0
+            # Indices of hidden rates of observed state. These will all be set to 1
+            hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
+            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][hiddenChs] = 1.0
             for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
                 n[nchar] = postnodes.index(postnodes[i].parent)
 
@@ -944,7 +950,7 @@ def hrm_mk(tree, chars, Q, p=None, pi="Fitzjohn",returnPi=False,
         np.copyto(preallocated_arrays["root_priors"],
                   [preallocated_arrays["nodelist"][-1,:-1][charstate]/
                    sum(preallocated_arrays["nodelist"][-1,:-1]) for
-                   charstate in set(chars) ])
+                   charstate in range(nchar) ])
 
         li = sum([ preallocated_arrays["nodelist"][-1,:-1][charstate] *
                      preallocated_arrays["root_priors"][charstate] for charstate in set(chars) ])
@@ -958,3 +964,25 @@ def hrm_mk(tree, chars, Q, p=None, pi="Fitzjohn",returnPi=False,
         return (logli, {k:v for k,v in enumerate(preallocated_arrays["root_priors"])})
     else:
         return logli
+
+
+
+
+def _random_Q_matrix(nchar, nregime):
+    """
+    Generate a random Q matrix with nchar*nregime rows and cols
+    """
+    split = 2.0/nregime
+    bins = [ split*r for r in range(nregime) ]
+
+    Q = np.zeros([nchar*nregime, nchar*nregime])
+
+    for rR in range(nregime):
+        for rC in range(nregime):
+            for charR in range(nchar):
+                for charC in range(nchar):
+                    if not ((rR == rC) and (charR == charC)):
+                        if (rR == rC) or (charR == charC):
+                            Q[charR+rR*nchar, charC+rC*nchar] = random.uniform(bins[rR], bins[rR]+split)
+    Q[np.diag_indices(nchar*nregime)] = np.sum(Q, axis=1)*-1
+    return Q
