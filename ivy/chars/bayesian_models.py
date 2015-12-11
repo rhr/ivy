@@ -365,7 +365,7 @@ def Mk_results(mcmc_obj):
     return {"traces":traces, "hists":hists, "traceplots":traceplots, "summary":summary}
 
 
-def hrm_bayesian(tree, chars, Qtype, nstates, pi="Fitzjohn"):
+def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
     """
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
@@ -377,6 +377,43 @@ def hrm_bayesian(tree, chars, Qtype, nstates, pi="Fitzjohn"):
           Method "Fitzjohn" is not thouroughly tested, use with caution
         Qtype: Either a string specifying how to esimate values for Q or a
           numpy array of a pre-specified Q matrix.
-        nstates (int): Number of hidden states. nstates = 0 is
+            "Simple": Symmetric rates within observed states and between
+            rates.
+        nregime (int): Number of hidden states. nstates = 0 is
           equivalent to a vanilla Mk model
     """
+    nobschar = len(set(chars))
+    nchar = nobschar * nregime
+
+    assert nobschar == 2, "Can currently only handle simple Q matrix"
+    assert nregime == 2, "Can currently only handle simple Q matrix"
+    assert Qtype == "Simple", "Can currently only handle simple Q matrix"
+
+    ###########################################################################
+    # Qparams:
+    ###########################################################################
+    # The simple model has three parameters....
+    # For now, we will have each be exponentially distributed
+    # parA: Slow transition from 0 -> 1 and 1 -> 0
+    parA = pymc.Exponential(name="parA", beta = 1.0, value = 0.1)
+    # parB: transition between rate classes (for either state)
+    parB = pymc.Exponential(name="parB", beta = 1.0, value = 0.1)
+    # parC: Fast transition from 0 -> 1 and 1 -> 0
+    parC = pymc.Exponential(name="parC", beta = 1.0, value = 0.2)
+    #
+    # @pymc.stochastic
+    # def Qparams(parA, parB, parC):
+
+    ###########################################################################
+    # Likelihood
+    ###########################################################################
+    l = discrete.create_likelihood_function_hrm_mk(tree=tree, chars=chars,
+        nregime=2, Qtype="ARD", pi="Fitzjohn", min=False)
+    @pymc.potential
+    def mklik(qA = parA, qB = parB, qC = parC, name="mklik"):
+        Qparams = np.array([qA, qB, qA, qB, qB, qC, qB, qC])
+        if (qA < qC) and (qB < qC):
+            return l(Qparams)
+        else:
+            return -np.inf
+    return locals()
