@@ -45,18 +45,18 @@ for i in ["parA", "parB", "parC"]:
 
 
 
-
-
-# Campanulid dataset: analyzing with Multi-Regime Mk
-camp_tree = ivy.tree.read("/home/cziegler/Campanulid/Camp.BEST.d8.tre", format="newick")
-
-camp_data = ivy.tree.load_chars("/home/cziegler/Campanulid/Camp.GF2")
-
-camp_chars = [int(camp_data[n.label]["FORM"]) for n in camp_tree.leaves()]
 #
-# camp_fig.tip_chars(chars = [int(camp_data[n.label]["FORM"]) for n in camp_tree.leaves()],
-#                   colors = ["brown","green"])
-
-
-# First fit a basic Mk model
-camp_mk = discrete.fitMk(camp_tree, camp_chars, Q="ARD", pi="Fitzjohn")
+#
+# # Campanulid dataset: analyzing with Multi-Regime Mk
+# camp_tree = ivy.tree.read("/home/cziegler/Campanulid/Camp.BEST.d8.tre", format="newick")
+#
+# camp_data = ivy.tree.load_chars("/home/cziegler/Campanulid/Camp.GF2")
+#
+# camp_chars = [int(camp_data[n.label]["FORM"]) for n in camp_tree.leaves()]
+# #
+# # camp_fig.tip_chars(chars = [int(camp_data[n.label]["FORM"]) for n in camp_tree.leaves()],
+# #                   colors = ["brown","green"])
+#
+#
+# # First fit a basic Mk model
+# camp_mk = discrete.fitMk(camp_tree, camp_chars, Q="ARD", pi="Fitzjohn")

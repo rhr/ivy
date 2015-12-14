@@ -378,42 +378,102 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
         Qtype: Either a string specifying how to esimate values for Q or a
           numpy array of a pre-specified Q matrix.
             "Simple": Symmetric rates within observed states and between
-            rates.
+              rates.
+            "STD": State Transitions Different. Transitions between states
+              within the same rate class are asymetrical
         nregime (int): Number of hidden states. nstates = 0 is
           equivalent to a vanilla Mk model
     """
     nobschar = len(set(chars))
     nchar = nobschar * nregime
 
-    assert nobschar == 2, "Can currently only handle simple Q matrix"
-    assert nregime == 2, "Can currently only handle simple Q matrix"
-    assert Qtype == "Simple", "Can currently only handle simple Q matrix"
+    # assert nobschar == 2, "Can currently only handle 2x2 Q matrix"
+    # assert nregime == 2, "Can currently only handle 2x2 Q matrix"
+    assert Qtype in ["Simple", "STD"], "Q type must be one of: simple, STD"
 
     ###########################################################################
     # Qparams:
     ###########################################################################
-    # The simple model has three parameters....
+    # The simple model has # of parameters equal to nregime + nregime-1 (One set of
+    # rates for each regime, plus transition rates between regimes)
     # For now, we will have each be exponentially distributed
-    # parA: Slow transition from 0 -> 1 and 1 -> 0
-    parA = pymc.Exponential(name="parA", beta = 1.0, value = 0.1)
-    # parB: transition between rate classes (for either state)
-    parB = pymc.Exponential(name="parB", beta = 1.0, value = 0.1)
-    # parC: Fast transition from 0 -> 1 and 1 -> 0
-    parC = pymc.Exponential(name="parC", beta = 1.0, value = 0.2)
+
+    # Within-regime state transitions:
+    if Qtype == "Simple":
+        WR_Qparams = np.array(nregime)
+        for i in range(nregime):
+            WR_Qparams[i] = pymc.Exponential(name="wr-par"+str(i), beta = 1.0, value = 1e-5+(nregime/10))
+    # Between-regime transitions:
+        BR_Qparams = np.array(nregime-1)
+        for i in range(nregime-1):
+            BR_Qparams[i] = pymc.Exponential(name="br-par"+str(i), beta = 1.0, value = 1e-5)
+    # if Qtype == "STD":
+    #     theta = [1.0/2.0] * nobschar
+    #     parAInit_ = pymc.Dirichlet("parAInit_", theta, value=[0.5])
+    #     parAInit = pymc.CompletedDirichlet("parAInit", parAInit_)
+    #     scalingA = pymc.Exponential(name="scalingA", beta = 1.0, value = 0.1)
     #
-    # @pymc.stochastic
-    # def Qparams(parA, parB, parC):
+    #     @pymc.deterministic(plot=False)
+    #     def parA(q = parAInit, s = scalingA):
+    #         parAs = np.empty(nobschar)
+    #         for n in range(nobschar):
+    #             parAs[n] = q[0][n] * s
+    #         return parAs
+    # parB: transition between rate classes (for either state)
+    # parB = pymc.Exponential(name="parB", beta = 1.0, value = 0.1)
+    # parC: Fast transition from 0 -> 1 and 1 -> 0
+    # if Qtype == "Simple":
+    #     parC = pymc.Exponential(name="parC", beta = 1.0, value = 0.5)
+    # if Qtype == "STD":
+    #     parCInit_ = pymc.Dirichlet("parCInit_", theta, value = [0.5])
+    #     parCInit = pymc.CompletedDirichlet("parCInit", parAInit_)
+    #     scalingC = pymc.Exponential(name="scalingC", beta = 1.0, value = 0.5)
+    #
+    #     @pymc.deterministic(plot=False)
+    #     def parC(q = parCInit, s = scalingC):
+    #         parCs = np.empty(nobschar)
+    #         for n in range(nobschar):
+    #             parCs[n] = q[0][n] * s
+    #         return parCs
 
     ###########################################################################
     # Likelihood
     ###########################################################################
+
+    map(add, range(0, nobschar)*nobschar, [0,0,0,7,7,7,13,13,13]
+
     l = discrete.create_likelihood_function_hrm_mk(tree=tree, chars=chars,
-        nregime=2, Qtype="ARD", pi="Fitzjohn", min=False)
+        nregime=nregime, Qtype="ARD", pi="Fitzjohn", min=False)
     @pymc.potential
-    def mklik(qA = parA, qB = parB, qC = parC, name="mklik"):
-        Qparams = np.array([qA, qB, qA, qB, qB, qC, qB, qC])
-        if (qA < qC) and (qB < qC):
-            return l(Qparams)
-        else:
-            return -np.inf
+    def mklik(wr = WR_Qparams, br=BR_Qparams, name="mklik"):
+        if Qtype == "Simple":
+            Qparams = np.array([qA, qB, qA, qB, qB, qC, qB, qC])
+            if ((sorted(wr) == wr) and all(br < wr[nregime-1])):
+                return l(Qparams)
+            else:
+                return -np.inf
+        if Qtype == "STD":
+            Qparams = np.array([qA[0], qB, qA[1], qB, qB, qC[0], qB, qC[1]])
+            if (qA[0] < qC[0]) and (qB < qC[0]) and (qA[1] < qC[1] and qB < qC[1]):
+                return l(Qparams)
+            else:
+                return -np.inf
     return locals()
+
+def _subarray_indices(nobschar, nregime, x, y):
+    xinds = [ i + x*nobschar*(nregime-1) for i in range(nobschar) ]
+    yinds = [ i + y*nobschar*(nregime-1) for i in range(nobschar) ]
+    ylen = nobschar*nregime
+
+    sub = [x + y for y in [c* ylen for c in yinds] for x in xinds ]
+
+    return [x + y for y in [c* ylen for c in yinds] for x in xinds ]
+def _invalid_indices(nobschar, nregime):
+    diags = [ n + nobschar*nregime*n for n in range(nobschar*nregime)]
+    consecs = zip(range(nregime)[1:], range(nregime)[:-1])
+    revconsecs = [ i[::-1] for i in consecs ]
+
+    invalid_subarrays = [ i for i in list(itertools.permutations(range(nregime), 2)) if not i in consecs+revconsecs ]
+    offdiag_subarrays = range(len(invalid_subarrays))
+    for i,s in enumerate(invalid_subarrays):
+        offdiag_subarrays[i] = _subarray_indices(nobschar, nregime, s[0], s[1])
