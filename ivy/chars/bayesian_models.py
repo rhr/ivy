@@ -400,13 +400,11 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
 
     # Within-regime state transitions:
     if Qtype == "Simple":
-        WR_Qparams = np.array(nregime)
+        WR_Qparams = np.ndarray(nregime, dtype="object")
         for i in range(nregime):
             WR_Qparams[i] = pymc.Exponential(name="wr-par"+str(i), beta = 1.0, value = 1e-5+(nregime/10))
     # Between-regime transitions:
-        BR_Qparams = np.array(nregime-1)
-        for i in range(nregime-1):
-            BR_Qparams[i] = pymc.Exponential(name="br-par"+str(i), beta = 1.0, value = 1e-5)
+        BR_Qparams = pymc.Exponential(name="br-par", beta = 1.0, value = 1e-5)
     # if Qtype == "STD":
     #     theta = [1.0/2.0] * nobschar
     #     parAInit_ = pymc.Dirichlet("parAInit_", theta, value=[0.5])
@@ -440,15 +438,39 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
     # Likelihood
     ###########################################################################
 
-    map(add, range(0, nobschar)*nobschar, [0,0,0,7,7,7,13,13,13]
 
     l = discrete.create_likelihood_function_hrm_mk(tree=tree, chars=chars,
-        nregime=nregime, Qtype="ARD", pi="Fitzjohn", min=False)
+        nregime=nregime, Qtype="ARD", pi=pi, min=False)
     @pymc.potential
     def mklik(wr = WR_Qparams, br=BR_Qparams, name="mklik"):
         if Qtype == "Simple":
-            Qparams = np.array([qA, qB, qA, qB, qB, qC, qB, qC])
-            if ((sorted(wr) == wr) and all(br < wr[nregime-1])):
+            # Getting the locations of each Q parameter to feed
+            # to the likelihood function
+
+            # Note that the likelihood function takes q parameters
+            # in coumnwise-order, not counting zero and negative values.
+
+            # Within-regime shifts
+            qinds = {}
+            for i,q in enumerate(wr):
+                qinds[i]=(valid_indices(nobschar, nregime, i,i))
+            rshift_pairs = zip(range(nregime)[1:], range(nregime)[:-1])
+            qinds[i+1] = [] # Between-regime shifts(all share 1 rate)
+            for p in rshift_pairs:
+                qinds[i+1].extend(valid_indices(nobschar, nregime, p[0],p[1]))
+                qinds[i+1].extend(valid_indices(nobschar, nregime, p[1],p[0]))
+
+            # These are the indices of the values we will give to
+            # the likelihood function, in order
+            param_indices = sorted([ i for v in qinds.values() for i in v])
+            qparam_list = list(wr)+list(br)
+            Qparams = [] # Empty list for values to feed to lik function
+            for pi in param_indices:
+                qi = [ k for k,v in qinds.iteritems() if pi in v ][0]
+                Qparams.append(qparam_list[qi]) # Pulling out the correct param
+            # Qparams now contains the parameters needed in the
+            # correct order for the likelihood function.
+            if ((sorted(wr) == wr) and (br < wr[nregime-1])):
                 return l(Qparams)
             else:
                 return -np.inf
@@ -461,19 +483,46 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
     return locals()
 
 def _subarray_indices(nobschar, nregime, x, y):
-    xinds = [ i + x*nobschar*(nregime-1) for i in range(nobschar) ]
-    yinds = [ i + y*nobschar*(nregime-1) for i in range(nobschar) ]
+    """
+    For a Q matrix whose elements are to be indexed columnwise,
+    return the indices of the elements of the given subarray (array
+    divided into nregime x nregime subarrays)
+    """
+    xinds = [ i + x*nobschar for i in range(nobschar) ]
+    yinds = [ i + y*nobschar for i in range(nobschar) ]
     ylen = nobschar*nregime
-
     sub = [x + y for y in [c* ylen for c in yinds] for x in xinds ]
+    return sub
 
-    return [x + y for y in [c* ylen for c in yinds] for x in xinds ]
 def _invalid_indices(nobschar, nregime):
+    # Diagonals have no parameters
     diags = [ n + nobschar*nregime*n for n in range(nobschar*nregime)]
     consecs = zip(range(nregime)[1:], range(nregime)[:-1])
     revconsecs = [ i[::-1] for i in consecs ]
 
-    invalid_subarrays = [ i for i in list(itertools.permutations(range(nregime), 2)) if not i in consecs+revconsecs ]
-    offdiag_subarrays = range(len(invalid_subarrays))
-    for i,s in enumerate(invalid_subarrays):
-        offdiag_subarrays[i] = _subarray_indices(nobschar, nregime, s[0], s[1])
+    subarrays = list(itertools.permutations(range(nregime), 2))
+    # "corner" subarrays have no parameters (no shifts directly from
+    # slow to fast regimes, eg.)
+    corner_subarrays = [ i for i in subarrays if not i in consecs+revconsecs ]
+    corner_indices = range(len(corner_subarrays))
+    for i,s in enumerate(corner_subarrays):
+        corner_indices[i] = _subarray_indices(nobschar, nregime, s[0], s[1])
+
+    # For regime-shift subarrays (non-diagonal and non-corner subarrays)
+    # Only diagonals are allowed. All non-diagonals have no parameters.
+    rshift_subarrays = [ i for i in subarrays if i in consecs+revconsecs]
+    rshift_indices = range(len(rshift_subarrays))
+    for i,s in enumerate(rshift_subarrays):
+        inds = _subarray_indices(nobschar, nregime, s[0], s[1])
+        # Remove the diagonals (they are valid)
+        inds = [ inds[r] for r in range(len(inds)) if not r in range(0, nobschar**2, nobschar)]
+        rshift_indices[i] = inds
+    return [ i for sub in [[diags] + corner_indices + rshift_indices][0] for i in sub ]
+def valid_indices(nobschar, nregime, x, y):
+    """
+    Return only the valid indices for the given subarray
+    """
+    l = _subarray_indices(nobschar, nregime, x, y)
+    inv = _invalid_indices(nobschar, nregime)
+
+    return [ i for i in l if not i in inv]
