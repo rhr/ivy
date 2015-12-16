@@ -9,6 +9,7 @@ from scipy.special import binom
 from ivy.chars import discrete
 import pymc
 import matplotlib.pyplot as plt
+import itertools
 
 def create_mk_model(tree, chars, Qtype, pi):
     """
@@ -398,47 +399,49 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
     # rates for each regime, plus transition rates between regimes)
     # For now, we will have each be exponentially distributed
 
-    # Within-regime state transitions:
+    # Simplest model: all transitions between states within a regime are equal.
+    # Each regime has a rate associated with it.
+    # There is one rate between regimes.
+    # Number of parameters = nregime+1
     if Qtype == "Simple":
+        # Wtihin-regime transitions
         WR_Qparams = np.ndarray(nregime, dtype="object")
         for i in range(nregime):
-            WR_Qparams[i] = pymc.Exponential(name="wr-par"+str(i), beta = 1.0, value = 1e-5+(nregime/10))
+            WR_Qparams[i] = pymc.Exponential(name="wr-par"+str(i), beta = 1.0, value = 1e-2+(i/100.0))
     # Between-regime transitions:
-        BR_Qparams = pymc.Exponential(name="br-par", beta = 1.0, value = 1e-5)
-    # if Qtype == "STD":
-    #     theta = [1.0/2.0] * nobschar
-    #     parAInit_ = pymc.Dirichlet("parAInit_", theta, value=[0.5])
-    #     parAInit = pymc.CompletedDirichlet("parAInit", parAInit_)
-    #     scalingA = pymc.Exponential(name="scalingA", beta = 1.0, value = 0.1)
-    #
-    #     @pymc.deterministic(plot=False)
-    #     def parA(q = parAInit, s = scalingA):
-    #         parAs = np.empty(nobschar)
-    #         for n in range(nobschar):
-    #             parAs[n] = q[0][n] * s
-    #         return parAs
-    # parB: transition between rate classes (for either state)
-    # parB = pymc.Exponential(name="parB", beta = 1.0, value = 0.1)
-    # parC: Fast transition from 0 -> 1 and 1 -> 0
-    # if Qtype == "Simple":
-    #     parC = pymc.Exponential(name="parC", beta = 1.0, value = 0.5)
-    # if Qtype == "STD":
-    #     parCInit_ = pymc.Dirichlet("parCInit_", theta, value = [0.5])
-    #     parCInit = pymc.CompletedDirichlet("parCInit", parAInit_)
-    #     scalingC = pymc.Exponential(name="scalingC", beta = 1.0, value = 0.5)
-    #
-    #     @pymc.deterministic(plot=False)
-    #     def parC(q = parCInit, s = scalingC):
-    #         parCs = np.empty(nobschar)
-    #         for n in range(nobschar):
-    #             parCs[n] = q[0][n] * s
-    #         return parCs
+        BR_Qparams = pymc.Exponential(name="br-par", beta = 1.0, value = 1e-2)
+    # State-transitions different. Transitions between states within a
+    # rate regime can differ (ARD). Transitions between rates share one
+    # rate parameter.
+    # Number of parameters = nregime*(nobschar**2-nobschar) + 1
+    if Qtype == "STD":
+        theta = [1.0/2.0] * nobschar
+
+        i_d = np.ndarray(nregime, dtype="object")
+        c_d = np.ndarray(nregime, dtype="object")
+        scale = np.ndarray(nregime, dtype="object")
+        # Within-regime transitions
+        WR_Qparams = np.ndarray(nregime, dtype="object")
+
+        for i in range(nregime):
+            # First, create a dirichlet distribution
+            i_d[i] = pymc.Dirichlet("parInit_"+str(i), theta, value = [1.0/nobschar]*(nobschar-1))
+            c_d[i] = pymc.CompletedDirichlet("parInit"+str(i), i_d[i])
+
+            scale[i] = pymc.Exponential(name="scaling"+str(i), beta=1.0, value=1e-2+(i/100.0))
+
+            # Then, scale dirichlet distribution by overall rate parameter for that regime
+            @pymc.deterministic(plot=False,name="wr-par"+str(i))
+            def d_scaled(d = c_d[i], s = scale[i]):
+                return (d*s)[0]
+            WR_Qparams[i] = d_scaled
+
+        BR_Qparams = pymc.Exponential(name="br-par", beta = 1.0, value = 1e-2)
+
 
     ###########################################################################
     # Likelihood
     ###########################################################################
-
-
     l = discrete.create_likelihood_function_hrm_mk(tree=tree, chars=chars,
         nregime=nregime, Qtype="ARD", pi=pi, min=False)
     @pymc.potential
@@ -449,11 +452,10 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
 
             # Note that the likelihood function takes q parameters
             # in coumnwise-order, not counting zero and negative values.
-
             # Within-regime shifts
             qinds = {}
             for i,q in enumerate(wr):
-                qinds[i]=(valid_indices(nobschar, nregime, i,i))
+                qinds[i]=valid_indices(nobschar, nregime, i,i)
             rshift_pairs = zip(range(nregime)[1:], range(nregime)[:-1])
             qinds[i+1] = [] # Between-regime shifts(all share 1 rate)
             for p in rshift_pairs:
@@ -463,23 +465,50 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
             # These are the indices of the values we will give to
             # the likelihood function, in order
             param_indices = sorted([ i for v in qinds.values() for i in v])
-            qparam_list = list(wr)+list(br)
+            qparam_list = list(wr)+[br] # Making a single list to get parameters from
             Qparams = [] # Empty list for values to feed to lik function
             for pi in param_indices:
                 qi = [ k for k,v in qinds.iteritems() if pi in v ][0]
                 Qparams.append(qparam_list[qi]) # Pulling out the correct param
             # Qparams now contains the parameters needed in the
             # correct order for the likelihood function.
-            if ((sorted(wr) == wr) and (br < wr[nregime-1])):
-                return l(Qparams)
+            if ((sorted(list(wr)) == list(wr)) and (br < wr[nregime-1])):
+                return l(np.array(Qparams))
             else:
                 return -np.inf
         if Qtype == "STD":
-            Qparams = np.array([qA[0], qB, qA[1], qB, qB, qC[0], qB, qC[1]])
-            if (qA[0] < qC[0]) and (qB < qC[0]) and (qA[1] < qC[1] and qB < qC[1]):
-                return l(Qparams)
-            else:
+            qinds = {}
+            n=0
+            for i,q in enumerate(wr):
+                for k in range(nregime):
+                    qinds[n] = [valid_indices(nobschar, nregime, i, i)[k]]
+                    n+=1
+            rshift_pairs = zip(range(nregime)[1:], range(nregime)[:-1])
+            qinds[n] = [] # Between-regime shifts(all share 1 rate)
+            for p in rshift_pairs:
+                qinds[n].extend(valid_indices(nobschar, nregime, p[0],p[1]))
+                qinds[n].extend(valid_indices(nobschar, nregime, p[1],p[0]))
+
+            param_indices = sorted([ i for v in qinds.values() for i in v])
+            qparam_list = [i for s in [q for q in wr] for i in s]+[br] # Making a single list to get parameters from
+            Qparams = [] # Empty list for values to feed to lik function
+            for pi in param_indices:
+                qi = [ k for k,v in qinds.iteritems() if pi in v ][0]
+                Qparams.append(qparam_list[qi]) # Pulling out the correct param
+
+            # Conditions to be enforced:
+            # All corresponding rates in each regime must be ordered (fast must be faster than medium, etc)
+            # Rate for shift between regimes cannot be faster than the fastest
+            # rate within regimes
+            for i in range(nregime):
+                n = [q[i] for q in wr]
+                if not sorted(n) == n:
+                    return -np.inf
+            if br > max(wr[nregime-1]):
                 return -np.inf
+
+            return l(np.array(Qparams))
+
     return locals()
 
 def _subarray_indices(nobschar, nregime, x, y):
