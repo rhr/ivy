@@ -11,6 +11,8 @@ import pymc
 import matplotlib.pyplot as plt
 import itertools
 
+np.seterr(invalid="warn")
+
 def create_mk_model(tree, chars, Qtype, pi):
     """
     Create model objects to be passed to pymc.MCMC
@@ -390,7 +392,7 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
 
     # assert nobschar == 2, "Can currently only handle 2x2 Q matrix"
     # assert nregime == 2, "Can currently only handle 2x2 Q matrix"
-    assert Qtype in ["Simple", "STD"], "Q type must be one of: simple, STD"
+    assert Qtype in ["Simple", "STD", "RTD", "ARD"], "Q type must be one of: simple, STD, RTD, ARD"
 
     ###########################################################################
     # Qparams:
@@ -437,6 +439,42 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
             WR_Qparams[i] = d_scaled
 
         BR_Qparams = pymc.Exponential(name="br-par", beta = 1.0, value = 1e-2)
+    if Qtype == "RTD":
+        WR_Qparams = np.ndarray(nregime, dtype="object")
+        for i in range(nregime):
+            WR_Qparams[i] = pymc.Exponential(name="wr-par"+str(i), beta = 1.0, value = 1e-2+(i/100.0))
+
+        BR_Qparams = np.ndarray(nregime-1, dtype="object")
+        for i in range(nregime-1):
+            BR_Qparams[i] = pymc.Exponential(name="br-par"+str(i), beta=1.0, value=1e-2)
+    if Qtype == "ARD":
+        theta = [1.0/2.0] * nobschar
+        i_d = np.ndarray(nregime, dtype="object")
+        c_d = np.ndarray(nregime, dtype="object")
+        scale = np.ndarray(nregime, dtype="object")
+        # Within-regime transitions
+        WR_Qparams = np.ndarray(nregime, dtype="object")
+
+        for i in range(nregime):
+            # First, create a dirichlet distribution
+            i_d[i] = pymc.Dirichlet("parInit_"+str(i), theta, value = [1.0/nobschar]*(nobschar-1))
+            c_d[i] = pymc.CompletedDirichlet("parInit"+str(i), i_d[i])
+
+            scale[i] = pymc.Exponential(name="scaling"+str(i), beta=1.0, value=1e-2+(i/100.0))
+
+            # Then, scale dirichlet distribution by overall rate parameter for that regime
+            @pymc.deterministic(plot=False,name="wr-par"+str(i))
+            def d_scaled(d = c_d[i], s = scale[i]):
+                return (d*s)[0]
+            WR_Qparams[i] = d_scaled
+        BR_Qparams = np.ndarray((nregime-1)*2*nobschar, dtype="object")
+        br_i = 0
+        for i in range(nregime-1)*2:
+            for n in range(nobschar):
+                BR_Qparams[br_i] = pymc.Exponential(name="br-par"+str(br_i), beta=1.0, value=1e-2)
+                br_i += 1
+
+
 
 
     ###########################################################################
@@ -508,6 +546,45 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
                 return -np.inf
 
             return l(np.array(Qparams))
+        if Qtype == "RTD":
+            qinds = {}
+            for i,q in enumerate(wr):
+                qinds[i]=valid_indices(nobschar, nregime, i,i)
+        if Qtype == "ARD":
+            qinds = {}
+            n=0
+            for i,q in enumerate(wr):
+                for k in range(nregime):
+                    qinds[n] = [valid_indices(nobschar, nregime, i, i)[k]]
+                    n+=1
+            rshift_pairs = zip(range(nregime)[1:], range(nregime)[:-1])
+            for p in rshift_pairs:
+                for i in  valid_indices(nobschar, nregime, p[0],p[1]):
+                    qinds[n] = [i]
+                    n+=1
+                for i in  valid_indices(nobschar, nregime, p[1],p[0]):
+                    qinds[n] = [i]
+                    n+=1
+            param_indices = sorted([ i for v in qinds.values() for i in v])
+            qparam_list = [i for s in [q for q in wr] for i in s]+[b for b in br] # Making a single list to get parameters from
+            Qparams = [] # Empty list for values to feed to lik function
+            for pi in param_indices:
+                qi = [ k for k,v in qinds.iteritems() if pi in v ][0]
+                Qparams.append(qparam_list[qi]) # Pulling out the correct param
+
+            # Conditions to be enforced:
+            # All corresponding rates in each regime must be ordered (fast must be faster than medium, etc)
+            # Max rate for shift between regimes cannot be faster than the fastest
+            # rate within regimes
+            for i in range(nregime):
+                n = [q[i] for q in wr]
+                if not sorted(n) == n:
+                    return -np.inf
+            if max(br) > max(wr[nregime-1]):
+                return -np.inf
+            return l(np.array(Qparams))
+
+
 
     return locals()
 

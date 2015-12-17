@@ -1,221 +1,549 @@
-"""
-Categorical Markov models with k states.
-"""
-import numpy, scipy, random
-import scipy.linalg
-import scipy.optimize
-from scipy import array, zeros, ones
-from scipy.linalg import expm#, expm2, expm3
-from math import log, exp
-rand = random.Random()
-uniform = rand.uniform; expovariate = rand.expovariate
+import ivy
+import numpy as np
+import math
+from ivy.chars.expokit import cyexpokit
+import scipy
+from scipy import special
+from scipy.optimize import minimize
+from scipy.special import binom
+import random
 
-LARGE = 10e10 # large -lnL value used to bound parameter optimization
+from ivy.chars.mk import *
+from ivy.chars.mk_mr import *
+from ivy.chars.hrm import *
 
-class Q:
-    def __init__(self, k=2, layout=None):
-        """
-        Represents a square transition matrix with k states.
-        
-        'layout' is a square (k,k) array of integers that index free
-        rate parameters (values on the diagonal are ignored).  Cells
-        with value 0 will have the first rate parameter, 1 the
-        second, etc.
-        """
-        self.k = k
-        self.range = range(k)
-        self.offdiag = array(numpy.eye(k)==0, dtype=numpy.int)
-        if layout is None:
-            layout = zeros((k,k), numpy.int)
-        self.layout = layout*self.offdiag
+def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
+          preallocated_arrays=None):
+    """
+    Fit mk model and return likelihood for the root node of a tree given a list of characters
+    and a Q matrix
 
-    def fill(self, rates):
-        m = numpy.take(rates, self.layout)*self.offdiag
-        v = m.sum(1) * -1
-        for i in self.range:
-            m[i,i] = v[i]
-        return m
+    Convert tree and character data into a form that can be input
+    into mk, which fits an mk model.
 
-    def default_priors(self):
-        p = 1.0/self.k
-        return [p]*self.k
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        Q (np.array): Instantaneous rate matrix
+        p (np.array): Optional pre-allocated p matrix
+        pi (str or np.array): Option to weight the root node by given values.
+           Either a string containing the method or an array
+           of weights. Weights should be given in order.
 
-def sample_weighted(weights):
-    u = uniform(0, sum(weights))
-    x = 0.0
-    for i, w in enumerate(weights):
-        x += w
-        if u < x:
-            break
-    return i
+           Accepted methods of weighting root:
 
-def conditionals(root, data, Q):
-    nstates = Q.shape[0]
-    states = range(nstates)
-    nodes = [ x for x in root.postiter() ]
-    nnodes = len(nodes)
-    v = zeros((nnodes,nstates))
-    n2i = {}
-    
-    for i, n in enumerate(nodes):
-        n2i[n] = i
-        if n.isleaf:
-            state = data[n.label]
-            try:
-                state = int(state)
-                v[i,state] = 1.0
-            except ValueError:
-                if state == '?' or state == '-':
-                    v[i,:] += 1/float(nstates)
+           Equal: flat prior
+           Equilibrium: Prior equal to stationary distribution
+             of Q matrix
+           Fitzjohn: Root states weighted by how well they
+             explain the data at the tips.
+        returnPi (bool): Whether or not to return the final values of root
+          node weighting
+        preallocated_arrays (dict): Dict of pre-allocated arrays to improve
+          speed by avoiding creating and destroying new arrays
+    """
+    nchar = Q.shape[0]
+    if preallocated_arrays is None:
+        # Creating arrays to be used later
+        preallocated_arrays = {}
+        t = [node.length for node in tree.postiter() if not node.isroot]
+        t = np.array(t, dtype=np.double)
+        preallocated_arrays["charlist"] = range(Q.shape[0])
+        preallocated_arrays["t"] = t
+
+
+    if p is None: # Instantiating empty array
+        p = np.empty([len(preallocated_arrays["t"]), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
+    # Creating probability matrices from Q matrix and branch lengths
+    cyexpokit.dexpm_tree_preallocated_p(Q, preallocated_arrays["t"], p) # This changes p in place
+
+    if len(preallocated_arrays.keys())==2:
+        # Creating more arrays
+        nnode = len(tree.descendants())+1
+        preallocated_arrays["nodelist"] = np.zeros((nnode, nchar+1))
+        leafind = [ n.isleaf for n in tree.postiter()]
+        # Reordering character states to be in postorder sequence
+        preleaves = [ n for n in tree.preiter() if n.isleaf ]
+        postleaves = [n for n in tree.postiter() if n.isleaf ]
+        postnodes = list(tree.postiter());prenodes = list(tree.preiter())
+        postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
+        # Filling in the node list. It contains all of the information needed
+        # to calculate the likelihoods at each node
+        for k,ch in enumerate(postChars):
+            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][ch] = 1.0
+            for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
+                n[nchar] = postnodes.index(postnodes[i].parent)
+
+        # Setting initial node likelihoods to 1.0 for calculations
+        preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
+
+        # Empty array to store root priors
+        preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
+
+    # Calculating the likelihoods for each node in post-order sequence
+    cyexpokit.cy_mk(preallocated_arrays["nodelist"], p, preallocated_arrays["charlist"])
+    # The last row of nodelist contains the likelihood values at the root
+
+    # Applying the correct root prior
+    if type(pi) != str:
+        assert len(pi) == nchar, "length of given pi does not match Q dimensions"
+        assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
+        assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
+
+        np.copyto(preallocated_arrays["root_priors"], pi)
+
+        li = sum([ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ])
+        logli = math.log(li)
+
+    elif pi == "Equal":
+        preallocated_arrays["root_priors"].fill(1.0/nchar)
+        li = sum([ float(i)/nchar for i in preallocated_arrays["nodelist"][-1] ])
+
+        logli = math.log(li)
+
+    elif pi == "Fitzjohn":
+        np.copyto(preallocated_arrays["root_priors"],
+                  [preallocated_arrays["nodelist"][-1,:-1][charstate]/
+                   sum(preallocated_arrays["nodelist"][-1,:-1]) for
+                   charstate in set(chars) ])
+
+        li = sum([ preallocated_arrays["nodelist"][-1,:-1][charstate] *
+                     preallocated_arrays["root_priors"][charstate] for charstate in set(chars) ])
+        logli = math.log(li)
+    elif pi == "Equilibrium":
+        # Equilibrium pi from the stationary distribution of Q
+        np.copyto(preallocated_arrays["root_priors"],qsd(Q))
+        li = sum([ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ])
+        logli = math.log(li)
+    if returnPi:
+        return (logli, {k:v for k,v in enumerate(preallocated_arrays["root_priors"])})
+    else:
+        return logli
+
+
+
+# Pure python mk function
+# def mk(tree, chars, Q, p = None, pi="Equal", returnPi=False):
+#     """
+#     Fit mk model and return likelihood for the root node of a tree given a list of characters
+#     and a Q matrix
+#
+#     Args:
+#         tree (Node): Root node of a tree. All branch lengths must be
+#           greater than 0 (except root)
+#         chars (list): List of character states corresponding to leaf nodes in
+#           preoder sequence. Character states must be numbered 0,1,2,...
+#         Q (np.array): Instantaneous rate matrix
+#         p (np.array): Optional pre-allocated p matrix
+#         pi (str or np.array): Option to weight the root node by given values.
+#                        Either a string containing the method or an array
+#                        of weights. Weights should be given in order.
+#
+#                        Accepted methods of weighting root:
+#
+#                        Equal: flat prior
+#                        Equilibrium: Prior equal to stationary distribution
+#                          of Q matrix
+#                        Fitzjohn: Root states weighted by how well they
+#                          explain the data at the tips.
+#         returnPi (bool): Whether or not to return the pi used
+#     """
+#     chartree = tree.copy()
+#     chartree.char = None; chartree.likelihoodNode={}
+#     t = [node.length for node in chartree.descendants()]
+#     t = np.array(t, dtype=np.double)
+#     nchar = Q.shape[0]
+#
+#     # Generating probability matrix for each branch
+#     if p is None:
+#         p = np.empty([len(t), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
+#     cyexpokit.dexpm_tree_preallocated_p(Q, t, p) # This changes p in place
+#
+#
+#     for i, nd in enumerate(chartree.descendants()):
+#         nd.pmat = p[i] # Assigning probability matrices for each branch
+#         nd.likelihoodNode = {}
+#         nd.char = None
+#
+#     for i, lf in enumerate(chartree.leaves()):
+#         lf.char = chars[i] # Assigning character states to tips
+#
+#
+#     for node in chartree.postiter():
+#         if node.char is not None: # For tip nodes, likelihoods are 1 for observed state and 0 for the rest
+#             for state in range(nchar):
+#                 node.likelihoodNode[state]=0.0
+#             node.likelihoodNode[node.char]=1.0
+#         else:
+#             for state in range(nchar):
+#                 likelihoodStateN = []
+#                 for ch in node.children:
+#                     likelihoodStateNCh = []
+#                     for chState in range(nchar):
+#                         likelihoodStateNCh.append(ch.pmat[state, chState] * ch.likelihoodNode[chState]) #Likelihood for a certain state = p(stateBegin, stateEnd * likelihood(stateEnd))
+#                     likelihoodStateN.append(sum(likelihoodStateNCh))
+#                 node.likelihoodNode[state]=np.product(likelihoodStateN)
+#
+#     if type(pi) != str:
+#         assert len(pi) == nchar, "length of given pi does not match Q dimensions"
+#         assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
+#         assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
+#
+#
+#         rootPriors = {state:li for state,li in enumerate(pi)}
+#
+#         li = sum([ i*rootPriors[n] for n,i in chartree.likelihoodNode.iteritems() ])
+#         logli = math.log(li)
+#
+#     elif pi == "Equal":
+#         rootPriors = {state:1.0/nchar for state in range(nchar)}
+#         li = sum([ i/nchar for i in chartree.likelihoodNode.values() ])
+#
+#         logli = math.log(li)
+#
+#     elif pi == "Fitzjohn":
+#         rootPriors = { charstate:chartree.likelihoodNode[charstate]/
+#                                  sum(chartree.likelihoodNode.values()) for
+#                                  charstate in set(chars) }
+#
+#         li = sum([ chartree.likelihoodNode[charstate] *
+#                      rootPriors[charstate] for charstate in set(chars) ])
+#         logli = math.log(li)
+#     elif pi == "Equilibrium":
+#         # Equilibrium pi from the stationary distribution of Q
+#         rootPriors = {state:li for state,li in enumerate(qsd(Q))}
+#
+#         li = sum([ i*rootPriors[n] for n,i in chartree.likelihoodNode.iteritems() ])
+#         logli = math.log(li)
+#     if returnPi:
+#         return (logli, rootPriors)
+#     else:
+#         return logli
+
+def _create_nodelist(tree, chars):
+    """
+    Create nodelist. For use in mk function
+    """
+    t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
+    nchar = len(set(chars))
+
+    preleaves = [ n for n in tree.preiter() if n.isleaf ]
+    postleaves = [n for n in tree.postiter() if n.isleaf ]
+    postnodes = list(tree.postiter())
+    postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
+    nnode = len(t)+1
+    nodelist = np.zeros((nnode, nchar+1))
+    leafind = [ n.isleaf for n in tree.postiter()]
+
+    for k,ch in enumerate(postChars):
+        [ n for i,n in enumerate(nodelist) if leafind[i] ][k][ch] = 1.0
+        for i,n in enumerate(nodelist[:-1]):
+            n[nchar] = postnodes.index(postnodes[i].parent)
+
+            # Setting initial node likelihoods to one for calculations
+    nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
+
+    return nodelist,t
+
+def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
+                                  min = True):
+    """
+    Create a function that takes values for Q and returns likelihood.
+
+    Specify the Q to be ER, Sym, or ARD
+
+    Returned function to be passed into scipy.optimize
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        Qtype (str): What type of Q matrix to use. Either ER (equal rates),
+          Sym (symmetric rates), or ARD (All rates different).
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root  node.
+        min (bool): Whether the function is to be minimized (False means
+          it will be maximized)
+    Returns:
+        function: Function accepting a list of parameters and returning
+          log-likelihood. To be optmimized with scipy.optimize.minimize
+    """
+    if min:
+        nullval = np.inf
+    else:
+        nullval = -np.inf
+
+    nchar = len(set(chars))
+    nt =  len(tree.descendants())
+    charlist = range(nchar)
+
+    # Empty Q matrix
+    Q = np.zeros([nchar,nchar], dtype=np.double)
+    # Empty p matrix
+    p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
+    # Empty likelihood array
+    nodelist,t = _create_nodelist(tree, chars)
+    nodelistOrig = nodelist.copy() # Second copy to refer back to
+    # Empty root prior array
+    rootpriors = np.empty([nchar], dtype=np.double)
+
+    # Upper bounds
+    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
+                   tree.leaves()[0].length])
+    upperbound = len(tree.leaves())/treelen
+
+    # Giving internal function access to these arrays.
+       # Warning: can be tricky
+       # Need to make sure old values
+       # Aren't accidentally re-used
+    var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
+           "nodelistOrig":nodelistOrig, "upperbound":upperbound,
+           "root_priors":rootpriors, "nullval":nullval}
+
+    def likelihood_function(Qparams):
+        # Enforcing upper bound on parameters
+        if (sum(Qparams) > var["upperbound"]) or any(Qparams <= 0):
+            return var["nullval"]
+
+        # Filling Q matrices:
+        if Qtype == "ER":
+            var["Q"].fill(Qparams[0])
+            var["Q"][np.diag_indices(nchar)] = -Qparams[0] * (nchar-1)
+        elif Qtype == "Sym":
+            var["Q"].fill(0.0) # Re-filling with zeroes
+            xs,ys = np.triu_indices(nchar,k=1)
+            var["Q"][xs,ys] = Qparams
+            var["Q"][ys,xs] = Qparams
+            var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
+        elif Qtype == "ARD":
+            var["Q"].fill(0.0) # Re-filling with zeroes
+            var["Q"][np.triu_indices(nchar, k=1)] = Qparams[:len(Qparams)/2]
+            var["Q"][np.tril_indices(nchar, k=-1)] = Qparams[len(Qparams)/2:]
+            var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
         else:
-            Pv = [ (expm(Q*child.length)*v[n2i[child]]).sum(1)
-                   for child in n.children ]
-            v[i] = numpy.multiply(*Pv)
-            # fossils
-            state = None
-            if n.label in data:
-                state = int(data[n.label])
-            elif n in data:
-                state = int(data[n])
-            if state != None:
-                for s in states:
-                    if s != state: v[i,s] = 0.0
-            
-    return dict([ (n, v[i]) for n,i in n2i.items() ])
+            raise ValueError, "Qtype must be one of: ER, Sym, ARD"
 
-def contrasts(root, data, Q):
-    cond = conditionals(root, data, Q)
-    d = {}
-    for n in root.postiter(lambda x:x.children):
-        nc = cond[n]; nc /= sum(nc)
-        diff = 0.0
-        for child in n.children:
-            cc = cond[child]; cc /= sum(cc)
-            diff += numpy.sum(numpy.abs(nc-cc))
-        d[n] = diff
-    return d
+        # Resetting the values in these arrays
+        np.copyto(var["nodelist"], var["nodelistOrig"])
+        var["root_priors"].fill(1.0)
 
-def lnL(root, data, Q, priors):
-    d = conditionals(root, data, Q)
-    return numpy.log(sum(d[root]*priors))
-
-def optimize(root, data, Q, priors=None):
-    Qfill = Q.fill
-    if priors is None: priors = Q.default_priors()
-    def f(params):
-        if (params<0).any(): return LARGE
-        return -lnL(root, data, Qfill(params), priors)
-        
-    # initial parameter values
-    p = [1.0]*len(set(Q.layout.flat))
-
-    v = scipy.optimize.fmin_powell(
-        f, p, full_output=True, disp=0, callback=None
-        )
-    params, neglnL = v[:2]
-    if neglnL == LARGE:
-        raise Exception("ConvergenceError")
-    return params, neglnL
-
-def sim(root, n2p, s0, d=None):
-    if d is None:
-        d = {root:s0}
-    for n in root.children:
-        v = n2p[n][s0]
-        i = sample_weighted(v)
-        d[n] = i
-        sim(n, n2p, i, d)
-    return d
-
-def stmap(root, states, ancstates, Q, condition_on_success):
-    """
-    This and its dependent functions below need testing and
-    optimization.
-    """
-    results = []
-    for n in root.descendants():
-        si = ancstates[n.parent]
-        sj = ancstates[n]
-        v = simulate_on_branch(states, si, sj, Q, n.length,
-                               condition_on_success)
-        print n, si, sj
-        if v:
-            results.append(v)
+        if min:
+            x = -1
         else:
-            return None
-    return results
+            x = 1
 
-def simulate_on_branch(states, si, sj, Q, brlen, condition_on_success):
-    point = 0.0
-    history = [(si, point)]
-    if si != sj:  # condition on one change occurring
-        lambd = -(Q[si,si])
-        U = uniform(0.0, 1.0)
-        # see appendix of Nielsen 2001, Genetics
-        t = brlen - point
-        newpoint = -(1.0/lambd) * log(1.0 - U*(1.0 - exp(-lambd * t)))
-        newstate = draw_new_state(states, Q, si)
-        history.append((newstate, newpoint))
-        si = newstate; point = newpoint
-    while 1:
-        lambd = -(Q[si,si])
-        rv = expovariate(lambd)
-        newpoint = point + rv
+        try:
+            return x * mk(tree, chars, var["Q"], p=var["p"], pi = pi, preallocated_arrays=var) # Minimizing negative log-likelihood
+        except ValueError: # If likelihood returned is 0
+            return var["nullval"]
 
-        if newpoint <= brlen:  # state change along branch
-            newstate = draw_new_state(states, Q, si)
-            history.append((newstate, newpoint))
-            si = newstate; point = newpoint
+    return likelihood_function
+
+
+def fitMkER(tree, chars, pi="Equal"):
+    """
+    Estimate parameter of an equal-rate Q matrix
+    Return log-likelihood of mk equation using fitted Q
+
+    One-parameter model: alpha = beta
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        pi (str): Either "Equal" or "Fitzjohn". How to weight values at root
+          node. Defaults to "Equal"
+
+    Returns:
+        tuple: Fitted parameter, log-likelihood, and dictionary of weightings
+          at the root.
+
+    """
+    nchar = len(set(chars))
+    # Initial value arbitrary
+    x0 = [0.1] # Starting value for our equal rates model
+    mk_func = create_likelihood_function_mk(tree, chars, Qtype="ER", pi=pi)
+
+    optim = minimize(mk_func, x0, method="L-BFGS-B",
+                      bounds = [(1e-14,None)])
+
+    q = np.empty([nchar,nchar], dtype=np.double)
+    q.fill(optim.x[0])
+
+    q[np.diag_indices(nchar)] = 0 - (q.sum(1)-q[0,0])
+
+    piRates = mk(tree, chars, q, pi=pi, returnPi=True)[1]
+
+    return (q, -1*float(optim.fun), piRates)
+
+def fitMkSym(tree, chars, pi="Equal"):
+    """
+    Estimate parameter of a symmetrical-rate Q matrix
+    Return log-likelihood of mk equation using fitted Q
+
+    Multi-parameter model: forward = reverse
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        pi (str): Either "Equal" or "Fitzjohn". How to weight values at root
+          node. Defaults to "Equal"
+          Method "Fitzjohn" is currently untested
+
+    Returns:
+        tuple: Fitted parameter, log-likelihood, and dictionary of weightings
+          at the root.
+
+
+    """
+
+    nchar = len(set(chars))
+    # Number of params equal to binom(nchar, 2)
+    # Initial values arbitrary
+    x0 = [0.1] * binom(nchar, 2) # Starting values for our symmetrical rates model
+    mk_func = create_likelihood_function_mk(tree, chars, Qtype="Sym", pi = pi)
+
+    # Need to constrain values to be greater than 0
+    optim = minimize(mk_func, x0, method="L-BFGS-B",
+                      bounds = tuple(( (1e-14,None) for i in range(len(x0)) )))
+
+
+    q = np.zeros([nchar,nchar], dtype=np.double)
+
+    q[np.triu_indices(nchar, k=1)] = optim.x
+    q = q + q.T
+    q[np.diag_indices(nchar)] = 0-np.sum(q, 1)
+
+    piRates = mk(tree, chars, q, pi=pi, returnPi=True)[1]
+
+    return (q, -1*float(optim.fun), piRates)
+
+
+def fitMkARD(tree, chars, pi="Equal"):
+    """
+    Estimate parameters of an all-rates-different Q matrix
+    Return log-likelihood of mk equation using fitted Q
+
+    Multi-parameter model: all rates different
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        pi (str): Either "Equal" or "Fitzjohn". How to weight values at root
+          node. Defaults to "Equal"
+          Method "Fitzjohn" is currently untested
+
+    Returns:
+        tuple: Fitted parameter, log-likelihood, and dictionary of weightings
+          at the root.
+
+    """
+    # Number of parameters equal to k^2 - k
+    nchar = len(set(chars))
+    x0 = [1.0] * (nchar ** 2 - nchar)
+
+    mk_func = create_likelihood_function_mk(tree, chars, Qtype="ARD", pi=pi)
+
+    optim = minimize(mk_func, x0, method="L-BFGS-B",
+                      bounds = tuple(( (1e-14,None) for i in range(len(x0)) )))
+
+    q = np.zeros([nchar,nchar], dtype=np.double)
+
+    q[np.triu_indices(nchar, k=1)] = optim.x[:len(optim.x)/2]
+    q[np.tril_indices(nchar, k=-1)] = optim.x[len(optim.x)/2:]
+    q[np.diag_indices(nchar)] = 0-np.sum(q, 1)
+
+    piRates = mk(tree, chars, q, pi=pi, returnPi=True)[1]
+
+    return (q, -1*float(optim.fun), piRates)
+
+
+def fitMk(tree, chars, Q = "Equal", pi = "Equal"):
+    """
+    Fit an mk model to a given tree and list of characters. Return fitted
+    Q matrix and calculated likelihood.
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be in the form of 0,1,2,...
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root node. Defaults to "Equal"
+          Method "Fitzjohn" is not thouroughly tested, use with caution
+       Q: Either a string specifying how to esimate values for Q or a
+          numpy array of a pre-specified Q matrix.
+
+          Valid strings for Q:
+
+          "Equal": All rates equal
+          "Sym": Forward and reverse rates equal
+          "ARD": All rates different
+
+    Returns:
+        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
+    """
+    assert pi in ["Equal", "Fitzjohn", "Equilibrium"], "Pi must be one of: 'Equal', 'Fitzjohn', 'Equilibrium'"
+
+    if type(Q) == str:
+        if Q == "Equal":
+            q,l,piRates = fitMkER(tree, chars, pi=pi)
+            return {key:val for key, val in zip(["Q", "Log-likelihood","pi"], [q,l,piRates])}
+
+        elif Q == "Sym":
+            q,l,piRates = fitMkSym(tree, chars, pi=pi)
+            return {key:val for key, val in zip(["Q", "Log-likelihood","pi"], [q,l,piRates])}
+
+        elif Q == "ARD":
+            q,l,piRates = fitMkARD(tree, chars, pi=pi)
+            return {key:val for key, val in zip(["Q", "Log-likelihood","pi"], [q,l,piRates])}
         else:
-            history.append((si, brlen))
-            break
-                
-    if si == sj or (not condition_on_success): # success
-        return history
+            raise ValueError("Q str must be one of: 'Equal', 'Sym', 'ARD'")
 
-    return None
-        
-def draw_new_state(states, Q, si):
+    else:
+        assert str(type(Q)) == "<type 'numpy.ndarray'>", "Q must be str or numpy array"
+        assert len(Q[0]) == len(set(chars)), "Supplied Q has wrong dimensions"
+
+        l,piRates = mk(tree, chars, Q, pi=pi, returnPi=True)
+        q = Q
+
+        return {key:val for key, val in zip(["Q", "Log-likelihood","pi"], [q,l,piRates])}
+
+def qsd(Q):
     """
-    Given a rate matrix Q, a starting state si, and an ordered
-    sequence of states, eg (0, 1), draw a new state sj with
-    probability -(qij/qii)
+    Calculate stationary distribution of Q, assuming each state
+    has the same diversification rate.
+
+    Args:
+        Q (np.array): Instantaneous rate matrix
+
+    Returns:
+        (np.array): Stationary distribution of pi
+
+    Eqn from Maddison et al 2007
+
+    Referenced from Phytools (Revell 2013)
     """
-    Qrow = Q[si]
-    qii = Qrow[si]
-    qij_probs = [ (x, -(Qrow[x]/qii)) for x in states if x != si ]
-    uni = uniform(0.0, 1.0)
-    val = 0.0
-    for sj, prob in qij_probs:
-        val += prob
-        if uni < val:
-            return sj
-    
-def sample_ancstates(node, states, conditionals, n2p, fixed={}):
-    """
-    Sample ancestral states from their conditional likelihoods
-    """
-    ancstates = {}
-    for n in node.preiter():
-        if n in fixed:
-            state = fixed[n]
-        else:
-            cond = conditionals[n]
+    nchar = Q.shape[0]
+    def qsd_root(pi):
+        return sum(np.dot(pi, Q)**2)
 
-            if n.parent:
-                P = n2p[n]
-                ancst = ancstates[n.parent]
-                newstate_Prow = P[ancst]
-                cond *= newstate_Prow
 
-            cond /= sum(cond)
+    x0 = [1.0/nchar]*nchar
 
-            rv = uniform(0.0, 1.0)
-            v = 0.0
-            for state, c in zip(states, cond):
-                v += c
-                if rv < v:
-                    break
-        ancstates[n] = state
+    optim = minimize(qsd_root, x0,
+            bounds = tuple(( (1e-14,None) for i in range(len(x0)) )),
+            constraints = {"type":"eq",
+                           "fun": lambda x: 1 - sum(x)},
+            method = "SLSQP",
+            options = {"ftol":1e-14})
 
-    return ancstates
+    return optim.x
