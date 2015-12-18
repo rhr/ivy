@@ -479,19 +479,52 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         logli = math.log(li)
 
     # Transposal of Q for up-pass now that down-pass is completed
-    t_Q = np.transpose(Q)
+    t_Q = Q.copy()
+    t_Q = np.transpose(t_Q)
     t_Q[np.diag_indices(nchar)] = 0
     t_Q[np.diag_indices(nchar)] = -np.sum(t_Q, 1)
 
     t_Q = t_Q.copy() # Must copy so that array is C-contiguous
 
-    cyexpokit.dexpm_tree_preallocated_p(t_Q, preallocated_arrays["t"], p)
+    p_up = p.copy()
+
+    cyexpokit.dexpm_tree_preallocated_p(t_Q, preallocated_arrays["t"], p_up)
+    preallocated_arrays["nodelist-up"][:,:-1] = 1.0
 
     preallocated_arrays["nodelist-up"][-1] = preallocated_arrays["nodelist"][-1]
 
+
+    ni = len(preallocated_arrays["nodelist-up"]) - 2
     for n in preallocated_arrays["nodelist-up"][::-1][1:]:
         curRow = n[:nchar]
-        motherRow = preallocated_arrays["nodelist-up"][int(n[nchar])]
+        motherRowNum = n[nchar]
+        motherRow = preallocated_arrays["nodelist-up"][int(motherRowNum)]
+
+        sisterRows = [ (i,ii) for ii, i in enumerate(preallocated_arrays["nodelist-up"])
+                       if i[nchar] == motherRowNum and ii != ni]
+        # If the mother is the root...
+        if motherRow[nchar] == 0.0:
+            # The marginal of the root
+            v = motherRow[:nchar]
+        else:
+            # If the mother is not the root, calculate prob. of being in any state
+            # Use transposed matrix
+            v = sum(p_up[ni])
+        for s in sisterRows:
+            # Use non-transposed matrix
+            v *= sum(p[int(s[1])])
+        preallocated_arrays["nodelist-up"][ni][:nchar] = v
+        ni -= 1
+    temp = [ t.ni for t in tree.leaves() ]
+    tips = preallocated_arrays["nodelist-up"][temp]
+    for t in tips:
+        s = sum(t[:-1])
+
+        t[:-1] = t[:-1]/s
+
+
+
+
 
 
 
