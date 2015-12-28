@@ -365,12 +365,11 @@ def node_reconstruction_hrm(tree, chars, Q, nregime, rootlik):
     """
 
 def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
-          preallocated_arrays=None):
+          preallocated_arrays=None, tip_states=None):
     """
     Calculate probability vector at root given tree, characters, and Q matrix,
     then reconstruct probability vectors for tips and use those in another
     up-pass to calculate probability vector at root.
-
 
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
@@ -429,7 +428,7 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         for k,ch in enumerate(postChars):
             # Indices of hidden rates of observed state. These will all be set to 1
             hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
-            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][hiddenChs] = 1.0
+            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][hiddenChs] = 1.0/nregime
             for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
                 n[nchar] = postnodes.index(postnodes[i].parent)
 
@@ -439,6 +438,13 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         # Empty array to store root priors
         preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
         preallocated_arrays["nodelist-up"] = preallocated_arrays["nodelist"].copy()
+
+    if tip_states is not None:
+        leaf_rownums = [i for i,n in enumerate(leafind) if n]
+        tip_states = preallocated_arrays["nodelist"][leaf_rownums][:,:-1] * tip_states[:,:-1]
+        tip_states = tip_states/np.sum(tip_states,1)[:,None]
+
+        preallocated_arrays["nodelist"][leaf_rownums,:-1] = tip_states
 
     # Calculating the likelihoods for each node in post-order sequence
     cyexpokit.cy_mk(preallocated_arrays["nodelist"], p, preallocated_arrays["charlist"])
@@ -497,30 +503,29 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
     ni = len(preallocated_arrays["nodelist-up"]) - 2
     for n in preallocated_arrays["nodelist-up"][::-1][1:]:
         curRow = n[:nchar]
-        motherRowNum = n[nchar]
+        motherRowNum = int(n[nchar])
         motherRow = preallocated_arrays["nodelist-up"][int(motherRowNum)]
 
         sisterRows = [ (i,ii) for ii, i in enumerate(preallocated_arrays["nodelist-up"])
-                       if i[nchar] == motherRowNum and ii != ni]
+                       if i[-1] == motherRowNum and ii != ni]
         # If the mother is the root...
-        if motherRow[nchar] == 0.0:
+        if motherRow[-1] == 0.0:
             # The marginal of the root
-            v = motherRow[:nchar]
+            v = ivy.chars.mk.qsd(Q)
         else:
             # If the mother is not the root, calculate prob. of being in any state
             # Use transposed matrix
-            v = sum(p_up[ni])
+            v = np.dot(p_up[motherRowNum], preallocated_arrays["nodelist-up"][motherRowNum][:-1])
         for s in sisterRows:
             # Use non-transposed matrix
-            v *= sum(p[int(s[1])])
+            tmp = preallocated_arrays["nodelist"][s[1]]
+            tmp = tmp[:-1]/sum(tmp[:-1])
+            v *= np.dot(p[s[1]], tmp)
         preallocated_arrays["nodelist-up"][ni][:nchar] = v
         ni -= 1
-    temp = [ t.ni for t in tree.leaves() ]
+    temp = [ t.pi for t in tree.leaves() ]
     tips = preallocated_arrays["nodelist-up"][temp]
-    for t in tips:
-        s = sum(t[:-1])
-
-        t[:-1] = t[:-1]/s
+    return tips, logli
 
 
 
