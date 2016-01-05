@@ -17,6 +17,7 @@ p = None
 pi = "Fitzjohn"
 returnPi = False
 preallocated_arrays = None
+tip_states = None
 #
 # tree.ape_node_idx()
 #
@@ -35,16 +36,71 @@ preallocated_arrays = None
 #
 # for i in preallocated_arrays["nodelist"]:
 #     print i[:-1]/sum(i[:-1])
+# for t in tips:
+#     print t[:-1]/np.sum(t[:-1])
 
-temp = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2)
-temp2 = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2, tip_states = temp[0])
-temp3 = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2, tip_states = temp2[0])
+
+temp = ivy.chars.hrm.hrm_back_mk_2(tree, chars, Q, 2)
+temp2 = ivy.chars.hrm.hrm_back_mk_2(tree, chars, Q, 2, tip_states = temp[0])
+temp3 = ivy.chars.hrm.hrm_back_mk_2(tree, chars, Q, 2, tip_states = temp2[0])
 
 
 
 liks = np.zeros(50)
 
-tmp = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2)
+tmp = ivy.chars.hrm.hrm_back_mk_2(tree, chars, Q, 2)
 for i in range(50):
-    tmp = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2, tip_states=tmp[0])
+    tmp = ivy.chars.hrm.hrm_back_mk_2(tree, chars, Q, 2, tip_states=tmp[0])
     liks[i] = tmp[1]
+
+
+
+def hrm_backpass_test(tree, chars, Q, nrep=50):
+    nobschar = len(set(chars))
+    nregime = Q.shape[0]/nobschar
+
+    liks = np.zeros(nrep)
+    tmp = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2)
+    for i in range(nrep):
+        tmp = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, nregime, tip_states=tmp[0])
+        liks[i] = tmp[1]
+    return liks, tmp
+
+
+mr_tree = ivy.tree.read("support/Mk_two_regime_tree.newick")
+mr_chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1,
+            0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0,
+            0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0]
+
+Q = ivy.chars.discrete.fill_Q_matrix(2,2, [0.1,0.1,0.1,0.1,0.1,0.8,0.1,0.8])
+Q2 = _random_Q_matrix(2,2)
+
+l,t = hrm_backpass_test(mr_tree, mr_chars, Q)
+l2,t2 = hrm_backpass_test(mr_tree, mr_chars, Q2)
+
+
+fastNodes = np.array([ n.pi for n in mr_tree.mrca(mr_tree.grep("f")).preiter()])
+slowNodes = np.array([n.pi for n in mr_tree.descendants()if not n.pi in fastNodes])
+
+postLeaves = [ tr.pi for tr in mr_tree if tr.isleaf ]
+
+for i,r in enumerate(t[0]):
+    if postLeaves[i] in fastNodes:
+        reg = "F"
+    else:
+        reg = "S"
+    n = [tr for tr in mr_tree if tr.pi == postLeaves[i]][0].li
+
+    print r[:-1]/np.sum(r[:-1]), reg, mr_chars[n]

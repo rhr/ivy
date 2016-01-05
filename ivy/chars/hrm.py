@@ -294,7 +294,7 @@ def _random_Q_matrix(nobschar, nregime):
                 for charR in range(nobschar):
                     if not ((rR == rC) and (charR == charC)):
                         if ((rR == rC) or ((charR == charC)) and (rR+1 == rC or rR-1 == rC)):
-                            Q[charR+rR*nobschar, charC+rC*nchar] = random.uniform(bins[rR], bins[rR]+split)
+                            Q[charR+rR*nobschar, charC+rC*nobschar] = random.uniform(bins[rR], bins[rR]+split)
     Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
     return Q
 
@@ -511,7 +511,7 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         # If the mother is the root...
         if motherRow[-1] == 0.0:
             # The marginal of the root
-            v = ivy.chars.mk.qsd(Q)
+            v = ivy.chars.mk.qsd(Q) # Only need to calculate once
         else:
             # If the mother is not the root, calculate prob. of being in any state
             # Use transposed matrix
@@ -527,13 +527,166 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
     tips = preallocated_arrays["nodelist-up"][temp]
     return tips, logli
 
+def hrm_back_mk_2(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
+          preallocated_arrays=None, tip_states=None):
+    """
+    NOTE: This function uses Rick's up-pass equation where the parent's
+    up-pass probability vector is multiplied by the node's down-pass probability
+    vector
+
+    Calculate probability vector at root given tree, characters, and Q matrix,
+    then reconstruct probability vectors for tips and use those in another
+    up-pass to calculate probability vector at root.
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        Q (np.array): Instantaneous rate matrix
+        p (np.array): Optional pre-allocated p matrix
+        pi (str or np.array): Option to weight the root node by given values.
+           Either a string containing the method or an array
+           of weights. Weights should be given in order.
+
+           Accepted methods of weighting root:
+
+           Equal: flat prior
+           Equilibrium: Prior equal to stationary distribution
+             of Q matrix
+           Fitzjohn: Root states weighted by how well they
+             explain the data at the tips.
+        returnPi (bool): Whether or not to return the final values of root
+          node weighting
+        preallocated_arrays (dict): Dict of pre-allocated arrays to improve
+          speed by avoiding creating and destroying new arrays
+    """
+    nchar = Q.shape[0]
+    nobschar = nchar/nregime
+    if preallocated_arrays is None:
+        # Creating arrays to be used later
+        preallocated_arrays = {}
+        t = [node.length for node in tree.postiter() if not node.isroot]
+        t = np.array(t, dtype=np.double)
+        preallocated_arrays["charlist"] = range(Q.shape[0])
+        preallocated_arrays["t"] = t
 
 
+    if p is None: # Instantiating empty array
+        p = np.empty([len(preallocated_arrays["t"]), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
+    # Creating probability matrices from Q matrix and branch lengths
+    cyexpokit.dexpm_tree_preallocated_p(Q, preallocated_arrays["t"], p) # This changes p in place
+
+    if len(preallocated_arrays.keys())==2:
+        # Creating more arrays
+        nnode = len(tree.descendants())+1
+        preallocated_arrays["nodelist"] = np.zeros((nnode, nchar+1))
+        leafind = [ n.isleaf for n in tree.postiter()]
+        # Reordering character states to be in postorder sequence
+        preleaves = [ n for n in tree.preiter() if n.isleaf ]
+        postleaves = [n for n in tree.postiter() if n.isleaf ]
+        postnodes = list(tree.postiter());prenodes = list(tree.preiter())
+        postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
+        # Filling in the node list. It contains all of the information needed
+        # to calculate the likelihoods at each node
+
+        # Q matrix is in the form of "0S, 1S, 0F, 1F" etc. Probabilities
+        # set to 1 for all hidden states of the observed state.
+        for k,ch in enumerate(postChars):
+            # Indices of hidden rates of observed state. These will all be set to 1
+            hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
+            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][hiddenChs] = 1.0/nregime
+            for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
+                n[nchar] = postnodes.index(postnodes[i].parent)
+
+        # Setting initial node likelihoods to 1.0 for calculations
+        preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
+
+        # Empty array to store root priors
+        preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
+        preallocated_arrays["nodelist-up"] = preallocated_arrays["nodelist"].copy()
+
+    if tip_states is not None:
+        leaf_rownums = [i for i,n in enumerate(leafind) if n]
+        tip_states = preallocated_arrays["nodelist"][leaf_rownums][:,:-1] * tip_states[:,:-1]
+        tip_states = tip_states/np.sum(tip_states,1)[:,None]
+
+        preallocated_arrays["nodelist"][leaf_rownums,:-1] = tip_states
+
+    # Calculating the likelihoods for each node in post-order sequence
+    cyexpokit.cy_mk(preallocated_arrays["nodelist"], p, preallocated_arrays["charlist"])
+
+    # Applying the correct root prior
+    if type(pi) != str:
+        assert len(pi) == nchar, "length of given pi does not match Q dimensions"
+        assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
+        assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
+
+        np.copyto(preallocated_arrays["root_priors"], pi)
+
+        li = sum([ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ])
+        logli = math.log(li)
+
+    elif pi == "Equal":
+        preallocated_arrays["root_priors"].fill(1.0/nchar)
+        li = sum([ float(i)/nchar for i in preallocated_arrays["nodelist"][-1] ])
+
+        logli = math.log(li)
+
+    elif pi == "Fitzjohn":
+        np.copyto(preallocated_arrays["root_priors"],
+                  [preallocated_arrays["nodelist"][-1,:-1][charstate]/
+                   sum(preallocated_arrays["nodelist"][-1,:-1]) for
+                   charstate in range(nchar) ])
+
+        li = sum([ preallocated_arrays["nodelist"][-1,:-1][charstate] *
+                     preallocated_arrays["root_priors"][charstate] for charstate in set(chars) ])
+        logli = math.log(li)
+    elif pi == "Equilibrium":
+        # Equilibrium pi from the stationary distribution of Q
+        np.copyto(preallocated_arrays["root_priors"],qsd(Q))
+        li = sum([ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ])
+        logli = math.log(li)
+
+    # Calculating the probability vector of the root
+    np.copyto(preallocated_arrays["root_priors"],
+              [preallocated_arrays["nodelist"][-1,:-1][charstate]/
+               sum(preallocated_arrays["nodelist"][-1,:-1]) for
+               charstate in range(nchar) ])
+
+    # The last row of nodelist contains the likelihood values at the root
+    # Transposal of Q for up-pass now that down-pass is completed
+    t_Q = Q.copy()
+    t_Q = np.transpose(t_Q)
+    t_Q[np.diag_indices(nchar)] = 0
+    t_Q[np.diag_indices(nchar)] = -np.sum(t_Q, 1)
+
+    t_Q = t_Q.copy() # Must copy so that array is C-contiguous (works with Cython code)
+    p_up = p.copy()
+
+    cyexpokit.dexpm_tree_preallocated_p(t_Q, preallocated_arrays["t"], p_up)
+    preallocated_arrays["nodelist-up"][:,:-1] = 1.0
+
+    preallocated_arrays["nodelist-up"][-1] = preallocated_arrays["nodelist"][-1]
+    ni = len(preallocated_arrays["nodelist-up"]) - 2
+    for n in preallocated_arrays["nodelist-up"][::-1][1:]:
+        curRow = n[:nchar]
+        motherRowNum = int(n[nchar])
+        motherRow = preallocated_arrays["nodelist-up"][int(motherRowNum)]
 
 
-
-
-    # if returnPi:
-    #     return (logli, {k:v for k,v in enumerate(preallocated_arrays["root_priors"])})
-    # else:
-    #     return logli
+        # If the mother is the root...
+        if motherRow[-1] == 0.0:
+            # The prior at the root
+            v = preallocated_arrays["root_priors"]
+        else:
+            # If the mother is not the root, calculate prob. of being in any state
+            # Use transposed matrix
+            v = np.dot(p_up[motherRowNum], preallocated_arrays["nodelist-up"][motherRowNum][:-1])
+        # Multiply by downpass likelihood for this node
+        v *= preallocated_arrays["nodelist"][ni][:-1]
+        preallocated_arrays["nodelist-up"][ni][:nchar] = v
+        ni -= 1
+    temp = [ t.pi for t in tree.leaves() ]
+    tips = preallocated_arrays["nodelist-up"][temp]
+    return tips, logli
