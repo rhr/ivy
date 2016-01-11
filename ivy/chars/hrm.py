@@ -294,7 +294,7 @@ def _random_Q_matrix(nobschar, nregime):
                 for charR in range(nobschar):
                     if not ((rR == rC) and (charR == charC)):
                         if ((rR == rC) or ((charR == charC)) and (rR+1 == rC or rR-1 == rC)):
-                            Q[charR+rR*nobschar, charC+rC*nchar] = random.uniform(bins[rR], bins[rR]+split)
+                            Q[charR+rR*nobschar, charC+rC*nobschar] = random.uniform(bins[rR], bins[rR]+split)
     Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
     return Q
 
@@ -358,11 +358,6 @@ def _create_hrmnodelist(tree, chars, nregime):
 
     return nodelist,t
 
-def node_reconstruction_hrm(tree, chars, Q, nregime, rootlik):
-    """
-    Given log-likelihood at root for each observed and hidden state,
-    return node reconstruction
-    """
 
 def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
           preallocated_arrays=None, tip_states=None):
@@ -404,7 +399,6 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         preallocated_arrays["charlist"] = range(Q.shape[0])
         preallocated_arrays["t"] = t
 
-
     if p is None: # Instantiating empty array
         p = np.empty([len(preallocated_arrays["t"]), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
     # Creating probability matrices from Q matrix and branch lengths
@@ -438,7 +432,13 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         # Empty array to store root priors
         preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
         preallocated_arrays["nodelist-up"] = preallocated_arrays["nodelist"].copy()
+        preallocated_arrays["t_Q"] = Q
+        preallocated_arrays["p_up"] = p.copy()
+        preallocated_arrays["v"] = np.zeros([nchar])
+        preallocated_arrays["tmp"] = np.zeros([nchar+1])
+        preallocated_arrays["motherRow"] = np.zeros([nchar+1])
 
+    leafind = [ n.isleaf for n in tree.postiter()]
     if tip_states is not None:
         leaf_rownums = [i for i,n in enumerate(leafind) if n]
         tip_states = preallocated_arrays["nodelist"][leaf_rownums][:,:-1] * tip_states[:,:-1]
@@ -449,9 +449,6 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
     # Calculating the likelihoods for each node in post-order sequence
     cyexpokit.cy_mk(preallocated_arrays["nodelist"], p, preallocated_arrays["charlist"])
     # The last row of nodelist contains the likelihood values at the root
-
-
-
     # Applying the correct root prior
     if type(pi) != str:
         assert len(pi) == nchar, "length of given pi does not match Q dimensions"
@@ -485,55 +482,168 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         logli = math.log(li)
 
     # Transposal of Q for up-pass now that down-pass is completed
-    t_Q = Q.copy()
-    t_Q = np.transpose(t_Q)
-    t_Q[np.diag_indices(nchar)] = 0
-    t_Q[np.diag_indices(nchar)] = -np.sum(t_Q, 1)
-
-    t_Q = t_Q.copy() # Must copy so that array is C-contiguous
-
-    p_up = p.copy()
-
-    cyexpokit.dexpm_tree_preallocated_p(t_Q, preallocated_arrays["t"], p_up)
+    np.copyto(preallocated_arrays["t_Q"], Q)
+    preallocated_arrays["t_Q"] = np.transpose(preallocated_arrays["t_Q"])
+    preallocated_arrays["t_Q"][np.diag_indices(nchar)] = 0
+    preallocated_arrays["t_Q"][np.diag_indices(nchar)] = -np.sum(preallocated_arrays["t_Q"], 1)
+    preallocated_arrays["t_Q"] = np.ascontiguousarray(preallocated_arrays["t_Q"])
+    cyexpokit.dexpm_tree_preallocated_p(preallocated_arrays["t_Q"], preallocated_arrays["t"], preallocated_arrays["p_up"])
     preallocated_arrays["nodelist-up"][:,:-1] = 1.0
-
     preallocated_arrays["nodelist-up"][-1] = preallocated_arrays["nodelist"][-1]
 
-
     ni = len(preallocated_arrays["nodelist-up"]) - 2
+
+    root_marginal =  ivy.chars.mk.qsd(Q)
+
     for n in preallocated_arrays["nodelist-up"][::-1][1:]:
         curRow = n[:nchar]
         motherRowNum = int(n[nchar])
-        motherRow = preallocated_arrays["nodelist-up"][int(motherRowNum)]
-
+        np.copyto(preallocated_arrays["motherRow"], preallocated_arrays["nodelist-up"][int(motherRowNum)])
         sisterRows = [ (i,ii) for ii, i in enumerate(preallocated_arrays["nodelist-up"])
                        if i[-1] == motherRowNum and ii != ni]
         # If the mother is the root...
-        if motherRow[-1] == 0.0:
+        if preallocated_arrays["motherRow"][-1] == 0.0:
             # The marginal of the root
-            v = ivy.chars.mk.qsd(Q)
+            np.copyto(preallocated_arrays["v"],root_marginal) # Only need to calculate once
         else:
             # If the mother is not the root, calculate prob. of being in any state
             # Use transposed matrix
-            v = np.dot(p_up[motherRowNum], preallocated_arrays["nodelist-up"][motherRowNum][:-1])
+            np.copyto(preallocated_arrays["v"], np.dot(preallocated_arrays["p_up"][motherRowNum], preallocated_arrays["nodelist-up"][motherRowNum][:-1]))
         for s in sisterRows:
             # Use non-transposed matrix
-            tmp = preallocated_arrays["nodelist"][s[1]]
-            tmp = tmp[:-1]/sum(tmp[:-1])
-            v *= np.dot(p[s[1]], tmp)
-        preallocated_arrays["nodelist-up"][ni][:nchar] = v
+            np.copyto(preallocated_arrays["tmp"], preallocated_arrays["nodelist"][s[1]])
+            preallocated_arrays["tmp"][:-1] = preallocated_arrays["tmp"][:-1]/sum(preallocated_arrays["tmp"][:-1])
+            preallocated_arrays["v"] *= np.dot(p[s[1]], preallocated_arrays["tmp"][:-1])
+        preallocated_arrays["nodelist-up"][ni][:nchar] = preallocated_arrays["v"]
         ni -= 1
-    temp = [ t.pi for t in tree.leaves() ]
-    tips = preallocated_arrays["nodelist-up"][temp]
-    return tips, logli
+    return preallocated_arrays["nodelist-up"][[ t.pi for t in tree.leaves() ]], logli
+
+def hrm_multipass(tree, chars, Q, nregime, pi="Fitzjohn", preallocated_arrays=None,
+                  p = None):
+    """
+    For given tree, chars, and Q, perform up and downpasses, re-assigning
+    likelihoods at tips until no further improvement of likelihood is made
+
+    Max. 50 iterations
+    """
+
+    t, l = hrm_back_mk(tree, chars, Q, nregime, pi=pi)
+    t = np.array(t)
+    l = np.array(l)
+
+    for i in range(50):
+        t_n, l_n = hrm_back_mk(tree, chars, Q, nregime, pi=pi, tip_states=t, preallocated_arrays=preallocated_arrays,
+        p = p)
+        print l, l_n
+        if np.isclose(l_n, l):
+            break
+        else:
+            np.copyto(t,t_n)
+            np.copyto(l,l_n)
+        if preallocated_arrays is not None:
+            np.copyto(preallocated_arrays["nodelist"], preallocated_arrays["nodelistOrig"])
+            preallocated_arrays["root_priors"].fill(1.0)
+    print i
+    return l
+
+def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
+                                      pi = "Fitzjohn", min = True):
+    """
+    Create a function that takes values for Q and returns likelihood after
+    performing multiple passes
+
+    Specify the Q to be ER, Sym, or ARD
+
+    Returned function to be passed into scipy.optimize
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        Qtype (str): ARD only
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root  node.
+        min (bool): Whether the function is to be minimized (False means
+          it will be maximized)
+    Returns:
+        function: Function accepting a list of parameters and returning
+          log-likelihood. To be optmimized with scipy.optimize.minimize
+    """
+    if min:
+        nullval = np.inf
+    else:
+        nullval = -np.inf
+    nchar = len(set(chars)) * nregime
+    nt =  len(tree.descendants())
+    charlist = range(nchar)
+    nobschar = len(set(chars))
+    # Empty Q matrix
+    Q = np.zeros([nchar,nchar], dtype=np.double)
+    t_Q = Q.copy()
+    # Empty p matrix
+    p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
+    # Empty likelihood array
+    nodelist,t = _create_hrmnodelist(tree, chars, nregime)
+    nodelistOrig = nodelist.copy() # Second copy to refer back to
+    # Empty root prior array
+    rootpriors = np.empty([nchar], dtype=np.double)
+
+    # Upper bounds
+    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
+                   tree.leaves()[0].length])
+    upperbound = len(tree.leaves())/treelen
+    # Giving internal function access to these arrays.
+       # Warning: can be tricky
+       # Need to make sure old values
+       # Aren't accidentally re-used
+
+    var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
+           "nodelistOrig":nodelistOrig, "upperbound":upperbound,
+           "root_priors":rootpriors, "nullval":nullval, "t_Q":t_Q,
+           "p_up":p.copy(), "v":np.zeros([nchar]), "tmp":np.zeros([nchar+1]),
+           "motherRow":np.zeros([nchar+1])}
+    var["nodelist-up"] =var["nodelist"].copy()
+    def likelihood_function(Qparams):
+        # Enforcing upper bound on parameters
+        if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams < 0):
+            return var["nullval"]
+        # Filling Q matrices:
+        i = 0
+        if Qtype == "ARD":
+            var["Q"].fill(0.0) # Re-filling with zeroes
+            for rC in range(nregime):
+                for charC in range(nobschar):
+                  for rR in range(nregime):
+                        for charR in range(nobschar):
+                            if not ((rR == rC) and (charR == charC)):
+                                if ((rR == rC) or ((charR == charC)) and (rR+1 == rC or rR-1 == rC)):
+                                    var["Q"][charR+rR*nobschar, charC+rC*nobschar] = Qparams[i]
+                                    i += 1
+            var["Q"][np.diag_indices(nchar)] = np.sum(var["Q"], axis=1)*-1
+        else:
+            raise ValueError, "Qtype must be ARD"
+        for char in range(nobschar):
+            hiddenchar =  [y + char for y in [x * nobschar for x in range(nregime) ]]
+            for char2 in [ ch for ch in range(nobschar) if not ch == char ]:
+                hiddenchar2 =  [y + char2 for y in [x * nobschar for x in range(nregime) ]]
+                rs = [Q[ch1, ch2] for ch1, ch2 in zip(hiddenchar, hiddenchar2)]
+                if not(rs == sorted(rs)):
+                    return var["nullval"]
 
 
+        # Resetting the values in these arrays
+        np.copyto(var["nodelist"], var["nodelistOrig"])
+        var["root_priors"].fill(1.0)
 
+        if min:
+            x = -1
+        else:
+            x = 1
+        try:
+            logli =  hrm_multipass(tree, chars, var["Q"], nregime, p=var["p"], pi = pi, preallocated_arrays=var)
+            return x * logli # Minimizing negative log-likelihood
+        except ValueError: # If likelihood returned is 0
+            return var["nullval"]
 
-
-
-
-    # if returnPi:
-    #     return (logli, {k:v for k,v in enumerate(preallocated_arrays["root_priors"])})
-    # else:
-    #     return logli
+    return likelihood_function

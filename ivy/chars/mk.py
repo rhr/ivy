@@ -125,102 +125,102 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
 
 
 # Pure python mk function
-# def mk(tree, chars, Q, p = None, pi="Equal", returnPi=False):
-#     """
-#     Fit mk model and return likelihood for the root node of a tree given a list of characters
-#     and a Q matrix
-#
-#     Args:
-#         tree (Node): Root node of a tree. All branch lengths must be
-#           greater than 0 (except root)
-#         chars (list): List of character states corresponding to leaf nodes in
-#           preoder sequence. Character states must be numbered 0,1,2,...
-#         Q (np.array): Instantaneous rate matrix
-#         p (np.array): Optional pre-allocated p matrix
-#         pi (str or np.array): Option to weight the root node by given values.
-#                        Either a string containing the method or an array
-#                        of weights. Weights should be given in order.
-#
-#                        Accepted methods of weighting root:
-#
-#                        Equal: flat prior
-#                        Equilibrium: Prior equal to stationary distribution
-#                          of Q matrix
-#                        Fitzjohn: Root states weighted by how well they
-#                          explain the data at the tips.
-#         returnPi (bool): Whether or not to return the pi used
-#     """
-#     chartree = tree.copy()
-#     chartree.char = None; chartree.likelihoodNode={}
-#     t = [node.length for node in chartree.descendants()]
-#     t = np.array(t, dtype=np.double)
-#     nchar = Q.shape[0]
-#
-#     # Generating probability matrix for each branch
-#     if p is None:
-#         p = np.empty([len(t), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
-#     cyexpokit.dexpm_tree_preallocated_p(Q, t, p) # This changes p in place
-#
-#
-#     for i, nd in enumerate(chartree.descendants()):
-#         nd.pmat = p[i] # Assigning probability matrices for each branch
-#         nd.likelihoodNode = {}
-#         nd.char = None
-#
-#     for i, lf in enumerate(chartree.leaves()):
-#         lf.char = chars[i] # Assigning character states to tips
-#
-#
-#     for node in chartree.postiter():
-#         if node.char is not None: # For tip nodes, likelihoods are 1 for observed state and 0 for the rest
-#             for state in range(nchar):
-#                 node.likelihoodNode[state]=0.0
-#             node.likelihoodNode[node.char]=1.0
-#         else:
-#             for state in range(nchar):
-#                 likelihoodStateN = []
-#                 for ch in node.children:
-#                     likelihoodStateNCh = []
-#                     for chState in range(nchar):
-#                         likelihoodStateNCh.append(ch.pmat[state, chState] * ch.likelihoodNode[chState]) #Likelihood for a certain state = p(stateBegin, stateEnd * likelihood(stateEnd))
-#                     likelihoodStateN.append(sum(likelihoodStateNCh))
-#                 node.likelihoodNode[state]=np.product(likelihoodStateN)
-#
-#     if type(pi) != str:
-#         assert len(pi) == nchar, "length of given pi does not match Q dimensions"
-#         assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
-#         assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
-#
-#
-#         rootPriors = {state:li for state,li in enumerate(pi)}
-#
-#         li = sum([ i*rootPriors[n] for n,i in chartree.likelihoodNode.iteritems() ])
-#         logli = math.log(li)
-#
-#     elif pi == "Equal":
-#         rootPriors = {state:1.0/nchar for state in range(nchar)}
-#         li = sum([ i/nchar for i in chartree.likelihoodNode.values() ])
-#
-#         logli = math.log(li)
-#
-#     elif pi == "Fitzjohn":
-#         rootPriors = { charstate:chartree.likelihoodNode[charstate]/
-#                                  sum(chartree.likelihoodNode.values()) for
-#                                  charstate in set(chars) }
-#
-#         li = sum([ chartree.likelihoodNode[charstate] *
-#                      rootPriors[charstate] for charstate in set(chars) ])
-#         logli = math.log(li)
-#     elif pi == "Equilibrium":
-#         # Equilibrium pi from the stationary distribution of Q
-#         rootPriors = {state:li for state,li in enumerate(qsd(Q))}
-#
-#         li = sum([ i*rootPriors[n] for n,i in chartree.likelihoodNode.iteritems() ])
-#         logli = math.log(li)
-#     if returnPi:
-#         return (logli, rootPriors)
-#     else:
-#         return logli
+def mk(tree, chars, Q, p = None, pi="Equal", returnPi=False):
+    """
+    Fit mk model and return likelihood for the root node of a tree given a list of characters
+    and a Q matrix
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        Q (np.array): Instantaneous rate matrix
+        p (np.array): Optional pre-allocated p matrix
+        pi (str or np.array): Option to weight the root node by given values.
+                       Either a string containing the method or an array
+                       of weights. Weights should be given in order.
+
+                       Accepted methods of weighting root:
+
+                       Equal: flat prior
+                       Equilibrium: Prior equal to stationary distribution
+                         of Q matrix
+                       Fitzjohn: Root states weighted by how well they
+                         explain the data at the tips.
+        returnPi (bool): Whether or not to return the pi used
+    """
+    chartree = tree.copy()
+    chartree.char = None; chartree.likelihoodNode={}
+    t = [node.length for node in chartree.descendants()]
+    t = np.array(t, dtype=np.double)
+    nchar = Q.shape[0]
+
+    # Generating probability matrix for each branch
+    if p is None:
+        p = np.empty([len(t), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
+    cyexpokit.dexpm_tree_preallocated_p(Q, t, p) # This changes p in place
+
+
+    for i, nd in enumerate(chartree.descendants()):
+        nd.pmat = p[i] # Assigning probability matrices for each branch
+        nd.likelihoodNode = {}
+        nd.char = None
+
+    for i, lf in enumerate(chartree.leaves()):
+        lf.char = chars[i] # Assigning character states to tips
+
+
+    for node in chartree.postiter():
+        if node.char is not None: # For tip nodes, likelihoods are 1 for observed state and 0 for the rest
+            for state in range(nchar):
+                node.likelihoodNode[state]=0.0
+            node.likelihoodNode[node.char]=1.0
+        else:
+            for state in range(nchar):
+                likelihoodStateN = []
+                for ch in node.children:
+                    likelihoodStateNCh = []
+                    for chState in range(nchar):
+                        likelihoodStateNCh.append(ch.pmat[state, chState] * ch.likelihoodNode[chState]) #Likelihood for a certain state = p(stateBegin, stateEnd * likelihood(stateEnd))
+                    likelihoodStateN.append(sum(likelihoodStateNCh))
+                node.likelihoodNode[state]=np.product(likelihoodStateN)
+
+    if type(pi) != str:
+        assert len(pi) == nchar, "length of given pi does not match Q dimensions"
+        assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
+        assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
+
+
+        rootPriors = {state:li for state,li in enumerate(pi)}
+
+        li = sum([ i*rootPriors[n] for n,i in chartree.likelihoodNode.iteritems() ])
+        logli = math.log(li)
+
+    elif pi == "Equal":
+        rootPriors = {state:1.0/nchar for state in range(nchar)}
+        li = sum([ i/nchar for i in chartree.likelihoodNode.values() ])
+
+        logli = math.log(li)
+
+    elif pi == "Fitzjohn":
+        rootPriors = { charstate:chartree.likelihoodNode[charstate]/
+                                 sum(chartree.likelihoodNode.values()) for
+                                 charstate in set(chars) }
+
+        li = sum([ chartree.likelihoodNode[charstate] *
+                     rootPriors[charstate] for charstate in set(chars) ])
+        logli = math.log(li)
+    elif pi == "Equilibrium":
+        # Equilibrium pi from the stationary distribution of Q
+        rootPriors = {state:li for state,li in enumerate(qsd(Q))}
+
+        li = sum([ i*rootPriors[n] for n,i in chartree.likelihoodNode.iteritems() ])
+        logli = math.log(li)
+    if returnPi:
+        return (logli, rootPriors)
+    else:
+        return logli
 
 def _create_nodelist(tree, chars):
     """
