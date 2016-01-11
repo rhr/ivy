@@ -170,7 +170,7 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
     # Empty p matrix
     p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
     # Empty likelihood array
-    nodelist,t = _create_hrmnodelist(tree, chars, nregime)
+    nodelist,t,childlist = _create_hrmnodelist(tree, chars, nregime)
     nodelistOrig = nodelist.copy() # Second copy to refer back to
     # Empty root prior array
     rootpriors = np.empty([nchar], dtype=np.double)
@@ -345,18 +345,21 @@ def _create_hrmnodelist(tree, chars, nregime):
     postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
     nnode = len(t)+1
     nodelist = np.zeros((nnode, nchar+1))
+    childlist = np.zeros(nnode, dtype=object)
     leafind = [ n.isleaf for n in tree.postiter()]
 
     for k,ch in enumerate(postChars):
         hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
         [ n for i,n in enumerate(nodelist) if leafind[i] ][k][hiddenChs] = 1.0
-        for i,n in enumerate(nodelist[:-1]):
-            n[nchar] = postnodes.index(postnodes[i].parent)
+    for i,n in enumerate(nodelist[:-1]):
+        n[nchar] = postnodes.index(postnodes[i].parent)
+        childlist[i] = [ nod.pi for nod in postnodes[i].children ]
+    childlist[i+1] = [ nod.pi for nod in postnodes[i+1].children ] # Add the root to the childlist array
 
     # Setting initial node likelihoods to one for calculations
     nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
 
-    return nodelist,t
+    return nodelist,t,childlist
 
 
 def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
@@ -408,6 +411,7 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         # Creating more arrays
         nnode = len(tree.descendants())+1
         preallocated_arrays["nodelist"] = np.zeros((nnode, nchar+1))
+        preallocated_arrays["childlist"] = np.zeros(nnode, dtype=object)
         leafind = [ n.isleaf for n in tree.postiter()]
         # Reordering character states to be in postorder sequence
         preleaves = [ n for n in tree.preiter() if n.isleaf ]
@@ -423,8 +427,10 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
             # Indices of hidden rates of observed state. These will all be set to 1
             hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
             [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][hiddenChs] = 1.0/nregime
-            for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
-                n[nchar] = postnodes.index(postnodes[i].parent)
+        for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
+            n[nchar] = postnodes.index(postnodes[i].parent)
+            preallocated_arrays["childlist"][i] = [ nod.pi for nod in postnodes[i].children ]
+        preallocated_arrays["childlist"][i+1] = [ nod.pi for nod in postnodes[i+1].children ]
 
         # Setting initial node likelihoods to 1.0 for calculations
         preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
@@ -496,11 +502,12 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
     root_marginal =  ivy.chars.mk.qsd(Q)
 
     for n in preallocated_arrays["nodelist-up"][::-1][1:]:
-        curRow = n[:nchar]
-        motherRowNum = int(n[nchar])
+        curRow = n[:-1]
+        motherRowNum = int(n[-1])
         np.copyto(preallocated_arrays["motherRow"], preallocated_arrays["nodelist-up"][int(motherRowNum)])
-        sisterRows = [ (i,ii) for ii, i in enumerate(preallocated_arrays["nodelist-up"])
-                       if i[-1] == motherRowNum and ii != ni]
+        # sisterRows = [ (i,ii) for ii, i in enumerate(preallocated_arrays["nodelist-up"])
+        #                if i[-1] == motherRowNum and ii != ni]
+        sisterRows = [ (preallocated_arrays["nodelist-up"][i],i) for i in preallocated_arrays["childlist"][motherRowNum] if not i==ni]
         # If the mother is the root...
         if preallocated_arrays["motherRow"][-1] == 0.0:
             # The marginal of the root
@@ -534,7 +541,6 @@ def hrm_multipass(tree, chars, Q, nregime, pi="Fitzjohn", preallocated_arrays=No
     for i in range(50):
         t_n, l_n = hrm_back_mk(tree, chars, Q, nregime, pi=pi, tip_states=t, preallocated_arrays=preallocated_arrays,
         p = p)
-        print l, l_n
         if np.isclose(l_n, l):
             break
         else:
@@ -543,7 +549,6 @@ def hrm_multipass(tree, chars, Q, nregime, pi="Fitzjohn", preallocated_arrays=No
         if preallocated_arrays is not None:
             np.copyto(preallocated_arrays["nodelist"], preallocated_arrays["nodelistOrig"])
             preallocated_arrays["root_priors"].fill(1.0)
-    print i
     return l
 
 def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
@@ -584,7 +589,7 @@ def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
     # Empty p matrix
     p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
     # Empty likelihood array
-    nodelist,t = _create_hrmnodelist(tree, chars, nregime)
+    nodelist,t,childlist = _create_hrmnodelist(tree, chars, nregime)
     nodelistOrig = nodelist.copy() # Second copy to refer back to
     # Empty root prior array
     rootpriors = np.empty([nchar], dtype=np.double)
@@ -602,7 +607,7 @@ def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
            "root_priors":rootpriors, "nullval":nullval, "t_Q":t_Q,
            "p_up":p.copy(), "v":np.zeros([nchar]), "tmp":np.zeros([nchar+1]),
-           "motherRow":np.zeros([nchar+1])}
+           "motherRow":np.zeros([nchar+1]), "childlist":childlist}
     var["nodelist-up"] =var["nodelist"].copy()
     def likelihood_function(Qparams):
         # Enforcing upper bound on parameters
