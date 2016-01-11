@@ -29,14 +29,7 @@ preallocated_arrays = None
 #
 # node1ni = 18
 # node1n = preallocated_arrays["nodelist-up"][18]
-#
-# node2ni = 17
-# node2n = preallocated_arrays["nodelist-up"][17]
-#
-# for i in preallocated_arrays["nodelist"]:
-#     print i[:-1]/sum(i[:-1])
-
-temp = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2)
+#ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2)
 temp2 = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2, tip_states = temp[0])
 temp3 = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2, tip_states = temp2[0])
 
