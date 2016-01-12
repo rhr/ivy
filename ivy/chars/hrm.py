@@ -515,7 +515,7 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         else:
             # If the mother is not the root, calculate prob. of being in any state
             # Use transposed matrix
-            np.copyto(preallocated_arrays["v"], np.dot(preallocated_arrays["p_up"][motherRowNum], preallocated_arrays["nodelist-up"][motherRowNum][:-1]))
+            np.dot(preallocated_arrays["p_up"][motherRowNum], preallocated_arrays["nodelist-up"][motherRowNum][:-1]), out=preallocated_arrays["v"])
         for s in sisterRows:
             # Use non-transposed matrix
             np.copyto(preallocated_arrays["tmp"], preallocated_arrays["nodelist"][s[1]])

@@ -48,7 +48,7 @@ outMC = pymc.MCMC(out)
 
 import cProfile
 # cProfile.run('outMC.sample(50,0,1)')
-outMC.sample(4000,200,4)
+outMC.sample(10000,400,3)
 #
 #
 
