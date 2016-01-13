@@ -500,7 +500,7 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         motherRowNum = int(n[nchar])
         np.copyto(preallocated_arrays["motherRow"], preallocated_arrays["nodelist-up"][int(motherRowNum)])
         sisterRows = [ (i,ii) for ii, i in enumerate(preallocated_arrays["nodelist-up"])
-                       if i[-1] == motherRowNum and ii != ni]
+                       if i[-1] == motherRowNum and ii != ni ]
         # If the mother is the root...
         if preallocated_arrays["motherRow"][-1] == 0.0:
             # The marginal of the root
