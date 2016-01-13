@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from ivy.chars.hrm import _create_hrmnodelist
 from ivy.chars.hrm import *
 
-tree = ivy.tree.read("/home/cziegler/src/christie-master/ivy/ivy/tests/support/hrm_300tips.newick")
+tree = ivy.tree.read("support/hrm_300tips.newick")
 chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -47,10 +47,20 @@ out = bayesian_models.hrm_multipass_bayesian(tree, chars, Qtype="Simple", nregim
 outMC = pymc.MCMC(out)
 
 import cProfile
-#cProfile.run('outMC.sample(50,0,1)')
-# outMC.sample(10000,400,3)
+# cProfile.run('outMC.sample(50,0,1)')
+outMC.sample(10000,400,3)
 #
 #
+
+plt.plot(outMC.trace("wr-par0")[:])
+plt.plot(outMC.trace("br-par")[:])
+plt.plot(outMC.trace("wr-par1")[:])
+
+np.median(outMC.trace("wr-par0")[:])
+np.median(outMC.trace("br-par")[:])
+np.median(outMC.trace("wr-par1")[:])
+
+
 out2 = bayesian_models.hrm_bayesian(tree, chars, Qtype="Simple", nregime=2)
 
 out2MC = pymc.MCMC(out2)
@@ -73,7 +83,7 @@ t_Q = Q.copy()
 # Empty p matrix
 p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
 # Empty likelihood array
-nodelist,t = _create_hrmnodelist(tree, chars, nregime)
+nodelist,t,childlist = _create_hrmnodelist(tree, chars, nregime)
 nodelistOrig = nodelist.copy() # Second copy to refer back to
 # Empty root prior array
 rootpriors = np.empty([nchar], dtype=np.double)
@@ -91,14 +101,20 @@ var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
        "nodelistOrig":nodelistOrig, "upperbound":upperbound,
        "root_priors":rootpriors, "nullval":nullval, "t_Q":t_Q,
        "p_up":p.copy(), "v":np.zeros([nchar]),"tmp":np.zeros([nchar+1]),
-       "motherRow":np.zeros([nchar+1])}
+       "motherRow":np.zeros([nchar+1]),"childlist":childlist}
 
 var["nodelist-up"] =var["nodelist"].copy()
+
+tip_states = None
+
+pi = "Fitzjohn"
 
 np.copyto(var["nodelist"], var["nodelistOrig"])
 var["root_priors"].fill(1.0)
 import copy
 var1 = copy.deepcopy(var)
+
+preallocated_arrays = var
 
 cProfile.run("hrm_multipass(tree, chars, Q, 2, preallocated_arrays=var)")
 

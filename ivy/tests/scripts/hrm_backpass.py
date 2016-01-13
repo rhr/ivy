@@ -47,6 +47,7 @@ Qparams = np.array([0.0,1.0,0.0,1.0,1.0,5.5,1.0,5.5])
 #
 # node1ni = 18
 # node1n = preallocated_arrays["nodelist-up"][18]
+
 #
 # node2ni = 17
 # node2n = preallocated_arrays["nodelist-up"][17]
@@ -58,6 +59,7 @@ Qparams = np.array([0.0,1.0,0.0,1.0,1.0,5.5,1.0,5.5])
 
 
 temp = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2)
+
 temp2 = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2, tip_states = temp[0])
 temp3 = ivy.chars.hrm.hrm_back_mk(tree, chars, Q, 2, tip_states = temp2[0])
 
