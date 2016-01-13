@@ -56,7 +56,6 @@ def hrm_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         preallocated_arrays["charlist"] = range(Q.shape[0])
         preallocated_arrays["t"] = t
 
-
     if p is None: # Instantiating empty array
         p = np.empty([len(preallocated_arrays["t"]), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
     # Creating probability matrices from Q matrix and branch lengths
@@ -499,39 +498,35 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
 
     ni = len(preallocated_arrays["nodelist-up"]) - 2
 
-    root_marginal =  ivy.chars.mk.qsd(Q)
+    root_marginal =  ivy.chars.mk.qsd(Q) # Change to Fitzjohn Q?
 
     for n in preallocated_arrays["nodelist-up"][::-1][1:]:
         curRow = n[:-1]
-        motherRowNum = int(n[-1])
-        np.copyto(preallocated_arrays["motherRow"], preallocated_arrays["nodelist-up"][int(motherRowNum)])<<<<<<< variant A
-        sisterRows = [ (i,ii) for ii, i in enumerate(preallocated_arrays["nodelist-up"])
-                       if i[-1] == motherRowNum and ii != ni ]
+        motherRowNum = int(n[nchar])
+        np.copyto(preallocated_arrays["motherRow"], preallocated_arrays["nodelist-up"][int(motherRowNum)])
         # sisterRows = [ (i,ii) for ii, i in enumerate(preallocated_arrays["nodelist-up"])
         #                if i[-1] == motherRowNum and ii != ni]
         sisterRows = [ (preallocated_arrays["nodelist-up"][i],i) for i in preallocated_arrays["childlist"][motherRowNum] if not i==ni]
-####### Ancestor
-        sisterRows = [ (i,ii) for ii, i in enumerate(preallocated_arrays["nodelist-up"])
-                       if i[-1] == motherRowNum and ii != ni]
+
         # If the mother is the root...
-        if preallocated_arrays["motherRow"][-1] == 0.0:
+        if preallocated_arrays["motherRow"][nchar] == 0.0:
             # The marginal of the root
             np.copyto(preallocated_arrays["v"],root_marginal) # Only need to calculate once
         else:
             # If the mother is not the root, calculate prob. of being in any state
             # Use transposed matrix
-            np.dot(preallocated_arrays["p_up"][motherRowNum], preallocated_arrays["nodelist-up"][motherRowNum][:-1]), out=preallocated_arrays["v"])
+            np.dot(preallocated_arrays["p_up"][motherRowNum], preallocated_arrays["nodelist-up"][motherRowNum][:nchar], out=preallocated_arrays["v"])
         for s in sisterRows:
             # Use non-transposed matrix
             np.copyto(preallocated_arrays["tmp"], preallocated_arrays["nodelist"][s[1]])
-            preallocated_arrays["tmp"][:-1] = preallocated_arrays["tmp"][:-1]/sum(preallocated_arrays["tmp"][:-1])
-            preallocated_arrays["v"] *= np.dot(p[s[1]], preallocated_arrays["tmp"][:-1])
+            preallocated_arrays["tmp"][:nchar] = preallocated_arrays["tmp"][:-1]/sum(preallocated_arrays["tmp"][:nchar])
+            preallocated_arrays["v"] *= np.dot(p[s[1]], preallocated_arrays["tmp"][:nchar])
         preallocated_arrays["nodelist-up"][ni][:nchar] = preallocated_arrays["v"]
         ni -= 1
     return preallocated_arrays["nodelist-up"][[ t.pi for t in tree.leaves() ]], logli
 
 def hrm_multipass(tree, chars, Q, nregime, pi="Fitzjohn", preallocated_arrays=None,
-                  p = None):
+                  p = None, returntips=False):
     """
     For given tree, chars, and Q, perform up and downpasses, re-assigning
     likelihoods at tips until no further improvement of likelihood is made
@@ -554,7 +549,10 @@ def hrm_multipass(tree, chars, Q, nregime, pi="Fitzjohn", preallocated_arrays=No
         if preallocated_arrays is not None:
             np.copyto(preallocated_arrays["nodelist"], preallocated_arrays["nodelistOrig"])
             preallocated_arrays["root_priors"].fill(1.0)
-    return l
+    out = [l]
+    if returntips:
+        out.append(t_n)
+    return out
 
 def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
                                       pi = "Fitzjohn", min = True):
