@@ -124,3 +124,18 @@ for i,r in enumerate(t[0]):
     n = [tr for tr in mr_tree if tr.pi == postLeaves[i]][0].li
 
     print r[:-1]/np.sum(r[:-1]), reg, mr_chars[n]
+
+
+count = 0
+for i,n in enumerate(l_2[1]):
+    tmp = n[:-1]/sum(n[:-1])
+    if true_chars[i] in [0,2]:
+        non = [1,3]
+    else:
+        non = [0,2]
+    n[non] = 0.0
+    tmp = n[:-1]/sum(n[:-1])
+
+    print tmp, tmp.argmax(),  true_chars[i]
+    if tmp.argmax() != true_chars[i]:
+        count+=1
