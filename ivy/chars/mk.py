@@ -48,12 +48,8 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
     if preallocated_arrays is None:
         # Creating arrays to be used later
         preallocated_arrays = {}
-        t = [node.length for node in tree.postiter() if not node.isroot]
-        t = np.array(t, dtype=np.double)
+        preallocated_arrays["t"] = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
         preallocated_arrays["charlist"] = range(Q.shape[0])
-        preallocated_arrays["t"] = t
-
-
     if p is None: # Instantiating empty array
         p = np.empty([len(preallocated_arrays["t"]), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
     # Creating probability matrices from Q matrix and branch lengths
@@ -61,7 +57,7 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
 
     if len(preallocated_arrays.keys())==2:
         # Creating more arrays
-        nnode = len(tree.descendants())+1
+        nnode = len(tree)
         preallocated_arrays["nodelist"] = np.zeros((nnode, nchar+1))
         leafind = [ n.isleaf for n in tree.postiter()]
         # Reordering character states to be in postorder sequence
@@ -75,10 +71,8 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
             [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][ch] = 1.0
             for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
                 n[nchar] = postnodes.index(postnodes[i].parent)
-
         # Setting initial node likelihoods to 1.0 for calculations
         preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
-
         # Empty array to store root priors
         preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
 
@@ -225,10 +219,11 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
 def _create_nodelist(tree, chars):
     """
     Create nodelist. For use in mk function
+
+    Returns edgelist of nodes in postorder sequence
     """
     t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
     nchar = len(set(chars))
-
     preleaves = [ n for n in tree.preiter() if n.isleaf ]
     postleaves = [n for n in tree.postiter() if n.isleaf ]
     postnodes = list(tree.postiter())
@@ -239,8 +234,8 @@ def _create_nodelist(tree, chars):
 
     for k,ch in enumerate(postChars):
         [ n for i,n in enumerate(nodelist) if leafind[i] ][k][ch] = 1.0
-        for i,n in enumerate(nodelist[:-1]):
-            n[nchar] = postnodes.index(postnodes[i].parent)
+    for i,n in enumerate(nodelist[:-1]):
+        n[nchar] = postnodes.index(postnodes[i].parent)
 
             # Setting initial node likelihoods to one for calculations
     nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
@@ -535,10 +530,7 @@ def qsd(Q):
     nchar = Q.shape[0]
     def qsd_root(pi):
         return sum(np.dot(pi, Q)**2)
-
-
     x0 = [1.0/nchar]*nchar
-
     optim = minimize(qsd_root, x0,
             bounds = tuple(( (1e-14,None) for i in range(len(x0)) )),
             constraints = {"type":"eq",

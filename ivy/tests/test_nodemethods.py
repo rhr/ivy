@@ -120,6 +120,15 @@ class tree_properties_methods(tree_methods):
         trueLeaves = [self.primates[n] for n in trueleafLabels]
 
         self.assertEquals(self.primates.leaves(f), trueLeaves)
+    def test_updatepi_primates_assignscorrectpi(self):
+        tree = self.primates
+        tree2 = tree.copy()
+
+        for t in tree:
+            t.pi = 999
+        tree.update_pi()
+
+        self.assertTrue([n.pi for n in tree] == [n.pi for n in tree2])
 
 
 
@@ -273,16 +282,25 @@ class alterTreeMethods(tree_methods):
         tree2 = tree.drop_tip(toDrop)
         self.assertTrue(tree2.is_same_tree(trueTree))
     def test_dropTip_plantsDropNextToRoot_returnsTree(self):
-        pass
-    def test_dropTip_plantsdropthenladderize_returnsTree(self):
-        pass
+        tree = self.plants
+        trueTree = ivy.tree.read("support/plants_droppedmonilo.newick")
+        tree2 = tree.drop_tip(["Monilophyte"])
+
+        self.assertTrue(tree2.is_same_tree(trueTree))
+    # def test_dropTip_plantsdropthenladderize_returnsTree(self):
+    #     tree = self.plants
+    #     trueTree = ivy.tree.read("support/plants3CladesDropped.newick")
+    #     toDrop = [n.leaves() for n in tree if n.label in ["Papilionoideae","Asterids", "Poaceae"]]
+    #     toDrop = [n for s in toDrop for n in s]
+    #     tree2 = tree.drop_tip(toDrop)
+    #     tree2.ladderize()
+    #     self.assertTrue(tree2.is_same_tree(trueTree))
     def test_dropTip_polytomies_returnsTree(self):
         pass
     def test_dropTip_knees_returnsTree(self):
         pass
     def test_dropTip_kneesAndPolytomies_returnsTree(self):
         pass
-
 
 
 

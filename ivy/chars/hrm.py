@@ -51,10 +51,8 @@ def hrm_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
     if preallocated_arrays is None:
         # Creating arrays to be used later
         preallocated_arrays = {}
-        t = [node.length for node in tree.postiter() if not node.isroot]
-        t = np.array(t, dtype=np.double)
         preallocated_arrays["charlist"] = range(Q.shape[0])
-        preallocated_arrays["t"] = t
+        preallocated_arrays["t"] = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
 
     if p is None: # Instantiating empty array
         p = np.empty([len(preallocated_arrays["t"]), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
@@ -80,8 +78,8 @@ def hrm_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
             # Indices of hidden rates of observed state. These will all be set to 1
             hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
             [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][hiddenChs] = 1.0
-            for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
-                n[nchar] = postnodes.index(postnodes[i].parent)
+        for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
+            n[nchar] = postnodes.index(postnodes[i].parent)
 
         # Setting initial node likelihoods to 1.0 for calculations
         preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
@@ -215,8 +213,6 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
                 rs = [Q[ch1, ch2] for ch1, ch2 in zip(hiddenchar, hiddenchar2)]
                 if not(rs == sorted(rs)):
                     return var["nullval"]
-
-
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
@@ -227,7 +223,10 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
             x = 1
         try:
             logli =  hrm_mk(tree, chars, var["Q"],nregime,  p=var["p"], pi = pi, preallocated_arrays=var)
-            return x * logli # Minimizing negative log-likelihood
+            if not np.isnan(logli):
+                return x * logli# Minimizing negative log-likelihood
+            else:
+                return var["nullval"]
         except ValueError: # If likelihood returned is 0
             return var["nullval"]
 
@@ -650,7 +649,10 @@ def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
             x = 1
         try:
             logli =  hrm_multipass(tree, chars, var["Q"], nregime, p=var["p"], pi = pi, preallocated_arrays=var)
-            return x * logli # Minimizing negative log-likelihood
+            if not np.isnan(logli):
+                return x * logli[0] # Minimizing negative log-likelihood
+            else:
+                return var["nullval"]
         except ValueError: # If likelihood returned is 0
             return var["nullval"]
 

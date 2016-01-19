@@ -17,7 +17,7 @@ from ivy.chars.hrm import *
 def mk_multi_regime(tree, chars, Qs, locs, p=None, pi="Fitzjohn", returnPi=False,
                      preallocated_arrays = None):
     """
-    Calculate likelhiood of mk model with multiple regimes
+    Calculate likelhiood of mk model with BAMM-like multiple regimes
 
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
@@ -44,15 +44,12 @@ def mk_multi_regime(tree, chars, Qs, locs, p=None, pi="Fitzjohn", returnPi=False
     if preallocated_arrays is None:
         # Creating arrays to be used later
         preallocated_arrays = {}
-        t = [node.length for node in tree.postiter() if not node.isroot]
-        t = np.array(t, dtype=np.double)
         preallocated_arrays["charlist"] = range(nchar)
-        preallocated_arrays["t"] = t
+        preallocated_arrays["t"] = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
 
 
     if p is None: # Instantiating empty array
         p = np.empty([len(preallocated_arrays["t"]), nchar, nchar], dtype = np.double, order="C")
-
 
     inds = [0]*len(preallocated_arrays["t"])
 
@@ -302,4 +299,3 @@ def locs_from_switchpoint(tree, switch, locs=None):
     locs[0]=r1
     locs[1]=r2
     return locs
-

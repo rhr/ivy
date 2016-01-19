@@ -1166,10 +1166,6 @@ class Node(object):
 
         t.isroot = True
         return t
-
-
-
-
     def makeroot(self, shift_labels=False):
         """
         shift_labels: flag to shift internal parent-child node labels
@@ -1196,6 +1192,15 @@ class Node(object):
             s = write_newick(self, outfile, length_fmt, True, clobber)
             if not outfile:
                 return s
+    def update_pi(self, count=0):
+        """
+        Given root node, traverse tree in postorder sequence and update
+        pi property of nodes
+        """
+        assert self.isroot
+        count = 0
+        tree.leaves()[0].pi = count
+
 
 
 reroot = Node.reroot
