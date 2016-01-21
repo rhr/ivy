@@ -1192,14 +1192,22 @@ class Node(object):
             s = write_newick(self, outfile, length_fmt, True, clobber)
             if not outfile:
                 return s
-    def update_pi(self, count=0):
+    # def update_pi(self, count=0):
+    #     """
+    #     Given root node, traverse tree in postorder sequence and update
+    #     pi property of nodes
+    #     """
+    #     assert self.isroot
+    #     count = 0
+    #     tree.leaves()[0].pi = count
+    def get_siblings(self):
         """
-        Given root node, traverse tree in postorder sequence and update
-        pi property of nodes
+        Return list of siblings of node
         """
-        assert self.isroot
-        count = 0
-        tree.leaves()[0].pi = count
+        assert self.parent is not None
+        return [c for c in self.parent.children if not c==self]
+           
+
 
 
 

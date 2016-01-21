@@ -361,7 +361,7 @@ def _create_hrmnodelist(tree, chars, nregime):
 
 
 def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
-          preallocated_arrays=None, tip_states=None, returnnodes=False):
+                preallocated_arrays=None, tip_states=None, returnnodes=False):
     """
     Calculate probability vector at root given tree, characters, and Q matrix,
     then reconstruct probability vectors for tips and use those in another
@@ -522,9 +522,9 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
             preallocated_arrays["v"] *= np.dot(p[s[1]], preallocated_arrays["tmp"][:nchar])
         preallocated_arrays["nodelist-up"][ni][:nchar] = preallocated_arrays["v"]
         ni -= 1
-        out = [preallocated_arrays["nodelist-up"][[ t.pi for t in tree.leaves() ]], logli]
-        if returnnodes:
-            out.append(preallocated_arrays["nodelist-up"])
+    out = [preallocated_arrays["nodelist-up"][[ t.pi for t in tree.leaves() ]], logli]
+    if returnnodes:
+        out.append(preallocated_arrays["nodelist-up"])
     return out
 
 def hrm_multipass(tree, chars, Q, nregime, pi="Fitzjohn", preallocated_arrays=None,

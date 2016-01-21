@@ -96,3 +96,11 @@ def create_intarray(tree, trueinternals):
 ar = create_intarray(tree, trueinternals)
 t2 = treefig(tree)
 ivy.vis.layers.add_ancestor_reconstruction(t2.tree, ar, colors=colors)
+
+
+singlepass_out = hrm.hrm_back_mk(tree, chars, Q, 2, returnnodes=True)
+
+
+t3 = treefig(tree)
+
+ivy.vis.layers.add_ancestor_reconstruction(t3.tree, singlepass_out[2], colors=colors)
