@@ -58,13 +58,11 @@ def anc_recon_py(tree, chars, Q, p=None, pi="Fitzjohn"):
     # Performing the uppass (skipping the root)
     # Iterate over nodes in pre-order sequence
     for node in chartree.descendants():
-        node.marginal_likelihood = {}
         # Marginal is equivalent to information coming UP from the root * information coming DOWN from the tips
-
+        node.marginal_likelihood = {}
 
         ### Getting uppass information for node of interest
         ###(partial uppass likelihood of parent * partial downpass likelihood of parent)
-
         ## Calculating partial downpass likelihood vector for parent
         node.parent.partial_down_likelihood = {}
         sibs = node.get_siblings()
@@ -75,23 +73,34 @@ def anc_recon_py(tree, chars, Q, p=None, pi="Fitzjohn"):
                 for sib in sibs:
                     partial_likelihoodN[chState]*=(sib.downpass_likelihood[chState] * sib.pmat[state, chState])
             node.parent.partial_down_likelihood[state] = sum(partial_likelihoodN)
-        # Calculating partial uppass likelihood vector for parent
+        ## Calculating partial uppass likelihood vector for parent
         node.parent.partial_up_likelihood = {}
         # If the parent is the root, there is no up-likelihood because there is
         # nothing "upwards" of the root. Set all likelihoods to 1 for identity
         if node.parent.isroot:
             for state in range(nchar):
                 node.parent.partial_up_likelihood[state] = 1.0
+        # If the parent is not the root, the up-likelihood is equal to the up-likelihoods coming from the parent
         else:
             for state in range(nchar):
-                
-        #
-        uppass_information = node.parent.partial_likelihood
-        # for state in range(nchar):
-        #     for pState in range(nchar):
-        #         node.uppass_likelihood[state] = node.parent.partial_likelihood[pState]*node.pmat[pState,state]
+                node.parent.partial_up_likelihood[state] = 0.0
+                partial_uplikelihoodN = [1.0] * nchar
+                for pstate in range(nchar):
+                    for sib in node.parent.get_siblings():
+                        partial_uplikelihoodNP = [0.0] * nchar
+                        for sibstate in range(nchar):
+                            partial_uplikelihoodNP[pstate] += sib.downpass_likelihood[sibstate] * sib.pmat[pstate,sibstate]
+                        partial_uplikelihoodN[pstate] *= partial_uplikelihoodNP[pstate]
+                    node.parent.partial_up_likelihood[state] += partial_uplikelihoodN[pstate] * node.parent.pmat[pstate, state]
+        ### Putting together the uppass information and the downpass information
+        uppass_information = {}
+        for state in range(nchar):
+            uppass_information[state] = node.parent.partial_up_likelihood[state] * node.parent.partial_down_likelihood[state]
+        downpass_information = node.downpass_likelihood
 
-
+        for state in range(nchar):
+            node.marginal_likelihood[state] = uppass_information[state] * downpass_information[state]
+    return chartree
 
 
 
