@@ -24,9 +24,9 @@ class NodelikelihoodMethods(unittest.TestCase):
         del(self.fourtiptree)
 
     def test_ancrecon_4tiptree_matchesByHand(self):
-        charstates = self.fourchars
+        chars = self.fourchars
         tree = self.fourtiptree
-        Q = Q2x2_sym
+        Q = self.Q2x2_sym
 
         DL0A = 0;DL1A = 1;DL0B = 0;DL1B = 1;DL0C = 1;DL1C = 0;DL0D = 1;DL1D = 0
 
@@ -69,14 +69,22 @@ class NodelikelihoodMethods(unittest.TestCase):
 
 
         # Now we work up, starting with node F
-        UL0R_m_F = (DL0D * P00D) + (DL1D * P01D)
-        UL1R_m_F = (DL0D * P10D) + (DL1D * P11D)
+        # UL0R_m_F_PD = Uppass likelihood of state 0 at root minus branch F: partial downpass information
+        UL0R_m_F_PD = (DL0D * P00D) + (DL1D * P01D)
+        UL1R_m_F_PD = (DL0D * P10D) + (DL1D * P11D)
+
+        # UL0R_m_F_PD = Uppass likelihood of state 0 at root minus branch F: partial uppass information
+        UL0R_m_F_PU = 1 # No uppass information at root
+        UL1R_m_F_PU = 1
+
+        # UL0R_m_F = Uppass likelihood of state 0 at root minus branch F
+        UL0R_m_F = UL0R_m_F_PD * UL0R_m_F_PU
+        UL1R_m_F = UL1R_m_F_PD * UL1R_m_F_PU
 
         UL0F = DL0F*(UL0R_m_F * P00F + UL1R_m_F * P10F)
         UL1F = DL1F*(UL0R_m_F * P01F + UL1R_m_F * P11F)
 
         # Now node E
-
         # State 0
         UL0F_m_E_PD = (DL0C * P00C) + (DL1C * P01C)
         UL0F_m_E_PU = (UL0R_m_F*P00F) + (UL1R_m_F * P10F)
@@ -91,5 +99,11 @@ class NodelikelihoodMethods(unittest.TestCase):
         UL0E = DL0E*(UL0F_m_E * P00E + UL1F_m_E * P10E)
 
         # State 1
-
         UL1E = DL1E*(UL0F_m_E * P01E + UL1F_m_E * P11E)
+
+        t = ivy.chars.anc_recon.anc_recon_py(tree, chars, Q)
+
+        self.assertTrue(np.isclose(t["E"].marginal_likelihood[0], UL0E) and np.isclose(t["E"].marginal_likelihood[1], UL1E))
+
+if __name__ == "__main__":
+    unittest.main()

@@ -313,7 +313,7 @@ def fill_Q_matrix(nobschar, nregime, Qparams):
     i = 0
     for rC in range(nregime):
         for charC in range(nobschar):
-          for rR in range(nregime):
+            for rR in range(nregime):
                 for charR in range(nobschar):
                     if not ((rR == rC) and (charR == charC)):
                         if ((rR == rC) or ((charR == charC)) and (rR+1 == rC or rR-1 == rC)):

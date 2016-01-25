@@ -95,11 +95,14 @@ def anc_recon_py(tree, chars, Q, p=None, pi="Fitzjohn"):
         ### Putting together the uppass information and the downpass information
         uppass_information = {}
         for state in range(nchar):
-            uppass_information[state] = node.parent.partial_up_likelihood[state] * node.parent.partial_down_likelihood[state]
+            uppass_information[state] = node.parent.partial_down_likelihood[state] * node.parent.partial_up_likelihood[state]
         downpass_information = node.downpass_likelihood
 
         for state in range(nchar):
-            node.marginal_likelihood[state] = uppass_information[state] * downpass_information[state]
+            node.marginal_likelihood[state] = 0
+            for pstate in range(nchar):
+                node.marginal_likelihood[state] += uppass_information[pstate] * node.pmat[pstate, state]
+            node.marginal_likelihood[state] *= downpass_information[state]
     return chartree
 
 
