@@ -115,65 +115,113 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn",
 
     Perform downpass using mk function, then perform uppass.
 
-    Return reconstructed states - including tips (tips can be switched
-    to their true values in post-processing)
+    Return reconstructed states - including tips
 
 
     """
     nchar = Q.shape[0]
     if preallocated_arrays is None:
         # Creating arrays to be used later
-        preallocated_arrays = {}
-        preallocated_arrays["t"] = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
+        objs = ["down_nodelist","up_nodelist","partial_nodelist","childlist","t"]
+        preallocated_arrays = {k:v for k,v in zip(objs, _create_ancrecon_nodelist(tree, chars))}
         preallocated_arrays["charlist"] = range(Q.shape[0])
+        # Empty array to store root priors
+        preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
+    # Calculating the likelihoods for each node in post-order sequence
     if p is None: # Instantiating empty array
         p = np.empty([len(preallocated_arrays["t"]), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
     # Creating probability matrices from Q matrix and branch lengths
     cyexpokit.dexpm_tree_preallocated_p(Q, preallocated_arrays["t"], p) # This changes p in place
-
-    if len(preallocated_arrays.keys())==2:
-        # Creating more arrays
-        nnode = len(tree)
-        preallocated_arrays["nodelist"] = np.zeros((nnode, nchar+1))
-        preallocated_arrays["childlist"] = np.zeros(nnode, dtype=object)
-        leafind = [ n.isleaf for n in tree.postiter()]
-        # Reordering character states to be in postorder sequence
-        preleaves = [ n for n in tree.preiter() if n.isleaf ]
-        postleaves = [n for n in tree.postiter() if n.isleaf ]
-        postnodes = list(tree.postiter());prenodes = list(tree.preiter())
-        postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
-        # Filling in the node list. It contains all of the information needed
-        # to calculate the likelihoods at each node
-        for k,ch in enumerate(postChars):
-            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][ch] = 1.0
-            for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
-                n[nchar] = postnodes.index(postnodes[i].parent)
-                preallocated_arrays["childlist"][i] = [ nod.pi for nod in postnodes[i].children ]
-        preallocated_arrays["childlist"][i+1] = [ nod.pi for nod in postnodes[i+1].children ]
-
-        # Setting initial node likelihoods to 1.0 for calculations
-        preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
-        # Empty array to store root priors
-        preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
-        preallocated_arrays["nodelist-up"] = preallocated_arrays["nodelist"].copy()
-    # Calculating the likelihoods for each node in post-order sequence
-    cyexpokit.cy_mk(preallocated_arrays["nodelist"], p, preallocated_arrays["charlist"])
-    # "nodelist" contains the downpass likelihood vectors for each node in postorder sequence
-
+    # ------------------- Performing the down-pass -----------------------------
+    for intnode in map(int, sorted(set(preallocated_arrays["down_nodelist"][:-1,nchar]))):
+        nextli = preallocated_arrays["down_nodelist"][intnode]
+        for chi, child in enumerate(preallocated_arrays["childlist"][intnode]):
+            li = preallocated_arrays["down_nodelist"][child]
+            p_li = preallocated_arrays["partial_nodelist"][intnode][chi]
+            for ch in preallocated_arrays["charlist"]:
+                p_li[ch] = sum([ p[child][ch,st] for st in preallocated_arrays["charlist"] ] * li[:nchar])
+                nextli[ch] *= p_li[ch]
+    # "downpass_likelihood" contains the downpass likelihood vectors for each node in postorder sequence
     # Now that the downpass has been performed, we must perform the up-pass
+    # ------------------- Performing the up-pass -------------------------------
+    # The up-pass likelihood at each node is equivalent to information coming
+    # up from the root * information coming down from the tips
 
-    # The root will be assigned an up-pass likelihood vector equal to the
-    # stationary distribution of the Q matrix
-    root_marginal =  ivy.chars.mk.qsd(Q)
+    # Each node has the following:
+    # Uppass_likelihood (set to the marginal for the root)
+    # Partial likelihood for each child node
+    # The final column of up_nodelist points to the POSTORDER index number of the PARENT of the node
 
-    # temp_array stores temporary values that are not reported in
-    # the final reconstruction
-    # The temp_array corresponds to nodes in REVERSE post-order sequence
-    temp_array = np.zeros([len(tree), nchar+1])
-    # The last column is an edgelist; each value corresponds to the index
-    # of the parent of the node in the original nodelist. The root's
-    # parent is set at 0.
-    temp_array[:,-1] = preallocated_arrays["nodelist"][:,-1][::-1]
+    # child_masks containsan array of the children to use for calculating
+    # partial likelihood of the next child of that node. All parents
+    # start out with excluding the first child that appears (for calculating
+    # marginal likelihood of that child)
+    child_masks = np.ones(preallocated_arrays["partial_nodelist"].shape, dtype=bool)
+    child_masks[:,0,:].fill(False)
 
-    # Skip the root and start at the first child
-    ni = len(tree)-2
+    root_posti = preallocated_arrays["up_nodelist"].shape[0] - 1
+    for i,l in enumerate(preallocated_arrays["up_nodelist"]):
+        # Uppass information for node
+        if i == 0:
+            # Set root node to be equal to the marginal
+            l[:nchar] = ivy.chars.discrete.qsd(Q)
+        else:
+            parent = int(l[nchar])
+            parent_partial_up = np.dot(p[l[nchar+1]], preallocated_arrays["partial_nodelist"][parent][child_masks[parent]])
+            child_masks[parent] = np.roll(child_masks[parent], 1, 0) # Roll child masks so that next likelihood calculated for this parent uses correct children
+            if parent == root_posti:
+                parent_partial_down = np.ones(nchar)
+            else:
+                parent_parent = preallocated_arrays["down_nodelist"][parent]
+                parent_partial_down =
+
+
+            uppass_information = parent_partial_up * parent_partial_down
+            # Downpass information for node
+            downpass_information = preallocated_arrays["down_nodelist"][l[nchar+1]][:nchar]
+
+            l[:nchar] = uppass_information * downpass_information
+
+
+
+    #
+def _create_ancrecon_nodelist(tree, chars):
+    """
+    Create nodelist. For use in anc_recon function
+
+    Returns edgelist of nodes in postorder sequence, edgelist of nodes in preorder sequence,
+    partial likelihood vector for each node's children, childlist, and branch lengths.
+    """
+    t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
+    nchar = len(set(chars))
+    preleaves = [ n for n in tree.preiter() if n.isleaf ]
+    postleaves = [n for n in tree.postiter() if n.isleaf ]
+    postnodes = list(tree.postiter())
+    prenodes = list(tree.preiter())
+    postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
+    nnode = len(t)+1
+    down_nodelist = np.zeros([nnode, nchar+1])
+    up_nodelist = np.zeros([nnode, nchar+2])
+    childlist = np.zeros(nnode, dtype=object)
+    leafind = [ n.isleaf for n in tree.postiter()]
+
+    # --------- Down nodelist
+    for k,ch in enumerate(postChars):
+        [ n for i,n in enumerate(down_nodelist) if leafind[i] ][k][ch] = 1.0
+    for i,n in enumerate(down_nodelist[:-1]):
+        n[nchar] = postnodes.index(postnodes[i].parent)
+        childlist[i] = [ nod.pi for nod in postnodes[i].children ]
+    childlist[i+1] = [ nod.pi for nod in postnodes[i+1].children ]
+    # Setting initial node likelihoods to one for calculations
+    down_nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
+
+    # -------- Up nodelist
+    up_nodelist[:,:-1].fill(1)
+    for i,n in enumerate(up_nodelist[1:]):
+        n[nchar] = postnodes.index(prenodes[1:][i].parent)
+        n[nchar+1] = postnodes.index(prenodes[1:][i])
+
+    # ------- Partial likelihood vectors
+    partial_nodelist = np.zeros([nnode,nchar,max([n.nchildren for n in tree])])
+
+    return down_nodelist,up_nodelist,partial_nodelist,childlist,t

@@ -296,31 +296,51 @@ def _random_Q_matrix(nobschar, nregime):
     Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
     return Q
 
-def fill_Q_matrix(nobschar, nregime, Qparams):
+def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD"):
     """
     Fill a Q matrix with nchar*nregime rows and cols with values from Qparams
 
     Args:
         nchar (int): number of observed characters
         nregime (int): number of hidden rates per character
-        Qparam (list): List of Q values
+        wrparams (list): List of unique Q values for within-regime transitions,
+          in order as they appear in columnwise iteration
+        brparams (list): list of unique Q values for between-regime transition,
+          in order as they appear in columnwise iteration
     Returns:
         array: Q-matrix with values filled in. Check to make sure values
           have been filled in properly
     """
     Q = np.zeros([nobschar*nregime, nobschar*nregime])
-
-    i = 0
-    for rC in range(nregime):
-        for charC in range(nobschar):
-            for rR in range(nregime):
-                for charR in range(nobschar):
-                    if not ((rR == rC) and (charR == charC)):
-                        if ((rR == rC) or ((charR == charC)) and (rR+1 == rC or rR-1 == rC)):
-                            Q[charR+rR*nobschar, charC+rC*nobschar] = Qparams[i]
-                            i+=1
-    Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
+    assert Qtype in ["ARD", "Simple"]
+    grid = np.zeros([(nobschar*nregime)**2, 4], dtype=int)
+    grid[:,0] = np.tile(np.repeat(range(nregime), nobschar), nobschar*nregime)
+    grid[:,1] = np.repeat(range(nregime), nregime*nobschar**2)
+    grid[:,2] = np.tile(range(nobschar), nregime**2*nobschar)
+    grid[:,3] = np.tile(np.repeat(range(nobschar), nregime*nobschar), nregime)
+    if Qtype == "ARD":
+        wrcount = 0
+        brcount = 0
+        for i, qcell in enumerate(np.nditer(Q, order="C", op_flags=["readwrite"])):
+            cell = grid[i]
+            if (cell[0] == cell[1]) and cell[2] != cell[3]:
+                qcell[...] = wrparams[wrcount]
+                wrcount += 1
+            elif(cell[0] in [cell[1]+1, cell[1]-1] and cell[2] == cell[3] ):
+                qcell[...] = brparams[brcount]
+                brcount += 1
+        Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
+    elif Qtype == "Simple":
+        for i,qcell in enumerate(np.nditer(Q, order="C", op_flags=["readwrite"])):
+            cell = grid[i]
+            if (cell[0] == cell[1]) and cell[2] != cell[3]:
+                qcell[...] = wrparams[cell[0]]
+            elif(cell[0] in [cell[1]+1, cell[1]-1] and cell[2] == cell[3] ):
+                qcell[...] = brparams[0]
+        Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1) * -1
     return Q
+
+
 def n_Q_params(nchar, nregime):
     """
     Number of free Q params for a matrix with nchar and nregimes
@@ -503,8 +523,6 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         curRow = n[:-1]
         motherRowNum = int(n[nchar])
         np.copyto(preallocated_arrays["motherRow"], preallocated_arrays["nodelist-up"][int(motherRowNum)])
-        # sisterRows = [ (i,ii) for ii, i in enumerate(preallocated_arrays["nodelist-up"])
-        #                if i[-1] == motherRowNum and ii != ni]
         sisterRows = [ (preallocated_arrays["nodelist-up"][i],i) for i in preallocated_arrays["childlist"][motherRowNum] if not i==ni]
 
         # If the mother is the root...
