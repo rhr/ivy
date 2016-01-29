@@ -117,7 +117,6 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn",
 
     Return reconstructed states - including tips
 
-
     """
     nchar = Q.shape[0]
     if preallocated_arrays is None:
@@ -150,7 +149,8 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn",
     # Each node has the following:
     # Uppass_likelihood (set to the marginal for the root)
     # Partial likelihood for each child node
-    # The final column of up_nodelist points to the POSTORDER index number of the PARENT of the node
+    # The final two columns of up_nodelist point to the
+    # postorder index numbers of the parent and self node, respectively
 
     # child_masks containsan array of the children to use for calculating
     # partial likelihood of the next child of that node. All parents
@@ -160,31 +160,32 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn",
     child_masks[:,0,:].fill(False)
 
     root_posti = preallocated_arrays["up_nodelist"].shape[0] - 1
+
+    # The parent's partial likelihood without current node
+    partial_parent_likelihoods = np.zeros([preallocated_arrays["up_nodelist"].shape[0],nchar])
+
     for i,l in enumerate(preallocated_arrays["up_nodelist"]):
         # Uppass information for node
         if i == 0:
             # Set root node to be equal to the marginal
             l[:nchar] = ivy.chars.discrete.qsd(Q)
         else:
-            parent = int(l[nchar])
-            parent_partial_up = np.dot(p[l[nchar+1]], preallocated_arrays["partial_nodelist"][parent][child_masks[parent]])
+            parent = int(l[nchar]) # the parent's POSTORDER index
+            parent_partial_up = preallocated_arrays["partial_nodelist"][parent][child_masks[parent]]
             child_masks[parent] = np.roll(child_masks[parent], 1, 0) # Roll child masks so that next likelihood calculated for this parent uses correct children
             if parent == root_posti:
                 parent_partial_down = np.ones(nchar)
             else:
-                parent_parent = preallocated_arrays["down_nodelist"][parent]
-                parent_partial_down =
+                parent_partial_down = np.dot(p[parent], partial_parent_likelihoods[parent])
 
-
-            uppass_information = parent_partial_up * parent_partial_down
+            partial_parent_likelihoods[int(l[nchar+1])] =  parent_partial_up * parent_partial_down
+            uppass_information = np.dot(p[l[nchar+1]], parent_partial_up * parent_partial_down)
             # Downpass information for node
             downpass_information = preallocated_arrays["down_nodelist"][l[nchar+1]][:nchar]
 
             l[:nchar] = uppass_information * downpass_information
+    return preallocated_arrays["up_nodelist"]
 
-
-
-    #
 def _create_ancrecon_nodelist(tree, chars):
     """
     Create nodelist. For use in anc_recon function
