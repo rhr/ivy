@@ -1,9 +1,10 @@
 """
 Functions for dealing with trees as matrices.
 """
+import ivy
 from collections import defaultdict
 import numpy as np
-    
+
 
 def vcv(root):
     """
@@ -58,27 +59,27 @@ def vcv(root):
 def readEL(el):
     """
     Create a tree from an edge list
-    
+
     Args:
         el(list): Edge list where each index is a node and each index's value
           is the node's parent. The root is its own parent.
-          
+
     Returns:
-    
+
         Node: Tree from the edge list
     Example:
-    
-        el = [1,1,1,3,3]
-        
-        print readEL(el).ascii()
-        
-         --------------------------------------------+ 2 
-        1+                                               
-         :                     ----------------------+ 4 
-         ---------------------3+                         
-                               ----------------------+ 5 
 
-    
+        el = [1,1,1,3,3]
+
+        print readEL(el).ascii()
+
+         --------------------------------------------+ 2
+        1+
+         :                     ----------------------+ 4
+         ---------------------3+
+                               ----------------------+ 5
+
+
     """
     root = ivy.tree.Node(label = str(el[0]), isroot=True)
     for i,n in enumerate(el[1:]):
@@ -88,7 +89,7 @@ def readEL(el):
         if not n.children:
             n.isleaf = True
     return root
-        
+
 
 if __name__ == "__main__":
     import tree, ascii

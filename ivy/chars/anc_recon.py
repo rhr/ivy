@@ -176,7 +176,7 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn",
             if parent == root_posti:
                 parent_partial_down = np.ones(nchar)
             else:
-                parent_partial_down = np.dot(p[parent], partial_parent_likelihoods[parent])
+                parent_partial_down = np.dot(p[parent].T, partial_parent_likelihoods[parent])
 
             partial_parent_likelihoods[int(l[nchar+1])] =  parent_partial_up * parent_partial_down
             uppass_information = np.dot(p[l[nchar+1]], parent_partial_up * parent_partial_down)
