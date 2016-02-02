@@ -119,7 +119,7 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
 
 
 # Pure python mk function
-# def mk(tree, chars, Q, p = None, pi="Equal", returnPi=False):
+# def mk_py(tree, chars, Q, p = None, pi="Equal", returnPi=False):
 #     """
 #     Fit mk model and return likelihood for the root node of a tree given a list of characters
 #     and a Q matrix

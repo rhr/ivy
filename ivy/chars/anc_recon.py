@@ -152,7 +152,7 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn",
     # The final two columns of up_nodelist point to the
     # postorder index numbers of the parent and self node, respectively
 
-    # child_masks containsan array of the children to use for calculating
+    # child_masks contains an array of the children to use for calculating
     # partial likelihood of the next child of that node. All parents
     # start out with excluding the first child that appears (for calculating
     # marginal likelihood of that child)
@@ -160,6 +160,7 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn",
     child_masks[:,0,:].fill(False)
 
     root_posti = preallocated_arrays["up_nodelist"].shape[0] - 1
+    root_equil = ivy.chars.mk.qsd(Q)
 
     # The parent's partial likelihood without current node
     partial_parent_likelihoods = np.zeros([preallocated_arrays["up_nodelist"].shape[0],nchar])
@@ -168,18 +169,18 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn",
         # Uppass information for node
         if i == 0:
             # Set root node to be equal to the marginal
-            l[:nchar] = ivy.chars.discrete.qsd(Q)
+            l[:nchar] = root_equil * preallocated_arrays["down_nodelist"][-1][:nchar]
         else:
             parent = int(l[nchar]) # the parent's POSTORDER index
             parent_partial_up = preallocated_arrays["partial_nodelist"][parent][child_masks[parent]]
             child_masks[parent] = np.roll(child_masks[parent], 1, 0) # Roll child masks so that next likelihood calculated for this parent uses correct children
             if parent == root_posti:
-                parent_partial_down = np.ones(nchar)
+                parent_partial_down = root_equil.copy()
             else:
                 parent_partial_down = np.dot(p[parent].T, partial_parent_likelihoods[parent])
 
             partial_parent_likelihoods[int(l[nchar+1])] =  parent_partial_up * parent_partial_down
-            uppass_information = np.dot(p[l[nchar+1]], parent_partial_up * parent_partial_down)
+            uppass_information = np.dot(p[l[nchar+1]].T, parent_partial_up * parent_partial_down)
             # Downpass information for node
             downpass_information = preallocated_arrays["down_nodelist"][l[nchar+1]][:nchar]
 
