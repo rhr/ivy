@@ -187,38 +187,43 @@ class NodelikelihoodMethods(unittest.TestCase):
         t = ivy.chars.anc_recon.anc_recon_py(tree, chars, Q)
 
         self.assertTrue(np.isclose(t["E"].marginal_likelihood[0], UL0E) and np.isclose(t["E"].marginal_likelihood[1], UL1E))
-    def test_ancrecon_4tiptree_matchesPyAncrecon(self):
+    def test_ancrecon_4tiptree_matchesCorhmm(self):
         chars = self.fourchars
         tree = self.fourtiptree
         Q = self.Q2x2_sym
 
-        out_py = ivy.chars.anc_recon.anc_recon_py(tree, chars, Q)
+        out_cor = np.array([[0.68038206,0.3196179],
+                            [0.59350514,0.4064949],
+                            [0.05419418,0.9458058]])
         out = ivy.chars.anc_recon.anc_recon(tree, chars, Q)
 
         for i in range(2):
             for char in set(chars):
                 print i+1
-                print out_py[i+1].marginal_likelihood[char]
-                print out[i+1][char]
+                print out_cor[i+1][char]
+                print out[i+1][char]/np.sum(out[i+1][:2])
                 self.assertTrue(np.isclose(
-                                out_py[i+1].marginal_likelihood[char],
-                                out[i+1][char]))
-    def test_ancrecon_4tiptreeAsym_matchesPyAncrecon(self):
+                                out_cor[i+1][char],
+                                out[i+1][char]/np.sum(out[i+1][:2])))
+    def test_ancrecon_4tiptreeAsym_matchesCormm(self):
         chars = self.fourchars
         tree = self.fourtiptree
         Q = self.Q2x2_asym
 
-        out_py = ivy.chars.anc_recon.anc_recon_py(tree, chars, Q)
+        out_cor =  np.array([[0.70557182, 0.2944282],
+                             [0.54462274, 0.4553773],
+                             [0.08647845, 0.9135216]])
+
         out = ivy.chars.anc_recon.anc_recon(tree, chars, Q)
 
         for i in range(2):
             for char in set(chars):
                 print i+1
-                print out_py[i+1].marginal_likelihood[char]
-                print out[i+1][char]
+                print out_cor[i+1][char]
+                print out[i+1][char]/np.sum(out[i+1][:2])
                 self.assertTrue(np.isclose(
-                                out_py[i+1].marginal_likelihood[char],
-                                out[i+1][char]))
+                                out_cor[i+1][char],
+                                out[i+1][char]/np.sum(out[i+1][:2])))
 
 
 if __name__ == "__main__":

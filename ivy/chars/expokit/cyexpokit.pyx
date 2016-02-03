@@ -88,3 +88,55 @@ def cy_mk(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
             li = nodelist[ind]
             for ch in charlist:
                 nextli[ch] *= sum([ p[ind][ch,st] for st in charlist ] * li[:-1])
+
+def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
+                 np.ndarray[dtype=DTYPE_t, ndim=2] d_nl,
+                 list charlist,
+                 np.ndarray[dtype=object, ndim=1] childlist,
+                 np.ndarray[dtype=DTYPE_t, ndim=2] u_nl,
+                 np.ndarray[dtype=DTYPE_t, ndim=2] m_nl,
+                 np.ndarray[dtype=DTYPE_t, ndim=2] pp_nl,
+                 np.ndarray[dtype=DTYPE_t, ndim=3] p_nl,
+                 np.ndarray[dtype=bint, ndim=3] cm,
+                 np.ndarray[dtype=DTYPE_t, ndim=1] root_equil):
+    # ------------- downpass
+    cdef nchar = len(charlist)
+    cdef int i
+    cdef int intnode
+    cdef int ind
+    cdef int ch
+    cdef int st
+
+    cdef np.ndarray[dtype=DTYPE_t, ndim=1] l
+    cdef int spi
+    cdef int ppi
+
+    for intnode in map(int, sorted(set(d_nl[:-1,nchar]))):
+        nextli = d_nl[intnode]
+        for chi, child in enumerate(childlist[intnode]):
+            li = d_nl[child]
+            p_li = p_nl[intnode][chi]
+            for ch in charlist:
+                p_li[ch] = sum([ p[child][ch,st] for st in charlist ]
+                               * li[:nchar])
+                nextli[ch] *= p_li[ch]
+    root_posti = u_nl.shape[0] - 1
+    # -------------- uppass
+    for i,l in enumerate(u_nl):
+        if i == 0:
+            l[:nchar] = root_equil
+            m_nl[i][:nchar] = (l[:nchar] * d_nl[-1][:nchar])
+        else:
+            spi = int(l[nchar+1])
+            ppi = int(l[nchar])
+            if ppi == root_posti:
+                pp_nl[spi] = (p_nl[ppi][cm[ppi]] * root_equil)
+            else:
+                pp_nl[spi] = (p_nl[ppi][cm[ppi]] * np.dot(p[ppi].T, pp_nl[ppi]))
+            l[:nchar] = np.dot(p[l[nchar+1]].T, pp_nl[spi])
+
+            cm[ppi] = np.roll(cm[ppi], 1, 0)
+
+            m_nl[i][:nchar] = l[:nchar] * d_nl[l[nchar+1]][:nchar]
+
+    return m_nl
