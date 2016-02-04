@@ -199,9 +199,6 @@ class NodelikelihoodMethods(unittest.TestCase):
 
         for i in range(2):
             for char in set(chars):
-                print i+1
-                print out_cor[i+1][char]
-                print out[i+1][char]/np.sum(out[i+1][:2])
                 self.assertTrue(np.isclose(
                                 out_cor[i+1][char],
                                 out[i+1][char]/np.sum(out[i+1][:2])))
@@ -218,9 +215,6 @@ class NodelikelihoodMethods(unittest.TestCase):
 
         for i in range(2):
             for char in set(chars):
-                print i+1
-                print out_cor[i+1][char]
-                print out[i+1][char]/np.sum(out[i+1][:2])
                 self.assertTrue(np.isclose(
                                 out_cor[i+1][char],
                                 out[i+1][char]/np.sum(out[i+1][:2])))

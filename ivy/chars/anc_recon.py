@@ -6,104 +6,104 @@ from ivy.chars.expokit import cyexpokit
 
 
 
-# def anc_recon_py(tree, chars, Q, p=None, pi="Fitzjohn"):
-#     """
-#     - Pure python version of anc recon code
-#
-#     Given tree, character states at tips, and transition matrix perform
-#     ancestor reconstruction.
-#
-#     Perform downpass using mk function, then perform uppass.
-#
-#     Return reconstructed states - including tips (tips can be switched
-#     to their true values in post-processing)
-#
-#
-#     """
-#     chartree = tree.copy()
-#     chartree.char = None; chartree.downpass_likelihood={}
-#     t = [node.length for node in chartree.descendants()]
-#     t = np.array(t, dtype=np.double)
-#     nchar = Q.shape[0]
-#
-#     # Generating probability matrix for each branch
-#     if p is None:
-#         p = np.empty([len(t), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
-#     cyexpokit.dexpm_tree_preallocated_p(Q, t, p) # This changes p in place
-#
-#
-#     for i, nd in enumerate(chartree.descendants()):
-#         nd.pmat = p[i] # Assigning probability matrices for each branch
-#         nd.downpass_likelihood = {}
-#         nd.char = None
-#
-#     for i, lf in enumerate(chartree.leaves()):
-#         lf.char = chars[i] # Assigning character states to tips
-#
-#     # Performing the downpass
-#     for node in chartree.postiter():
-#         if node.char is not None: # For tip nodes, likelihoods are 1 for observed state and 0 for the rest
-#             for state in range(nchar):
-#                 node.downpass_likelihood[state]=0.0
-#             node.downpass_likelihood[node.char]=1.0
-#         else:
-#             for state in range(nchar):
-#                 likelihoodStateN = []
-#                 for ch in node.children:
-#                     likelihoodStateNCh = []
-#                     for chState in range(nchar):
-#                         likelihoodStateNCh.append(ch.pmat[state, chState] * ch.downpass_likelihood[chState]) #Likelihood for a certain state = p(stateBegin, stateEnd * likelihood(stateEnd))
-#                     likelihoodStateN.append(sum(likelihoodStateNCh))
-#                 node.downpass_likelihood[state]=np.product(likelihoodStateN)
-#     # Performing the uppass (skipping the root)
-#     # Iterate over nodes in pre-order sequence
-#     for node in chartree.descendants():
-#         # Marginal is equivalent to information coming UP from the root * information coming DOWN from the tips
-#         node.marginal_likelihood = {}
-#
-#         ### Getting uppass information for node of interest
-#         ###(partial uppass likelihood of parent * partial downpass likelihood of parent)
-#         ## Calculating partial downpass likelihood vector for parent
-#         node.parent.partial_down_likelihood = {}
-#         sibs = node.get_siblings()
-#         for state in range(nchar):
-#             partial_likelihoodN = [1.0] * nchar
-#             # Sister to this node
-#             for chState in range(nchar):
-#                 for sib in sibs:
-#                     partial_likelihoodN[chState]*=(sib.downpass_likelihood[chState] * sib.pmat[state, chState])
-#             node.parent.partial_down_likelihood[state] = sum(partial_likelihoodN)
-#         ## Calculating partial uppass likelihood vector for parent
-#         node.parent.partial_up_likelihood = {}
-#         # If the parent is the root, there is no up-likelihood because there is
-#         # nothing "upwards" of the root. Set all likelihoods to 1 for identity
-#         if node.parent.isroot:
-#             for state in range(nchar):
-#                 node.parent.partial_up_likelihood[state] = 1.0
-#         # If the parent is not the root, the up-likelihood is equal to the up-likelihoods coming from the parent
-#         else:
-#             for state in range(nchar):
-#                 node.parent.partial_up_likelihood[state] = 0.0
-#                 partial_uplikelihoodN = [1.0] * nchar
-#                 for pstate in range(nchar):
-#                     for sib in node.parent.get_siblings():
-#                         partial_uplikelihoodNP = [0.0] * nchar
-#                         for sibstate in range(nchar):
-#                             partial_uplikelihoodNP[pstate] += sib.downpass_likelihood[sibstate] * sib.pmat[pstate,sibstate]
-#                         partial_uplikelihoodN[pstate] *= partial_uplikelihoodNP[pstate]
-#                     node.parent.partial_up_likelihood[state] += partial_uplikelihoodN[pstate] * node.parent.pmat[pstate, state]
-#         ### Putting together the uppass information and the downpass information
-#         uppass_information = {}
-#         for state in range(nchar):
-#             uppass_information[state] = node.parent.partial_down_likelihood[state] * node.parent.partial_up_likelihood[state]
-#         downpass_information = node.downpass_likelihood
-#
-#         for state in range(nchar):
-#             node.marginal_likelihood[state] = 0
-#             for pstate in range(nchar):
-#                 node.marginal_likelihood[state] += uppass_information[pstate] * node.pmat[pstate, state]
-#             node.marginal_likelihood[state] *= downpass_information[state]
-#     return chartree
+def anc_recon_py(tree, chars, Q, p=None, pi="Fitzjohn"):
+    """
+    - Pure python version of anc recon code
+
+    Given tree, character states at tips, and transition matrix perform
+    ancestor reconstruction.
+
+    Perform downpass using mk function, then perform uppass.
+
+    Return reconstructed states - including tips (tips can be switched
+    to their true values in post-processing)
+
+
+    """
+    chartree = tree.copy()
+    chartree.char = None; chartree.downpass_likelihood={}
+    t = [node.length for node in chartree.descendants()]
+    t = np.array(t, dtype=np.double)
+    nchar = Q.shape[0]
+
+    # Generating probability matrix for each branch
+    if p is None:
+        p = np.empty([len(t), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
+    cyexpokit.dexpm_tree_preallocated_p(Q, t, p) # This changes p in place
+
+
+    for i, nd in enumerate(chartree.descendants()):
+        nd.pmat = p[i] # Assigning probability matrices for each branch
+        nd.downpass_likelihood = {}
+        nd.char = None
+
+    for i, lf in enumerate(chartree.leaves()):
+        lf.char = chars[i] # Assigning character states to tips
+
+    # Performing the downpass
+    for node in chartree.postiter():
+        if node.char is not None: # For tip nodes, likelihoods are 1 for observed state and 0 for the rest
+            for state in range(nchar):
+                node.downpass_likelihood[state]=0.0
+            node.downpass_likelihood[node.char]=1.0
+        else:
+            for state in range(nchar):
+                likelihoodStateN = []
+                for ch in node.children:
+                    likelihoodStateNCh = []
+                    for chState in range(nchar):
+                        likelihoodStateNCh.append(ch.pmat[state, chState] * ch.downpass_likelihood[chState]) #Likelihood for a certain state = p(stateBegin, stateEnd * likelihood(stateEnd))
+                    likelihoodStateN.append(sum(likelihoodStateNCh))
+                node.downpass_likelihood[state]=np.product(likelihoodStateN)
+    # Performing the uppass (skipping the root)
+    # Iterate over nodes in pre-order sequence
+    for node in chartree.descendants():
+        # Marginal is equivalent to information coming UP from the root * information coming DOWN from the tips
+        node.marginal_likelihood = {}
+
+        ### Getting uppass information for node of interest
+        ###(partial uppass likelihood of parent * partial downpass likelihood of parent)
+        ## Calculating partial downpass likelihood vector for parent
+        node.parent.partial_down_likelihood = {}
+        sibs = node.get_siblings()
+        for state in range(nchar):
+            partial_likelihoodN = [1.0] * nchar
+            # Sister to this node
+            for chState in range(nchar):
+                for sib in sibs:
+                    partial_likelihoodN[chState]*=(sib.downpass_likelihood[chState] * sib.pmat[state, chState])
+            node.parent.partial_down_likelihood[state] = sum(partial_likelihoodN)
+        ## Calculating partial uppass likelihood vector for parent
+        node.parent.partial_up_likelihood = {}
+        # If the parent is the root, there is no up-likelihood because there is
+        # nothing "upwards" of the root. Set all likelihoods to 1 for identity
+        if node.parent.isroot:
+            for state in range(nchar):
+                node.parent.partial_up_likelihood[state] = 1.0
+        # If the parent is not the root, the up-likelihood is equal to the up-likelihoods coming from the parent
+        else:
+            for state in range(nchar):
+                node.parent.partial_up_likelihood[state] = 0.0
+                partial_uplikelihoodN = [1.0] * nchar
+                for pstate in range(nchar):
+                    for sib in node.parent.get_siblings():
+                        partial_uplikelihoodNP = [0.0] * nchar
+                        for sibstate in range(nchar):
+                            partial_uplikelihoodNP[pstate] += sib.downpass_likelihood[sibstate] * sib.pmat[pstate,sibstate]
+                        partial_uplikelihoodN[pstate] *= partial_uplikelihoodNP[pstate]
+                    node.parent.partial_up_likelihood[state] += partial_uplikelihoodN[pstate] * node.parent.pmat[pstate, state]
+        ### Putting together the uppass information and the downpass information
+        uppass_information = {}
+        for state in range(nchar):
+            uppass_information[state] = node.parent.partial_down_likelihood[state] * node.parent.partial_up_likelihood[state]
+        downpass_information = node.downpass_likelihood
+
+        for state in range(nchar):
+            node.marginal_likelihood[state] = 0
+            for pstate in range(nchar):
+                node.marginal_likelihood[state] += uppass_information[pstate] * node.pmat[pstate, state]
+            node.marginal_likelihood[state] *= downpass_information[state]
+    return chartree
 
 def anc_recon_purepy(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
     """
@@ -126,7 +126,7 @@ def anc_recon_purepy(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
     # Creating probability matrices from Q matrix and branch lengths
     cyexpokit.dexpm_tree_preallocated_p(Q, ars["t"], p) # This changes p in place
     np.copyto(ars["down_nl_w"], ars["down_nl_r"]) # Copy original values if they have been changed
-
+    ars["child_inds"].fill(0)
     root_equil = ivy.chars.mk.qsd(Q)
     # ------------------- Performing the down-pass -----------------------------
     for intnode in map(int, sorted(set(ars["down_nl_w"][:-1,nchar]))):
@@ -179,21 +179,21 @@ def anc_recon_purepy(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
                 # equivalent to the partial downpass (downpass likelihoods of
                 # the node's siblings, indexed using 'child_masks') and
                 # the equilibrium frequency of the Q matrix.
-                ars["partial_parent_nl"][spi] = (ars["partial_nl"][ppi][ars["child_masks"][ppi]] *
+                ars["partial_parent_nl"][spi] = (ars["partial_nl"][ppi][[ c for c in range(ars["partial_nl"][ppi].shape[0]) if c != ars["child_inds"][ppi]]] *
                                                                root_equil)
             else:
                 # If parent is not the root, the parent's partial likelihood is
                 # the partial downpass * the partial uppass, which is calculated
                 # as the parent of the parent's partial likelihood times
                 # the transition probability
-                ars["partial_parent_nl"][spi] = (ars["partial_nl"][ppi][ars["child_masks"][ppi]] *
+                ars["partial_parent_nl"][spi] = (ars["partial_nl"][ppi][[ c for c in range(ars["partial_nl"][ppi].shape[0]) if c != ars["child_inds"][ppi]]] *
                                                  np.dot(p[ppi].T, ars["partial_parent_nl"][ppi]))
             # The up-pass likelihood is equivalent to the parent's partial
             # likelihood times the transition probability
             l[:nchar] = np.dot(p[l[nchar+1]].T, ars["partial_parent_nl"][spi])
             # Roll child masks so that next likelihood calculated for this
             # parent uses siblings of next node
-            ars["child_masks"][ppi] = np.roll(ars["child_masks"][ppi], 1, 0)
+            ars["child_inds"][ppi]  += 1
 
             # Marginal = Uppass * downpass
             ars["marginal_nl"][i][:nchar] = l[:nchar] * ars["down_nl_w"][l[nchar+1]][:nchar]
@@ -209,6 +209,31 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
 
     Return reconstructed states - including tips
 
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        Q (np.array): Instantaneous rate matrix
+        p (np.array): 3-D array of dimensions branch_number * nchar * nchar.
+            Optional. Pre-allocated space for efficient calculations
+        pi (str or np.array): Option to weight the root node by given values.
+           Either a string containing the method or an array
+           of weights. Weights should be given in order.
+
+           Accepted methods of weighting root:
+
+           Equal: flat prior
+           Equilibrium: Prior equal to stationary distribution
+             of Q matrix
+           Fitzjohn: Root states weighted by how well they
+             explain the data at the tips.
+        ars (dict): Dict of pre-allocated arrays to improve
+          speed by avoiding creating and destroying new arrays. Can be
+          created with create_ancrecon_ars function.
+    Returns:
+        np.array: Array of nodes in preorder sequence containing marginal
+          likelihoods.
     """
     nchar = Q.shape[0]
     if ars is None:
@@ -221,16 +246,16 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
     # Creating probability matrices from Q matrix and branch lengths
     cyexpokit.dexpm_tree_preallocated_p(Q, ars["t"], p) # This changes p in place
     np.copyto(ars["down_nl_w"], ars["down_nl_r"]) # Copy original values if they have been changed
-
+    ars["child_inds"].fill(0)
     root_equil = ivy.chars.mk.qsd(Q)
 
     cyexpokit.cy_anc_recon(p, ars["down_nl_w"], ars["charlist"], ars["childlist"],
                         ars["up_nl"], ars["marginal_nl"], ars["partial_parent_nl"],
-                        ars["partial_nl"], ars["child_masks"], root_equil)
+                        ars["partial_nl"], ars["child_inds"], root_equil)
 
 
 
-    #return ars["marginal_nl"]
+    return ars["marginal_nl"]
 
 
 def create_ancrecon_ars(tree, chars):
@@ -278,8 +303,7 @@ def create_ancrecon_ars(tree, chars):
     partial_parent_nl = np.zeros([up_nl.shape[0],nchar])
 
     # ------- Child masking arrays
-    child_masks = np.ones(partial_nl.shape, dtype=bool)
-    child_masks[:,0,:].fill(False)
+    child_inds = np.zeros(partial_nl.shape[0], dtype=int)
 
     # ------- Character list
     charlist = range(len(set(chars)))
@@ -287,9 +311,9 @@ def create_ancrecon_ars(tree, chars):
     root_priors = np.empty([nchar], dtype=np.double)
 
     names = ["down_nl_r","down_nl_w","up_nl","marginal_nl",
-            "partial_nl","partial_parent_nl","child_masks",
+            "partial_nl","partial_parent_nl","child_inds",
             "childlist","t","charlist","root_priors"]
-    ar_list = [down_nl,down_nl.copy(),up_nl,marginal_nl,partial_nl,partial_parent_nl,child_masks,
+    ar_list = [down_nl,down_nl.copy(),up_nl,marginal_nl,partial_nl,partial_parent_nl,child_inds,
            childlist,t,charlist,root_priors]
 
     ar_dict = {name:ar for name,ar in zip(names, ar_list)}
