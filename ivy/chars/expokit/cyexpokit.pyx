@@ -98,7 +98,8 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                  np.ndarray[dtype=DTYPE_t, ndim=2] pp_nl,
                  np.ndarray[dtype=DTYPE_t, ndim=3] p_nl,
                  np.ndarray[dtype=np.int64_t, ndim=1] ci,
-                 np.ndarray[dtype=DTYPE_t, ndim=1] root_equil):
+                 np.ndarray[dtype=DTYPE_t, ndim=1] root_equil,
+                 np.ndarray[dtype=DTYPE_t, ndim=1] temp_dotprod):
 
     cdef int nchar = len(charlist)
     cdef int i
@@ -122,7 +123,6 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                 nextli[ch] *= p_li[ch]
     cdef int root_posti = u_nl.shape[0] - 1
 
-
     # -------------- uppass
     for i,l in enumerate(u_nl):
         if i == 0:
@@ -132,10 +132,11 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
             spi = int(l[nchar+1])
             ppi = int(l[nchar])
             if ppi == root_posti:
-                pp_nl[spi] = (p_nl[ppi][[ c for c in range(p_nl[ppi].shape[0]) if c != ci[ppi]]] * root_equil)
+                pp_nl[spi] = (p_nl[ppi].take(range(ci[ppi])+range(ci[ppi]+1,p_nl[ppi].shape[0]),0) * root_equil)
             else:
-                pp_nl[spi] = (p_nl[ppi][[ c for c in range(p_nl[ppi].shape[0]) if c != ci[ppi]]] * np.dot(p[ppi].T, pp_nl[ppi]))
-            l[:nchar] = np.dot(p[l[nchar+1]].T, pp_nl[spi])
+                np.dot(p[ppi].T, pp_nl[ppi], out=temp_dotprod)
+                pp_nl[spi] = (p_nl[ppi].take(range(ci[ppi])+range(ci[ppi]+1,p_nl[ppi].shape[0]),0) * temp_dotprod)
+            l[:nchar] = np.dot(p[spi].T, pp_nl[spi])
 
             ci[ppi] += 1
 

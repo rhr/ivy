@@ -179,18 +179,19 @@ def anc_recon_purepy(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
                 # equivalent to the partial downpass (downpass likelihoods of
                 # the node's siblings, indexed using 'child_masks') and
                 # the equilibrium frequency of the Q matrix.
-                ars["partial_parent_nl"][spi] = (ars["partial_nl"][ppi][[ c for c in range(ars["partial_nl"][ppi].shape[0]) if c != ars["child_inds"][ppi]]] *
+                ars["partial_parent_nl"][spi] = (ars["partial_nl"][ppi].take(range(ars["child_inds"][ppi])+range(ars["child_inds"][ppi]+1,ars["partial_nl"][ppi].shape[0]),0) *
                                                                root_equil)
             else:
                 # If parent is not the root, the parent's partial likelihood is
                 # the partial downpass * the partial uppass, which is calculated
                 # as the parent of the parent's partial likelihood times
                 # the transition probability
-                ars["partial_parent_nl"][spi] = (ars["partial_nl"][ppi][[ c for c in range(ars["partial_nl"][ppi].shape[0]) if c != ars["child_inds"][ppi]]] *
-                                                 np.dot(p[ppi].T, ars["partial_parent_nl"][ppi]))
+                np.dot(p[ppi].T, ars["partial_parent_nl"][ppi], out=ars["temp_dotprod"])
+                ars["partial_parent_nl"][spi] = (ars["partial_nl"][ppi].take(range(ars["child_inds"][ppi])+range(ars["child_inds"][ppi]+1,ars["partial_nl"][ppi].shape[0]),0) *
+                                                ars["temp_dotprod"])
             # The up-pass likelihood is equivalent to the parent's partial
             # likelihood times the transition probability
-            l[:nchar] = np.dot(p[l[nchar+1]].T, ars["partial_parent_nl"][spi])
+            np.dot(p[spi].T, ars["partial_parent_nl"][spi], out = l[:nchar])
             # Roll child masks so that next likelihood calculated for this
             # parent uses siblings of next node
             ars["child_inds"][ppi]  += 1
@@ -251,7 +252,7 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
 
     cyexpokit.cy_anc_recon(p, ars["down_nl_w"], ars["charlist"], ars["childlist"],
                         ars["up_nl"], ars["marginal_nl"], ars["partial_parent_nl"],
-                        ars["partial_nl"], ars["child_inds"], root_equil)
+                        ars["partial_nl"], ars["child_inds"], root_equil,ars["temp_dotprod"])
 
 
 
@@ -307,14 +308,19 @@ def create_ancrecon_ars(tree, chars):
 
     # ------- Character list
     charlist = range(len(set(chars)))
-            # Empty array to store root priors
+
+    # ------- Empty array to store root priors
     root_priors = np.empty([nchar], dtype=np.double)
+
+    # ------- Temporary array to store dot products
+    temp_dotprod = np.empty([nchar], dtype=np.double)
+
 
     names = ["down_nl_r","down_nl_w","up_nl","marginal_nl",
             "partial_nl","partial_parent_nl","child_inds",
-            "childlist","t","charlist","root_priors"]
+            "childlist","t","charlist","root_priors","temp_dotprod"]
     ar_list = [down_nl,down_nl.copy(),up_nl,marginal_nl,partial_nl,partial_parent_nl,child_inds,
-           childlist,t,charlist,root_priors]
+           childlist,t,charlist,root_priors,temp_dotprod]
 
     ar_dict = {name:ar for name,ar in zip(names, ar_list)}
 
