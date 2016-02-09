@@ -88,14 +88,11 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
 
         np.copyto(preallocated_arrays["root_priors"], pi)
 
-        li = sum([ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ])
-        logli = math.log(li)
+        rootliks = [ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ]
 
     elif pi == "Equal":
         preallocated_arrays["root_priors"].fill(1.0/nchar)
-        li = sum([ float(i)/nchar for i in preallocated_arrays["nodelist"][-1] ])
-
-        logli = math.log(li)
+        rootliks = [ float(i)/nchar for i in preallocated_arrays["nodelist"][-1] ][:-1]
 
     elif pi == "Fitzjohn":
         np.copyto(preallocated_arrays["root_priors"],
@@ -103,16 +100,17 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
                    sum(preallocated_arrays["nodelist"][-1,:-1]) for
                    charstate in set(chars) ])
 
-        li = sum([ preallocated_arrays["nodelist"][-1,:-1][charstate] *
-                     preallocated_arrays["root_priors"][charstate] for charstate in set(chars) ])
-        logli = math.log(li)
+        rootliks = [ preallocated_arrays["nodelist"][-1,:-1][charstate] *
+                     preallocated_arrays["root_priors"][charstate] for charstate in set(chars) ]
+
     elif pi == "Equilibrium":
         # Equilibrium pi from the stationary distribution of Q
         np.copyto(preallocated_arrays["root_priors"],qsd(Q))
-        li = sum([ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ])
-        logli = math.log(li)
+        rootliks = [ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ]
+    li = sum(rootliks)
+    logli = math.log(li)
     if returnPi:
-        return (logli, {k:v for k,v in enumerate(preallocated_arrays["root_priors"])})
+        return (logli, {k:v for k,v in enumerate(preallocated_arrays["root_priors"])}, rootliks)
     else:
         return logli
 
@@ -371,9 +369,9 @@ def fitMkER(tree, chars, pi="Equal"):
 
     q[np.diag_indices(nchar)] = 0 - (q.sum(1)-q[0,0])
 
-    piRates = mk(tree, chars, q, pi=pi, returnPi=True)[1]
+    piRates, rootLiks = mk(tree, chars, q, pi=pi, returnPi=True)[1:]
 
-    return (q, -1*float(optim.fun), piRates)
+    return (q, -1*float(optim.fun), piRates, rootLiks)
 
 def fitMkSym(tree, chars, pi="Equal"):
     """
@@ -415,9 +413,9 @@ def fitMkSym(tree, chars, pi="Equal"):
     q = q + q.T
     q[np.diag_indices(nchar)] = 0-np.sum(q, 1)
 
-    piRates = mk(tree, chars, q, pi=pi, returnPi=True)[1]
+    piRates, rootLiks = mk(tree, chars, q, pi=pi, returnPi=True)[1:]
 
-    return (q, -1*float(optim.fun), piRates)
+    return (q, -1*float(optim.fun), piRates, rootLiks)
 
 
 def fitMkARD(tree, chars, pi="Equal"):
@@ -456,9 +454,9 @@ def fitMkARD(tree, chars, pi="Equal"):
     q[np.tril_indices(nchar, k=-1)] = optim.x[len(optim.x)/2:]
     q[np.diag_indices(nchar)] = 0-np.sum(q, 1)
 
-    piRates = mk(tree, chars, q, pi=pi, returnPi=True)[1]
+    piRates, rootLiks = mk(tree, chars, q, pi=pi, returnPi=True)[1:]
 
-    return (q, -1*float(optim.fun), piRates)
+    return (q, -1*float(optim.fun), piRates, rootLiks)
 
 
 def fitMk(tree, chars, Q = "Equal", pi = "Equal"):
@@ -490,27 +488,27 @@ def fitMk(tree, chars, Q = "Equal", pi = "Equal"):
 
     if type(Q) == str:
         if Q == "Equal":
-            q,l,piRates = fitMkER(tree, chars, pi=pi)
-            return {key:val for key, val in zip(["Q", "Log-likelihood","pi"], [q,l,piRates])}
+            q,l,piRates,rootLiks = fitMkER(tree, chars, pi=pi)
 
         elif Q == "Sym":
-            q,l,piRates = fitMkSym(tree, chars, pi=pi)
-            return {key:val for key, val in zip(["Q", "Log-likelihood","pi"], [q,l,piRates])}
+            q,l,piRates,rootLiks = fitMkSym(tree, chars, pi=pi)
 
         elif Q == "ARD":
-            q,l,piRates = fitMkARD(tree, chars, pi=pi)
-            return {key:val for key, val in zip(["Q", "Log-likelihood","pi"], [q,l,piRates])}
+            q,l,piRates,rootLiks = fitMkARD(tree, chars, pi=pi)
         else:
             raise ValueError("Q str must be one of: 'Equal', 'Sym', 'ARD'")
+
+        return {key:val for key, val in zip(["Q", "Log-likelihood","pi","rootLiks"], [q,l,piRates,rootLiks])}
+
 
     else:
         assert str(type(Q)) == "<type 'numpy.ndarray'>", "Q must be str or numpy array"
         assert len(Q[0]) == len(set(chars)), "Supplied Q has wrong dimensions"
 
-        l,piRates = mk(tree, chars, Q, pi=pi, returnPi=True)
+        l,piRates, rootLiks = mk(tree, chars, Q, pi=pi, returnPi=True)
         q = Q
 
-        return {key:val for key, val in zip(["Q", "Log-likelihood","pi"], [q,l,piRates])}
+        return {key:val for key, val in zip(["Q", "Log-likelihood","pi","rootLiks"], [q,l,piRates,rootLiks])}
 
 def qsd(Q):
     """

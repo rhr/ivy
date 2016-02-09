@@ -660,7 +660,7 @@ def add_ancestor_reconstruction(treeplot, internal_vals, vis=True, colors=None, 
           of that node being in each state.
          colors: List of length = nchar. The colors for each character. Optional.
          nregime: Number of regimes. If given and colors = None, function will
-         automatically color-code characters by regime.
+         automatically color-code characters by regime. (NOT IMPLEMENTED)
     """
     nodes = list(treeplot.root.postiter())
     nchar = internal_vals.shape[1]-1
@@ -668,3 +668,23 @@ def add_ancestor_reconstruction(treeplot, internal_vals, vis=True, colors=None, 
         pass
     for i,n in enumerate(nodes):
         add_pie(treeplot, n, values = list(internal_vals[i][:-1]), colors=colors, size=size)
+
+def add_branchstates(treeplot, vis=True, colors=None):
+    """
+    Add simulated branch states.
+
+    Treeplot must have simulated states as attributes
+    """
+    segments = []
+    cols = []
+    for n in treeplot.root.descendants():
+        c = treeplot.n2c[n]
+        pc = treeplot.n2c[n.parent]
+        segments.append(((pc.x,c.y),(c.x,c.y)))
+        cols.append(n.parent.sim_char["sim_state"])
+        for s in reversed(n.sim_char["sim_hist"]):
+            segments.append(((c.x - s[1], c.y), (pc.x,c.y)))
+            cols.append(s[0])
+    colors = np.array(["red","blue"])
+    lc = LineCollection(segments, colors=colors[cols], lw=2)
+    treeplot.add_collection(lc)

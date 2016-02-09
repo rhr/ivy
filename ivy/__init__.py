@@ -33,6 +33,6 @@ try:
 except ImportError:
     pass
 
-import chars, align, sequtil
+import chars, align, sequtil, sim
 ## try: import vis
 ## except RuntimeError: pass
