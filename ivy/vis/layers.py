@@ -45,6 +45,7 @@ try:
 except ImportError:
     from PIL import Image
 
+
 _tango = colors.tango()
 
 
@@ -669,7 +670,7 @@ def add_ancestor_reconstruction(treeplot, internal_vals, vis=True, colors=None, 
     for i,n in enumerate(nodes):
         add_pie(treeplot, n, values = list(internal_vals[i][:-1]), colors=colors, size=size)
 
-def add_branchstates(treeplot, vis=True, colors=None):
+def add_branchstates(treeplot,vis=True, colors=None):
     """
     Add simulated branch states.
 
@@ -677,14 +678,26 @@ def add_branchstates(treeplot, vis=True, colors=None):
     """
     segments = []
     cols = []
+    nchar = len(set([ s.sim_char["sim_state"] for s in treeplot.root ]))
     for n in treeplot.root.descendants():
         c = treeplot.n2c[n]
         pc = treeplot.n2c[n.parent]
         segments.append(((pc.x,c.y),(c.x,c.y)))
         cols.append(n.parent.sim_char["sim_state"])
-        for s in reversed(n.sim_char["sim_hist"]):
-            segments.append(((c.x - s[1], c.y), (pc.x,c.y)))
+        for s in n.sim_char["sim_hist"]:
+            segments.append(((c.x, c.y), (pc.x + s[1],c.y)))
             cols.append(s[0])
-    colors = np.array(["red","blue"])
-    lc = LineCollection(segments, colors=colors[cols], lw=2)
+        segments.append(((pc.x, pc.y),(pc.x,c.y)))
+        cols.append(n.parent.sim_char["sim_state"])
+    if not colors:
+        c = _tango
+        colors = [c.next() for v in range(nchar)]
+    colors = np.array(colors)
+    lc = LineCollection(segments, colors=colors[cols], lw=2, antialiaseds=[0])
     treeplot.add_collection(lc)
+
+    leg_handles = [None] * nchar
+    for i,char in enumerate(range(nchar)):
+        leg_handles[i]=matplotlib.patches.Patch(color = colors[i],
+                       label=str(i))
+    treeplot.legend(handles=leg_handles)
