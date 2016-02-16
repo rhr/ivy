@@ -32,13 +32,13 @@ def create_mk_model(tree, chars, Qtype, pi):
     # Setting a Dirichlet prior with Jeffrey's hyperprior of 1/2
     if N != 1:
         theta = [1.0/2.0]*N
-        Qparams_init = pymc.Dirichlet("Qparams_init", theta)
+        Qparams_init = pymc.Dirichlet("Qparams_init", theta, value = [0.5])
         Qparams_init_full = pymc.CompletedDirichlet("Qparams_init_full", Qparams_init)
     else:
         Qparams_init_full = [[1.0]]
 
     # Exponential scaling factor for Qparams
-    scaling_factor = pymc.Exponential(name="scaling_factor", beta=1.0)
+    scaling_factor = pymc.Exponential(name="scaling_factor", beta=1.0, value=1.0)
 
     # Scaled Qparams; we would not expect them to necessarily add
     # to 1 as would be the case in a Dirichlet distribution
@@ -368,7 +368,7 @@ def Mk_results(mcmc_obj):
     return {"traces":traces, "hists":hists, "traceplots":traceplots, "summary":summary}
 
 
-def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
+def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
     """
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
@@ -386,6 +386,11 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
               within the same rate class are asymetrical
         nregime (int): Number of hidden states. nstates = 0 is
           equivalent to a vanilla Mk model
+        constraint (str): Contraints to apply to the parameters of the Q matrix.
+          Can be one of the following:
+            "Rate": The fastest rate in the fastest regime must be faster than
+              the fastest rate in the slowest regime
+            "None": No contraints
     """
     nobschar = len(set(chars))
     nchar = nobschar * nregime
@@ -510,10 +515,13 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
                 Qparams.append(qparam_list[qi]) # Pulling out the correct param
             # Qparams now contains the parameters needed in the
             # correct order for the likelihood function.
-            if ((sorted(list(wr)) == list(wr)) and (br < wr[nregime-1])):
-                return l(np.array(Qparams))
+            if constraint == "Rate":
+                if ((sorted(list(wr)) == list(wr)) and (br < wr[nregime-1])):
+                    return l(np.array(Qparams))
+                else:
+                    return -np.inf
             else:
-                return -np.inf
+                return l(np.array(Qparams))
         if Qtype == "STD":
             qinds = {}
             n=0
@@ -538,15 +546,22 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
             # All corresponding rates in each regime must be ordered (fast must be faster than medium, etc)
             # Rate for shift between regimes cannot be faster than the fastest
             # rate within regimes
-            for i in range(nregime):
-                n = [q[i] for q in wr]
-                if not sorted(n) == n:
-                    return -np.inf
+            if constraint == "Rate":
+                for i in range(nregime):
+                    n = [q[i] for q in wr]
+                    if not sorted(n) == n:
+                        return -np.inf
+            if constraint == "Symmetry":
+                assert nchar == 4
+                for i in range(nregime):
+                    if not (wr[0][0]/wr[0][1] < 0) and (wr[1][0]/wr[1[1]] > 1):
+                        return -np.inf
             if br > max(wr[nregime-1]):
                 return -np.inf
 
             return l(np.array(Qparams))
         if Qtype == "RTD":
+            raise AssertionError
             qinds = {}
             for i,q in enumerate(wr):
                 qinds[i]=valid_indices(nobschar, nregime, i,i)

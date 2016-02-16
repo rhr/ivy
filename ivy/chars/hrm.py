@@ -204,8 +204,11 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
                                     var["Q"][charR+rR*nobschar, charC+rC*nobschar] = Qparams[i]
                                     i += 1
             var["Q"][np.diag_indices(nchar)] = np.sum(var["Q"], axis=1)*-1
+        elif Qtype == "Simple":
+            var["Q"].fill(0.0)
+            fill_Q_matrix(nobschar, nregime, qparams[:nregime], qparams[nregime:], Qtype="Simple", out = var["Q"])
         else:
-            raise ValueError, "Qtype must be ARD"
+            raise ValueError, "Qtype must be ARD or Simple"
         for char in range(nobschar):
             hiddenchar =  [y + char for y in [x * nobschar for x in range(nregime) ]]
             for char2 in [ ch for ch in range(nobschar) if not ch == char ]:
@@ -235,7 +238,7 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
 
 
 
-def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn"):
+def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", Qtype="ARD"):
     """
     Fit a hidden-rates mk model to a given tree and list of characters, and
     number of regumes. Return fitted ARD Q matrix and calculated likelihood.
@@ -254,12 +257,14 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn"):
     """
     nchar = len(set(chars))*nregime
     nobschar = len(set(chars))
-    x0 = [.10] * n_Q_params(nobschar, nregime)
+
 
     mk_func = create_likelihood_function_hrm_mk(tree, chars, nregime=nregime,
-                                                 Qtype="ARD", pi=pi)
-    optim = minimize(mk_func, x0, method="SLSQP",
-                      bounds = tuple(( (1e-14,None) for i in range(len(x0)) )))
+                                                 Qtype=Qtype, pi=pi)
+    if Qtype == "Simple":
+        x0 = [.10] * nregime+1
+        optim = minimize(mk_func, x0, method="SLSQP",
+                          bounds = tuple(( (1e-14,None) for i in range(len(x0)) )))
 
     q = np.zeros([nchar,nchar], dtype=np.double)
     i = 0
@@ -296,7 +301,7 @@ def _random_Q_matrix(nobschar, nregime):
     Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
     return Q
 
-def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD"):
+def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None):
     """
     Fill a Q matrix with nchar*nregime rows and cols with values from Qparams
 
@@ -307,11 +312,15 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD"):
           in order as they appear in columnwise iteration
         brparams (list): list of unique Q values for between-regime transition,
           in order as they appear in columnwise iteration
+        out (np.array): Optional numpy array to put output into
     Returns:
         array: Q-matrix with values filled in. Check to make sure values
           have been filled in properly
     """
-    Q = np.zeros([nobschar*nregime, nobschar*nregime])
+    if out is None:
+        Q = np.zeros([nobschar*nregime, nobschar*nregime])
+    else:
+        Q = out
     assert Qtype in ["ARD", "Simple"]
     grid = np.zeros([(nobschar*nregime)**2, 4], dtype=int)
     grid[:,0] = np.tile(np.repeat(range(nregime), nobschar), nobschar*nregime)
@@ -338,7 +347,8 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD"):
             elif(cell[0] in [cell[1]+1, cell[1]-1] and cell[2] == cell[3] ):
                 qcell[...] = brparams[0]
         Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1) * -1
-    return Q
+    if out is None:
+        return Q
 
 
 def n_Q_params(nchar, nregime):
@@ -348,6 +358,8 @@ def n_Q_params(nchar, nregime):
     Cs = [ (i,j) for i in range(nregime) for j in range(nchar)]
     n = [(i,j) for i in Cs for j in Cs if (i!=j and (i[0] + 1 == j[0] or i[0] - 1 == j[0] or i[0]==j[0]) and (i[0]==j[0] or i[1] == j[1])) ]
     return(len(n))
+
+
 
 def _create_hrmnodelist(tree, chars, nregime):
     """
