@@ -192,7 +192,9 @@ returnPi=False
 
 
 # Fit HRM with nonlinear optimizer
-
+tree
+chars
+Q = np.array([])
 
 
 

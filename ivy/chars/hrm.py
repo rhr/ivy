@@ -130,7 +130,7 @@ def hrm_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
 
 
 def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn",
-                                  min = True):
+                                  findmin = True):
     """
     Create a function that takes values for Q and returns likelihood.
 
@@ -152,7 +152,7 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
         function: Function accepting a list of parameters and returning
           log-likelihood. To be optmimized with scipy.optimize.minimize
     """
-    if min:
+    if findmin:
         nullval = np.inf
     else:
         nullval = -np.inf
@@ -220,7 +220,7 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
 
-        if min:
+        if findmin:
             x = -1
         else:
             x = 1
@@ -262,7 +262,7 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", Qtype="ARD"):
     mk_func = create_likelihood_function_hrm_mk(tree, chars, nregime=nregime,
                                                  Qtype=Qtype, pi=pi)
     if Qtype == "Simple":
-        x0 = [.10] * nregime+1
+        x0 = [.10] * (nregime+1)
         optim = minimize(mk_func, x0, method="SLSQP",
                           bounds = tuple(( (1e-14,None) for i in range(len(x0)) )))
 
@@ -590,7 +590,7 @@ def hrm_multipass(tree, chars, Q, nregime, pi="Fitzjohn", preallocated_arrays=No
     return out
 
 def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
-                                      pi = "Fitzjohn", min = True):
+                                      pi = "Fitzjohn", findmin = True):
     """
     Create a function that takes values for Q and returns likelihood after
     performing multiple passes
@@ -613,7 +613,7 @@ def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
         function: Function accepting a list of parameters and returning
           log-likelihood. To be optmimized with scipy.optimize.minimize
     """
-    if min:
+    if findmin:
         nullval = np.inf
     else:
         nullval = -np.inf
@@ -679,7 +679,7 @@ def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
 
-        if min:
+        if findmin:
             x = -1
         else:
             x = 1

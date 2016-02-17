@@ -62,15 +62,15 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
         leafind = [ n.isleaf for n in tree.postiter()]
         # Reordering character states to be in postorder sequence
         preleaves = [ n for n in tree.preiter() if n.isleaf ]
-        postleaves = [n for n in tree.postiter() if n.isleaf ]
+        postleaves = [ n for n in tree.postiter() if n.isleaf ]
         postnodes = list(tree.postiter());prenodes = list(tree.preiter())
         postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
         # Filling in the node list. It contains all of the information needed
         # to calculate the likelihoods at each node
         for k,ch in enumerate(postChars):
             [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][ch] = 1.0
-            for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
-                n[nchar] = postnodes.index(postnodes[i].parent)
+        for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
+            n[nchar] = postnodes.index(postnodes[i].parent)
         # Setting initial node likelihoods to 1.0 for calculations
         preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
         # Empty array to store root priors
@@ -241,7 +241,7 @@ def _create_nodelist(tree, chars):
     return nodelist,t
 
 def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
-                                  min = True):
+                                  findmin = True):
     """
     Create a function that takes values for Q and returns likelihood.
 
@@ -264,7 +264,7 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
         function: Function accepting a list of parameters and returning
           log-likelihood. To be optmimized with scipy.optimize.minimize
     """
-    if min:
+    if findmin:
         nullval = np.inf
     else:
         nullval = -np.inf
@@ -323,7 +323,7 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
 
-        if min:
+        if findmin:
             x = -1
         else:
             x = 1

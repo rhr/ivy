@@ -50,7 +50,7 @@ def create_mk_model(tree, chars, Qtype, pi):
         return Qs
 
     l = discrete.create_likelihood_function_mk(tree=tree, chars=chars, Qtype=Qtype,
-                                  pi="Equal", min=False)
+                                  pi="Equal", findmin=False)
     @pymc.potential
     def mklik(q = Qparams, name="mklik"):
         return l(q)
@@ -179,7 +179,7 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
     locsarray = np.empty([2], dtype=object)
     l = discrete.create_likelihood_function_multimk_b(tree=tree, chars=chars,
         Qtype=Qtype,
-        pi="Equal", min=False, nregime=2)
+        pi="Equal", findmin=False, nregime=2)
 
     @pymc.potential
     def multi_mklik(q = Qparams, switch=switch, name="multi_mklik"):
@@ -188,7 +188,7 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
 
         # l = discrete.create_likelihood_function_multimk(tree=tree, chars=chars,
         #     Qtype=Qtype, locs = locs,
-        #     pi="Equal", min=False)
+        #     pi="Equal", findmin=False)
         np.copyto(qarray, q)
         return l(qarray, locs=locs)
     return locals()
@@ -285,7 +285,7 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
     locs = np.empty(nregime, dtype=object)
     l = discrete.create_likelihood_function_multimk_b(tree=tree, chars=chars,
         Qtype=Qtype,
-        pi="Equal", min=False, nregime=2)
+        pi="Equal", findmin=False, nregime=2)
 
     @pymc.potential
     def multi_mklik(q = Qparams, br=branchRegimes.random(), nregime=nregime, name="multi_mklik"):
@@ -293,7 +293,7 @@ def create_multi_mk_model_2(tree, chars, Qtype, pi, nregime=2):
             locs[reg] = [i+1 for i,v in enumerate(br) if v==reg]
         # l = discrete.create_likelihood_function_multimk(tree=tree, chars=chars,
         #     Qtype=Qtype, locs = locs,
-        #     pi="Equal", min=False)
+        #     pi="Equal", findmin=False)
         np.copyto(qarray, q)
         return l(qarray[0], locs)
     return locals()
@@ -486,7 +486,7 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
     # Likelihood
     ###########################################################################
     l = discrete.create_likelihood_function_hrm_mk(tree=tree, chars=chars,
-        nregime=nregime, Qtype="ARD", pi=pi, min=False)
+        nregime=nregime, Qtype="ARD", pi=pi, findmin=False)
     @pymc.potential
     def mklik(wr = WR_Qparams, br=BR_Qparams, name="mklik"):
         if Qtype == "Simple":
@@ -554,7 +554,7 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
             if constraint == "Symmetry":
                 assert nchar == 4
                 for i in range(nregime):
-                    if not (wr[0][0]/wr[0][1] < 0) and (wr[1][0]/wr[1[1]] > 1):
+                    if not (wr[0][0]/wr[0][1] <= 1) and (wr[1][0]/wr[1][1] >= 1):
                         return -np.inf
             if br > max(wr[nregime-1]):
                 return -np.inf
@@ -716,7 +716,7 @@ def hrm_multipass_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
     # Likelihood
     ###########################################################################
     l = discrete.create_likelihood_function_hrmmultipass_mk(tree=tree, chars=chars,
-        nregime=nregime, Qtype="ARD", pi=pi, min=False)
+        nregime=nregime, Qtype="ARD", pi=pi, findmin=False)
     @pymc.potential
     def mklik(wr = WR_Qparams, br=BR_Qparams, name="mklik"):
         if Qtype == "Simple":
