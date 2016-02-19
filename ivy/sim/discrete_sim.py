@@ -1,11 +1,4 @@
-import ivy
-from ivy.chars import mk
-import numpy as np
-import math
-import scipy
-import scipy.stats
-from scipy.stats import rv_discrete
-import random
+
 
 def sim_discrete(tree, Q, anc=None, charname=None):
     """
@@ -46,12 +39,13 @@ def sim_discrete(tree, Q, anc=None, charname=None):
             pass
         else:
             dt = 0
-            while True:
+            while 1:
                 dt += np.random.exponential(1.0/-Q[prevstate,prevstate])
                 if dt > node.length:
                     break
+                vals  = np.concatenate((Q[prevstate][:prevstate],Q[prevstate][prevstate+1:]))
                 newstate = rv_discrete(values=(range(nchar)[:prevstate] + range(nchar)[prevstate+1:],
-                                        np.concatenate((Q[prevstate][:prevstate],Q[prevstate][prevstate+1:])))).rvs()
+                                    vals/sum(vals))).rvs()
                 node.sim_char["sim_hist"].append((newstate,dt))
                 node.sim_char["sim_state"] = newstate
                 prevstate = newstate

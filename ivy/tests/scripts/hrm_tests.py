@@ -37,7 +37,7 @@ nregime = 2
 # for i in ["parA", "parB", "parC"]:
 #     print np.percentile(outMC.trace(i)[:], [2.5, 50, 97.5])
 # # True values are 0.01, 0.1, and 0.6
-Q = ivy.chars.discrete.fill_Q_matrix(2,2, [0.0,1.0,0.00,1.0,1.0,5.5,1.0,5.5])
+Q = ivy.chars.discrete.fill_Q_matrix(2,2, [0.0,1.0,0.00,1.0,1.0,5.5,1.0,5.5], "ARD")
 
 hrm_back_mk(tree, chars, Q, nregime)
 
@@ -194,16 +194,114 @@ returnPi=False
 # Fit HRM with nonlinear optimizer
 tree
 chars
-Q = np.array([])
+fast = 0.5
+slow = 0.3
+br = 0.05
+Q = fill_Q_matrix(2,2,[fast, slow], [br], "Simple")
+
+
+f = create_likelihood_function_hrm_mk_MLE(tree, chars, 2, "Simple", pi="Equal")
+
+x0 = [0.1,0.1,0.1]
+cons = ({"type":"ineq", "fun":lambda x: x[1] - x[2]},
+        {"type":"ineq", "fun":lambda x: x[1] - x[0]},
+        {"type":"ineq", "fun":lambda x: x[0]},
+        {"type":"ineq", "fun":lambda x: x[1]},
+        {"type":"ineq", "fun":lambda x: x[2]})
+
+optim = minimize(f, x0, method="COBYLA",
+                  constraints = cons)
 
 
 
 
+f = create_likelihood_function_hrm_mk_MLE(tree, chars, 2, "ARD", pi="Equal")
+x0 = [0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
+cons = ({"type":"ineq", "fun":lambda x: x[7] - x[2]},
+        {"type":"ineq", "fun":lambda x: x[0]},
+        {"type":"ineq", "fun":lambda x: x[1]},
+        {"type":"ineq", "fun":lambda x: x[2]},
+        {"type":"ineq", "fun":lambda x: x[3]},
+        {"type":"ineq", "fun":lambda x: x[4]},
+        {"type":"ineq", "fun":lambda x: x[5]},
+        {"type":"ineq", "fun":lambda x: x[6]},
+        {"type":"ineq", "fun":lambda x: x[7]})
+optim = minimize(f, x0, method="COBYLA",
+                  constraints = cons)
+# Compare to corHMM
+import ivy
+from ivy.chars import discrete
+import numpy as np
+from ivy.chars import bayesian_models
+import pymc
+import matplotlib.pyplot as plt
+from ivy.chars.hrm import _create_hrmnodelist
+from ivy.chars.hrm import *
+
+
+tree = ivy.tree.read("/home/cziegler/src/christie-master/ivy/ivy/tests/support/hrm_600tips.newick")
+chars = [1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0,
+0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,
+0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0,
+1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0,
+0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0,
+0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1,
+1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1,
+1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1,
+1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
+1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,
+1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0,
+0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1,
+1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1,
+1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1,
+1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0,
+1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0,
+0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1,
+0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0,
+1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0,
+1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0,
+0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0]
+
+f = create_likelihood_function_hrm_mk_MLE(tree, chars, 2, "ARD", pi="Equal")
+x0 = [0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1]
+cons = ({"type":"ineq", "fun":lambda x: x[3] - x[1]},
+        {"type":"ineq", "fun":lambda x: x[0]},
+        {"type":"ineq", "fun":lambda x: x[1]},
+        {"type":"ineq", "fun":lambda x: x[2]},
+        {"type":"ineq", "fun":lambda x: x[3]},
+        {"type":"ineq", "fun":lambda x: x[4]},
+        {"type":"ineq", "fun":lambda x: x[5]},
+        {"type":"ineq", "fun":lambda x: x[6]},
+        {"type":"ineq", "fun":lambda x: x[7]})
+optim = minimize(f, x0, method="COBYLA",
+                  constraints = cons, options = {"maxiter":1e6})
 
 
 
 
+###########################
+# Compare to corhmm
+###########################
+
+t = ivy.tree.read("(((A:1,B:1)E:1,C:2)F:1,D:3)R;")
+c = [1,1,0,0]
 
 
-cProfile.run("l(Qparams)")
-cProfile.run("l_single(Qparams)")
+Q = np.array([[-0.06 ,  0.05 ,  0.01 ,  0.   ],
+       [ 0.03 , -0.035,  0.   ,  0.005],
+       [ 0.015,  0.   , -0.315,  0.3  ],
+       [ 0.   ,  0.01 ,  0.2  , -0.21 ]])
+ivy.chars.hrm.hrm_mk(t, c, Q, 2, pi="Equal")
+
+
+
+corHMMout = [0.23823, 1e-10, 1e-11, 0.415, 1e-10, 1.14, 0.77, 0.187669]
+ivyout = [0.20606, 0.32952, 1.10404, 0.44378, 0.55605, 0.27983, 0.04475, 0.00001]

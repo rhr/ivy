@@ -186,7 +186,10 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
            "root_priors":rootpriors, "nullval":nullval}
 
     def likelihood_function(Qparams):
+        print Qparams
         # Enforcing upper bound on parameters
+
+
         if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
             return var["nullval"]
 
@@ -206,7 +209,7 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
             var["Q"][np.diag_indices(nchar)] = np.sum(var["Q"], axis=1)*-1
         elif Qtype == "Simple":
             var["Q"].fill(0.0)
-            fill_Q_matrix(nobschar, nregime, qparams[:nregime], qparams[nregime:], Qtype="Simple", out = var["Q"])
+            fill_Q_matrix(nobschar, nregime, Qparams[:nregime], Qparams[nregime:], Qtype="Simple", out = var["Q"])
         else:
             raise ValueError, "Qtype must be ARD or Simple"
         for char in range(nobschar):
@@ -321,6 +324,7 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None):
         Q = np.zeros([nobschar*nregime, nobschar*nregime])
     else:
         Q = out
+
     assert Qtype in ["ARD", "Simple"]
     grid = np.zeros([(nobschar*nregime)**2, 4], dtype=int)
     grid[:,0] = np.tile(np.repeat(range(nregime), nobschar), nobschar*nregime)
@@ -330,7 +334,7 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None):
     if Qtype == "ARD":
         wrcount = 0
         brcount = 0
-        for i, qcell in enumerate(np.nditer(Q, order="C", op_flags=["readwrite"])):
+        for i, qcell in enumerate(np.nditer(Q, order="F", op_flags=["readwrite"])):
             cell = grid[i]
             if (cell[0] == cell[1]) and cell[2] != cell[3]:
                 qcell[...] = wrparams[wrcount]
@@ -340,7 +344,7 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None):
                 brcount += 1
         Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
     elif Qtype == "Simple":
-        for i,qcell in enumerate(np.nditer(Q, order="C", op_flags=["readwrite"])):
+        for i,qcell in enumerate(np.nditer(Q, order="F", op_flags=["readwrite"])):
             cell = grid[i]
             if (cell[0] == cell[1]) and cell[2] != cell[3]:
                 qcell[...] = wrparams[cell[0]]
@@ -693,3 +697,183 @@ def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
             return var["nullval"]
 
     return likelihood_function
+
+def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzjohn",
+                                  findmin = True):
+    """
+    Create a function that takes values for Q and returns likelihood.
+
+    Specify the Q to be ER, Sym, or ARD
+
+    Returned function to be passed into scipy.optimize
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        Qtype (str): ARD only
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root  node.
+        min (bool): Whether the function is to be minimized (False means
+          it will be maximized)
+    Returns:
+        function: Function accepting a list of parameters and returning
+          log-likelihood. To be optmimized with scipy.optimize.minimize
+    """
+    if findmin:
+        nullval = np.inf
+    else:
+        nullval = -np.inf
+
+    nchar = len(set(chars)) * nregime
+    nt =  len(tree.descendants())
+    charlist = range(nchar)
+    nobschar = len(set(chars))
+
+    # Empty Q matrix
+    Q = np.zeros([nchar,nchar], dtype=np.double)
+    # Empty p matrix
+    p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
+    # Empty likelihood array
+    nodelist,t,childlist = _create_hrmnodelist(tree, chars, nregime)
+    nodelistOrig = nodelist.copy() # Second copy to refer back to
+    # Empty root prior array
+    rootpriors = np.empty([nchar], dtype=np.double)
+
+    # Upper bounds
+    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
+                   tree.leaves()[0].length])
+    upperbound = len(tree.leaves())/treelen
+
+    # Giving internal function access to these arrays.
+       # Warning: can be tricky
+       # Need to make sure old values
+       # Aren't accidentally re-used
+    var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
+           "nodelistOrig":nodelistOrig, "upperbound":upperbound,
+           "root_priors":rootpriors, "nullval":nullval}
+
+    def likelihood_function(Qparams):
+        if any(np.isnan(Qparams)):
+            return var["nullval"]
+        # Enforcing upper bound on parameters
+
+
+        if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
+            return var["nullval"]
+
+
+        # Filling Q matrices:
+        i = 0
+        if Qtype == "ARD":
+            var["Q"].fill(0.0) # Re-filling with zeroes
+            fill_Q_matrix(nobschar, nregime, Qparams[:nregime*nobschar], Qparams[nregime*nobschar:], Qtype="ARD", out=var["Q"])
+        elif Qtype == "Simple":
+            var["Q"].fill(0.0)
+            fill_Q_matrix(nobschar, nregime, Qparams[:nregime], Qparams[nregime:], Qtype="Simple", out = var["Q"])
+        else:
+            raise ValueError, "Qtype must be ARD or Simple"
+        for char in range(nobschar):
+            hiddenchar =  [y + char for y in [x * nobschar for x in range(nregime) ]]
+            for char2 in [ ch for ch in range(nobschar) if not ch == char ]:
+                hiddenchar2 =  [y + char2 for y in [x * nobschar for x in range(nregime) ]]
+                rs = [Q[ch1, ch2] for ch1, ch2 in zip(hiddenchar, hiddenchar2)]
+
+        # Resetting the values in these arrays
+        np.copyto(var["nodelist"], var["nodelistOrig"])
+        var["root_priors"].fill(1.0)
+
+        if findmin:
+            x = -1
+        else:
+            x = 1
+        try:
+            logli =  hrm_mk(tree, chars, var["Q"],nregime,  p=var["p"], pi = pi, preallocated_arrays=var)
+            if not np.isnan(logli):
+                return x * logli# Minimizing negative log-likelihood
+
+        except ValueError: # If likelihood returned is 0
+            return var["nullval"]
+
+    return likelihood_function
+
+
+def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn"):
+    """
+    Fit a hidden-rates mk model to a given tree and list of characters, and
+    number of regumes. Return fitted ARD Q matrix and calculated likelihood.
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be in the form of 0,1,2,...
+        nregime (int): Number of hidden rates per character
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root node. Defaults to "Equal"
+          Method "Fitzjohn" is not thouroughly tested, use with caution
+    Returns:
+        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
+    """
+    nchar = len(set(chars))*nregime
+    nobschar = len(set(chars))
+
+
+    mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
+                                                 Qtype="ARD", pi=pi)
+
+    cons = ({"type":"ineq", "fun":lambda x: x[3] - x[1]},
+            {"type":"ineq", "fun":lambda x: x[0]},
+            {"type":"ineq", "fun":lambda x: x[1]},
+            {"type":"ineq", "fun":lambda x: x[2]},
+            {"type":"ineq", "fun":lambda x: x[3]},
+            {"type":"ineq", "fun":lambda x: x[4]},
+            {"type":"ineq", "fun":lambda x: x[5]},
+            {"type":"ineq", "fun":lambda x: x[6]},
+            {"type":"ineq", "fun":lambda x: x[7]})
+    x0 = [1]*8
+    optim = minimize(mk_func, x0, method="COBYLA", tol = 1e-9,
+                      constraints = cons, options = {"maxiter":1e6})
+    q = fill_Q_matrix(nobschar, nregime, optim.x[:nchar], optim.x[nchar:],"ARD")
+
+    piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
+
+    return (q, -1*float(optim.fun), piRates)
+
+def fit_hrm_mkSimple(tree, chars, nregime, pi="Fitzjohn"):
+    """
+    Fit a hidden-rates mk model to a given tree and list of characters, and
+    number of regumes. Return fitted ARD Q matrix and calculated likelihood.
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be in the form of 0,1,2,...
+        nregime (int): Number of hidden rates per character
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root node. Defaults to "Equal"
+          Method "Fitzjohn" is not thouroughly tested, use with caution
+    Returns:
+        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
+    """
+    nchar = len(set(chars))*nregime
+    nobschar = len(set(chars))
+
+
+    mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
+                                                 Qtype="Simple", pi=pi)
+
+    cons = ({"type":"ineq", "fun":lambda x: x[1] - x[0]},
+            {"type":"ineq", "fun":lambda x: x[0]},
+            {"type":"ineq", "fun":lambda x: x[1]},
+            {"type":"ineq", "fun":lambda x: x[2]})
+    x0 = [0.1, 0.1, 0.1]
+    optim = minimize(mk_func, x0, method="COBYLA",
+                      constraints = cons, options = {"maxiter":1e6})
+    q = fill_Q_matrix(nobschar, nregime, optim.x[:-1], [optim.x[-1]],"Simple")
+
+    piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
+
+    return (q, -1*float(optim.fun), piRates)
