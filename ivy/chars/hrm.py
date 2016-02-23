@@ -717,6 +717,11 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
           values at root  node.
         min (bool): Whether the function is to be minimized (False means
           it will be maximized)
+    Notes:
+        Constraints:
+            The maximum rate within each rate category must be ordered (
+            fastest rate in slower regime must be slower than fastest rate
+            in fastest regime)
     Returns:
         function: Function accepting a list of parameters and returning
           log-likelihood. To be optmimized with scipy.optimize.minimize
@@ -754,7 +759,11 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
            "root_priors":rootpriors, "nullval":nullval}
 
-    def likelihood_function(Qparams):
+    def likelihood_function(Qparams, grad):
+        """
+        NLOPT inputs the parameter array as well as a gradient object.
+        The gradient object is ignored for this optimizer (LN_SBPLX)
+        """
         if any(np.isnan(Qparams)):
             return var["nullval"]
         # Enforcing upper bound on parameters
@@ -762,6 +771,13 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
 
         if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
             return var["nullval"]
+        if Qtype == "ARD":
+            qmax = [max(Qparams[:nchar*nregime][i:i+nchar]) for i in xrange(0, len(Qparams)/2, nchar)]
+            if sorted(qmax) != qmax:
+                return var["nullval"]
+        elif Qtype == "Simple":
+            if sorted(Qparams != Qparams):
+                return var["nullval"]
 
 
         # Filling Q matrices:
@@ -823,23 +839,20 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn"):
     mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
                                                  Qtype="ARD", pi=pi)
 
-    cons = ({"type":"ineq", "fun":lambda x: x[3] - x[1]},
-            {"type":"ineq", "fun":lambda x: x[0]},
-            {"type":"ineq", "fun":lambda x: x[1]},
-            {"type":"ineq", "fun":lambda x: x[2]},
-            {"type":"ineq", "fun":lambda x: x[3]},
-            {"type":"ineq", "fun":lambda x: x[4]},
-            {"type":"ineq", "fun":lambda x: x[5]},
-            {"type":"ineq", "fun":lambda x: x[6]},
-            {"type":"ineq", "fun":lambda x: x[7]})
-    x0 = [1]*8
-    optim = minimize(mk_func, x0, method="COBYLA", tol = 1e-9,
-                      constraints = cons, options = {"maxiter":1e6})
-    q = fill_Q_matrix(nobschar, nregime, optim.x[:nchar], optim.x[nchar:],"ARD")
+    # TODO generalize this
+    x0 = [0.1]*8
+    opt = nlopt.opt(nlopt.LN_SBPLX, 8)
+    opt.set_min_objective(mk_func)
+    opt.set_lower_bounds(0)
+
+
+    optim = opt.optimize(x0)
+    q = fill_Q_matrix(nobschar, nregime, optim[:nchar], optim[nchar:],"ARD")
 
     piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
 
-    return (q, -1*float(optim.fun), piRates)
+
+    return (q, -1*float(mk_func(optim, None)), piRates)
 
 def fit_hrm_mkSimple(tree, chars, nregime, pi="Fitzjohn"):
     """
