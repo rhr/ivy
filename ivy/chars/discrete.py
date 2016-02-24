@@ -31,3 +31,26 @@ def nodeLikelihood(node):
         likelihoodNode[state] = np.product(likelihoodStateN)
 
     return sum(likelihoodNode.values())
+
+def tip_age_rank_sum(tree, chars):
+    """
+    Calculate tip age rank sums of two traits
+    and return test statistic and p-value
+
+    See: Bromham et al. 2016
+    """
+    tip_ages = [(n.length, chars[i]) for i,n in enumerate(tree.leaves())]
+    tip_ages.sort(key = lambda x: x[0])
+    lens0 = [ i[0] for i in tip_ages if i[1]==0]
+    lens1 = [ i[0] for i in tip_ages if i[1]==1]
+
+    stat, pval = scipy.stats.ranksums(lens1, lens0)
+
+    return stat, pval
+
+def NoTO(tree, chars):
+    """
+    Number of Tips Per Origin
+
+    See: Bromham et al. 2016
+    """

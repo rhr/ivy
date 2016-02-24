@@ -5,7 +5,6 @@ import math
 from ivy.chars.expokit import cyexpokit
 
 
-
 def anc_recon_py(tree, chars, Q, p=None, pi="Fitzjohn"):
     """
     - Pure python version of anc recon code
@@ -325,3 +324,34 @@ def create_ancrecon_ars(tree, chars):
     ar_dict = {name:ar for name,ar in zip(names, ar_list)}
 
     return ar_dict
+
+def parsimony_recon(tree, chars):
+    """
+    Use parsimony to reconstruct the minimum number of changes needed to observe
+    states at the tips.
+
+    Equal weights assumed
+
+    Ties resolved randomly
+
+    Args:
+        tree (Node): Root node of tree
+        chars (list): List of characters in preorder sequence
+    Returns:
+        Node: Reconstructed tree with each node having the attribute "charstate"
+          indicating its reconstructed character state
+    """
+    simtree = tree.copy()
+    for i,n in enumerate(simtree.leaves()):
+        n.charstate = chars[i]
+    for n in simtree.postiter():
+        n.C = [0]*len(set(chars))
+        if n.isleaf:
+            for i in set(chars):
+                n.C[i] = 0 if i == n.charstate else np.inf
+        else:
+            for i in set(chars):
+                for c in n.children:
+                    n.C[i] += min((v.C[v.charstate]+1),v.C[i])
+
+        n.C = np.argmin(n.C)

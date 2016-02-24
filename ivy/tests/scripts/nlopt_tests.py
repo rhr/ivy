@@ -72,3 +72,6 @@ opt.set_lower_bounds(0)
 
 # Performing optimization
 xopt = opt.optimize(x0)
+
+
+optim = hrm.fit_hrm_mkSimple(tree, chars, 2, pi="Equal")

@@ -1,4 +1,11 @@
-
+import ivy
+from ivy.chars import mk
+import numpy as np
+import math
+import scipy
+import scipy.stats
+from scipy.stats import rv_discrete
+import random
 
 def sim_discrete(tree, Q, anc=None, charname=None):
     """

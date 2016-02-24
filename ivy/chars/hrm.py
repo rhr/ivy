@@ -12,6 +12,7 @@ import random
 from ivy.chars.mk import *
 from ivy.chars.mk_mr import *
 from ivy.chars.hrm import *
+import nlopt
 np.seterr(invalid="warn")
 
 def hrm_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
@@ -186,7 +187,6 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
            "root_priors":rootpriors, "nullval":nullval}
 
     def likelihood_function(Qparams):
-        print Qparams
         # Enforcing upper bound on parameters
 
 
@@ -699,7 +699,7 @@ def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
     return likelihood_function
 
 def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzjohn",
-                                  findmin = True):
+                                  findmin = True, constraints = "Rate"):
     """
     Create a function that takes values for Q and returns likelihood.
 
@@ -772,11 +772,19 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
         if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
             return var["nullval"]
         if Qtype == "ARD":
-            qmax = [max(Qparams[:nchar*nregime][i:i+nchar]) for i in xrange(0, len(Qparams)/2, nchar)]
-            if sorted(qmax) != qmax:
-                return var["nullval"]
+            if constraints == "Rate":
+                qmax = [max(Qparams[:nchar*nregime][i:i+nchar]) for i in xrange(0, len(Qparams)/2, nchar)]
+                if sorted(qmax) != qmax:
+                    return var["nullval"]
+            elif constraints == "Symmetry":
+                # TODO: generalize this
+                assert len(Qparams) == 8
+                if not ((Qparams[0]/Qparams[1] <= 1) and (Qparams[2]/Qparams[3] >= 1)):
+                    return var["nullval"]
         elif Qtype == "Simple":
-            if sorted(Qparams != Qparams):
+            if any(sorted(Qparams[:-1]) != Qparams[:-1]):
+                return var["nullval"]
+            if Qparams[-2] < Qparams[-1]:
                 return var["nullval"]
 
 
@@ -815,7 +823,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
     return likelihood_function
 
 
-def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn"):
+def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", constraints="Rate"):
     """
     Fit a hidden-rates mk model to a given tree and list of characters, and
     number of regumes. Return fitted ARD Q matrix and calculated likelihood.
@@ -837,7 +845,7 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn"):
 
 
     mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
-                                                 Qtype="ARD", pi=pi)
+                                                 Qtype="ARD", pi=pi, constraints=constraints)
 
     # TODO generalize this
     x0 = [0.1]*8
@@ -878,15 +886,13 @@ def fit_hrm_mkSimple(tree, chars, nregime, pi="Fitzjohn"):
     mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
                                                  Qtype="Simple", pi=pi)
 
-    cons = ({"type":"ineq", "fun":lambda x: x[1] - x[0]},
-            {"type":"ineq", "fun":lambda x: x[0]},
-            {"type":"ineq", "fun":lambda x: x[1]},
-            {"type":"ineq", "fun":lambda x: x[2]})
-    x0 = [0.1, 0.1, 0.1]
-    optim = minimize(mk_func, x0, method="COBYLA",
-                      constraints = cons, options = {"maxiter":1e6})
-    q = fill_Q_matrix(nobschar, nregime, optim.x[:-1], [optim.x[-1]],"Simple")
+    x0 = [0.1] * (nregime+1)
+    opt = nlopt.opt(nlopt.LN_SBPLX, nregime+1)
+    opt.set_min_objective(mk_func)
+    opt.set_lower_bounds(0)
+    optim = opt.optimize(x0)
+    q = fill_Q_matrix(nobschar, nregime, optim[:-1], [optim[-1]],"Simple")
 
     piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
 
-    return (q, -1*float(optim.fun), piRates)
+    return (q, -1*float(mk_func(optim, None)), piRates)
