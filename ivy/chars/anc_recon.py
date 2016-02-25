@@ -3,7 +3,7 @@ import ivy
 import numpy as np
 import math
 from ivy.chars.expokit import cyexpokit
-
+from ivy.chars import catpars
 
 def anc_recon_py(tree, chars, Q, p=None, pi="Fitzjohn"):
     """
@@ -332,26 +332,12 @@ def parsimony_recon(tree, chars):
 
     Equal weights assumed
 
-    Ties resolved randomly
-
     Args:
         tree (Node): Root node of tree
         chars (list): List of characters in preorder sequence
     Returns:
-        Node: Reconstructed tree with each node having the attribute "charstate"
-          indicating its reconstructed character state
+        np.array: Array of assigned states of interior nodes
     """
-    simtree = tree.copy()
-    for i,n in enumerate(simtree.leaves()):
-        n.charstate = chars[i]
-    for n in simtree.postiter():
-        n.C = [0]*len(set(chars))
-        if n.isleaf:
-            for i in set(chars):
-                n.C[i] = 0 if i == n.charstate else np.inf
-        else:
-            for i in set(chars):
-                for c in n.children:
-                    n.C[i] += min((v.C[v.charstate]+1),v.C[i])
-
-        n.C = np.argmin(n.C)
+    chardata = {tree.leaves()[i].label:chars[i] for i in range(len(chars))}
+    stepmatrix = catpars.default_costmatrix(len(set(chars)))
+    return catpars.ancstates(tree, chardata, stepmatrix)

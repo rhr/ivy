@@ -54,3 +54,15 @@ def NoTO(tree, chars):
 
     See: Bromham et al. 2016
     """
+    parsimonyStates = ivy.chars.anc_recon.parsimony_recon(tree, chars)
+    rootState = int(parsimonyStates[tree][0])
+
+    origins = []
+    for node in tree.descendants():
+        if not node.isleaf:
+            if int(parsimonyStates[node][0]) != rootState and parsimonyStates[node.parent][0] == rootState:
+                origins.append(node)
+    return len([i for i in chars if not i==rootState])/len(origins)
+
+
+def SSCD

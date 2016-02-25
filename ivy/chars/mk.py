@@ -297,9 +297,12 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
            "root_priors":rootpriors, "nullval":nullval}
 
     def likelihood_function(Qparams):
+        print Qparams
         # Enforcing upper bound on parameters
         if (sum(Qparams) > var["upperbound"]) or any(Qparams <= 0):
             return var["nullval"]
+        # if any(np.isnan(Qparams)):
+        #     return var["nullval"]
 
         # Filling Q matrices:
         if Qtype == "ER":
@@ -329,7 +332,9 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
             x = 1
 
         try:
-            return x * mk(tree, chars, var["Q"], p=var["p"], pi = pi, preallocated_arrays=var) # Minimizing negative log-likelihood
+            li = mk(tree, chars, var["Q"], p=var["p"], pi = pi, preallocated_arrays=var)
+            print li
+            return x * li # Minimizing negative log-likelihood
         except ValueError: # If likelihood returned is 0
             return var["nullval"]
 
@@ -358,10 +363,10 @@ def fitMkER(tree, chars, pi="Equal"):
     """
     nchar = len(set(chars))
     # Initial value arbitrary
-    x0 = [0.1] # Starting value for our equal rates model
+    x0 = [.1] # Starting value for our equal rates model
     mk_func = create_likelihood_function_mk(tree, chars, Qtype="ER", pi=pi)
 
-    optim = minimize(mk_func, x0, method="L-BFGS-B",
+    optim = minimize(mk_func, x0, method="COBYLA",
                       bounds = [(1e-14,None)])
 
     q = np.empty([nchar,nchar], dtype=np.double)
