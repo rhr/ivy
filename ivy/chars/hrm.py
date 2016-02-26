@@ -896,3 +896,36 @@ def fit_hrm_mkSimple(tree, chars, nregime, pi="Fitzjohn"):
     piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
 
     return (q, -1*float(mk_func(optim, None)), piRates)
+
+
+def fit_hrm_distinct_regimes(tree, chars, nregime, pi="Fitzjohn"):
+    """
+    For a given number of regimes, test various constraints and return
+    set of regimes with the highest likelihood.
+
+    BINARY CHARACTERS ONLY
+
+    Regime types:
+       IRR_01_FAST: Fast irreversilbe transition from 0->1
+       IRR_10_FAST: Fast irreversible transition from 1->0
+       IRR_01_SLOW: Slow irreversilbe transition from 0->1
+       IRR_10_SLOW: Slow irreversible transition from 1->0
+
+       ASYM_01_FAST: Fast asymmetric transition. Fast rate 0->1
+       ASYM_10_FAST: Fast asymmetric transition. Fast rate 1->0
+       ASYM_01_SLOW: Slow asymmetric transition. Fast rate 0->1
+       ASYM_10_SLOW: Slow asymmetric transition. Fast rate 1->0
+
+       SYM_FAST: Fast symmetric transition
+       SYM_SLOW: Slow symmetric transition
+
+    """
+    regimes = {"IRR_01_FAST", "IRR_10_FAST", "IRR_01_SLOW", "IRR_10_SLOW",
+               "ASYM_01_FAST", "ASYM_10_FAST", "ASYM_01_SLOW", "ASYM_10_SLOW",
+               "SYM_FAST", "SYM_SLOW"}
+    regime_combinations = list(itertools.combinations(regimes,2))
+
+    # Combinations of regimes that we would not expect to be able to
+    # distinguish between
+    invalid_combinations = [("IRR_01_FAST", "IRR_01_SLOW"),
+                            ("IRR_10_FAST", "IRR_10_SLOW")]

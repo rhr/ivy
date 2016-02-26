@@ -63,6 +63,3 @@ def NoTO(tree, chars):
             if int(parsimonyStates[node][0]) != rootState and parsimonyStates[node.parent][0] == rootState:
                 origins.append(node)
     return len([i for i in chars if not i==rootState])/len(origins)
-
-
-def SSCD

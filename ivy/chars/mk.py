@@ -297,12 +297,12 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
            "root_priors":rootpriors, "nullval":nullval}
 
     def likelihood_function(Qparams):
-        print Qparams
+
         # Enforcing upper bound on parameters
         if (sum(Qparams) > var["upperbound"]) or any(Qparams <= 0):
             return var["nullval"]
-        # if any(np.isnan(Qparams)):
-        #     return var["nullval"]
+        if any(np.isnan(Qparams)):
+            return var["nullval"]
 
         # Filling Q matrices:
         if Qtype == "ER":
@@ -333,7 +333,6 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
 
         try:
             li = mk(tree, chars, var["Q"], p=var["p"], pi = pi, preallocated_arrays=var)
-            print li
             return x * li # Minimizing negative log-likelihood
         except ValueError: # If likelihood returned is 0
             return var["nullval"]
@@ -365,10 +364,10 @@ def fitMkER(tree, chars, pi="Equal"):
     # Initial value arbitrary
     x0 = [.1] # Starting value for our equal rates model
     mk_func = create_likelihood_function_mk(tree, chars, Qtype="ER", pi=pi)
+    cons = {"type":"ineq", "fun": lambda x: min(x)}
 
-    optim = minimize(mk_func, x0, method="COBYLA",
-                      bounds = [(1e-14,None)])
-
+    optim = minimize(mk_func, x0, method="SLSQP",
+                      constraints = cons)
     q = np.empty([nchar,nchar], dtype=np.double)
     q.fill(optim.x[0])
 
@@ -408,8 +407,10 @@ def fitMkSym(tree, chars, pi="Equal"):
     mk_func = create_likelihood_function_mk(tree, chars, Qtype="Sym", pi = pi)
 
     # Need to constrain values to be greater than 0
-    optim = minimize(mk_func, x0, method="L-BFGS-B",
-                      bounds = tuple(( (1e-14,None) for i in range(len(x0)) )))
+    cons = {"type":"ineq", "fun": lambda x: min(x)}
+
+    optim = minimize(mk_func, x0, method="SLSQP",
+                      constraints = cons)
 
 
     q = np.zeros([nchar,nchar], dtype=np.double)
@@ -446,12 +447,13 @@ def fitMkARD(tree, chars, pi="Equal"):
     """
     # Number of parameters equal to k^2 - k
     nchar = len(set(chars))
-    x0 = [1.0] * (nchar ** 2 - nchar)
+    x0 = [0.1] * (nchar ** 2 - nchar)
 
     mk_func = create_likelihood_function_mk(tree, chars, Qtype="ARD", pi=pi)
+    cons = {"type":"ineq", "fun": lambda x: min(x)}
 
-    optim = minimize(mk_func, x0, method="L-BFGS-B",
-                      bounds = tuple(( (1e-14,None) for i in range(len(x0)) )))
+    optim = minimize(mk_func, x0, method="SLSQP",
+                      constraints = cons)
 
     q = np.zeros([nchar,nchar], dtype=np.double)
 
