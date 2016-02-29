@@ -3,6 +3,7 @@ scipy
 biopython
 matplotlib
 bokeh
+nlopt
 # used in ivy/nexus.py
 pyparsing 
 # used in ivy/treegraph.py
@@ -11,3 +12,4 @@ graph_tool
 lxml
 # used in ivy/vis/hardcopy.py 
 pypdf
+

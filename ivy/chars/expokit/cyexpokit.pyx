@@ -1,5 +1,6 @@
 import numpy as np
 cimport numpy as np
+import scipy
 
 DTYPE = np.double # Fixing a datatype for the arrays
 ctypedef np.double_t DTYPE_t
@@ -87,7 +88,7 @@ def cy_mk(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
         for ind in np.where(nodelist[:,nchar]==intnode)[0]:
             li = nodelist[ind]
             for ch in charlist:
-                nextli[ch] *= sum([ p[ind][ch,st] for st in charlist ] * li[:-1])
+                nextli[ch] += scipy.misc.logsumexp([ np.log(p[ind][ch,st]) for st in charlist ] + li[:-1])
 
 def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                  np.ndarray[dtype=DTYPE_t, ndim=2] d_nl,

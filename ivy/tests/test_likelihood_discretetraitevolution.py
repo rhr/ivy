@@ -209,124 +209,124 @@ class mkMethods(unittest.TestCase):
 
 
         self.assertTrue(np.isclose(phytoolslogLikelihood, calculatedLogLikelihood))
-    def test_mk_fitzjohn_matchesDiversitree(self):
-        charstates = [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                      2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                      0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                      0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1]
-        tree =  ivy.tree.read("support/randtree100tipsscale2.newick")
-        Q = np.array([[-2.09613850e-01, 1.204029e-01, 8.921095e-02],
-                      [5.654382e-01, -5.65438217e-01, 1.713339e-08],
-                      [2.415020e-06, 5.958744e-07, -3.01089440e-06]])
+    # def test_mk_fitzjohn_matchesDiversitree(self):
+    #     charstates = [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    #                   2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    #                   0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    #                   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    #                   0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1]
+    #     tree =  ivy.tree.read("support/randtree100tipsscale2.newick")
+    #     Q = np.array([[-2.09613850e-01, 1.204029e-01, 8.921095e-02],
+    #                   [5.654382e-01, -5.65438217e-01, 1.713339e-08],
+    #                   [2.415020e-06, 5.958744e-07, -3.01089440e-06]])
+    #
+    #     expectedLikelihood = -32.79025
+    #
+    #     calculatedLogLikelihood = discrete.mk(tree, charstates, Q,
+    #                                              pi ="Fitzjohn")
+    #     self.assertTrue(np.isclose(expectedLikelihood, calculatedLogLikelihood))
+    #
 
-        expectedLikelihood = -32.79025
-
-        calculatedLogLikelihood = discrete.mk(tree, charstates, Q,
-                                                 pi ="Fitzjohn")
-        self.assertTrue(np.isclose(expectedLikelihood, calculatedLogLikelihood))
-
-
-    def test_mkMultiRegime_twoQ_matchesByHand(self):
-        tree = self.threetiptree
-        chars = self.charstates_011
-
-        Q1 = np.array([[-0.1,0.1],[0.1,-0.1]], dtype=np.double)
-        Q2 = np.array([[-0.2,0.2],[0.2,-0.2]], dtype=np.double)
-
-        Qs = np.array([Q1,Q2])
-
-        inds = np.array([[1,2,3],[4,]])
-
-        L0A = 1;L1A = 0;L0B = 0;L1B = 1;L0D = 0;L1D = 1
-
-        P00A = 0.90936538
-        P01A = 0.09063462
-        P11A = 0.90936538
-        P10A = 0.09063462
-
-        P00B = 0.90936538
-        P01B = 0.09063462
-        P11B = 0.90936538
-        P10B = 0.09063462
-
-        P00C = 0.90936538
-        P01C = 0.09063462
-        P11C = 0.90936538
-        P10C = 0.09063462
-
-        P00D = 0.72466448
-        P01D = 0.27533552
-        P11D = 0.72466448
-        P10D = 0.27533552
-
-        L0C = (P00A * L0A + P01A * L1A) * (P00B * L0B + P01B * L1B)
-        L1C = (P10A * L0A + P11A * L1A) * (P10B * L0B + P11B * L1B)
-
-        L0r = (P00C * L0C + P01C * L1C) * (P00D * L0D + P01D * L1D)
-        L1r = (P10C * L0C + P11C * L1C) * (P10D * L0D + P11D * L1D)
-
-        predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
-        calculatedLikelihood = discrete.mk_multi_regime(tree, chars, Qs, locs = inds,
-                                                        pi="Equal")
-
-        self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
-
-    def test_mkMultiRegime_twoQFourTip_matchesByHand(self):
-        tree = ivy.tree.read("(((A:1,B:1)C:1,D:2)E:1,F:3)root;")
-        chars = [0,1,1,0]
-
-        Q1 = np.array([[-0.1,0.1],[0.1,-0.1]], dtype=np.double)
-        Q2 = np.array([[-0.2,0.2],[0.2,-0.2]], dtype=np.double)
-        Qs = np.array([Q1,Q2])
-        inds = np.array([[1,2,3],[4,5,6]])
-        L0A = 1;L1A = 0;L0B = 0;L1B = 1;L0D = 0;L1D = 1;L0F = 1;L1F = 0
-
-        P00A = 0.90936538
-        P01A = 0.09063462
-        P11A = 0.90936538
-        P10A = 0.09063462
-
-        P00B = 0.90936538
-        P01B = 0.09063462
-        P11B = 0.90936538
-        P10B = 0.09063462
-
-        P00C = 0.90936538
-        P01C = 0.09063462
-        P11C = 0.90936538
-        P10C = 0.09063462
-
-        P00D = 0.72466448
-        P01D = 0.27533552
-        P11D = 0.72466448
-        P10D = 0.27533552
-
-        P00E = 0.83516002
-        P01E = 0.16483998
-        P11E = 0.83516002
-        P10E = 0.16483998
-
-        P00F = 0.65059711
-        P01F = 0.34940289
-        P11F = 0.65059711
-        P10F = 0.34940289
-
-        L0C = (P00A * L0A + P01A * L1A) * (P00B * L0B + P01B * L1B)
-        L1C = (P10A * L0A + P11A * L1A) * (P10B * L0B + P11B * L1B)
-
-        L0E = (P00C * L0C + P01C * L1C) * (P00D * L0D + P01D * L1D)
-        L1E = (P10C * L0C + P11C * L1C) * (P10D * L0D + P11D * L1D)
-
-        L0r = (P00E * L0E + P01E * L1E) * (P00F * L0F + P01F * L1F)
-        L1r = (P10E * L0E + P11E * L1E) * (P10F * L0F + P11F * L1F)
-
-        predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
-        calculatedLikelihood = discrete.mk_multi_regime(tree, chars, Qs, locs = inds,
-                                                        pi="Equal")
-
-        self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
-
+    # def test_mkMultiRegime_twoQ_matchesByHand(self):
+    #     tree = self.threetiptree
+    #     chars = self.charstates_011
+    #
+    #     Q1 = np.array([[-0.1,0.1],[0.1,-0.1]], dtype=np.double)
+    #     Q2 = np.array([[-0.2,0.2],[0.2,-0.2]], dtype=np.double)
+    #
+    #     Qs = np.array([Q1,Q2])
+    #
+    #     inds = np.array([[1,2,3],[4,]])
+    #
+    #     L0A = 1;L1A = 0;L0B = 0;L1B = 1;L0D = 0;L1D = 1
+    #
+    #     P00A = 0.90936538
+    #     P01A = 0.09063462
+    #     P11A = 0.90936538
+    #     P10A = 0.09063462
+    #
+    #     P00B = 0.90936538
+    #     P01B = 0.09063462
+    #     P11B = 0.90936538
+    #     P10B = 0.09063462
+    #
+    #     P00C = 0.90936538
+    #     P01C = 0.09063462
+    #     P11C = 0.90936538
+    #     P10C = 0.09063462
+    #
+    #     P00D = 0.72466448
+    #     P01D = 0.27533552
+    #     P11D = 0.72466448
+    #     P10D = 0.27533552
+    #
+    #     L0C = (P00A * L0A + P01A * L1A) * (P00B * L0B + P01B * L1B)
+    #     L1C = (P10A * L0A + P11A * L1A) * (P10B * L0B + P11B * L1B)
+    #
+    #     L0r = (P00C * L0C + P01C * L1C) * (P00D * L0D + P01D * L1D)
+    #     L1r = (P10C * L0C + P11C * L1C) * (P10D * L0D + P11D * L1D)
+    #
+    #     predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
+    #     calculatedLikelihood = discrete.mk_multi_regime(tree, chars, Qs, locs = inds,
+    #                                                     pi="Equal")
+    #
+    #     self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
+    #
+    # def test_mkMultiRegime_twoQFourTip_matchesByHand(self):
+    #     tree = ivy.tree.read("(((A:1,B:1)C:1,D:2)E:1,F:3)root;")
+    #     chars = [0,1,1,0]
+    #
+    #     Q1 = np.array([[-0.1,0.1],[0.1,-0.1]], dtype=np.double)
+    #     Q2 = np.array([[-0.2,0.2],[0.2,-0.2]], dtype=np.double)
+    #     Qs = np.array([Q1,Q2])
+    #     inds = np.array([[1,2,3],[4,5,6]])
+    #     L0A = 1;L1A = 0;L0B = 0;L1B = 1;L0D = 0;L1D = 1;L0F = 1;L1F = 0
+    #
+    #     P00A = 0.90936538
+    #     P01A = 0.09063462
+    #     P11A = 0.90936538
+    #     P10A = 0.09063462
+    #
+    #     P00B = 0.90936538
+    #     P01B = 0.09063462
+    #     P11B = 0.90936538
+    #     P10B = 0.09063462
+    #
+    #     P00C = 0.90936538
+    #     P01C = 0.09063462
+    #     P11C = 0.90936538
+    #     P10C = 0.09063462
+    #
+    #     P00D = 0.72466448
+    #     P01D = 0.27533552
+    #     P11D = 0.72466448
+    #     P10D = 0.27533552
+    #
+    #     P00E = 0.83516002
+    #     P01E = 0.16483998
+    #     P11E = 0.83516002
+    #     P10E = 0.16483998
+    #
+    #     P00F = 0.65059711
+    #     P01F = 0.34940289
+    #     P11F = 0.65059711
+    #     P10F = 0.34940289
+    #
+    #     L0C = (P00A * L0A + P01A * L1A) * (P00B * L0B + P01B * L1B)
+    #     L1C = (P10A * L0A + P11A * L1A) * (P10B * L0B + P11B * L1B)
+    #
+    #     L0E = (P00C * L0C + P01C * L1C) * (P00D * L0D + P01D * L1D)
+    #     L1E = (P10C * L0C + P11C * L1C) * (P10D * L0D + P11D * L1D)
+    #
+    #     L0r = (P00E * L0E + P01E * L1E) * (P00F * L0F + P01F * L1F)
+    #     L1r = (P10E * L0E + P11E * L1E) * (P10F * L0F + P11F * L1F)
+    #
+    #     predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
+    #     calculatedLikelihood = discrete.mk_multi_regime(tree, chars, Qs, locs = inds,
+    #                                                     pi="Equal")
+    #
+    #     self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
+    #
 
 class estimateQMethods(unittest.TestCase):
     def setUp(self):
@@ -821,23 +821,23 @@ class estimateQMethods(unittest.TestCase):
             self.assertEquals("Pi must be one of: 'Equal', 'Fitzjohn', 'Equilibrium'", e.message)
 
 
-    def test_mkMultiRegime_sameQ_matchesmk(self):
-        tree = self.randTree100Scale2
-        chars = self.simChars100states3Scale2
-
-        Q = np.array([[-0.556216,0.278108,0.278108],
-                      [0.278108,-0.556216,0.278108],
-                      [0.278108,0.278108,-0.556216]])
-
-        Qs = np.array([Q,Q])
-
-        locs = [[i for i,n in enumerate(tree.postiter()) if not n.isroot][:50],
-                 [i for i,n in enumerate(tree.postiter()) if not n.isroot][50:]]
-
-        single = discrete.mk(tree, chars, Q)
-        multi = discrete.mk_multi_regime(tree, chars, Qs, locs, pi="Equal")
-
-        self.assertEquals(single, multi)
+    # def test_mkMultiRegime_sameQ_matchesmk(self):
+    #     tree = self.randTree100Scale2
+    #     chars = self.simChars100states3Scale2
+    #
+    #     Q = np.array([[-0.556216,0.278108,0.278108],
+    #                   [0.278108,-0.556216,0.278108],
+    #                   [0.278108,0.278108,-0.556216]])
+    #
+    #     Qs = np.array([Q,Q])
+    #
+    #     locs = [[i for i,n in enumerate(tree.postiter()) if not n.isroot][:50],
+    #              [i for i,n in enumerate(tree.postiter()) if not n.isroot][50:]]
+    #
+    #     single = discrete.mk(tree, chars, Q)
+    #     multi = discrete.mk_multi_regime(tree, chars, Qs, locs, pi="Equal")
+    #
+    #     self.assertEquals(single, multi)
 
     # def test_createLikelihoodMulti_twoRtwoSER_correctresult(self):
     #     tree = self.randTree100Scale2
@@ -983,8 +983,8 @@ class Mk_hrm(mkMethods):
                    [ 0. ,  0.1,  0.1, -0.2]])
         Qparams = np.array([0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1])
 
-        f = discrete.create_likelihood_function_hrm_mk(tree, chars, 2, "ARD")
-        val = discrete.hrm_mk(tree, chars, Q, 2)
+        f = discrete.create_likelihood_function_hrm_mk(tree, chars, 2, "ARD", pi="Equal")
+        val = discrete.hrm_mk(tree, chars, Q, 2, pi="Equal")
 
         self.assertTrue(np.isclose(f(Qparams), -1*val))
 
