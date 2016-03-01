@@ -209,23 +209,23 @@ class mkMethods(unittest.TestCase):
 
 
         self.assertTrue(np.isclose(phytoolslogLikelihood, calculatedLogLikelihood))
-    # def test_mk_fitzjohn_matchesDiversitree(self):
-    #     charstates = [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    #                   2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    #                   0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    #                   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    #                   0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1]
-    #     tree =  ivy.tree.read("support/randtree100tipsscale2.newick")
-    #     Q = np.array([[-2.09613850e-01, 1.204029e-01, 8.921095e-02],
-    #                   [5.654382e-01, -5.65438217e-01, 1.713339e-08],
-    #                   [2.415020e-06, 5.958744e-07, -3.01089440e-06]])
-    #
-    #     expectedLikelihood = -32.79025
-    #
-    #     calculatedLogLikelihood = discrete.mk(tree, charstates, Q,
-    #                                              pi ="Fitzjohn")
-    #     self.assertTrue(np.isclose(expectedLikelihood, calculatedLogLikelihood))
-    #
+    def test_mk_fitzjohn_matchesDiversitree(self):
+        charstates = [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1]
+        tree =  ivy.tree.read("support/randtree100tipsscale2.newick")
+        Q = np.array([[-2.09613850e-01, 1.204029e-01, 8.921095e-02],
+                      [5.654382e-01, -5.65438217e-01, 1.713339e-08],
+                      [2.415020e-06, 5.958744e-07, -3.01089440e-06]])
+
+        expectedLikelihood = -32.79025
+
+        calculatedLogLikelihood = discrete.mk(tree, charstates, Q,
+                                                 pi ="Fitzjohn")
+        self.assertTrue(np.isclose(expectedLikelihood, calculatedLogLikelihood))
+
 
     # def test_mkMultiRegime_twoQ_matchesByHand(self):
     #     tree = self.threetiptree

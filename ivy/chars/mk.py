@@ -6,6 +6,7 @@ import scipy
 from scipy import special
 from scipy.optimize import minimize
 from scipy.special import binom
+import nlopt
 import random
 
 from ivy.chars.mk import *
@@ -20,6 +21,8 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
 
     Convert tree and character data into a form that can be input
     into mk, which fits an mk model.
+
+    Note: internal calculations are log-transformed to avoid numeric underflow
 
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
@@ -98,12 +101,12 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
 
     elif pi == "Fitzjohn":
         np.copyto(preallocated_arrays["root_priors"],
-                  [preallocated_arrays["nodelist"][-1,:-1][charstate]/
-                   sum(preallocated_arrays["nodelist"][-1,:-1]) for
+                  [preallocated_arrays["nodelist"][-1,:-1][charstate]-
+                   scipy.misc.logsumexp(preallocated_arrays["nodelist"][-1,:-1]) for
                    charstate in set(chars) ])
 
         rootliks = [ preallocated_arrays["nodelist"][-1,:-1][charstate] +
-                     np.log(preallocated_arrays["root_priors"][charstate]) for charstate in set(chars) ]
+                     preallocated_arrays["root_priors"][charstate] for charstate in set(chars) ]
 
     elif pi == "Equilibrium":
         # Equilibrium pi from the stationary distribution of Q
@@ -175,7 +178,7 @@ def mk_py(tree, chars, Q, p = None, pi="Equal", returnPi=False):
                 for ch in node.children:
                     likelihoodStateNCh = []
                     for chState in range(nchar):
-                        likelihoodStateNCh.append(np.log(ch.pmat[state, chState]) + ch.likelihoodNode[chState]) #Likelihood for a certain state = p(stateBegin, stateEnd * likelihood(stateEnd))
+                        likelihoodStateNCh.append(ch.pmat[state, chState] + ch.likelihoodNode[chState]) #Likelihood for a certain state = p(stateBegin, stateEnd * likelihood(stateEnd))
                     likelihoodStateN.append(scipy.misc.logsumexp(likelihoodStateNCh))
                 node.likelihoodNode[state]=np.sum(likelihoodStateN)
 
@@ -194,12 +197,12 @@ def mk_py(tree, chars, Q, p = None, pi="Equal", returnPi=False):
         logli = scipy.misc.logsumexp([ i+np.log(rootPriors[n]) for n,i in chartree.likelihoodNode.iteritems() ])
 
     elif pi == "Fitzjohn":
-        rootPriors = { charstate:chartree.likelihoodNode[charstate]/
-                                 sum(chartree.likelihoodNode.values()) for
+        rootPriors = { charstate:chartree.likelihoodNode[charstate]-
+                                 scipy.misc.logsumexp(chartree.likelihoodNode.values()) for
                                  charstate in set(chars) }
 
         logli = scipy.misc.logsumexp([ chartree.likelihoodNode[charstate] +
-                     np.log(rootPriors[charstate]) for charstate in set(chars) ])
+                     rootPriors[charstate] for charstate in set(chars) ])
     elif pi == "Equilibrium":
         # Equilibrium pi from the stationary distribution of Q
         rootPriors = {state:li for state,li in enumerate(qsd(Q))}
@@ -259,7 +262,7 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
           it will be maximized)
     Returns:
         function: Function accepting a list of parameters and returning
-          log-likelihood. To be optmimized with scipy.optimize.minimize
+          log-likelihood. To be optmimized with NLOPT
     """
     if findmin:
         nullval = np.inf
@@ -293,7 +296,10 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
            "root_priors":rootpriors, "nullval":nullval}
 
-    def likelihood_function(Qparams):
+    def likelihood_function(Qparams, grad=None):
+        """
+        NLOPT supplies likelihood function with parameters and gradient
+        """
 
         # Enforcing upper bound on parameters
         if (sum(Qparams) > var["upperbound"]) or any(Qparams <= 0):
@@ -359,20 +365,23 @@ def fitMkER(tree, chars, pi="Equal"):
     """
     nchar = len(set(chars))
     # Initial value arbitrary
-    x0 = [.1] # Starting value for our equal rates model
+    x0 = [.5] # Starting value for our equal rates model
     mk_func = create_likelihood_function_mk(tree, chars, Qtype="ER", pi=pi)
-    cons = {"type":"ineq", "fun": lambda x: min(x)}
 
-    optim = minimize(mk_func, x0, method="COBYLA",
-                      constraints = cons)
+    opt = nlopt.opt(nlopt.LN_SBPLX, len(x0))
+    opt.set_min_objective(mk_func)
+    opt.set_lower_bounds(0)
+
+    optim = opt.optimize(x0)
+
     q = np.empty([nchar,nchar], dtype=np.double)
-    q.fill(optim.x[0])
+    q.fill(optim[0])
 
     q[np.diag_indices(nchar)] = 0 - (q.sum(1)-q[0,0])
 
     piRates, rootLiks = mk(tree, chars, q, pi=pi, returnPi=True)[1:]
 
-    return (q, -1*float(optim.fun), piRates, rootLiks)
+    return (q, -1*mk_func(optim), piRates, rootLiks)
 
 def fitMkSym(tree, chars, pi="Equal"):
     """
@@ -400,25 +409,25 @@ def fitMkSym(tree, chars, pi="Equal"):
     nchar = len(set(chars))
     # Number of params equal to binom(nchar, 2)
     # Initial values arbitrary
-    x0 = [0.1] * binom(nchar, 2) # Starting values for our symmetrical rates model
+    x0 = [0.5] * binom(nchar, 2) # Starting values for our symmetrical rates model
     mk_func = create_likelihood_function_mk(tree, chars, Qtype="Sym", pi = pi)
 
     # Need to constrain values to be greater than 0
-    cons = {"type":"ineq", "fun": lambda x: min(x)}
+    opt = nlopt.opt(nlopt.LN_SBPLX, len(x0))
+    opt.set_min_objective(mk_func)
+    opt.set_lower_bounds(0)
 
-    optim = minimize(mk_func, x0, method="SLSQP",
-                      constraints = cons)
-
+    optim = opt.optimize(x0)
 
     q = np.zeros([nchar,nchar], dtype=np.double)
 
-    q[np.triu_indices(nchar, k=1)] = optim.x
+    q[np.triu_indices(nchar, k=1)] = optim
     q = q + q.T
     q[np.diag_indices(nchar)] = 0-np.sum(q, 1)
 
     piRates, rootLiks = mk(tree, chars, q, pi=pi, returnPi=True)[1:]
 
-    return (q, -1*float(optim.fun), piRates, rootLiks)
+    return (q, -1*mk_func(optim), piRates, rootLiks)
 
 
 def fitMkARD(tree, chars, pi="Equal"):
@@ -444,23 +453,25 @@ def fitMkARD(tree, chars, pi="Equal"):
     """
     # Number of parameters equal to k^2 - k
     nchar = len(set(chars))
-    x0 = [0.1] * (nchar ** 2 - nchar)
+    x0 = [.5] * (nchar ** 2 - nchar)
 
     mk_func = create_likelihood_function_mk(tree, chars, Qtype="ARD", pi=pi)
-    cons = {"type":"ineq", "fun": lambda x: min(x)}
 
-    optim = minimize(mk_func, x0, method="SLSQP",
-                      constraints = cons)
+    opt = nlopt.opt(nlopt.LN_SBPLX, len(x0))
+    opt.set_min_objective(mk_func)
+    opt.set_lower_bounds(0)
+
+    optim = opt.optimize(x0)
 
     q = np.zeros([nchar,nchar], dtype=np.double)
 
-    q[np.triu_indices(nchar, k=1)] = optim.x[:len(optim.x)/2]
-    q[np.tril_indices(nchar, k=-1)] = optim.x[len(optim.x)/2:]
+    q[np.triu_indices(nchar, k=1)] = optim[:len(optim)/2]
+    q[np.tril_indices(nchar, k=-1)] = optim[len(optim)/2:]
     q[np.diag_indices(nchar)] = 0-np.sum(q, 1)
 
     piRates, rootLiks = mk(tree, chars, q, pi=pi, returnPi=True)[1:]
 
-    return (q, -1*float(optim.fun), piRates, rootLiks)
+    return (q, -1*mk_func(optim), piRates, rootLiks)
 
 
 def fitMk(tree, chars, Q = "Equal", pi = "Equal"):

@@ -7,18 +7,15 @@ import itertools
 
 regimes = {"IRR_01_FAST", "IRR_10_FAST", "IRR_01_SLOW", "IRR_10_SLOW",
            "ASYM_01_FAST", "ASYM_10_FAST", "ASYM_01_SLOW", "ASYM_10_SLOW",
-           "SYM_FAST", "SYM_SLOW"}
+           "SYM_FAST", "SYM_SLOW", "NO_CHANGE"}
 regime_combinations = list(itertools.combinations(regimes,2))
 
+invalid_combinations = [("IRR_01_FAST", "IRR_01_SLOW"),
+                        ("IRR_10_FAST", "IRR_10_SLOW"),
+                        ("ASYM_01_FAST","ASYM_01_SLOW"),
+                        ("ASYM_10_FAST","ASYM_10_SLOW")]
+
+regime_combinations = [ i for i in regime_combinations if not i in invalid_combinations]
 
 
-sts = [ (n.parent.sim_char["sim_state"], n.sim_char["sim_state"]) for n in simtree.descendants()]
-
-two_three_trans = [s for s in sts if s[0] == 2 and s[1]==3]
-
-
-float(len(two_three_trans))/len([s for s in sts if s[0] == 2])
-
-
-three_two_trans = [s for s in sts if s[0] == 3 and s[1]==2]
-float(len(three_two_trans))/len([s for s in sts if s[0] == 3])
+regimetypes = ('ASYM_01_SLOW', 'SYM_SLOW')

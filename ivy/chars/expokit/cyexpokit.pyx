@@ -1,12 +1,32 @@
 import numpy as np
 cimport numpy as np
-import scipy
+from libc.math cimport exp, log
+
 
 DTYPE = np.double # Fixing a datatype for the arrays
 ctypedef np.double_t DTYPE_t
 
 cdef extern:
     void f_dexpm(int nstates, double* H, double t, double* expH)
+
+cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
+    """
+    Compute exp(q*t) for one branch on a tree and place result in pre-
+    allocated array p
+
+    Args:
+        q (np.array): Q matrix
+        t (np.array): Double indicating branch length
+        p (np.array): Pre-allocated array to store results
+        i (int): Index of branch length and p-array
+
+    Returns:
+        np.array: 3-D Array of P matrices
+    """
+    cdef DTYPE_t[:,::1] qview = q
+    cdef DTYPE_t[:,::1] pview = p[i]
+    f_dexpm(q.shape[0], &qview[0,0], t, &pview[0,0])
+    p[i] = np.log(p[i])
 
 cdef dexpm_slice(np.ndarray q, double t, np.ndarray p, int i):
     """
@@ -26,6 +46,23 @@ cdef dexpm_slice(np.ndarray q, double t, np.ndarray p, int i):
     cdef DTYPE_t[:,::1] pview = p[i]
     f_dexpm(q.shape[0], &qview[0,0], t, &pview[0,0])
 
+def dexpm_tree_log(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
+    """
+    Compute exp(q*t) for all branches on tree and return array of all
+    p-matrices
+    """
+    assert q.shape[0]==q.shape[1], 'q must be square'
+
+    assert (t > 0).all(), "All branch lengths must be greater than zero"
+
+    cdef int i
+    cdef double blen
+
+    cdef np.ndarray[DTYPE_t, ndim=3] p = np.empty([len(t), q.shape[0], q.shape[1]], dtype = DTYPE, order="C")
+    for i, blen in enumerate(t):
+        dexpm_slice_log(q, blen, p, i)
+
+    return np.log(p)
 
 def dexpm_tree(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
     """
@@ -55,7 +92,8 @@ def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t,
     cdef double blen
 
     for i, blen in enumerate(t):
-        dexpm_slice(q, blen, p, i)
+        dexpm_slice_log(q, blen, p, i)
+
 def dexpm_treeMulti_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=3] q,
                      np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p,
                      np.ndarray ind):
@@ -88,7 +126,7 @@ def cy_mk(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
         for ind in np.where(nodelist[:,nchar]==intnode)[0]:
             li = nodelist[ind]
             for ch in charlist:
-                nextli[ch] += scipy.misc.logsumexp([ np.log(p[ind][ch,st]) for st in charlist ] + li[:-1])
+                nextli[ch] += lse_cython([ p[ind][ch,st] for st in charlist ] + li[:-1])
 
 def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                  np.ndarray[dtype=DTYPE_t, ndim=2] d_nl,
@@ -144,3 +182,19 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
             m_nl[i][:nchar] = l[:nchar] * d_nl[l[nchar+1]][:nchar]
 
     return m_nl
+
+
+cpdef lse_cython(np.ndarray[DTYPE_t, ndim=1] a):
+    """
+    nbviewer.jupyter.org/gist/sebastien-bratieres/285184b4a808dfea7070
+    Faster than scipy.misc.logsumexp
+    """
+    cdef int i
+    cdef double result = 0.0
+    cdef double largest_in_a = a[0]
+    for i in range(1,a.shape[0]):
+        if (a[i] > largest_in_a):
+            largest_in_a = a[i]
+    for i in range(a.shape[0]):
+        result += exp(a[i] - largest_in_a)
+    return largest_in_a + log(result)
