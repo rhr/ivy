@@ -7,6 +7,7 @@ import scipy
 from scipy import special
 from scipy.optimize import minimize
 from scipy.special import binom
+import itertools
 import random
 
 from ivy.chars.mk import *
@@ -862,34 +863,34 @@ def fill_Q_layout(regimetype, Qparams):
     S = Qparams[0]
     F = Qparams[1]
     if regimetype == "IRR_01_FAST":
-        Q = np.array([[-F,F],
-                       [0,0]])
+        Q = np.array([[0,F],
+                      [0,0]])
     if regimetype == "IRR_01_SLOW":
-        Q = np.array([[-S,S],
-                       [0,0]])
+        Q = np.array([[0,S],
+                      [0,0]])
     if regimetype == "IRR_10_FAST":
         Q = np.array([[0,0],
-                      [F,-F]])
+                      [F,0]])
     if regimetype == "IRR_10_SLOW":
         Q = np.array([[0,0],
-                      [S,-S]])
+                      [S,0]])
     if regimetype == "ASYM_01_FAST" or regimetype=="ASYM_01_SLOW":
-        Q = np.array([[-F,F],
-                      [S,-S]])
+        Q = np.array([[0,F],
+                      [S,0]])
     if regimetype == "ASYM_10_FAST" or regimetype=="ASYM_10_SLOW":
-        Q = np.array([[-S,S],
-                      [F,-F]])
+        Q = np.array([[0,S],
+                      [F,0]])
     if regimetype == "SYM_FAST":
-        Q = np.array([[-F,F],
-                      [F,-F]])
+        Q = np.array([[0,F],
+                      [F,0]])
     if regimetype == "SYM_SLOW":
-        Q = np.array([[-S,S],
-                      [S,-S]])
+        Q = np.array([[0,S],
+                      [S,0]])
     if regimetype == "NO_CHANGE":
-        Q = np.array([[0,0],
-                      [0,0]])
+        Q = np.array([[0,1e-15],
+                      [1e-15,0]])
     return Q
-def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal"):
+def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal", findmin=True):
     nregime = len(regimetypes)
     nchar = len(set(chars)) * nregime
     nt =  len(tree.descendants())
@@ -916,11 +917,15 @@ def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal"):
        # Warning: can be tricky
        # Need to make sure old values
        # Aren't accidentally re-used
+    if findmin == True:
+        nullval = np.inf
+    else:
+        nullval = -np.inf
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
-           "root_priors":rootpriors, "nullval":nullval}
+           "root_priors":rootpriors, "nullval":nullval, "Q_layout":Q_layout}
 
-    def likelihood_function(Qparams, grad):
+    def likelihood_function(Qparams, grad=None):
         """
         NLOPT inputs the parameter array as well as a gradient object.
         The gradient object is ignored for this optimizer (LN_SBPLX)
@@ -930,14 +935,12 @@ def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal"):
         # Enforcing upper bound on parameters
         if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
             return var["nullval"]
-        if any(sorted(Qparams)!=Qparams):
+        if any(sorted(Qparams[:2])!=Qparams[:2]):
+            return var["nullval"]
+        if Qparams[-1] > Qparams[-2]:
             return var["nullval"]
 
-        for i,rtype in enumerate(regimetypes):
-            Q_layout[i] = fill_Q_layout(rtype, Qparams)
-
-        # Filling Q matrices:
-
+        fill_distinct_regime_Q(regimetypes, Qparams, var["Q"], var["Q_layout"])
 
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
@@ -957,7 +960,34 @@ def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal"):
 
     return likelihood_function
 
-def fit_hrm_distinct_regimes(tree, chars, nregime, pi="Equal"):
+def fill_distinct_regime_Q(regimetypes, Qparams, Q = None, Q_layout = None):
+    returnQ = False
+    # TODO: generalize
+    nobschar = 2
+    nregime = 2
+    if Q is None:
+        returnQ = True
+        Q = np.zeros([4,4])
+        Q_layout = np.zeros([2,2,2])
+    for i,rtype in enumerate(regimetypes):
+        Q_layout[i] = fill_Q_layout(rtype, Qparams)
+
+    # Filling regime sub-Qs within Q matrix:
+    for i,regime in enumerate(Q_layout):
+        subQ = slice(i*nobschar,(i+1)*nobschar)
+        Q[subQ, subQ] = regime
+
+    # Filling in between-regime values
+    for submatrix_index in itertools.permutations(range(nregime),2):
+        my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
+        my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
+        np.fill_diagonal(Q[my_slice0,my_slice1],Qparams[2])
+    np.fill_diagonal(Q, -np.sum(Q,1))
+    if returnQ:
+        return Q
+
+
+def fit_hrm_distinct_regimes(tree, chars, pi="Equal"):
     """
     For a given number of regimes, test various constraints and return
     set of regimes with the highest likelihood.
@@ -978,15 +1008,32 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, pi="Equal"):
        SYM_FAST: Fast symmetric transition
        SYM_SLOW: Slow symmetric transition
 
+       NO_CHANGE: Both transitions zero
+
     """
     regimes = {"IRR_01_FAST", "IRR_10_FAST", "IRR_01_SLOW", "IRR_10_SLOW",
                "ASYM_01_FAST", "ASYM_10_FAST", "ASYM_01_SLOW", "ASYM_10_SLOW",
-               "SYM_FAST", "SYM_SLOW"}
+               "SYM_FAST", "SYM_SLOW", "NO_CHANGE"}
     regime_combinations = list(itertools.combinations(regimes,2))
 
     # Combinations of regimes that we would not expect to be able to
     # distinguish between
     invalid_combinations = [("IRR_01_FAST", "IRR_01_SLOW"),
-                            ("IRR_10_FAST", "IRR_10_SLOW")]
+                            ("IRR_10_FAST", "IRR_10_SLOW"),
+                            ("ASYM_01_FAST","ASYM_01_SLOW"),
+                            ("ASYM_10_FAST","ASYM_10_SLOW")]
 
     regime_combinations = [ i for i in regime_combinations if not i in invalid_combinations]
+    pars = [None] * len(regime_combinations)
+    Qs = [np.zeros([4,4])] * len(regime_combinations)
+    liks = [None] * len(regime_combinations)
+    for i, comb in enumerate(regime_combinations):
+        mk_func = hrm_disctinct_regimes_likelihoodfunc(tree, chars, comb, pi=pi, findmin = True)
+        x0 = [0.1] * 3
+        opt = nlopt.opt(nlopt.LN_SBPLX, 3)
+        opt.set_min_objective(mk_func)
+        opt.set_lower_bounds(0)
+        pars[i] = opt.optimize(x0)
+        liks[i] = -mk_func(pars[i])
+        Qs[i] = fill_distinct_regime_Q(comb, pars[i])
+    return {r:(liks[i], Qs[i]) for i,r in enumerate(regime_combinations)}
