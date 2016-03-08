@@ -112,10 +112,10 @@ def hrm_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         np.copyto(preallocated_arrays["root_priors"],
                   [preallocated_arrays["nodelist"][-1,:-1][charstate]-
                    scipy.misc.logsumexp(preallocated_arrays["nodelist"][-1,:-1]) for
-                   charstate in set(chars) ])
+                   charstate in range(nchar) ])
 
         rootliks = [ preallocated_arrays["nodelist"][-1,:-1][charstate] +
-                     preallocated_arrays["root_priors"][charstate] for charstate in set(chars) ]
+                     preallocated_arrays["root_priors"][charstate] for charstate in range(nchar) ]
 
     elif pi == "Equilibrium":
         # Equilibrium pi from the stationary distribution of Q
@@ -187,7 +187,6 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
            "root_priors":rootpriors, "nullval":nullval}
 
     def likelihood_function(Qparams):
-        print Qparams
         # Enforcing upper bound on parameters
 
 
@@ -853,191 +852,6 @@ def fit_hrm_mkSimple(tree, chars, nregime, pi="Fitzjohn"):
 
     return (q, -1*float(mk_func(optim, None)), piRates)
 
-def fill_Q_layout_TWOREGIME(regimetype, Qparams):
-    """
-    Fill a single regime matrix based on the regime type and the given
-    parameters.
-
-    Right now, only two Qparams are allowed: Slow and Fast
-    """
-    S = Qparams[0]
-    F = Qparams[1]
-    if regimetype == "IRR_01_FAST":
-        Q = np.array([[0,F],
-                      [0,0]])
-    if regimetype == "IRR_01_SLOW":
-        Q = np.array([[0,S],
-                      [0,0]])
-    if regimetype == "IRR_10_FAST":
-        Q = np.array([[0,0],
-                      [F,0]])
-    if regimetype == "IRR_10_SLOW":
-        Q = np.array([[0,0],
-                      [S,0]])
-    if regimetype == "ASYM_01_FAST" or regimetype=="ASYM_01_SLOW":
-        Q = np.array([[0,F],
-                      [S,0]])
-    if regimetype == "ASYM_10_FAST" or regimetype=="ASYM_10_SLOW":
-        Q = np.array([[0,S],
-                      [F,0]])
-    if regimetype == "SYM_FAST":
-        Q = np.array([[0,F],
-                      [F,0]])
-    if regimetype == "SYM_SLOW":
-        Q = np.array([[0,S],
-                      [S,0]])
-    if regimetype == "NO_CHANGE":
-        Q = np.array([[0,1e-15],
-                      [1e-15,0]])
-    return Q
-def hrm_disctinct_regimes_likelihoodfunc_TWOREGIME(tree, chars, regimetypes, pi="Equal", findmin=True):
-    nregime = len(regimetypes)
-    nchar = len(set(chars)) * nregime
-    nt =  len(tree.descendants())
-    charlist = range(nchar)
-    nobschar = len(set(chars))
-
-    # Empty Q matrix
-    Q = np.zeros([nchar,nchar], dtype=np.double)
-    Q_layout = np.zeros([nobschar,nobschar,nregime], dtype=np.double)
-    # Empty p matrix
-    p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
-    # Empty likelihood array
-    nodelist,t,childlist = _create_hrmnodelist(tree, chars, nregime)
-    nodelistOrig = nodelist.copy() # Second copy to refer back to
-    # Empty root prior array
-    rootpriors = np.empty([nchar], dtype=np.double)
-
-    # Upper bounds
-    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
-                   tree.leaves()[0].length])
-    upperbound = len(tree.leaves())/treelen
-
-    # Giving internal function access to these arrays.
-       # Warning: can be tricky
-       # Need to make sure old values
-       # Aren't accidentally re-used
-    if findmin == True:
-        nullval = np.inf
-    else:
-        nullval = -np.inf
-    var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
-           "nodelistOrig":nodelistOrig, "upperbound":upperbound,
-           "root_priors":rootpriors, "nullval":nullval, "Q_layout":Q_layout}
-
-    def likelihood_function(Qparams, grad=None):
-        """
-        NLOPT inputs the parameter array as well as a gradient object.
-        The gradient object is ignored for this optimizer (LN_SBPLX)
-        """
-        if any(np.isnan(Qparams)):
-            return var["nullval"]
-        # Enforcing upper bound on parameters
-        if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
-            return var["nullval"]
-        if any(sorted(Qparams[:2])!=Qparams[:2]):
-            return var["nullval"]
-        if Qparams[-1] > Qparams[-2]:
-            return var["nullval"]
-
-        fill_distinct_regime_Q_TWOREGIME(regimetypes, Qparams, var["Q"], var["Q_layout"])
-
-        # Resetting the values in these arrays
-        np.copyto(var["nodelist"], var["nodelistOrig"])
-        var["root_priors"].fill(1.0)
-
-        if findmin:
-            x = -1
-        else:
-            x = 1
-        try:
-            logli =  hrm_mk(tree, chars, var["Q"],nregime,  p=var["p"], pi = pi, preallocated_arrays=var)
-            if not np.isnan(logli):
-                return x * logli# Minimizing negative log-likelihood
-
-        except ValueError: # If likelihood returned is 0
-            return var["nullval"]
-
-    return likelihood_function
-
-def fill_distinct_regime_Q_TWOREGIME(regimetypes, Qparams, Q = None, Q_layout = None):
-    returnQ = False
-    # TODO: generalize
-    nobschar = 2
-    nregime = 2
-    if Q is None:
-        returnQ = True
-        Q = np.zeros([4,4])
-        Q_layout = np.zeros([2,2,2])
-    for i,rtype in enumerate(regimetypes):
-        Q_layout[i] = fill_Q_layout_TWOREGIME(rtype, Qparams)
-
-    # Filling regime sub-Qs within Q matrix:
-    for i,regime in enumerate(Q_layout):
-        subQ = slice(i*nobschar,(i+1)*nobschar)
-        Q[subQ, subQ] = regime
-
-    # Filling in between-regime values
-    for submatrix_index in itertools.permutations(range(nregime),2):
-        my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
-        my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
-        np.fill_diagonal(Q[my_slice0,my_slice1],Qparams[2])
-    np.fill_diagonal(Q, -np.sum(Q,1))
-    if returnQ:
-        return Q
-
-
-def fit_hrm_distinct_regimes_TWOREGIME(tree, chars, pi="Equal"):
-    """
-    For a given number of regimes, test various constraints and return
-    set of regimes with the highest likelihood.
-
-    BINARY CHARACTERS ONLY
-
-    Regime types:
-       IRR_01_FAST: Fast irreversilbe transition from 0->1
-       IRR_10_FAST: Fast irreversible transition from 1->0
-       IRR_01_SLOW: Slow irreversilbe transition from 0->1
-       IRR_10_SLOW: Slow irreversible transition from 1->0
-
-       ASYM_01_FAST: Fast asymmetric transition. Fast rate 0->1
-       ASYM_10_FAST: Fast asymmetric transition. Fast rate 1->0
-       ASYM_01_SLOW: Slow asymmetric transition. Fast rate 0->1
-       ASYM_10_SLOW: Slow asymmetric transition. Fast rate 1->0
-
-       SYM_FAST: Fast symmetric transition
-       SYM_SLOW: Slow symmetric transition
-
-       NO_CHANGE: Both transitions zero
-
-    """
-    regimes = {"IRR_01_FAST", "IRR_10_FAST", "IRR_01_SLOW", "IRR_10_SLOW",
-               "ASYM_01_FAST", "ASYM_10_FAST", "ASYM_01_SLOW", "ASYM_10_SLOW",
-               "SYM_FAST", "SYM_SLOW", "NO_CHANGE"}
-    regime_combinations = list(itertools.combinations(regimes,2))
-
-    # Combinations of regimes that we would not expect to be able to
-    # distinguish between
-    invalid_combinations = [("IRR_01_FAST", "IRR_01_SLOW"),
-                            ("IRR_10_FAST", "IRR_10_SLOW"),
-                            ("ASYM_01_FAST","ASYM_01_SLOW"),
-                            ("ASYM_10_FAST","ASYM_10_SLOW")]
-
-    regime_combinations = [ i for i in regime_combinations if not i in invalid_combinations]
-    pars = [None] * len(regime_combinations)
-    Qs = [np.zeros([4,4])] * len(regime_combinations)
-    liks = [None] * len(regime_combinations)
-    for i, comb in enumerate(regime_combinations):
-        mk_func = hrm_disctinct_regimes_likelihoodfunc_TWOREGIME(tree, chars, comb, pi=pi, findmin = True)
-        x0 = [0.1] * 3
-        opt = nlopt.opt(nlopt.LN_SBPLX, 3)
-        opt.set_min_objective(mk_func)
-        opt.set_lower_bounds(0)
-        pars[i] = opt.optimize(x0)
-        liks[i] = -mk_func(pars[i])
-        Qs[i] = fill_distinct_regime_Q_TWOREGIME(comb, pars[i])
-    return {r:(liks[i], Qs[i]) for i,r in enumerate(regime_combinations)}
-
 def make_regime_type_combos(nregime, nparams):
     """
     Create regime combinations for a binary character
@@ -1051,24 +865,70 @@ def make_regime_type_combos(nregime, nparams):
     regimePairs = list(itertools.combinations(paramPairs,nregime))
     return regimePairs
 
-def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal"):
+def remove_redundant_regimes(regimePairs):
+    """
+    Remove redundant regime pairs (eg (1,1),(2,2) and (2,2),(3,3) are
+    redundant and only one should be kept)
+    """
+    regime_identities = [make_identity_regime(r) for r in regimePairs]
+
+    return [regimePairs[regimePairs.index(i)] for i in set(regime_identities)]
+
+def make_identity_regime(regimePair):
+    """
+    Given one regime pair, reduce it to its identity (eg (2,2),(3,3) becomes
+    (1,1),(2,2)
+    """
+    params_present = list(set([i for s in regimePair for i in s]))
+    if 0 in params_present:
+        identity_params = range(len(params_present))
+    else:
+        identity_params = [i+1 for i in range(len(params_present))]
+    identity_regime =  tuple([tuple([identity_params[params_present.index(i)]
+                                     for i in r]) for r in regimePair])
+    return identity_regime
+
+def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_variable=False):
     """
     Fit hrm with distinct regime types given number of regimes and
     number of parameters
+
+    BINARY CHARACTERS ONLY
+
+    Args:
+        tree (Node): Root node of tree
+        chars (list): Character states in preorder sequence
+        nregime (int): Number of regimes to test in model
+        nparams (int): Number of unique parameters available for regimes
+        pi (str): Root prior
+        br_variable (bool): Whether or not between-regime rates are allowed to vary
+
     """
+    nchar = len(set(chars))
+    if nchar != 2:
+        raise ValueError,"Binary characters only. Number of states given:{}".format(nchar)
     regime_combinations = make_regime_type_combos(nregime, nparams)
+    regime_combinations = remove_redundant_regimes(regime_combinations)
     pars = [None] * len(regime_combinations)
     Qs = [np.zeros([4,4])] * len(regime_combinations)
     liks = [None] * len(regime_combinations)
+    ncomb = len(regime_combinations)
+    print "Testing {} regimes".format(ncomb)
     for i, comb in enumerate(regime_combinations):
-        mk_func = hrm_disctinct_regimes_likelihoodfunc(tree, chars, comb, pi=pi, findmin = True)
-        x0 = [0.1] * (nregime+1)
-        opt = nlopt.opt(nlopt.LN_SBPLX, nregime+1)
+        mk_func = hrm_disctinct_regimes_likelihoodfunc(tree, chars, comb, pi=pi,
+                                        findmin = True, br_variable=br_variable)
+        if not br_variable:
+            nfreeparams = nparams+1
+        else:
+            nfreeparams = nparams + (nregime**2 - nregime)*2
+        x0 = [0.1] * nfreeparams
+        opt = nlopt.opt(nlopt.LN_SBPLX, nfreeparams)
         opt.set_min_objective(mk_func)
         opt.set_lower_bounds(0)
         pars[i] = opt.optimize(x0)
         liks[i] = -mk_func(pars[i])
-        Qs[i] = fill_distinct_regime_Q(comb, np.insert(pars[i],0,1e-15), nregime, 2)
+        Qs[i] = fill_distinct_regime_Q(comb, np.insert(pars[i],0,1e-15), nregime, nchar, br_variable=br_variable)
+        print "{}/{} regimes tested".format(i+1,ncomb)
     return {r:(liks[i], Qs[i]) for i,r in enumerate(regime_combinations)}
 def fill_Q_layout(regimetype, Qparams):
     """
@@ -1080,12 +940,15 @@ def fill_Q_layout(regimetype, Qparams):
                  [Qparams[regimetype[1]],0]])
     return Q
 
-def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal", findmin=True):
+def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal", findmin=True, br_variable=False):
     nregime = len(regimetypes)
     nchar = len(set(chars)) * nregime
     nt =  len(tree.descendants())
     charlist = range(nchar)
     nobschar = len(set(chars))
+    nregimeshift = (nregime**2 - nregime)*2
+    if not br_variable:
+        nregimeshift = 1
 
     # Empty Q matrix
     Q = np.zeros([nchar,nchar], dtype=np.double)
@@ -1125,14 +988,15 @@ def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal", f
         # Enforcing upper bound on parameters
         if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
             return var["nullval"]
-        if any(sorted(Qparams[:-1])!=Qparams[:-1]):
+        if any(sorted(Qparams[:-nregimeshift])!=Qparams[:-nregimeshift]):
             return var["nullval"]
-        if Qparams[-1] > Qparams[-2]:
+
+        if any(Qparams[-nregimeshift:]>Qparams[-(nregimeshift+1)]):
             return var["nullval"]
 
         Qparams = np.insert(Qparams, 0, 1e-15)
 
-        fill_distinct_regime_Q(regimetypes, Qparams, nregime,nobschar,var["Q"], var["Q_layout"])
+        fill_distinct_regime_Q(regimetypes, Qparams, nregime,nobschar,var["Q"], var["Q_layout"], br_variable)
 
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
@@ -1151,7 +1015,7 @@ def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal", f
             return var["nullval"]
 
     return likelihood_function
-def fill_distinct_regime_Q(regimetypes, Qparams,nregime, nobschar, Q = None, Q_layout = None):
+def fill_distinct_regime_Q(regimetypes, Qparams,nregime, nobschar, Q = None, Q_layout = None, br_variable=False):
     returnQ = False
     if Q is None:
         returnQ = True
@@ -1166,10 +1030,14 @@ def fill_distinct_regime_Q(regimetypes, Qparams,nregime, nobschar, Q = None, Q_l
         Q[subQ, subQ] = regime
 
     # Filling in between-regime values
-    for submatrix_index in itertools.permutations(range(nregime),2):
+    for i,submatrix_index in enumerate(itertools.permutations(range(nregime),2)):
         my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
         my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
-        np.fill_diagonal(Q[my_slice0,my_slice1],Qparams[-1])
+        if not br_variable:
+            np.fill_diagonal(Q[my_slice0,my_slice1],Qparams[-1])
+        else:
+            nregimeswitch =(nregime**2 - nregime)*2
+            np.fill_diagonal(Q[my_slice0,my_slice1],Qparams[(-nregimeswitch+i*2):])
     np.fill_diagonal(Q, -np.sum(Q,1))
     if returnQ:
         return Q
