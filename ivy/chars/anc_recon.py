@@ -28,7 +28,7 @@ def anc_recon_py(tree, chars, Q, p=None, pi="Fitzjohn"):
     # Generating probability matrix for each branch
     if p is None:
         p = np.empty([len(t), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
-    cyexpokit.dexpm_tree_preallocated_p(Q, t, p) # This changes p in place
+    cyexpokit.dexpm_tree_preallocated_p_nolog(Q, t, p) # This changes p in place
 
 
     for i, nd in enumerate(chartree.descendants()):
@@ -200,7 +200,8 @@ def anc_recon_purepy(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
 
     return ars["marginal_nl"]
 
-def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
+
+def anc_recon_discrete(tree, chars, Q, p=None, pi="Fitzjohn", ars=None, nregime=1):
     """
     Given tree, character states at tips, and transition matrix perform
     ancestor reconstruction.
@@ -230,7 +231,10 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
              explain the data at the tips.
         ars (dict): Dict of pre-allocated arrays to improve
           speed by avoiding creating and destroying new arrays. Can be
-          created with create_ancrecon_ars function.
+          created with create_ancrecon_ars function. Optional.
+        nregime (int): If hidden-rates model is used, the number
+          of regimes to consider in the reconstruction. Optional, defaults
+          to 1 (no hidden rates)
     Returns:
         np.array: Array of nodes in preorder sequence containing marginal
           likelihoods.
@@ -238,27 +242,27 @@ def anc_recon(tree, chars, Q, p=None, pi="Fitzjohn", ars=None):
     nchar = Q.shape[0]
     if ars is None:
         # Creating arrays to be used later
-        ars = create_ancrecon_ars(tree, chars)
+        ars = create_ancrecon_ars(tree, chars, nregime)
     # Calculating the likelihoods for each node in post-order sequence
     if p is None: # Instantiating empty array
         p = np.empty([len(ars["t"]), Q.shape[0],
                      Q.shape[1]], dtype = np.double, order="C")
     # Creating probability matrices from Q matrix and branch lengths
-    cyexpokit.dexpm_tree_preallocated_p(Q, ars["t"], p) # This changes p in place
+    cyexpokit.dexpm_tree_preallocated_p_nolog(Q, ars["t"], p) # This changes p in place
     np.copyto(ars["down_nl_w"], ars["down_nl_r"]) # Copy original values if they have been changed
     ars["child_inds"].fill(0)
     root_equil = ivy.chars.mk.qsd(Q)
 
     cyexpokit.cy_anc_recon(p, ars["down_nl_w"], ars["charlist"], ars["childlist"],
                         ars["up_nl"], ars["marginal_nl"], ars["partial_parent_nl"],
-                        ars["partial_nl"], ars["child_inds"], root_equil,ars["temp_dotprod"])
+                        ars["partial_nl"], ars["child_inds"], root_equil,ars["temp_dotprod"],
+                        nregime)
 
 
 
     return ars["marginal_nl"]
 
-
-def create_ancrecon_ars(tree, chars):
+def create_ancrecon_ars(tree, chars, nregime = 1):
     """
     Create nodelists. For use in anc_recon function
 
@@ -266,21 +270,24 @@ def create_ancrecon_ars(tree, chars):
     partial likelihood vector for each node's children, childlist, and branch lengths.
     """
     t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
-    nchar = len(set(chars))
+    nobschar = len(set(chars))
+    nchar = nobschar * nregime
     preleaves = [ n for n in tree.preiter() if n.isleaf ]
     postleaves = [n for n in tree.postiter() if n.isleaf ]
     postnodes = list(tree.postiter())
     prenodes = list(tree.preiter())
     postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
     nnode = len(t)+1
-    down_nl = np.zeros([nnode, nchar+1])
-    up_nl = np.zeros([nnode, nchar+2])
+    down_nl = np.zeros([nnode, (nchar)+1])
+    up_nl = np.zeros([nnode, (nchar)+2])
     childlist = np.zeros(nnode, dtype=object)
     leafind = [ n.isleaf for n in tree.postiter()]
 
     # --------- Down nl, postorder sequence
     for k,ch in enumerate(postChars):
-        [ n for i,n in enumerate(down_nl) if leafind[i] ][k][ch] = 1.0
+        #Setting initial tip likelihoods to 1 or 0
+        for r in range(nregime):
+            [ n for i,n in enumerate(down_nl) if leafind[i] ][k][ch+(r*nobschar)] = 1.0
     for i,n in enumerate(down_nl[:-1]):
         n[nchar] = postnodes.index(postnodes[i].parent)
         childlist[i] = [ nod.pi for nod in postnodes[i].children ]
@@ -297,7 +304,7 @@ def create_ancrecon_ars(tree, chars):
     marginal_nl = up_nl.copy()
 
     # ------- Partial likelihood vectors
-    partial_nl = np.zeros([nnode,nchar,max([n.nchildren for n in tree])])
+    partial_nl = np.zeros([nnode,max([n.nchildren for n in tree]),nchar])
 
     # ------- Parent partial likelihood vectors
     partial_parent_nl = np.zeros([up_nl.shape[0],nchar])
@@ -306,7 +313,7 @@ def create_ancrecon_ars(tree, chars):
     child_inds = np.zeros(partial_nl.shape[0], dtype=int)
 
     # ------- Character list
-    charlist = range(len(set(chars)))
+    charlist = range(nchar)
 
     # ------- Empty array to store root priors
     root_priors = np.empty([nchar], dtype=np.double)

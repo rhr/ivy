@@ -650,25 +650,23 @@ def add_node_heatmap(treeplot, nodelist, vis=True):
 
 
     add_circles(treeplot, nodes=nodeset, colors=cols, size=6, vis=vis)
-def add_ancestor_reconstruction(treeplot, internal_vals, vis=True, colors=None, nregime=None, size=8):
+def add_ancestor_noderecon(treeplot, internal_vals, vis=True, colors=None, nregime=None, size=8):
     """
     Add piecharts at each node based on probability vector
 
     Args:
-        internal_vals: Array of dimensions [nchar+1, nnodes]. Identical to the
-          format returned by hrm_multipass() with returnnodes = True.
-          The first nchar number of columns correspond to the likelihood
-          of that node being in each state.
+        internal_vals: Array of dimensions [nchar+2, nnodes]. Identical to the
+          format returned by anc_recon_discrete
          colors: List of length = nchar. The colors for each character. Optional.
          nregime: Number of regimes. If given and colors = None, function will
          automatically color-code characters by regime. (NOT IMPLEMENTED)
     """
-    nodes = list(treeplot.root.postiter())
+    nodes = list(treeplot.root.preiter())
     nchar = internal_vals.shape[1]-1
     if colors is None:
         pass
     for i,n in enumerate(nodes):
-        add_pie(treeplot, n, values = list(internal_vals[i][:-1]), colors=colors, size=size)
+        add_pie(treeplot, n, values = list(internal_vals[i][:-2]), colors=colors, size=size)
 
 def add_branchstates(treeplot,vis=True, colors=None):
     """

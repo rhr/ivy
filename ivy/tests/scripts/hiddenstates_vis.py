@@ -10,7 +10,7 @@ from ivy.vis.layers import add_pie
 #   0.1, 0, -0.7, 0.6,
 #   0, 0.1, 0.6, -0.7)
 
-tree = ivy.tree.read("../support/hrm_300tips.newick")
+tree = ivy.tree.read("support/hrm_300tips.newick")
 chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -41,7 +41,7 @@ truechars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0]
-Q = hrm.fill_Q_matrix(2,2,[0.01, 0.1, 0.01, 0.1, 0.1, 0.6, 0.1,0.6])
+Q = hrm.fill_Q_matrix(2,2,[0.01, 0.6],[0.1],Qtype="Simple")
 
 out = hrm.hrm_multipass(tree, chars, Q, 2, returntips=True, returnnodes=True)
 internal_vals = out[2]

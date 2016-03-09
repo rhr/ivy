@@ -28,7 +28,7 @@ ars = None
 #
 
 # Bigger tree
-tree = ivy.tree.read("../support/hrm_600tips.newick")
+tree = ivy.tree.read("support/hrm_600tips.newick")
 chars = [1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
             1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0,
             1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0,
