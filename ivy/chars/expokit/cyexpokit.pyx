@@ -93,7 +93,17 @@ def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t,
 
     for i, blen in enumerate(t):
         dexpm_slice_log(q, blen, p, i)
+def dexpm_tree_preallocated_p_nolog(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
+    assert q.shape[0]==q.shape[1], 'q must be square'
+    assert np.allclose(q.sum(1), 0, atol= 1e-6), 'rows of q must sum to zero'
 
+    assert (t > 0).all(), "All branch lengths must be greater than zero"
+
+    cdef int i
+    cdef double blen
+
+    for i, blen in enumerate(t):
+        dexpm_slice(q, blen, p, i)
 def dexpm_treeMulti_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=3] q,
                      np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p,
                      np.ndarray ind):
@@ -138,7 +148,8 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                  np.ndarray[dtype=DTYPE_t, ndim=3] p_nl,
                  np.ndarray[dtype=np.int64_t, ndim=1] ci,
                  np.ndarray[dtype=DTYPE_t, ndim=1] root_equil,
-                 np.ndarray[dtype=DTYPE_t, ndim=1] temp_dotprod):
+                 np.ndarray[dtype=DTYPE_t, ndim=1] temp_dotprod,
+                 int nregime):
 
     cdef int nchar = len(charlist)
     cdef int i
@@ -160,6 +171,7 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                 p_li[ch] = sum([ p[child][ch,st] for st in charlist ]
                                * li[:nchar])
                 nextli[ch] *= p_li[ch]
+        nextli[:nchar] /= sum(nextli[:nchar])
     cdef int root_posti = u_nl.shape[0] - 1
 
     # -------------- uppass
@@ -167,6 +179,7 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
         if i == 0:
             l[:nchar] = root_equil
             m_nl[i][:nchar] = (l[:nchar] * d_nl[-1][:nchar])
+            m_nl[i][:nchar] /= sum(m_nl[i][:nchar])
         else:
             spi = int(l[nchar+1])
             ppi = int(l[nchar])
@@ -180,6 +193,7 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
             ci[ppi] += 1
 
             m_nl[i][:nchar] = l[:nchar] * d_nl[l[nchar+1]][:nchar]
+            m_nl[i][:nchar] /= sum(m_nl[i][:nchar])
 
     return m_nl
 

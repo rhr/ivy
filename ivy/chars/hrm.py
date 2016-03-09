@@ -9,6 +9,8 @@ from scipy.optimize import minimize
 from scipy.special import binom
 import itertools
 import random
+import multiprocessing as mp
+from functools import partial
 
 from ivy.chars.mk import *
 from ivy.chars.mk_mr import *
@@ -888,7 +890,24 @@ def make_identity_regime(regimePair):
                                      for i in r]) for r in regimePair])
     return identity_regime
 
-def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_variable=False):
+def optimize_regime(comb, tree=None, chars=None, nregime=None, nparams=None, pi=None, br_variable=None):
+    print comb
+    mk_func = hrm_disctinct_regimes_likelihoodfunc(tree, chars, comb, pi=pi,
+            findmin = True, br_variable=br_variable)
+    if not br_variable:
+        nfreeparams = nparams+1
+    else:
+        nfreeparams = nparams + (nregime**2 - nregime)*2
+    x0 = [0.1] * nfreeparams
+    opt = nlopt.opt(nlopt.LN_SBPLX, nfreeparams)
+    opt.set_min_objective(mk_func)
+    opt.set_lower_bounds(0)
+    pars = opt.optimize(x0)
+    lik = mk_func(pars)
+    Q = fill_distinct_regime_Q(comb, np.insert(pars, 0, 1e-15),nregime,2,br_variable=br_variable)
+    return comb,lik,Q
+def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_variable=False,
+                             parallel=False, ncores = 2):
     """
     Fit hrm with distinct regime types given number of regimes and
     number of parameters
@@ -902,6 +921,8 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_varia
         nparams (int): Number of unique parameters available for regimes
         pi (str): Root prior
         br_variable (bool): Whether or not between-regime rates are allowed to vary
+        parallel (bool): Whether to run in parallel
+        ncores (int): If parallel is True, number of cores to run on
 
     """
     nchar = len(set(chars))
@@ -914,22 +935,32 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_varia
     liks = [None] * len(regime_combinations)
     ncomb = len(regime_combinations)
     print "Testing {} regimes".format(ncomb)
-    for i, comb in enumerate(regime_combinations):
-        mk_func = hrm_disctinct_regimes_likelihoodfunc(tree, chars, comb, pi=pi,
-                                        findmin = True, br_variable=br_variable)
-        if not br_variable:
-            nfreeparams = nparams+1
-        else:
-            nfreeparams = nparams + (nregime**2 - nregime)*2
-        x0 = [0.1] * nfreeparams
-        opt = nlopt.opt(nlopt.LN_SBPLX, nfreeparams)
-        opt.set_min_objective(mk_func)
-        opt.set_lower_bounds(0)
-        pars[i] = opt.optimize(x0)
-        liks[i] = -mk_func(pars[i])
-        Qs[i] = fill_distinct_regime_Q(comb, np.insert(pars[i],0,1e-15), nregime, nchar, br_variable=br_variable)
-        print "{}/{} regimes tested".format(i+1,ncomb)
-    return {r:(liks[i], Qs[i]) for i,r in enumerate(regime_combinations)}
+    if parallel:
+        pool = mp.Pool(processes = ncores)
+        func = partial(optimize_regime, tree=tree, chars=chars, nregime=nregime,nparams=nparams,pi=pi, br_variable=br_variable)
+        results = pool.map(func, regime_combinations)
+        out = results.get()
+
+        return {r[0]:(r[1],r[2]) for r in out}
+
+
+    else:
+        for i, comb in enumerate(regime_combinations):
+            mk_func = hrm_disctinct_regimes_likelihoodfunc(tree, chars, comb, pi=pi,
+                                            findmin = True, br_variable=br_variable)
+            if not br_variable:
+                nfreeparams = nparams+1
+            else:
+                nfreeparams = nparams + (nregime**2 - nregime)*2
+            x0 = [0.1] * nfreeparams
+            opt = nlopt.opt(nlopt.LN_SBPLX, nfreeparams)
+            opt.set_min_objective(mk_func)
+            opt.set_lower_bounds(0)
+            pars[i] = opt.optimize(x0)
+            liks[i] = -mk_func(pars[i])
+            Qs[i] = fill_distinct_regime_Q(comb, np.insert(pars[i],0,1e-15), nregime, nchar, br_variable=br_variable)
+            print "{}/{} regimes tested".format(i+1,ncomb)
+            return {r:(liks[i], Qs[i]) for i,r in enumerate(regime_combinations)}
 def fill_Q_layout(regimetype, Qparams):
     """
     Fill a single regime matrix based on the regime type and the given
@@ -952,7 +983,7 @@ def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal", f
 
     # Empty Q matrix
     Q = np.zeros([nchar,nchar], dtype=np.double)
-    Q_layout = np.zeros([nobschar,nobschar,nregime], dtype=np.double)
+    Q_layout = np.zeros([nregime,nobschar,nobschar], dtype=np.double)
     # Empty p matrix
     p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
     # Empty likelihood array
@@ -996,7 +1027,7 @@ def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal", f
 
         Qparams = np.insert(Qparams, 0, 1e-15)
 
-        fill_distinct_regime_Q(regimetypes, Qparams, nregime,nobschar,var["Q"], var["Q_layout"], br_variable)
+        fill_distinct_regime_Q(regimetypes,Qparams, nregime,nobschar,var["Q"], var["Q_layout"], br_variable)
 
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
@@ -1019,8 +1050,8 @@ def fill_distinct_regime_Q(regimetypes, Qparams,nregime, nobschar, Q = None, Q_l
     returnQ = False
     if Q is None:
         returnQ = True
-        Q = np.zeros([nobschar*nobschar,nobschar*nobschar])
-        Q_layout = np.zeros([nobschar,nobschar,nregime])
+        Q = np.zeros([nobschar*nregime,nobschar*nregime])
+        Q_layout = np.zeros([nregime,nobschar,nobschar])
     for i,rtype in enumerate(regimetypes):
         Q_layout[i] = fill_Q_layout(rtype, Qparams)
 
