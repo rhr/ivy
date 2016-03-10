@@ -707,9 +707,10 @@ def add_ancrecon_hrm(treeplot, liks, vis=True, width=2):
     based on ancestral state reconstruction of a two-character, two-regime
     hrm model.
     """
-    horz_seg_collections = []
-    vert_seg_collections = []
-    vert_seg_colors = []
+    horz_seg_collections = [None] * (len(tree)-1)
+    horz_seg_colors = [None]*(len(tree)-1)
+    vert_seg_collections = [None] * (len(tree)-1)
+    vert_seg_colors = [None] * (len(tree)-1)
     for i,n in enumerate(treeplot.root.descendants()):
         n_lik = liks[i+1]
         par_lik = liks[n.parent.ni]
@@ -722,20 +723,30 @@ def add_ancrecon_hrm(treeplot, liks, vis=True, width=2):
         p1 = (n_coords.x, n_coords.y)
         p2 = (par_coords.x, n_coords.y)
 
-        horz_seg_collections.append(gradient_segment_horz(p1, p2, n_col.rgb,
-                                                    par_col.rgb,width = width))
-        vert_seg_collections.append([(par_coords.x,par_coords.y),
-                                     (par_coords.x, n_coords.y)])
-        vert_seg_colors.append(par_col.rgb)
-    for horz in horz_seg_collections:
-        treeplot.add_collection(horz)
-        horz.set_visible(vis)
-        horz.set_zorder(1)
-    vert_collection = LineCollection(vert_seg_collections,
-                                     colors = vert_seg_colors,
-                                     lw = width)
-    treeplot.add_collection(vert_collection)
+        hsegs,hcols = gradient_segment_horz(p1,p2,n_col.rgb,par_col.rgb)
 
+        horz_seg_collections[i] = hsegs
+        horz_seg_colors[i] = hcols
+
+        vert_seg_collections[i] = ([(par_coords.x,par_coords.y),
+                                     (par_coords.x, n_coords.y)])
+        vert_seg_colors[i] = (par_col.rgb)
+    horz_seg_collections = [i for s in horz_seg_collections for i in s]
+    horz_seg_colors = [i for s in horz_seg_colors for i in s]
+    lc = LineCollection(horz_seg_collections + vert_seg_collections,
+                        colors = horz_seg_colors + vert_seg_colors,
+                        lw = width)
+    treeplot.add_collection(lc)
+
+    leg_ax = treeplot.figure.add_axes([0.3, 0.8, 0.1, 0.1])
+
+    c1 = twoS_twoR_colormaker([1,0,0,0])
+    c2 = twoS_twoR_colormaker([0,1,0,0])
+    c3 = twoS_twoR_colormaker([0,0,1,0])
+    c4 = twoS_twoR_colormaker([0,0,0,1])
+
+    grid = np.array([[c1.rgb,c2.rgb],[c3.rgb,c4.rgb]])
+    leg_ax.imshow(grid)
 
 
 def twoS_twoR_colormaker(lik):
@@ -764,20 +775,17 @@ def gradient_segment_horz(p1, p2, c1, c2, width=4):
     Args:
         p1 (tuple): XY coordinates of first point
         p2 (tuple): XY coordinates of second point *Y coord must be same as p1*
-        c1 (tuple): RGB values of color at point 1
-        c2 (tuple): RGB values of color at point 2
-        width (float): Width of segment
+        c1 (tuple): RGB of color at point 1
+        c2 (tuple): RGB of color at point 2
     Returns:
-        LineCollection: The segment (composed of individually colored
-          sub-segments) to be added to a figure
+        list: list of segs and colors to be added to a LineCollection
     """
-    cust_cm = LinearSegmentedColormap.from_list("cust_cm",[c2, c1])
     nsegs = 255 # Number of sub-segments per segment (each segment gets its own color)
     seglen = (p2[0] - p1[0])/nsegs
     pos = zip(np.arange(p1[0], p2[0], seglen), [p1[1]]*nsegs)
     pos.append(p2)
     segs = [[pos[i],pos[i+1]] for i in range(nsegs)]
-    vals = np.arange(1,0,-(1/255.))
-    lc = LineCollection(segs, cmap=cust_cm, lw=width)
-    lc.set_array(vals)
-    return lc
+
+    cust_cm = LinearSegmentedColormap.from_list("cust_cm",[c1, c2])
+    cols = [cust_cm(i) for i in range(1,256)]
+    return [segs, cols]

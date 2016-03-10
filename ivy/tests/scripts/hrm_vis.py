@@ -103,3 +103,11 @@ vals = np.arange(0,1,seglen)
 lc = LineCollection(segs, cmap=cust_cm, linewidths=width)
 lc.set_array(vals)
 ax.add_collection(lc)
+
+c1 = twoS_twoR_colormaker([1,0,0,0])
+c2 = twoS_twoR_colormaker([0,1,0,0])
+c3 = twoS_twoR_colormaker([0,0,1,0])
+c4 = twoS_twoR_colormaker([0,0,0,1])
+
+
+fig,axes = plt.subplots()
