@@ -8,6 +8,7 @@ from ivy.interactive import *
 from ivy.vis import layers
 from ivy.sim import discrete_sim
 from colour import Color
+from matplotlib.colors import LinearSegmentedColormap
 
 fast = 1.0
 slow = 0.01
@@ -72,3 +73,33 @@ cols = [twoS_twoR_colormaker(i[:nchar]).rgb for i in recon]
 
 fig = treefig(tree)
 fig.add_layer(layers.add_circles, list(tree.preiter()),colors=cols)
+
+
+#################
+# Gradient bars
+#################
+c1 = (0,0,1)
+c2 = (1,0,0)
+
+fig=plt.figure()
+ax=fig.add_subplot(111)
+ax.axis([0,1,-50,200])
+
+p1 = (0.1,0)
+p2 = (0.9,0)
+
+cust_cm = LinearSegmentedColormap.from_list("cust_cm",[c1, c2])
+width = 10
+
+nsegs = 255
+seglen = abs(p1[0] - p2[0])/nsegs
+
+pos = zip(np.arange(p1[0], p2[0], seglen), [p1[1]]*nsegs)
+pos.append(p2)
+
+segs = [[pos[i],pos[i+1]] for i in range(nsegs)]
+
+vals = np.arange(0,1,seglen)
+lc = LineCollection(segs, cmap=cust_cm, linewidths=width)
+lc.set_array(vals)
+ax.add_collection(lc)

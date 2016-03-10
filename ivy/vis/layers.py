@@ -21,6 +21,7 @@ from matplotlib.transforms import Bbox, offset_copy, IdentityTransform, \
      Affine2D
 from matplotlib import cm as mpl_colormap
 from matplotlib import colors as mpl_colors
+from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.colorbar import Colorbar
 from matplotlib.collections import RegularPolyCollection, LineCollection, \
      PatchCollection, CircleCollection
@@ -699,3 +700,84 @@ def add_branchstates(treeplot,vis=True, colors=None):
         leg_handles[i]=matplotlib.patches.Patch(color = colors[i],
                        label=str(i))
     treeplot.legend(handles=leg_handles)
+
+def add_ancrecon_hrm(treeplot, liks, vis=True, width=2):
+    """
+    Color branches on tree based on likelihood of being in a state
+    based on ancestral state reconstruction of a two-character, two-regime
+    hrm model.
+    """
+    horz_seg_collections = []
+    vert_seg_collections = []
+    vert_seg_colors = []
+    for i,n in enumerate(treeplot.root.descendants()):
+        n_lik = liks[i+1]
+        par_lik = liks[n.parent.ni]
+        n_col = twoS_twoR_colormaker(n_lik[:nchar])
+        par_col = twoS_twoR_colormaker(par_lik[:nchar])
+
+        n_coords = treeplot.n2c[n]
+        par_coords = treeplot.n2c[n.parent]
+
+        p1 = (n_coords.x, n_coords.y)
+        p2 = (par_coords.x, n_coords.y)
+
+        horz_seg_collections.append(gradient_segment_horz(p1, p2, n_col.rgb,
+                                                    par_col.rgb,width = width))
+        vert_seg_collections.append([(par_coords.x,par_coords.y),
+                                     (par_coords.x, n_coords.y)])
+        vert_seg_colors.append(par_col.rgb)
+    for horz in horz_seg_collections:
+        treeplot.add_collection(horz)
+        horz.set_visible(vis)
+        horz.set_zorder(1)
+    vert_collection = LineCollection(vert_seg_collections,
+                                     colors = vert_seg_colors,
+                                     lw = width)
+    treeplot.add_collection(vert_collection)
+
+
+
+def twoS_twoR_colormaker(lik):
+    """
+    Given node likelihood, return appropriate color
+
+    State 0 corresponds to red, state 1 corresponds to blue
+    Regime 1 corresponds to grey, regime 2 corresponds to highly saturated
+    """
+    s0 = sum([lik[0], lik[2]])
+    s1 = sum([lik[1], lik[3]])
+
+    r0 = sum([lik[0], lik[1]])
+    r1 = sum([lik[2], lik[3]])
+
+    sat = r1 + (1-r1)*0.3
+
+    col = Color(rgb=(s0,0,s1))
+    col.saturation = sat
+    return col
+
+def gradient_segment_horz(p1, p2, c1, c2, width=4):
+    """
+    Create a horizontal segment that is filled with a gradient
+
+    Args:
+        p1 (tuple): XY coordinates of first point
+        p2 (tuple): XY coordinates of second point *Y coord must be same as p1*
+        c1 (tuple): RGB values of color at point 1
+        c2 (tuple): RGB values of color at point 2
+        width (float): Width of segment
+    Returns:
+        LineCollection: The segment (composed of individually colored
+          sub-segments) to be added to a figure
+    """
+    cust_cm = LinearSegmentedColormap.from_list("cust_cm",[c2, c1])
+    nsegs = 255 # Number of sub-segments per segment (each segment gets its own color)
+    seglen = (p2[0] - p1[0])/nsegs
+    pos = zip(np.arange(p1[0], p2[0], seglen), [p1[1]]*nsegs)
+    pos.append(p2)
+    segs = [[pos[i],pos[i+1]] for i in range(nsegs)]
+    vals = np.arange(1,0,-(1/255.))
+    lc = LineCollection(segs, cmap=cust_cm, lw=width)
+    lc.set_array(vals)
+    return lc
