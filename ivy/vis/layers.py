@@ -736,9 +736,17 @@ def add_ancrecon_hrm(treeplot, liks, vis=True, width=2):
     lc = LineCollection(horz_seg_collections + vert_seg_collections,
                         colors = horz_seg_colors + vert_seg_colors,
                         lw = width)
+    lc.set_visible(vis)
     treeplot.add_collection(lc)
 
     leg_ax = treeplot.figure.add_axes([0.3, 0.8, 0.1, 0.1])
+    leg_ax.tick_params(which = "both",
+                       bottom = "off",
+                       labelbottom="off",
+                       top = "off",
+                       left = "off",
+                       labelleft = "off",
+                       right = "off")
 
     c1 = twoS_twoR_colormaker([1,0,0,0])
     c2 = twoS_twoR_colormaker([0,1,0,0])
@@ -746,7 +754,8 @@ def add_ancrecon_hrm(treeplot, liks, vis=True, width=2):
     c4 = twoS_twoR_colormaker([0,0,0,1])
 
     grid = np.array([[c1.rgb,c2.rgb],[c3.rgb,c4.rgb]])
-    leg_ax.imshow(grid)
+    leg_ax.imshow(grid, interpolation="bicubic")
+    treeplot.figure.canvas.draw_idle()
 
 
 def twoS_twoR_colormaker(lik):
@@ -762,10 +771,12 @@ def twoS_twoR_colormaker(lik):
     r0 = sum([lik[0], lik[1]])
     r1 = sum([lik[2], lik[3]])
 
-    sat = r1 + (1-r1)*0.3
+    lum = 0.30 + (r0*0.45)
 
-    col = Color(rgb=(s0,0,s1))
-    col.saturation = sat
+    col = Color(rgb=(0.1,s0,s1))
+    col.luminance = lum
+    col.saturation = 0.35 + (r1*0.35)
+    col.hue *= 1 - (0.2*r0)
     return col
 
 def gradient_segment_horz(p1, p2, c1, c2, width=4):

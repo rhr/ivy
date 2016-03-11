@@ -867,6 +867,7 @@ def make_regime_type_combos(nregime, nparams):
     regimePairs = list(itertools.combinations(paramPairs,nregime))
     return regimePairs
 
+
 def remove_redundant_regimes(regimePairs):
     """
     Remove redundant regime pairs (eg (1,1),(2,2) and (2,2),(3,3) are

@@ -23,8 +23,8 @@ simtree = pickle.load(open("sim_tree.p","rb"))
 chars_unhidden = [ n.sim_char["sim_state"] for n in simtree.leaves()]
 chars = [ n % 2 for n in chars_unhidden]
 nchar = 4
-# trueSimFig = treefig(simtree)
-# trueSimFig.add_layer(layers.add_branchstates)
+trueSimFig = treefig(simtree)
+trueSimFig.add_layer(layers.add_branchstates)
 
 
 hrm_MLE = ivy.chars.hrm.fit_hrm_mkSimple(tree, chars, 2, pi="Equal")
