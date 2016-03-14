@@ -179,6 +179,11 @@ Comments for tree</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="ivy.tree.Node.ape_node_idx">
+<code class="descname">ape_node_idx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.ape_node_idx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.ape_node_idx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="ivy.tree.Node.ascii">
 <code class="descname">ascii</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.ascii"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.ascii" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create ascii tree.</p>
@@ -240,15 +245,20 @@ labels</p>
 
 <dl class="method">
 <dt id="ivy.tree.Node.bisect_branch">
-<code class="descname">bisect_branch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.bisect_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.bisect_branch" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bisect_branch</code><span class="sig-paren">(</span><em>distance=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.bisect_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.bisect_branch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add new node as parent to self in the middle of branch to parent.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A new node.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>distance</strong> (<em>float</em>) &#8211; What percentage along branch to place
+new node. Defaults to 0.5 (bisection). Higher numbers
+set the new node closer to the parent, lower
+numbers set it closer to child.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A new node.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
 </tr>
 </tbody>
 </table>
@@ -291,10 +301,9 @@ length.</td>
 
 <dl class="method">
 <dt id="ivy.tree.Node.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>recurse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.copy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a copy of the node, but not copies of children, parent,
-or any attribute that is a Node.</p>
-<p>If <cite>recurse</cite> is True, recursively copy child nodes.</p>
+<code class="descname">copy</code><span class="sig-paren">(</span><em>recurse=True</em>, <em>_par=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a shallow copy of self. If recurse = False, do not copy children,
+parents, or any attribute that is Node.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -307,8 +316,6 @@ or any attribute that is a Node.</p>
 </tr>
 </tbody>
 </table>
-<p>TODO: test this function.</p>
-<p>RR: This function runs rather slowly -CZ</p>
 </dd></dl>
 
 <dl class="method">
@@ -333,6 +340,26 @@ node is called as the first parameter.</li>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.tree.Node.drop_tip">
+<code class="descname">drop_tip</code><span class="sig-paren">(</span><em>nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.drop_tip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.drop_tip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a NEW TREE with the given tips dropped from it. Does not
+affect old tree.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nodes</strong> (<em>list</em>) &#8211; Leaf nodes or labels of leaf nodes</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>Node</strong> &#8211;
+New root node with tips dropped</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
 </tr>
 </tbody>
 </table>
@@ -378,15 +405,33 @@ Found nodes in preorder sequence.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to True if desired
-node is called as the first parameter.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to True if desired
+node is called as the first parameter.</li>
+<li><strong>**kwargs</strong> (<em>*args,</em>) &#8211; <p>Additional args called by f</p>
+</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The first node found by node.find()</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The first node found by node.find()</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></p>
+</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.tree.Node.get_root">
+<code class="descname">get_root</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.get_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.get_root" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.tree.Node.get_siblings">
+<code class="descname">get_siblings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.get_siblings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.get_siblings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of siblings of node</p>
 </dd></dl>
 
 <dl class="method">
@@ -427,12 +472,38 @@ node is called as the first parameter.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to true if called with desired
-node as the first input</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to true if called with
+desired node as the first input</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of internal nodes that are true for f (if f is given)</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.tree.Node.is_same_tree">
+<code class="descname">is_same_tree</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.is_same_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.is_same_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if two trees are the same (same topology, characteristics, labels,
+etc.) Ignores IDs by default.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Another tree to compare to</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; Whether or not to print a message containing
+the non-matching properties</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Whether or not the trees are the same.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -446,7 +517,7 @@ node as the first input</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*leaves</strong> (<a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; At least two leaf Node objects</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*leaves</strong> (<a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; At least two leaf Node objects or labels</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Are the leaf descendants monophyletic?</td>
 </tr>
@@ -454,8 +525,6 @@ node as the first input</td>
 </tr>
 </tbody>
 </table>
-<p>RR: Should this function have a check to make sure the input nodes are
-leaves? There is some strange behavior if you input internal nodes -CZ</p>
 </dd></dl>
 
 <dl class="method">
@@ -474,7 +543,7 @@ leaves? There is some strange behavior if you input internal nodes -CZ</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to true if called with</li>
-<li><strong>node as the first input</strong> (<em>desired</em>) &#8211; </li>
+<li><strong>node as the first input. Optional</strong> (<em>desired</em>) &#8211; </li>
 </ul>
 </td>
 </tr>
@@ -484,6 +553,25 @@ Nodes descended from self (including self) in</p>
 <div><p>preorder sequence</p>
 </div></blockquote>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.tree.Node.keep_tip">
+<code class="descname">keep_tip</code><span class="sig-paren">(</span><em>nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.keep_tip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.keep_tip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a NEW TREE containing only the given tips.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nodes</strong> (<em>list</em>) &#8211; Leaf nodes or labels of leaf notes</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>Node</strong> &#8211;
+New root node containing only given tips</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
 </tr>
 </tbody>
 </table>
@@ -533,8 +621,8 @@ Nodes descended from self (including self) in</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to True if called with desired
-node as the first input</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>function</em>) &#8211; A function that evaluates to True if called with
+desired node as the first input</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of leaves that are true for f (if f is given)</td>
 </tr>
@@ -622,6 +710,7 @@ labels indicate unrooted bipartition support</p>
 <dt id="ivy.tree.Node.prune">
 <code class="descname">prune</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.prune"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.prune" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove self if self is not root.</p>
+<p>All descendants of self are also removed</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -633,6 +722,12 @@ parent is now a &#8216;knee&#8217; and can be removed with excise.</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.tree.Node.reindex">
+<code class="descname">reindex</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.reindex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.reindex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can only assign ni, li, and ii</p>
 </dd></dl>
 
 <dl class="method">
@@ -651,7 +746,39 @@ parent is now a &#8216;knee&#8217; and can be removed with excise.</td>
 
 <dl class="method">
 <dt id="ivy.tree.Node.reroot">
-<code class="descname">reroot</code><span class="sig-paren">(</span><em>newroot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.reroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.reroot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reroot</code><span class="sig-paren">(</span><em>newroot</em>, <em>distance=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.reroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.reroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reroot the tree between newroot and its parent.
+By default, the new node is halfway in between
+newroot and its current parent. Works by unrooting the tree, then
+rerooting it at the new node.</p>
+<p>Returns a NEW tree. Does not affect old tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>newroot</strong> &#8211; Node or str of node label. Cannot be child of
+current root.</li>
+<li><strong>distance</strong> (<em>float</em>) &#8211; What percentage along branch to place
+new node. Defaults to 0.5 (bisection). Higher numbers
+set the new node closer to the parent, lower
+numbers set it closer to child.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Root node of new rerooted tree.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node">Node</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.tree.Node.reroot_org2">
+<code class="descname">reroot_org2</code><span class="sig-paren">(</span><em>newroot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#Node.reroot_org2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.Node.reroot_org2" title="Permalink to this definition">¶</a></dt>
 <dd><p>RR: I can&#8217;t get this to work properly -CZ</p>
 </dd></dl>
 
@@ -672,8 +799,8 @@ encountered.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>end</strong> (<a class="reference internal" href="#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A Node object to iterate to (instead of iterating
 towards root). Optional, defaults to None</li>
-<li><strong>stop</strong> (<em>function</em>) &#8211; A function that returns True if desired node is called
-as the first parameter. Optional, defaults to None</li>
+<li><strong>stop</strong> (<em>function</em>) &#8211; A function that returns True if desired node is
+called as the first parameter. Optional, defaults to None</li>
 </ul>
 </td>
 </tr>
@@ -756,9 +883,17 @@ to be non-nested.</p>
 
 <dl class="function">
 <dt id="ivy.tree.index">
-<code class="descclassname">ivy.tree.</code><code class="descname">index</code><span class="sig-paren">(</span><em>node</em>, <em>n=0</em>, <em>d=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.index" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.tree.</code><code class="descname">index</code><span class="sig-paren">(</span><em>node</em>, <em>n=0</em>, <em>d=0</em>, <em>ni=0</em>, <em>li=0</em>, <em>ii=0</em>, <em>pi=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.index" title="Permalink to this definition">¶</a></dt>
 <dd><p>recursively attach &#8216;next&#8217;, &#8216;back&#8217;, (and &#8216;left&#8217;, &#8216;right&#8217;), &#8216;ni&#8217;,
 &#8216;ii&#8217;, &#8216;pi&#8217;, and &#8216;node_depth&#8217; attributes to nodes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.tree.load_chars">
+<code class="descclassname">ivy.tree.</code><code class="descname">load_chars</code><span class="sig-paren">(</span><em>filename</em>, <em>colNames=True</em>, <em>rowNames=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/tree.html#load_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.tree.load_chars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a filename pointing to a CSV with species names as column one
+and characters as remaining columns, return a dictionary mapping
+names to characters</p>
 </dd></dl>
 
 <dl class="function">

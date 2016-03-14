@@ -60,7 +60,28 @@
 <dl class="function">
 <dt id="ivy.chars.catpars.ancstates">
 <code class="descclassname">ivy.chars.catpars.</code><code class="descname">ancstates</code><span class="sig-paren">(</span><em>tree</em>, <em>chardata</em>, <em>stepmatrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/catpars.html#ancstates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.catpars.ancstates" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return parsimony ancestral states</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root of tree</li>
+<li><strong>chardata</strong> (<em>Dict</em>) &#8211; Dict of tip labels mapping to character states</li>
+<li><strong>stepmatrix</strong> (<em>np.array</em>) &#8211; Step matrix. Create default step matrix
+with default_costmatrix().</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Internal nodes mapping to reconstructed states.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="ivy.chars.catpars.binary_deltran">

@@ -112,7 +112,7 @@ printed to the console.
 
 .. sourcecode:: ipython
 
-    In [*]: print r.ascii # You can use the ascii method on root nodes.
+    In [*]: print r.ascii() # You can use the ascii method on root nodes.
                                    ---------+ Homo
                           --------A+
                  --------B+        ---------+ Pongo
@@ -382,6 +382,7 @@ tree retain some of their original attributes, including their indices:
     Out[*]: Node(140144821292368, leaf, 'Ateles')
 
 To recap:
+
 #. ``collapse`` removes a node and adds its descendants to its parent
 #. ``prune`` removes a node and also removes its descendants
 #. ``excise`` removes 'knees'
@@ -506,7 +507,7 @@ Dropping Tips
 
 You can remove leaf nodes with the ``drop_tips`` function. Note that
 this function returns a *new* tree. The old tree is not modified.
-This function takes a list of tip labels.
+This function takes a list of tip labels as input.
 
 
 .. sourcecode:: ipython
@@ -802,7 +803,7 @@ state, its variance (error), the contrast, and the contrasts's variance.
 
 .. TODO:: Add citation for tree
 
-The following example uses a consensus tree fro Sarkinen et al. 2013 and
+The following example uses a consensus tree from Sarkinen et al. 2013 and
 Ziegler et al. unpub. data.
 
 Note: This function requires that the root node have a length that is not none.
@@ -963,7 +964,7 @@ The options are:
 * **"Sym"**: A symmetrical rates Q matrix forces forward and reverse rates
   to be equal, but allows rates for different characters to differ. It has
   a number of parameters equal to (N^2 - N)/2, where N is the number of
-  characters.
+  character states.
 * **"ARD"**: An all-rates different Q matrix allows all rates to vary freely.
   It has a number of parameters equal to (N^2 - N).
 
@@ -1058,6 +1059,54 @@ Let's get the 5%, 50%, and 95% percentiles for both parameters
     Out[*]: array([ 0.00308076,  0.01844342,  0.06290078])
     In [*]: np.percentile(Q10, [5,50,95])
     Out[*]: array([ 0.03294584,  0.09525662,  0.21803742])
-    
+
 Unsurprisingly, the results are similar to the ones we got from the maximum
 likelihood analysis
+
+Hidden-Rates Models
+-------------------
+``ivy`` has functions for fitting hidden-rates Markov models (HRM) (see Beaulieu et
+al. 2013), as well as for performing ancestor-state reconstructions and
+visualizations of hidden-rates models.
+
+We will demonstrate these functions using an example dataset, fitting a
+two-state character with two different hidden rates or "regimes".
+
+.. sourcecode:: ipython
+
+    In [*]: import ivy
+    In [*]: from ivy.chars import hrm
+    In [*]: tree = ivy.tree.read("hrm_300tips.newick")
+    In [*]: chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+                    1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+                    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+                    1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
+                    1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0]
+
+Like the Mk functions, ``ivy``'s HRM functions take as input a tree and a list
+of the characters in preorder sequence. These character states are already in
+order.
+
+The simplest way to fit an HRM model is to use the ``fit_hrm`` function. Like
+the ``fitMk`` function, there are a few possible models we can fit:
+
+* **"Simple"**: Under the simple model, each regime is equivalent to an
+  equal-rates Mk model. Transitions between regimes are all constrained to
+  be equal. This model fits M+1 parameters where M is the number of regimes.
+* **"ARD"**: Under this model, all rates are allowed to vary freely. This
+  model fits (N^2 - N)/(2/M) + (M^2-M)*N parameters, where N is the
+  number of character states and M is the number of regimes.
+
+Here we will fit a ``Simple`` model.
+
+    In [*]: fit = hrm.fit_hrm(tree, chars, nregime=2, Qtype="Simple", pi="Equal")

@@ -13,11 +13,11 @@ scipy, and numpy.
    to Rick Ree <rree@fieldmuseum.org>.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    Downloading and Installing <install>
-   Users's Guide <using>
-   API Documentation <apiindex>
+   User's Guide <using>
+   API Documentation <modules>
 
 Motivation
 ==========

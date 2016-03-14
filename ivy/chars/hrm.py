@@ -727,7 +727,29 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
 
     return likelihood_function
 
+def fit_hrm(tree, chars, nregime, pi="Fitzjohn", constraints="Rate", Qtype="Simple"):
+    """
+    Fit a hidden-rates mk model to a given tree and list of characters, and
+    number of regumes. Return fitted ARD Q matrix and calculated likelihood.
 
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be in the form of 0,1,2,...
+        nregime (int): Number of hidden rates per character
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root node. Defaults to "Equal"
+          Method "Fitzjohn" is not thouroughly tested, use with caution
+    Returns:
+        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
+    """
+    if Qtype == "Simple":
+        return fit_hrm_mkSimple(tree, chars, nregime, pi)
+    elif Qtype == "ARD":
+        return fit_hrm_mkARD(tree, chars, nregime, pi, constraints)
+    else:
+        raise TypeError, "Qtype must be Simple or ARD"
 def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", constraints="Rate"):
     """
     Fit a hidden-rates mk model to a given tree and list of characters, and

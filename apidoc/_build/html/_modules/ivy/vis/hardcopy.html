@@ -52,6 +52,8 @@
 <span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span>
 <span class="kn">import</span> <span class="nn">tree</span>
 <span class="kn">from</span> <span class="nn">axes_utils</span> <span class="kn">import</span> <span class="n">adjust_limits</span>
+<span class="kn">from</span> <span class="nn">pyPdf</span> <span class="kn">import</span> <span class="n">PdfFileWriter</span><span class="p">,</span> <span class="n">PdfFileReader</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
 
 <span class="c">## class TreeFigure:</span>
 <span class="c">##     def __init__(self):</span>
@@ -60,7 +62,7 @@
 <span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">&quot;xtick.direction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;out&quot;</span>
 
 <div class="viewcode-block" id="TreeFigure"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure">[docs]</a><span class="k">class</span> <span class="nc">TreeFigure</span><span class="p">:</span>
-<div class="viewcode-block" id="TreeFigure.__init__"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.hardcopy.TreeFigure.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">relwidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">leafpad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">relwidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">leafpad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">support</span><span class="o">=</span><span class="mf">70.0</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">mark_named</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
                  <span class="n">leaf_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">branch_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                  <span class="n">branch_width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">branch_color</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span>
@@ -131,13 +133,13 @@
         <span class="c">## self.axes.home()</span>
         <span class="c">## adjust_limits(self.axes)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.95</span><span class="p">,</span><span class="mf">0.95</span><span class="p">])</span>
-</div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">detail</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span>
         
-<div class="viewcode-block" id="TreeFigure.savefig"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure.savefig">[docs]</a>    <span class="k">def</span> <span class="nf">savefig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+<div class="viewcode-block" id="TreeFigure.savefig"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure.savefig">[docs]</a>    <span class="k">def</span> <span class="nf">savefig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;pdf&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="n">format</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TreeFigure.set_relative_width"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure.set_relative_width">[docs]</a>    <span class="k">def</span> <span class="nf">set_relative_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relwidth</span><span class="p">):</span>
         <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
@@ -152,7 +154,113 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">nleaves</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TreeFigure.home"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">home</span><span class="p">()</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
+        
+        </div>
+<div class="viewcode-block" id="TreeFigure.render_multipage"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure.render_multipage">[docs]</a>    <span class="k">def</span> <span class="nf">render_multipage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">pagesize</span> <span class="o">=</span> <span class="p">[</span><span class="mf">8.5</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">],</span> 
+                         <span class="n">dims</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">border</span> <span class="o">=</span> <span class="mf">0.393701</span><span class="p">,</span> <span class="n">landscape</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a multi-page PDF document where the figure is cut into</span>
+<span class="sd">        multiple pages. Used for printing large figures.</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            outfile (string): The path to the output file.</span>
+<span class="sd">            pagesize (list): Two floats. Page size of each individual page</span>
+<span class="sd">              in inches. Defaults to 8.5 x 11.0.</span>
+<span class="sd">            dims (list): Two floats. The dimensions of the final figure in </span>
+<span class="sd">              inches. Defaults to the original size of the figure.</span>
+<span class="sd">            border (float): The amount of overlap (in inches) between each page </span>
+<span class="sd">              to make taping them together easier. Defaults to 0.393701 (1 cm)</span>
+<span class="sd">            landscape (bool): Whether or not each page will be in landscape</span>
+<span class="sd">              orientation. Defaults to false.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pgwidth</span><span class="p">,</span> <span class="n">pgheight</span> <span class="o">=</span> <span class="n">pagesize</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">landscape</span> \
+                            <span class="k">else</span> <span class="p">(</span><span class="n">pagesize</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pagesize</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c">#print &quot;drawing width, height:&quot;, drawing.width/inch, drawing.height/inch</span>
+        <span class="k">if</span> <span class="n">dims</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">&gt;</span> <span class="n">pgwidth</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">border</span><span class="p">:</span>
+            <span class="n">scalefact</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">-</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">/</span><span class="n">pgwidth</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">border</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> 
+                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="o">-</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="o">/</span><span class="n">pgheight</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">border</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+            <span class="c">#self.figure.set_size_inches(scalefact*self.width, scalefact*self.height)</span>
+            <span class="c">#self.width = scalefact*self.width; self.height = scalefact*self.height</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scalefact</span> <span class="o">=</span> <span class="mf">1.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*=</span> <span class="n">scalefact</span> <span class="c"># In inches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">*=</span> <span class="n">scalefact</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+      
+        <span class="c">#border *= scalefact</span>
+        <span class="n">dwidth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">72.0</span> <span class="c"># In pixels (72 DPI)</span>
+        <span class="n">dheight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">*</span> <span class="mf">72.0</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">PdfFileWriter</span><span class="p">()</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="nb">file</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">)</span>
+
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+        <span class="n">pgwidth</span> <span class="o">=</span> <span class="n">pgwidth</span><span class="o">*</span><span class="mi">72</span>
+        <span class="n">pgheight</span> <span class="o">=</span> <span class="n">pgheight</span><span class="o">*</span><span class="mi">72</span>
+        
+        <span class="n">upper</span> <span class="o">=</span> <span class="n">border</span>
+        <span class="n">lower</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">pgwidth</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="n">pgnum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">vpgnum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">hpgnum</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="n">border</span> <span class="o">=</span> <span class="n">border</span><span class="o">*</span><span class="mi">72</span> <span class="c"># Converting to pixels in 72 DPI</span>
+        
+        <span class="k">while</span> <span class="n">upper</span> <span class="o">&lt;</span> <span class="n">dheight</span><span class="p">:</span>
+            <span class="c">#if vpgnum == 0:</span>
+            <span class="c">#    vdelta = 0.0</span>
+            <span class="c">#else:</span>
+            <span class="c">#    vdelta = 2*border*vpgnum</span>
+            <span class="n">buf</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">PdfFileReader</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">getPage</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">box</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">mediaBox</span>
+            <span class="n">upper</span> <span class="o">+=</span> <span class="n">pgheight</span><span class="o">-</span><span class="n">border</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">upper</span><span class="o">-</span><span class="n">pgheight</span>
+            <span class="c">#uly = float(box.getUpperLeft_y())</span>
+            <span class="c">#ulx = float(box.getUpperLeft_x())</span>
+            <span class="c">#upper = uly+border+vdelta-vpgnum*pgheight</span>
+            <span class="c">#lower = uly+border+delta-(pgnum+1)*pgheight</span>
+            <span class="c">#lower = upper-pgheight</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">setUpperRight</span><span class="p">((</span><span class="n">right</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">setUpperLeft</span><span class="p">((</span><span class="n">left</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">setLowerRight</span><span class="p">((</span><span class="n">right</span><span class="p">,</span> <span class="n">lower</span><span class="p">))</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">setLowerLeft</span><span class="p">((</span><span class="n">left</span><span class="p">,</span> <span class="n">lower</span><span class="p">))</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">addPage</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+            <span class="n">pgnum</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">vpgnum</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">upper</span> <span class="o">&gt;=</span> <span class="n">dheight</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">right</span> <span class="o">&lt;</span> <span class="n">dwidth</span><span class="p">):</span>
+                <span class="n">lower</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">upper</span> <span class="o">=</span> <span class="n">border</span>
+                <span class="n">right</span> <span class="o">+=</span> <span class="n">pgwidth</span><span class="o">-</span><span class="n">border</span>
+                <span class="n">left</span> <span class="o">=</span> <span class="n">right</span><span class="o">-</span><span class="n">pgwidth</span>
+                <span class="n">vpgnum</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pgnum</span><span class="p">,</span> <span class="n">scalefact</span>
+        
+        </div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">ivy</span>
+    <span class="kn">from</span> <span class="nn">ivy.interactive</span> <span class="kn">import</span> <span class="o">*</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;examples/plants.newick&quot;</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">treefig</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">hardcopy</span><span class="p">()</span>
+    <span class="n">h</span><span class="o">.</span><span class="n">render_multipage</span><span class="p">(</span><span class="n">outfile</span> <span class="o">=</span> <span class="s">&quot;test.pdf&quot;</span><span class="p">)</span>
+    
 </pre></div>
 
           </div>

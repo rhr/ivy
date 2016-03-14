@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     ivy.chars
+    ivy.sim
     ivy.vis
 
 Submodules
@@ -168,6 +169,14 @@ ivy.pyperclip module
 --------------------
 
 .. automodule:: ivy.pyperclip
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ivy.r_funcs module
+------------------
+
+.. automodule:: ivy.r_funcs
     :members:
     :undoc-members:
     :show-inheritance:

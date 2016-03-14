@@ -57,76 +57,265 @@
             
   <div class="section" id="module-ivy.chars.mk">
 <span id="ivy-chars-mk-module"></span><h1>ivy.chars.mk module<a class="headerlink" href="#module-ivy.chars.mk" title="Permalink to this headline">¶</a></h1>
-<p>Categorical Markov models with k states.</p>
-<dl class="class">
-<dt id="ivy.chars.mk.Q">
-<em class="property">class </em><code class="descclassname">ivy.chars.mk.</code><code class="descname">Q</code><span class="sig-paren">(</span><em>k=2</em>, <em>layout=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#Q"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.Q" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
-<dt id="ivy.chars.mk.Q.default_priors">
-<code class="descname">default_priors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#Q.default_priors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.Q.default_priors" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="ivy.chars.mk.Q.fill">
-<code class="descname">fill</code><span class="sig-paren">(</span><em>rates</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#Q.fill"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.Q.fill" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dl class="function">
+<dt id="ivy.chars.mk.create_likelihood_function_mk">
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">create_likelihood_function_mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Qtype</em>, <em>pi='Equal'</em>, <em>findmin=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#create_likelihood_function_mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.create_likelihood_function_mk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a function that takes values for Q and returns likelihood.</p>
+<p>Specify the Q to be ER, Sym, or ARD</p>
+<p>Returned function to be passed into scipy.optimize</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<em>list</em>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>Qtype</strong> (<em>str</em>) &#8211; What type of Q matrix to use. Either ER (equal rates),
+Sym (symmetric rates), or ARD (All rates different).</li>
+<li><strong>pi</strong> (<em>str</em>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+values at root  node.</li>
+<li><strong>min</strong> (<em>bool</em>) &#8211; Whether the function is to be minimized (False means
+it will be maximized)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Function accepting a list of parameters and returning
+log-likelihood. To be optmimized with NLOPT</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">function</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
-<dt id="ivy.chars.mk.conditionals">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">conditionals</code><span class="sig-paren">(</span><em>root</em>, <em>data</em>, <em>Q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#conditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.conditionals" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.contrasts">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">contrasts</code><span class="sig-paren">(</span><em>root</em>, <em>data</em>, <em>Q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#contrasts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.contrasts" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.draw_new_state">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">draw_new_state</code><span class="sig-paren">(</span><em>states</em>, <em>Q</em>, <em>si</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#draw_new_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.draw_new_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a rate matrix Q, a starting state si, and an ordered
-sequence of states, eg (0, 1), draw a new state sj with
-probability -(qij/qii)</p>
+<dt id="ivy.chars.mk.fitMk">
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">fitMk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q='Equal'</em>, <em>pi='Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fitMk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fitMk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit an mk model to a given tree and list of characters. Return fitted
+Q matrix and calculated likelihood.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<em>list</em>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be in the form of 0,1,2,...</li>
+<li><strong>pi</strong> &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+values at root node. Defaults to &#8220;Equal&#8221;
+Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple of fitted Q matrix (a np array) and log-likelihood value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
-<dt id="ivy.chars.mk.lnL">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">lnL</code><span class="sig-paren">(</span><em>root</em>, <em>data</em>, <em>Q</em>, <em>priors</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#lnL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.lnL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.optimize">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">optimize</code><span class="sig-paren">(</span><em>root</em>, <em>data</em>, <em>Q</em>, <em>priors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.optimize" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.sample_ancstates">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">sample_ancstates</code><span class="sig-paren">(</span><em>node</em>, <em>states</em>, <em>conditionals</em>, <em>n2p</em>, <em>fixed={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#sample_ancstates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.sample_ancstates" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample ancestral states from their conditional likelihoods</p>
+<dt id="ivy.chars.mk.fitMkARD">
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">fitMkARD</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>pi='Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fitMkARD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fitMkARD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate parameters of an all-rates-different Q matrix
+Return log-likelihood of mk equation using fitted Q</p>
+<p>Multi-parameter model: all rates different</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<em>list</em>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>pi</strong> (<em>str</em>) &#8211; Either &#8220;Equal&#8221; or &#8220;Fitzjohn&#8221;. How to weight values at root
+node. Defaults to &#8220;Equal&#8221;
+Method &#8220;Fitzjohn&#8221; is currently untested</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Fitted parameter, log-likelihood, and dictionary of weightings
+at the root.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
-<dt id="ivy.chars.mk.sample_weighted">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">sample_weighted</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#sample_weighted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.sample_weighted" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="ivy.chars.mk.fitMkER">
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">fitMkER</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>pi='Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fitMkER"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fitMkER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate parameter of an equal-rate Q matrix
+Return log-likelihood of mk equation using fitted Q</p>
+<p>One-parameter model: alpha = beta</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<em>list</em>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>pi</strong> (<em>str</em>) &#8211; Either &#8220;Equal&#8221; or &#8220;Fitzjohn&#8221;. How to weight values at root
+node. Defaults to &#8220;Equal&#8221;</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Fitted parameter, log-likelihood, and dictionary of weightings
+at the root.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
-<dt id="ivy.chars.mk.sim">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">sim</code><span class="sig-paren">(</span><em>root</em>, <em>n2p</em>, <em>s0</em>, <em>d=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#sim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.sim" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="ivy.chars.mk.fitMkSym">
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">fitMkSym</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>pi='Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fitMkSym"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fitMkSym" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate parameter of a symmetrical-rate Q matrix
+Return log-likelihood of mk equation using fitted Q</p>
+<p>Multi-parameter model: forward = reverse</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<em>list</em>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>pi</strong> (<em>str</em>) &#8211; Either &#8220;Equal&#8221; or &#8220;Fitzjohn&#8221;. How to weight values at root
+node. Defaults to &#8220;Equal&#8221;
+Method &#8220;Fitzjohn&#8221; is currently untested</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Fitted parameter, log-likelihood, and dictionary of weightings
+at the root.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
-<dt id="ivy.chars.mk.simulate_on_branch">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">simulate_on_branch</code><span class="sig-paren">(</span><em>states</em>, <em>si</em>, <em>sj</em>, <em>Q</em>, <em>brlen</em>, <em>condition_on_success</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#simulate_on_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.simulate_on_branch" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="ivy.chars.mk.mk">
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>p=None</em>, <em>pi='Equal'</em>, <em>returnPi=False</em>, <em>preallocated_arrays=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.mk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit mk model and return likelihood for the root node of a tree given a list of characters
+and a Q matrix</p>
+<p>Convert tree and character data into a form that can be input
+into mk, which fits an mk model.</p>
+<p>Note: internal calculations are log-transformed to avoid numeric underflow</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<em>list</em>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</li>
+<li><strong>p</strong> (<em>np.array</em>) &#8211; Optional pre-allocated p matrix</li>
+<li><strong>pi</strong> (<em>str or np.array</em>) &#8211; <p>Option to weight the root node by given values.
+Either a string containing the method or an array
+of weights. Weights should be given in order.</p>
+<p>Accepted methods of weighting root:</p>
+<p>Equal: flat prior
+Equilibrium: Prior equal to stationary distribution</p>
+<blockquote>
+<div>of Q matrix</div></blockquote>
+<dl class="docutils">
+<dt>Fitzjohn: Root states weighted by how well they</dt>
+<dd>explain the data at the tips.</dd>
+</dl>
+</li>
+<li><strong>returnPi</strong> (<em>bool</em>) &#8211; Whether or not to return the final values of root
+node weighting</li>
+<li><strong>preallocated_arrays</strong> (<em>dict</em>) &#8211; Dict of pre-allocated arrays to improve
+speed by avoiding creating and destroying new arrays</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
-<dt id="ivy.chars.mk.stmap">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">stmap</code><span class="sig-paren">(</span><em>root</em>, <em>states</em>, <em>ancstates</em>, <em>Q</em>, <em>condition_on_success</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#stmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.stmap" title="Permalink to this definition">¶</a></dt>
-<dd><p>This and its dependent functions below need testing and
-optimization.</p>
+<dt id="ivy.chars.mk.mk_py">
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">mk_py</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>p=None</em>, <em>pi='Equal'</em>, <em>returnPi=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#mk_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.mk_py" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit mk model and return likelihood for the root node of a tree given a list of characters
+and a Q matrix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<em>list</em>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</li>
+<li><strong>p</strong> (<em>np.array</em>) &#8211; Optional pre-allocated p matrix</li>
+<li><strong>pi</strong> (<em>str or np.array</em>) &#8211; <p>Option to weight the root node by given values.
+Either a string containing the method or an array
+of weights. Weights should be given in order.</p>
+<p>Accepted methods of weighting root:</p>
+<p>Equal: flat prior
+Equilibrium: Prior equal to stationary distribution</p>
+<blockquote>
+<div>of Q matrix</div></blockquote>
+<dl class="docutils">
+<dt>Fitzjohn: Root states weighted by how well they</dt>
+<dd>explain the data at the tips.</dd>
+</dl>
+</li>
+<li><strong>returnPi</strong> (<em>bool</em>) &#8211; Whether or not to return the pi used</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.mk.qsd">
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">qsd</code><span class="sig-paren">(</span><em>Q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#qsd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.qsd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate stationary distribution of Q, assuming each state
+has the same diversification rate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Stationary distribution of pi</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">(np.array)</td>
+</tr>
+</tbody>
+</table>
+<p>Eqn from Maddison et al 2007</p>
+<p>Referenced from Phytools (Revell 2013)</p>
 </dd></dl>
 
 </div>

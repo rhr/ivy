@@ -36,10 +36,34 @@ ivy.vis.colors module
     :undoc-members:
     :show-inheritance:
 
+ivy.vis.events module
+---------------------
+
+.. automodule:: ivy.vis.events
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 ivy.vis.hardcopy module
 -----------------------
 
 .. automodule:: ivy.vis.hardcopy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ivy.vis.hardcopy2 module
+------------------------
+
+.. automodule:: ivy.vis.hardcopy2
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ivy.vis.layers module
+---------------------
+
+.. automodule:: ivy.vis.layers
     :members:
     :undoc-members:
     :show-inheritance:
@@ -64,6 +88,14 @@ ivy.vis.tree module
 -------------------
 
 .. automodule:: ivy.vis.tree
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ivy.vis.treevis module
+----------------------
+
+.. automodule:: ivy.vis.treevis
     :members:
     :undoc-members:
     :show-inheritance:

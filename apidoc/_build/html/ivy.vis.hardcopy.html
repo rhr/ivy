@@ -77,8 +77,34 @@
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="ivy.vis.hardcopy.TreeFigure.render_multipage">
+<code class="descname">render_multipage</code><span class="sig-paren">(</span><em>outfile, pagesize=[8.5, 11.0], dims=None, border=0.393701, landscape=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.render_multipage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.render_multipage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a multi-page PDF document where the figure is cut into
+multiple pages. Used for printing large figures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outfile</strong> (<em>string</em>) &#8211; The path to the output file.</li>
+<li><strong>pagesize</strong> (<em>list</em>) &#8211; Two floats. Page size of each individual page
+in inches. Defaults to 8.5 x 11.0.</li>
+<li><strong>dims</strong> (<em>list</em>) &#8211; Two floats. The dimensions of the final figure in
+inches. Defaults to the original size of the figure.</li>
+<li><strong>border</strong> (<em>float</em>) &#8211; The amount of overlap (in inches) between each page
+to make taping them together easier. Defaults to 0.393701 (1 cm)</li>
+<li><strong>landscape</strong> (<em>bool</em>) &#8211; Whether or not each page will be in landscape
+orientation. Defaults to false.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="ivy.vis.hardcopy.TreeFigure.savefig">
-<code class="descname">savefig</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.savefig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.savefig" title="Permalink to this definition">¶</a></dt>
+<code class="descname">savefig</code><span class="sig-paren">(</span><em>fname</em>, <em>format='pdf'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.savefig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.savefig" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
