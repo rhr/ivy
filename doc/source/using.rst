@@ -1076,22 +1076,37 @@ two-state character with two different hidden rates or "regimes".
 
     In [*]: import ivy
     In [*]: from ivy.chars import hrm
-    In [*]: tree = ivy.tree.read("hrm_300tips.newick")
-    In [*]: chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
-                    1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-                    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-                    1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0,
+    In [*]: tree = ivy.tree.read("hrm_600tips.newick")
+    In [*]: chars = [0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1,
+                    0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0,
+                    0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1,
+                    1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0,
+                    0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+                    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
-                    1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0]
+                    0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                    1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+                    1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0,
+                    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
+                    1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0]
+
 
 Like the Mk functions, ``ivy``'s HRM functions take as input a tree and a list
 of the characters in preorder sequence. These character states are already in
@@ -1109,4 +1124,53 @@ the ``fitMk`` function, there are a few possible models we can fit:
 
 Here we will fit a ``Simple`` model.
 
+.. sourcecode:: ipython
+
     In [*]: fit = hrm.fit_hrm(tree, chars, nregime=2, Qtype="Simple", pi="Equal")
+    In [*]: fit
+    Out[*]:
+    (array([[-0.18387751,  0.08387751,  0.1       ,  0.        ],
+        [ 0.08387751, -0.18387751,  0.        ,  0.1       ],
+        [ 0.1       ,  0.        , -0.2       ,  0.1       ],
+        [ 0.        ,  0.1       ,  0.1       , -0.2       ]]),
+    -83.25296874895388,
+    {0: 0.25, 1: 0.25, 2: 0.25, 3: 0.25})
+
+The output of the ``fit_hrm`` function is a three-length tuple, the first
+item being the estimated Q matrix. The second item is the log-likelihood.
+The final item is the root prior. In this case, we set the root
+prior to be equal.
+
+
+Now that we have our reconstructed Q matrix, we can perform ancestral state
+reconstruction. We will use the ``anc_recon_discrete`` function. This
+function can handle both single-regime Mk models and multi-regime
+HRM models. This functions takes a tree, the character states at the
+tips, and the Q matrix to be used in the reconstruction. We will use
+our fitted Q matrix as input. We also provide the prior at the root (in
+this case, "Equal"). Because this is a hidden-rates model, we also provide
+the number of regimes (in this case, 2)
+
+.. sourcecode:: ipython
+
+    In [*]: from ivy.chars import anc_recon
+    In [*]: recon = anc_recon.anc_recon_discrete(tree, chars, fit[0],
+                                                 pi="Equal", nregime=2)
+
+The output of this function is an array containing the likelihoods of each
+node being in each state. We can use the output of this function to
+visualize the reconstructed states on the tree.
+
+.. sourcecode:: ipython
+
+    In [*]: from ivy.interactive import *
+    In [*]: from ivy.vis.layers import add_ancrecon_hrm
+    In [*]: fig = treefig(tree)
+    In [*]: fig.add_layer(add_ancrecon_hrm, recon)
+
+
+  .. image:: _images/hrm_1.png
+      :width: 700
+
+Green corresponds to state 0 and blue to state 1. The more saturated colors
+correspond to the faster regime and the duller colors to the slower regime.

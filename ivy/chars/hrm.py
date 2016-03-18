@@ -662,7 +662,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
     charlist = range(nchar)
     nobschar = len(set(chars))
 
-    var = create_hrm_ar(tree, char, nregime,findmin)
+    var = create_hrm_ar(tree, chars, nregime,findmin)
 
     def likelihood_function(Qparams, grad):
         """
@@ -707,7 +707,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
             hiddenchar =  [y + char for y in [x * nobschar for x in range(nregime) ]]
             for char2 in [ ch for ch in range(nobschar) if not ch == char ]:
                 hiddenchar2 =  [y + char2 for y in [x * nobschar for x in range(nregime) ]]
-                rs = [Q[ch1, ch2] for ch1, ch2 in zip(hiddenchar, hiddenchar2)]
+                rs = [var["Q"][ch1, ch2] for ch1, ch2 in zip(hiddenchar, hiddenchar2)]
 
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])

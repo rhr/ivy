@@ -45,6 +45,7 @@ try:
     import Image
 except ImportError:
     from PIL import Image
+from colour import Color
 
 
 _tango = colors.tango()
@@ -707,11 +708,15 @@ def add_ancrecon_hrm(treeplot, liks, vis=True, width=2):
     based on ancestral state reconstruction of a two-character, two-regime
     hrm model.
     """
-    horz_seg_collections = [None] * (len(tree)-1)
-    horz_seg_colors = [None]*(len(tree)-1)
-    vert_seg_collections = [None] * (len(tree)-1)
-    vert_seg_colors = [None] * (len(tree)-1)
-    for i,n in enumerate(treeplot.root.descendants()):
+    root = treeplot.root
+    horz_seg_collections = [None] * (len(root)-1)
+    horz_seg_colors = [None]*(len(root)-1)
+    vert_seg_collections = [None] * (len(root)-1)
+    vert_seg_colors = [None] * (len(root)-1)
+
+    nchar = liks.shape[1]-2
+
+    for i,n in enumerate(root.descendants()):
         n_lik = liks[i+1]
         par_lik = liks[n.parent.ni]
         n_col = twoS_twoR_colormaker(n_lik[:nchar])
