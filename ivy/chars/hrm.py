@@ -861,7 +861,7 @@ def make_identity_regime(regimePair):
                                      for i in r]) for r in regimePair])
     return identity_regime
 
-def optimize_regime(comb, tree=None, chars=None, nregime=None, nparams=None, pi=None, br_variable=None):
+def optimize_regime(comb, tree=None, chars=None, nregime=None, nparams=None, pi=None, br_variable=None, out_file=None, ar=None):
     print comb
     mk_func = hrm_disctinct_regimes_likelihoodfunc(tree, chars, comb, pi=pi,
             findmin = True, br_variable=br_variable, ar=ar)
@@ -876,9 +876,12 @@ def optimize_regime(comb, tree=None, chars=None, nregime=None, nparams=None, pi=
     pars = opt.optimize(x0)
     lik = mk_func(pars)
     Q = fill_distinct_regime_Q(comb, np.insert(pars, 0, 1e-15),nregime,2,br_variable=br_variable)
+    if out_file is not None:
+        with open(out_file+str(comb)+".p", "wb") as f:
+            pickle.dump((comb, lik, Q), f)
     return comb,lik,Q
 def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_variable=False,
-                             parallel=False, ncores = 2):
+                             parallel=False, ncores=2, out_file=None):
     """
     Fit hrm with distinct regime types given number of regimes and
     number of parameters
@@ -911,9 +914,9 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_varia
     print "Testing {} regimes".format(ncomb)
     if parallel:
         pool = mp.Pool(processes = ncores)
-        func = partial(optimize_regime, tree=tree, chars=chars, nregime=nregime,nparams=nparams,pi=pi, br_variable=br_variable, ar=ar)
+        func = partial(optimize_regime, tree=tree, chars=chars, nregime=nregime,nparams=nparams,pi=pi, br_variable=br_variable, ar=ar, out_file=out_file)
         results = pool.map(func, regime_combinations)
-        out = results.get()
+        out = results
 
         return {r[0]:(r[1],r[2]) for r in out}
 
@@ -960,6 +963,9 @@ def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal", f
         var = create_hrm_ar(tree, chars, nregime, findmin)
     else:
         var = ar.copy()
+
+    var["Q_layout"] = np.zeros([nregime,nobschar,nobschar])
+
     def likelihood_function(Qparams, grad=None):
         """
         NLOPT inputs the parameter array as well as a gradient object.

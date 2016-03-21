@@ -1169,8 +1169,8 @@ visualize the reconstructed states on the tree.
     In [*]: fig.add_layer(add_ancrecon_hrm, recon)
 
 
-  .. image:: _images/hrm_1.png
-      :width: 700
+.. image:: _images/hrm_1.png
+    :width: 700
 
 Green corresponds to state 0 and blue to state 1. The more saturated colors
 correspond to the faster regime and the duller colors to the slower regime.
