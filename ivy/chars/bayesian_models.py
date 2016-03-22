@@ -619,7 +619,7 @@ def hrm_multipass_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn"):
               rates.
             "STD": State Transitions Different. Transitions between states
               within the same rate class are asymetrical
-        nregime (int): Number of hidden states. nstates = 0 is
+        nregime (int): Number of hidden states. nregime = 1 is
           equivalent to a vanilla Mk model
     """
     nobschar = len(set(chars))

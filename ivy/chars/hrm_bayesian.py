@@ -13,28 +13,28 @@ import collections
 import networkx as nx
 import scipy
 
-from pymc.distributions import negative_binomial_like as nbl
+from ivy.chars.anc_recon import parsimony_recon
 
-
-def unique_models(nchar, nregime, nparams):
+def unique_models(nchar, nregime, nparam):
     """
     Create a list of all possible models for a Q matrix with nchar distinct
     character states and nregime distinct regimes, filling all cells
-    with nparams + 0.
+    with nparam + 0.
 
     Args:
         nchar (int): Number of observed characters
         nregime (int): Number of regimes in model
-        nparams (int): Number of unique parameters in model (not including 0)
+        nparam (int): Number of unique parameters in model (not including 0)
 
     Returns:
         list: List of all unique models. Each item contains a tuple of the
           within-regime parameters and a tuple of the between-regime parameters.
     """
-    param_ranks = range(nparams+1)
+    param_ranks = range(nparam+1)
+    n_wr = nchar**2 - nchar
 
     # Within-regime parameters
-    distinct_regimes = list(itertools.permutations(param_ranks,nchar))
+    distinct_regimes = list(itertools.permutations(param_ranks,n_wr))
     for p in param_ranks:
         distinct_regimes.append((p,p))
     wr = list(itertools.combinations(distinct_regimes,nregime))
@@ -42,32 +42,20 @@ def unique_models(nchar, nregime, nparams):
 
     # Between-regime parameters
     n_br = (nregime**2 - nregime)*nchar
-    br = list(itertools.product(param_ranks, repeat = n_br))
+    # Disallow the fasted parameter in between-regime transitions
+    br = list(itertools.product(param_ranks[:-1], repeat = n_br))
+    br.pop(0) # Need to handle "no transition" models separately
 
     mods = list(itertools.product(wr_flat, br))
 
-    # Removing redundant regimes
+    # "no transition" models
+    nt_wr = [i+tuple([0]*n_wr) for i in distinct_regimes if set(i) != {0} ]
+    nt_mods = [ (i, tuple([0]*n_br)) for i in nt_wr ]
+    mods.extend(nt_mods)
+
     mods_flat = [ tuple([i for s in  x for i in s]) for x in mods ]
-    regime_identities = [make_identity_regime(m) for m in mods_flat]
 
-    unique_mods = [mods_flat[mods_flat.index(i)] for i in set(regime_identities)]
-
-    return unique_mods
-
-
-def make_identity_regime(mod):
-    """
-    Given one model, reduce it to its identity (eg (2,2),(3,3) becomes
-    (1,1),(2,2)
-    """
-    params_present = list(set(mod))
-    if 0 in params_present:
-        identity_params = range(len(params_present))
-    else:
-        identity_params = [i+1 for i in range(len(params_present))]
-    identity_regime =  tuple([identity_params[params_present.index(i)]
-                                     for i in mod])
-    return identity_regime
+    return mods_flat
 
 def make_model_graph(unique_mods):
     """
@@ -92,36 +80,95 @@ def make_model_graph(unique_mods):
     return mod_graph
 
 def make_qmat_stoch(graph):
+    """
+    Make a stochastic to use for a model-changing step
+    """
+    startingval = (1,0,0,0,0,0,0,0)
+    nmodel = len(graph.node)
+    nsingle = len([ i[-4:] for i in graph.node.keys() if set(i[-4:]) == {0}])
+
+    one_regime_li = 0.5/nsingle
+    multi_regime_li = 0.5/(nmodel-nsingle)
+
     @pymc.stochastic(dtype=tuple)
-    def qmat_stoch(value = mod):
-        ln = sum([nbl(i, mu = 1, alpha = 1) for i in mod])
-        return ln
+    def qmat_stoch(value = startingval):
+        # Very simple prior: single-regime models should take up half
+        # of likelihood space
+        if set(value[-4:]) == {0}:
+            ln_li = np.log(one_regime_li)
+        else:
+            ln_li = np.log(multi_regime_li)
+        print ln_li
+        return ln_li
     return qmat_stoch
 
 class QmatMetropolis(pymc.Metropolis):
+    """
+    Custom step algorithm for selecting a new model
+    """
     def __init__(self, stochastic, graph):
         pymc.Metropolis.__init__(self, stochastic, scale=1.)
         self.graph = graph
     def propose(self):
-        mod = self.stochastic.value
-
-        connected = self.graph[mod].keys()
-
+        cur_mod = self.stochastic.value
+        connected = self.graph[cur_mod].keys()
         new = random.choice(connected)
-
         self.stochastic.value = new
 
     def reject(self):
         self.rejected += 1
         self.stochastic.value = self.stochastic.last_value
 
-qs = make_qmat_stoch(mod_graph)
 
-mod_mc = pymc.MCMC([qs])
-mod_mc.use_step_method(QmatMetropolis, qs, graph=mod_graph)
+def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None):
+    """
+    Use an MCMC chain to fit a hrm model with a limited number of parameters.
 
-mod_mc.sample(100000)
+    The chain will step through different models, placing a prior on simpler
+    models
 
 
-visits = [tuple(i) for i in mod_mc.trace("qmat_stoch")[:]]
-Counter(visits).most_common()
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be in the form of 0,1,2,...
+        nregime (int): Number of regimes
+        nparam (int): Number of unique parameters to allow in a model
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root node. Defaults to "Equal"
+          Method "Fitzjohn" is not thouroughly tested, use with caution
+        mod_graph (Graph): Nx graph of all possible models. Optional, if not
+          provided will generate graph, which may be time-consuming
+    """
+    nobschar = len(set(chars))
+    nchar = nobschar * nregime
+
+    if mod_graph is None:
+        mod_graph = make_model_graph(unique_models(nchar, nregime, nparam))
+
+    def get_childstates(node, precon):
+        chstates = [None] * len(node.children)
+        for i,n in enumerate(node.children):
+            if n.isleaf:
+                chstates[i] = chars[n.li]
+            else:
+                chstates[i] = precon[n][0]
+        return chstates
+
+    precon =  parsimony_recon(tree, chars)
+
+    minp = 0
+    for node in precon.keys():
+        if len(precon[node][0])>1:
+            minp += len(precon[node][0])-1
+        else:
+            chstates = get_childstates(node, precon)
+            minp += sum([ i for i in chstates if i != precon[node][0]])
+
+
+
+    S = pymc.Exponential()
+
+    #TODO generalize
+    alpha

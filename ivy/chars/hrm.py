@@ -11,6 +11,7 @@ import itertools
 import random
 import multiprocessing as mp
 from functools import partial
+import pickle
 
 from ivy.chars.mk import *
 from ivy.chars.mk_mr import *
