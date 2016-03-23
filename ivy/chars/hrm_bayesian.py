@@ -13,7 +13,7 @@ import collections
 import networkx as nx
 import scipy
 
-from ivy.chars.anc_recon import parsimony_recon
+from ivy.chars.anc_recon import find_minp
 
 def unique_models(nchar, nregime, nparam):
     """
@@ -147,28 +147,32 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None
     if mod_graph is None:
         mod_graph = make_model_graph(unique_models(nchar, nregime, nparam))
 
-    def get_childstates(node, precon):
-        chstates = [None] * len(node.children)
-        for i,n in enumerate(node.children):
-            if n.isleaf:
-                chstates[i] = chars[n.li]
-            else:
-                chstates[i] = precon[n][0]
-        return chstates
-
-    precon =  parsimony_recon(tree, chars)
-
-    minp = 0
-    for node in precon.keys():
-        if len(precon[node][0])>1:
-            minp += len(precon[node][0])-1
-        else:
-            chstates = get_childstates(node, precon)
-            minp += sum([ i for i in chstates if i != precon[node][0]])
-
-
-
-    S = pymc.Exponential()
+    minp = find_minp(tree, chars)
+    treelen = sum([n.length for n in tree.descendants()])
+    # Prior on slowest distribution (beta = 1/mean)
+    slow = pymc.Exponential("slow", beta=treelen/minp)
 
     #TODO generalize
-    alpha
+    alpha = pymc.Lognormal()
+
+
+
+def lognormal_percentile(v1, v2, p):
+    """
+    Return mu and tau for a lognormal distribution where
+    p percent of the distribution falls between v1 and v2
+    """
+
+    mn = np.mean([np.log(v1),np.log(v2)])
+
+    SD = (np.log(v2) - mn) / scipy.stats.norm.ppf(p+(1-p)/2)
+
+    # convert mean and sd to mu and tau
+    mu, tau = sympy.symbols("mu, tau")
+
+    eqns = [math.e**(mu + 1/(2*tau)) - mn, (math.e**(1/tau)-1)*math.e**(2*mu + 1/tau)-SD]
+    sympy.linsolve(eqns)
+
+
+
+    return mn, SD

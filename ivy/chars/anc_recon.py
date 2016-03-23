@@ -347,4 +347,42 @@ def parsimony_recon(tree, chars):
     """
     chardata = {tree.leaves()[i].label:chars[i] for i in range(len(chars))}
     stepmatrix = catpars.default_costmatrix(len(set(chars)))
-    return catpars.ancstates(tree, chardata, stepmatrix)
+    rec = catpars.ancstates(tree, chardata, stepmatrix)
+    for k in rec.keys():
+        rec[k] = rec[k][0]
+    return rec
+
+def find_minp(tree, chars):
+    """
+    Return the minimum number of changes needed by parsimony to observe
+    given data on the tree
+    """
+    def get_childstates(node, precon):
+        chstates = [None] * len(node.children)
+        for i,n in enumerate(node.children):
+            if n.isleaf:
+                chstates[i] = chars[n.li]
+            else:
+                chstates[i] = precon[n]
+            if not hasattr(chstates[i], "__iter__"):
+                chstates[i] = [chstates[i]]
+        return chstates
+    def average_nchanges(ch, pa):
+        lp = 1.0/len(pa)
+        nchanges = 0
+        for p in pa:
+            for c in ch:
+                lc = 1.0/len(c)
+                for s in c:
+                    if s != p:
+                        nchanges += lp * lc
+        return nchanges
+
+    precon =  parsimony_recon(tree, chars)
+    minp = 0.0
+    for node in tree:
+        if not node.isleaf:
+            ch = get_childstates(node, precon)
+            pa = precon[node]
+            minp += average_nchanges(ch, pa)
+    return minp
