@@ -54,7 +54,7 @@ def unique_models(nchar, nregime, nparam):
     nt_mods = [ (i, tuple([0]*n_br)) for i in nt_wr ]
     mods.extend(nt_mods)
 
-    mods_flat = { tuple([i for s in  x for i in s]) for x in mods }
+    mods_flat = [ tuple([i for s in  x for i in s]) for x in mods ]
 
     return mods_flat
 
@@ -80,13 +80,13 @@ def make_model_graph(unique_mods):
                 mod_graph.add_edge(mod, n)
     return mod_graph
 
-def make_qmat_stoch(mods, name="qmat_stoch"):
+def make_qmat_stoch(graph, name="qmat_stoch"):
     """
     Make a stochastic to use for a model-changing step
     """
     startingval = (1,0,0,0,0,0,0,0)
-    nmodel = len(mods)
-    nsingle = len([ i[-4:] for i in list(mods) if set(i[-4:]) == {0}])
+    nmodel = len(graph.node)
+    nsingle = len([ i[-4:] for i in graph.node.keys() if set(i[-4:]) == {0}])
 
     one_regime_li = 0.5/nsingle
     multi_regime_li = 0.5/(nmodel-nsingle)
@@ -106,29 +106,18 @@ class QmatMetropolis(pymc.Metropolis):
     """
     Custom step algorithm for selecting a new model
     """
-    def __init__(self, stochastic, mods, nparam):
+    def __init__(self, stochastic, graph):
         pymc.Metropolis.__init__(self, stochastic, scale=1.)
-        self.mods = mods
-        print self.mods
-        self.nparam = nparam
+        self.graph = graph
     def propose(self):
         cur_mod = self.stochastic.value
-
-        while 1:
-            newmod = new_model(cur_mod, self.nparam)
-            if newmod in self.mods:
-                break
-
-        self.stochastic.value = newmod
+        connected = self.graph[cur_mod].keys()
+        new = random.choice(connected)
+        self.stochastic.value = new
 
     def reject(self):
         self.rejected += 1
         self.stochastic.value = self.stochastic.last_value
-
-def new_model(mod, nparam):
-    i = random.choice(range(len(mod)))
-    v = random.choice(range(nparam+1))
-    return mod[:i] + (v,) + mod[i+1:]
 
 
 
@@ -138,7 +127,7 @@ def ShiftedGamma(shape, shift = 1, name="ShiftedGamma"):
         return pymc.gamma_like(value-shift, shape, 1)
     return shifted_gamma
 
-def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal"):
+def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None):
     """
     Use an MCMC chain to fit a hrm model with a limited number of parameters.
 
@@ -164,9 +153,8 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal"):
     n_wr = nobschar**2-nobschar
     n_br = (nregime**2-nregime)*nobschar
 
-    # if mod_graph is None:
-    #     mod_graph = make_model_graph(unique_models(nchar, nregime, nparam))
-    mods = unique_models(nobschar, nregime, nparam)
+    if mod_graph is None:
+        mod_graph = make_model_graph(unique_models(nobschar, nregime, nparam))
 
     minp = find_minp(tree, chars)
     treelen = sum([n.length for n in tree.descendants()])
@@ -178,7 +166,7 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal"):
     alpha = ShiftedGamma(name = "alpha", shape = gamma_shape, shift=1)
     beta = ShiftedGamma(name = "beta", shape = gamma_shape, shift=1)
 
-    mod = make_qmat_stoch(mods, name="mod")
+    mod = make_qmat_stoch(mod_graph, name="mod")
 
     # Likelihood function
     ar = hrm.create_hrm_ar(tree, chars, nregime, findmin=False)
@@ -200,7 +188,7 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal"):
 
         return lik
     mod_mcmc = pymc.MCMC(locals(), calc_deviance=True)
-    mod_mcmc.use_step_method(QmatMetropolis, mod, mods, nparam = nparam)
+    mod_mcmc.use_step_method(QmatMetropolis, mod, graph=mod_graph)
     return mod_mcmc
 
 def fill_model_Q(mod, Qparams, Q):
