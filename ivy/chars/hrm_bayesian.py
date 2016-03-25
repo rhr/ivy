@@ -13,8 +13,14 @@ import collections
 import networkx as nx
 import scipy
 
+import matplotlib
+import matplotlib.pylab as plt
 from ivy.chars.anc_recon import find_minp
 from ivy.chars import hrm
+
+GAMMASHAPE = 3.55 # The shape parameter of a gamma distribution that is shifted by 1
+                  # Such that 95% of the distribution falls between 2 and 10
+                  # with a scaling parameter of 1
 
 def unique_models(nchar, nregime, nparam):
     """
@@ -54,7 +60,7 @@ def unique_models(nchar, nregime, nparam):
     nt_mods = [ (i, tuple([0]*n_br)) for i in nt_wr ]
     mods.extend(nt_mods)
 
-    mods_flat = { tuple([i for s in  x for i in s]) for x in mods }
+    mods_flat = [ tuple([i for s in  x for i in s]) for x in mods ]
 
     return mods_flat
 
@@ -80,13 +86,13 @@ def make_model_graph(unique_mods):
                 mod_graph.add_edge(mod, n)
     return mod_graph
 
-def make_qmat_stoch(mods, name="qmat_stoch"):
+def make_qmat_stoch(graph, name="qmat_stoch"):
     """
     Make a stochastic to use for a model-changing step
     """
     startingval = (1,0,0,0,0,0,0,0)
-    nmodel = len(mods)
-    nsingle = len([ i[-4:] for i in list(mods) if set(i[-4:]) == {0}])
+    nmodel = len(graph.node)
+    nsingle = len([ i[-4:] for i in graph.node.keys() if set(i[-4:]) == {0}])
 
     one_regime_li = 0.5/nsingle
     multi_regime_li = 0.5/(nmodel-nsingle)
@@ -106,29 +112,18 @@ class QmatMetropolis(pymc.Metropolis):
     """
     Custom step algorithm for selecting a new model
     """
-    def __init__(self, stochastic, mods, nparam):
+    def __init__(self, stochastic, graph):
         pymc.Metropolis.__init__(self, stochastic, scale=1.)
-        self.mods = mods
-        print self.mods
-        self.nparam = nparam
+        self.graph = graph
     def propose(self):
         cur_mod = self.stochastic.value
-
-        while 1:
-            newmod = new_model(cur_mod, self.nparam)
-            if newmod in self.mods:
-                break
-
-        self.stochastic.value = newmod
+        connected = self.graph[cur_mod].keys()
+        new = random.choice(connected)
+        self.stochastic.value = new
 
     def reject(self):
         self.rejected += 1
         self.stochastic.value = self.stochastic.last_value
-
-def new_model(mod, nparam):
-    i = random.choice(range(len(mod)))
-    v = random.choice(range(nparam+1))
-    return mod[:i] + (v,) + mod[i+1:]
 
 
 
@@ -138,7 +133,7 @@ def ShiftedGamma(shape, shift = 1, name="ShiftedGamma"):
         return pymc.gamma_like(value-shift, shape, 1)
     return shifted_gamma
 
-def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal"):
+def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None):
     """
     Use an MCMC chain to fit a hrm model with a limited number of parameters.
 
@@ -159,39 +154,40 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal"):
         mod_graph (Graph): Nx graph of all possible models. Optional, if not
           provided will generate graph, which may be time-consuming
     """
+    assert nparam > 1, "nparam must be at least two"
     nobschar = len(set(chars))
     nchar = nobschar * nregime
     n_wr = nobschar**2-nobschar
     n_br = (nregime**2-nregime)*nobschar
 
-    # if mod_graph is None:
-    #     mod_graph = make_model_graph(unique_models(nchar, nregime, nparam))
-    mods = unique_models(nobschar, nregime, nparam)
+    if mod_graph is None:
+        mod_graph = make_model_graph(unique_models(nobschar, nregime, nparam))
 
     minp = find_minp(tree, chars)
     treelen = sum([n.length for n in tree.descendants()])
     # Prior on slowest distribution (beta = 1/mean)
     slow = pymc.Exponential("slow", beta=treelen/minp)
 
-    #TODO generalize
-    gamma_shape = 3.55
-    alpha = ShiftedGamma(name = "alpha", shape = gamma_shape, shift=1)
-    beta = ShiftedGamma(name = "beta", shape = gamma_shape, shift=1)
+    #Parameters:
+    paramscales = [None]*(nparam-1)
+    for p in range(nparam-1):
+        paramscales[p] =  ShiftedGamma(name = "paramscale_{}".format(str(p)), shape = GAMMASHAPE, shift=1)
 
-    mod = make_qmat_stoch(mods, name="mod")
+    mod = make_qmat_stoch(mod_graph, name="mod")
 
     # Likelihood function
     ar = hrm.create_hrm_ar(tree, chars, nregime, findmin=False)
     Q = np.zeros([nchar,nchar])
 
     @pymc.potential
-    def mklik(mod=mod, slow=slow, alpha=alpha, beta=beta, ar=ar):
+    def mklik(mod=mod, slow=slow, paramscales=paramscales, ar=ar):
         np.copyto(ar["nodelist"],ar["nodelistOrig"])
         ar["root_priors"].fill(1.0)
+        Qparams = [None]*(nparam+1)
         s = slow
-        m = s*alpha
-        f = m*beta
-        Qparams = [1e-15, s, m, f]
+        Qparams[1] = slow
+        for i,p in enumerate(paramscales):
+            Qparams[i+2] = Qparams[i+1]*p
 
         mod_form = [mod[i*n_wr:i*n_wr+n_wr] for i in range(nregime)] + [mod[-n_br:]]
         fill_model_Q(mod_form, Qparams, Q)
@@ -200,7 +196,7 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal"):
 
         return lik
     mod_mcmc = pymc.MCMC(locals(), calc_deviance=True)
-    mod_mcmc.use_step_method(QmatMetropolis, mod, mods, nparam = nparam)
+    mod_mcmc.use_step_method(QmatMetropolis, mod, graph=mod_graph)
     return mod_mcmc
 
 def fill_model_Q(mod, Qparams, Q):
@@ -246,3 +242,20 @@ def lognormal_percentile(v1, v2, p):
     mn = np.mean([np.log(v1),np.log(v2)])
     SD = (np.log(v2) - mn) / scipy.stats.norm.ppf(p+(1-p)/2)
     return mn, SD
+def trace_model_graph(trace, graph):
+    """
+    Plot trace on graph of models
+    """
+    pos = nx.random_layout(graph)
+    fig, ax = plt.subplots()
+    segs = []
+    for node in graph.node.keys():
+        for cnode in graph[node].keys():
+            segs.append([pos[node], pos[cnode]])
+    ax.add_collection(matplotlib.collections.LineCollection(segs, colors=(0,0,0,0.005)))
+
+    # coloring counts
+    tracesegs = []
+    for i,node in enumerate(trace[:-1]):
+        tracesegs.append([pos[tuple(node)], pos[tuple(trace[i+1])]])
+    ax.add_collection(matplotlib.collections.LineCollection(tracesegs, colors=(0,0,1,0.05)))
