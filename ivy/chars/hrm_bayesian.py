@@ -133,7 +133,8 @@ def ShiftedGamma(shape, shift = 1, name="ShiftedGamma"):
         return pymc.gamma_like(value-shift, shape, 1)
     return shifted_gamma
 
-def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None):
+def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None,
+                        dbname = None):
     """
     Use an MCMC chain to fit a hrm model with a limited number of parameters.
 
@@ -183,7 +184,7 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None
     def mklik(mod=mod, slow=slow, paramscales=paramscales, ar=ar):
         np.copyto(ar["nodelist"],ar["nodelistOrig"])
         ar["root_priors"].fill(1.0)
-        Qparams = [None]*(nparam+1)
+        Qparams = [1e-15]*(nparam+1)
         s = slow
         Qparams[1] = slow
         for i,p in enumerate(paramscales):
@@ -195,7 +196,11 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None
         lik = hrm.hrm_mk(tree, chars, Q, nregime, pi=pi, returnPi=False,ar=ar)
 
         return lik
-    mod_mcmc = pymc.MCMC(locals(), calc_deviance=True)
+    if dbname is None:
+        mod_mcmc = pymc.MCMC(locals(), calc_deviance=True)
+    else:
+        mod_mcmc = pymc.MCMC(locals(), calc_deviance=True, db="pickle",
+                             dbname=dbname)
     mod_mcmc.use_step_method(QmatMetropolis, mod, graph=mod_graph)
     return mod_mcmc
 

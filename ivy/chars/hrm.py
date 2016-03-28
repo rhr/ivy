@@ -679,7 +679,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
             return var["nullval"]
         if Qtype == "ARD":
             if constraints == "Rate":
-                qmax = [max(Qparams[:nchar*nregime][i:i+nchar]) for i in xrange(0, len(Qparams)/2, nchar)]
+                qmax = [max(Qparams[:nchar*nregime][i:i+nobschar]) for i in xrange(0, len(Qparams)/2, nobschar)]
                 if sorted(qmax) != qmax:
                     return var["nullval"]
             elif constraints == "Symmetry":
