@@ -86,46 +86,72 @@ def make_model_graph(unique_mods):
                 mod_graph.add_edge(mod, n)
     return mod_graph
 
-def make_qmat_stoch(graph, name="qmat_stoch"):
+def make_qmat_stoch(ncell,name="qmat_stoch"):
     """
     Make a stochastic to use for a model-changing step
     """
     # TODO: generalize
-    startingval = (1,0,0,0,0,0,0,0)
-    nmodel = len(graph.node)
-    nsingle = len([ i[-4:] for i in graph.node.keys() if set(i[-4:]) == {0}])
-
-    one_regime_li = 0.5/nsingle
-    multi_regime_li = 0.5/(nmodel-nsingle)
+    #startingval = (1,) + (0,)*(ncell-1)
+    startingval = (1,2,3,0,1,0,0,0)
 
     @pymc.stochastic(dtype=tuple, name=name)
     def qmat_stoch(value = startingval):
-        # Very simple prior: single-regime models should take up half
-        # of likelihood space
-        if set(value[-4:]) == {0}:
-            ln_li = np.log(one_regime_li)
-        else:
-            ln_li = np.log(multi_regime_li)
-        return ln_li
+        # Flat prior on model likelihood
+        return 0
     return qmat_stoch
+
+def new_hrm_model(mod, nparam, nchar, nregime, mod_order):
+    """
+    Return new, valid model by changing one parameter of current model
+    """
+    while 1:
+        i = random.choice(range(len(mod)))
+        v = random.choice([n for n in range(nparam+1) if not n==mod[i]])
+
+        newmod = mod[:i] + (v,) + mod[i+1:]
+        if is_valid_model(newmod, nparam, nchar, nregime, mod_order):
+            return newmod
+
+def is_valid_model(mod, nparam, nchar, nregime, mod_order):
+    """
+    Check if a given model is valid
+    """
+    nobschar = nchar/nregime
+    n_wr = nobschar**2-nobschar
+    n_br = (nregime**2-nregime)*nobschar
+    all_params_zero = range(nparam+1)
+    all_params = all_params_zero[1:]
+    if not (list(set(mod)) == all_params_zero or list(set(mod)) == all_params):
+        return False
+    if set(mod[n_wr*nregime:]) == {0}:
+        if not set(mod[n_wr:n_wr*2]) == {0}:
+            return False
+    # Check order and identity of sub-matrices
+    if mod_order[mod[:n_wr]] >= mod_order[mod[n_wr:n_wr*2]]:
+        return False
+
+    return True
 
 class QmatMetropolis(pymc.Metropolis):
     """
     Custom step algorithm for selecting a new model
     """
-    def __init__(self, stochastic, graph):
+    def __init__(self, stochastic, nparam, nchar, nregime):
         pymc.Metropolis.__init__(self, stochastic, scale=1.)
-        self.graph = graph
+        self.nparam = nparam
+        self.nchar = nchar
+        self.nregime = nregime
+        nobschar = nchar/nregime
+        order = itertools.product(range(nparam+1), repeat = nobschar**2-nobschar)
+        self.mod_order = {m:i for i,m in enumerate(order)}
     def propose(self):
         cur_mod = self.stochastic.value
-        connected = self.graph[cur_mod].keys()
-        new = random.choice(connected)
+        new = new_hrm_model(cur_mod, self.nparam, self.nchar, self.nregime, self.mod_order)
         self.stochastic.value = new
 
     def reject(self):
         self.rejected += 1
         self.stochastic.value = self.stochastic.last_value
-
 
 
 def ShiftedGamma(shape, shift = 1, name="ShiftedGamma"):
@@ -157,10 +183,15 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None
           provided will generate graph, which may be time-consuming
     """
     assert nparam > 1, "nparam must be at least two"
+
     nobschar = len(set(chars))
     nchar = nobschar * nregime
     n_wr = nobschar**2-nobschar
     n_br = (nregime**2-nregime)*nobschar
+
+    # TODO: generalize everything
+    assert nobschar == 2
+    assert nregime == 2
 
     if mod_graph is None:
         mod_graph = make_model_graph(unique_models(nobschar, nregime, nparam))
@@ -204,26 +235,6 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None
                              dbname=dbname)
     mod_mcmc.use_step_method(QmatMetropolis, mod, graph=mod_graph)
     return mod_mcmc
-
-def is_valid_model(mod, nparam, nchar, nregime, mod_order):
-    """
-    Check if a given model is valid
-    """
-    nobschar = nchar/nregime
-    n_wr = nobschar**2-nobschar
-    n_br = (nregime**2-nregime)*nobschar
-    all_params_zero = range(nparam+1)
-    all_params = all_params_zero[1:]
-    if not (list(set(mod)) == all_params_zero or list(set(mod)) == all_params):
-        return False
-    if set(mod[n_wr*nregime:]) == {0}:
-        if not set(mod[n_wr:n_wr*2]) == {0}:
-            return False
-    # Check order and identity of sub-matrices
-    if mod_order[mod[:n_wr]] >= mode_order[mod[n_wr:n_wr*2]]:
-        return False
-
-    return True
 
 
 def fill_model_Q(mod, Qparams, Q):
@@ -273,8 +284,8 @@ def mk_allmodels_bayes(tree, chars, nparam, pi="Equal", dbname=None):
     Fit an mk model with nparam parameters distributed about the Q matrix.
     """
     nchar = len(set(chars))
-    ncells = nchar**2 - nchar
-    assert nparam <= ncells
+    ncell = nchar**2 - nchar
+    assert nparam <= ncell
 
     minp = find_minp(tree, chars)
     treelen = sum([n.length for n in tree.descendants()])
@@ -289,7 +300,7 @@ def mk_allmodels_bayes(tree, chars, nparam, pi="Equal", dbname=None):
     ### Model
     paramset = range(nparam+1)
     nonzeros = paramset[1:]
-    all_mods = list(itertools.product(paramset, repeat = ncells))
+    all_mods = list(itertools.product(paramset, repeat = ncell))
     all_mods = [tuple(m) for m in all_mods if all([i in set(m) for i in nonzeros])]
 
     mod = make_qmat_stoch_mk(all_mods, name="mod")

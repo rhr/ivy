@@ -141,3 +141,23 @@ modcount = collections.Counter([tuple(i) for i in mk_mod_gammaprior.trace("mod")
 
 plt.hist(alpha_gammaprior)
 plt.plot(x,(gamma.pdf(x,3.55, loc = 1)*4000))
+
+
+
+
+###############################
+# Model sampling
+###############################
+nobschar = 2
+nparam = 3
+nregime = 2
+nchar = 4
+
+n_wr = nobschar**2-nobschar
+n_br = (nregime**2 - nregime)*nobschar
+
+ncell = n_wr*nregime + n_br
+
+qmat_stoch = make_qmat_stoch(ncells)
+qmat_MCMC = pymc.MCMC(qmat_stoch)
+qmat_MCMC.use_step_method(QmatMetropolis, qmat_stoch,nparam, nchar, nregime)
