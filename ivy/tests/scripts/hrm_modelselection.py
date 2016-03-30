@@ -8,7 +8,7 @@ import collections
 import networkx as nx
 import scipy
 import pickle
-from ivy.chars.hrm_bayesian_graph import *
+from ivy.chars.hrm_bayesian import *
 
 
 # unique_mods = unique_models(2,2,3)
@@ -95,3 +95,49 @@ modtrace = modspace_mc.trace("mod")[:]
 
 modspace_mc2 = hrm_allmodels_bayes(tree, chars, nregime, nparam, mod_graph=mod_graph)
 modspace_mc2.sample(12000, burn=2000, thin=10)
+
+
+
+
+## Simple Mk bayesian model selection
+tree = ivy.tree.read("support/hrm_600tips.newick")
+simtree = ivy.sim.discrete_sim.sim_discrete(tree, np.array([[-0.01,0.01],[0.1,-0.1]]))
+fig = treefig(simtree)
+fig.add_layer(ivy.vis.layers.add_branchstates)
+
+chars = [t.sim_char["sim_state"] for t in simtree.leaves()]
+mk_mod = mk_allmodels_bayes(tree, chars, nparam=2, pi="Equal")
+
+
+mk_mod.sample(5000, burn=1000)
+s = mk_mod.trace("slow")[:]
+alpha = mk_mod.trace("paramscale_0")[:]
+f = [s[i]*alpha[i] for i in range(len(s))]
+
+print np.percentile(s, [2.5,50,97.5])
+print np.percentile(alpha, [2.5,50,97.5])
+print np.percentile(f, [2.5,50,97.5])
+
+
+modcount = collections.Counter([tuple(i) for i in mk_mod.trace("mod")[:]])
+
+
+
+
+mk_mod_gammaprior = mk_allmodels_bayes(tree, chars, nparam=2, pi="Equal")
+
+mk_mod_gammaprior.sample(5000, burn=1000)
+s_gammaprior = mk_mod_gammaprior.trace("slow")[:]
+alpha_gammaprior = mk_mod_gammaprior.trace("paramscale_0")[:]
+f_gammaprior = [s[i]*alpha[i] for i in range(len(s))]
+
+print np.percentile(s_gammaprior, [2.5,50,97.5])
+print np.percentile(alpha_gammaprior, [2.5,50,97.5])
+print np.percentile(f_gammaprior, [2.5,50,97.5])
+
+
+modcount = collections.Counter([tuple(i) for i in mk_mod_gammaprior.trace("mod")[:]])
+
+
+plt.hist(alpha_gammaprior)
+plt.plot(x,(gamma.pdf(x,3.55, loc = 1)*4000))

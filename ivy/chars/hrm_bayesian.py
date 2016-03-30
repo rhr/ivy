@@ -16,7 +16,7 @@ import scipy
 import matplotlib
 import matplotlib.pylab as plt
 from ivy.chars.anc_recon import find_minp
-from ivy.chars import hrm
+from ivy.chars import hrm, mk
 
 GAMMASHAPE = 3.55 # The shape parameter of a gamma distribution that is shifted by 1
                   # Such that 95% of the distribution falls between 2 and 10
@@ -90,6 +90,7 @@ def make_qmat_stoch(graph, name="qmat_stoch"):
     """
     Make a stochastic to use for a model-changing step
     """
+    # TODO: generalize
     startingval = (1,0,0,0,0,0,0,0)
     nmodel = len(graph.node)
     nsingle = len([ i[-4:] for i in graph.node.keys() if set(i[-4:]) == {0}])
@@ -184,7 +185,7 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None
     def mklik(mod=mod, slow=slow, paramscales=paramscales, ar=ar):
         np.copyto(ar["nodelist"],ar["nodelistOrig"])
         ar["root_priors"].fill(1.0)
-        Qparams = [1e-15]*(nparam+1)
+        Qparams = [1e-15]*(nparam+1) # Initializing blank Qparams (maybe more efficient to do outside of function)
         s = slow
         Qparams[1] = slow
         for i,p in enumerate(paramscales):
@@ -203,6 +204,27 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None
                              dbname=dbname)
     mod_mcmc.use_step_method(QmatMetropolis, mod, graph=mod_graph)
     return mod_mcmc
+
+def is_valid_model(mod, nparam, nchar, nregime, mod_order):
+    """
+    Check if a given model is valid
+    """
+    nobschar = nchar/nregime
+    n_wr = nobschar**2-nobschar
+    n_br = (nregime**2-nregime)*nobschar
+    all_params_zero = range(nparam+1)
+    all_params = all_params_zero[1:]
+    if not (list(set(mod)) == all_params_zero or list(set(mod)) == all_params):
+        return False
+    if set(mod[n_wr*nregime:]) == {0}:
+        if not set(mod[n_wr:n_wr*2]) == {0}:
+            return False
+    # Check order and identity of sub-matrices
+    if mod_order[mod[:n_wr]] >= mode_order[mod[n_wr:n_wr*2]]:
+        return False
+
+    return True
+
 
 def fill_model_Q(mod, Qparams, Q):
     """
@@ -238,29 +260,87 @@ def fill_model_Q(mod, Qparams, Q):
         np.fill_diagonal(Q[my_slice0,my_slice1],[Qparams[p] for p in mod[nregime][i*nobschar:i*nobschar+nobschar]])
     np.fill_diagonal(Q, -np.sum(Q,1))
 
+def fill_model_mk(mod, Qparams, Q, mask):
+    """
+    Fill cells of Q with Qparams based on mod
+    """
+    Q[mask] = [Qparams[i] for i in mod]
+    Q[np.diag_indices(Q.shape[0])] = -np.sum(Q, 1)
 
-def lognormal_percentile(v1, v2, p):
-    """
-    Return mu and tau for a lognormal distribution where
-    p percent of the distribution falls between v1 and v2
-    """
-    mn = np.mean([np.log(v1),np.log(v2)])
-    SD = (np.log(v2) - mn) / scipy.stats.norm.ppf(p+(1-p)/2)
-    return mn, SD
-def trace_model_graph(trace, graph):
-    """
-    Plot trace on graph of models
-    """
-    pos = nx.random_layout(graph)
-    fig, ax = plt.subplots()
-    segs = []
-    for node in graph.node.keys():
-        for cnode in graph[node].keys():
-            segs.append([pos[node], pos[cnode]])
-    ax.add_collection(matplotlib.collections.LineCollection(segs, colors=(0,0,0,0.005)))
 
-    # coloring counts
-    tracesegs = []
-    for i,node in enumerate(trace[:-1]):
-        tracesegs.append([pos[tuple(node)], pos[tuple(trace[i+1])]])
-    ax.add_collection(matplotlib.collections.LineCollection(tracesegs, colors=(0,0,1,0.05)))
+def mk_allmodels_bayes(tree, chars, nparam, pi="Equal", dbname=None):
+    """
+    Fit an mk model with nparam parameters distributed about the Q matrix.
+    """
+    nchar = len(set(chars))
+    ncells = nchar**2 - nchar
+    assert nparam <= ncells
+
+    minp = find_minp(tree, chars)
+    treelen = sum([n.length for n in tree.descendants()])
+    ### Parameters
+    # Prior on slowest distribution (beta = 1/mean)
+    slow = pymc.Exponential("slow", beta=treelen/minp)
+
+
+    paramscales = [None]*(nparam-1)
+    for p in range(nparam-1):
+        paramscales[p] =  pymc.Uniform(name = "paramscale_{}".format(str(p)), lower = 2, upper=20)
+    ### Model
+    paramset = range(nparam+1)
+    nonzeros = paramset[1:]
+    all_mods = list(itertools.product(paramset, repeat = ncells))
+    all_mods = [tuple(m) for m in all_mods if all([i in set(m) for i in nonzeros])]
+
+    mod = make_qmat_stoch_mk(all_mods, name="mod")
+
+    l = mk.create_likelihood_function_mk(tree=tree, chars=chars, Qtype="ARD",
+                                         pi=pi, findmin=False)
+    Q = np.zeros([nchar, nchar])
+    mask = np.ones([nchar,nchar], dtype=bool)
+    mask[np.diag_indices(nchar)] = False
+    @pymc.potential
+    def mklik(mod=mod,slow=slow,paramscales=paramscales, name="mklik"):
+        params = [0.0]*(nparam+1)
+        params[1] = slow
+        for i,s in enumerate(paramscales):
+            params[2+i] = params[2+(i-1)] * s
+
+        Qparams = [params[i] for i in mod]
+        return l(np.array(Qparams))
+    if dbname is None:
+        mod_mcmc = pymc.MCMC(locals(), calc_deviance=True)
+    else:
+        mod_mcmc = pymc.MCMC(locals(), calc_deviance=True, db="pickle",
+                             dbname=dbname)
+    mod_mcmc.use_step_method(QmatMetropolis_mk, mod, all_mods)
+    return mod_mcmc
+
+def make_qmat_stoch_mk(all_mods, name="qmat_stoch"):
+    """
+    Stochastic for use in model-changing step
+    """
+
+    startingval = all_mods[0]
+
+    @pymc.stochastic(dtype=tuple, name=name)
+    def qmat_stoch(value=startingval):
+        # Flat prior for all models
+        return 0
+    return qmat_stoch
+
+class QmatMetropolis_mk(pymc.Metropolis):
+    """
+    Custom step algorithm for selecting a new model
+    """
+    def __init__(self, stochastic, all_mods):
+        pymc.Metropolis.__init__(self, stochastic, scale=1.)
+        self.all_mods = all_mods
+    def propose(self):
+        cur_mod = self.stochastic.value
+        new = random.choice([ m for m in self.all_mods if not m==cur_mod])
+        self.stochastic.value = new
+
+    def reject(self):
+        self.rejected += 1
+        self.stochastic.value = self.stochastic.last_value
