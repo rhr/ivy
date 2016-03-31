@@ -159,5 +159,11 @@ n_br = (nregime**2 - nregime)*nobschar
 ncell = n_wr*nregime + n_br
 
 qmat_stoch = make_qmat_stoch(ncells)
-qmat_MCMC = pymc.MCMC(qmat_stoch)
+qmat_MCMC = pymc.MCMC([qmat_stoch])
 qmat_MCMC.use_step_method(QmatMetropolis, qmat_stoch,nparam, nchar, nregime)
+
+
+
+qmat_MCMC.sample(1000000)
+
+modtrace = qmat_MCMC.trace("qmat_stoch")[:]

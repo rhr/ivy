@@ -90,9 +90,7 @@ def make_qmat_stoch(ncell,name="qmat_stoch"):
     """
     Make a stochastic to use for a model-changing step
     """
-    # TODO: generalize
-    #startingval = (1,) + (0,)*(ncell-1)
-    startingval = (1,2,3,0,1,0,0,0)
+    startingval = (1,)*ncell
 
     @pymc.stochastic(dtype=tuple, name=name)
     def qmat_stoch(value = startingval):
@@ -121,16 +119,31 @@ def is_valid_model(mod, nparam, nchar, nregime, mod_order):
     n_br = (nregime**2-nregime)*nobschar
     all_params_zero = range(nparam+1)
     all_params = all_params_zero[1:]
+    # Test if all params are present. If not, return false
     if not (list(set(mod)) == all_params_zero or list(set(mod)) == all_params):
         return False
-    if set(mod[n_wr*nregime:]) == {0}:
-        if not set(mod[n_wr:n_wr*2]) == {0}:
-            return False
+    # Test if all regimes are connected
+    if number_connected(mod, nchar, nregime, n_wr, n_br) < nregime-1:
+        return False
     # Check order and identity of sub-matrices
-    if mod_order[mod[:n_wr]] >= mod_order[mod[n_wr:n_wr*2]]:
+    mod_indices = [mod_order[mod[i*n_wr:i*n_wr+n_wr]] for i in range(nregime)]
+    if sorted(list(set(mod_indices))) != mod_indices:
         return False
 
     return True
+def number_connected(mod, nchar, nregime, n_wr, n_br):
+    """
+    Test how many regimes are connected in some way
+    """
+    br_mod = mod[n_wr*nregime:]
+    n_pairs = (nregime**2-nregime)/2
+    connections = [False]*n_pairs
+    nobschar = nchar/nregime
+
+    for c in range(n_pairs):
+        connections[c] = set(br_mod[c*nobschar*2:c*nobschar*2+nobschar*2]) != {0}
+    return sum(connections)
+
 
 class QmatMetropolis(pymc.Metropolis):
     """
@@ -160,7 +173,7 @@ def ShiftedGamma(shape, shift = 1, name="ShiftedGamma"):
         return pymc.gamma_like(value-shift, shape, 1)
     return shifted_gamma
 
-def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None,
+def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal",
                         dbname = None):
     """
     Use an MCMC chain to fit a hrm model with a limited number of parameters.
@@ -193,8 +206,6 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal", mod_graph=None
     assert nobschar == 2
     assert nregime == 2
 
-    if mod_graph is None:
-        mod_graph = make_model_graph(unique_models(nobschar, nregime, nparam))
 
     minp = find_minp(tree, chars)
     treelen = sum([n.length for n in tree.descendants()])
@@ -264,7 +275,10 @@ def fill_model_Q(mod, Qparams, Q):
         subQ = slice(i*nobschar,(i+1)*nobschar)
         np.copyto(Q[subQ, subQ], [[0, Qparams[mod[i][0]]],[Qparams[mod[i][1]], 0]])
 
-    for i,submatrix_index in enumerate(itertools.permutations(range(nregime),2)):
+    combs = list(itertools.combinations(range(nregime),2))
+    revcombs = [tuple(reversed(i)) for i in combs]
+    submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
+    for i,submatrix_index in enumerate(submatrix_indices):
         my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
         my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
         nregimeswitch =(nregime**2 - nregime)*2
