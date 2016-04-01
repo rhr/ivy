@@ -111,8 +111,64 @@ class ModelValidity(unittest.TestCase):
                                       2,8,4, self.modorder_242))
 class QmatrixFilling(unittest.TestCase):
     def setUp(self):
-        pass
+        self.qmat_mod_222 = [(0,1),(2,3),(4,5,6,7)]
+        self.qmat_params_222 = range(8)
+        self.qmat_222 = np.array([[-4,0,4,0],
+                                  [1,-6,0,5],
+                                  [6,0,-8,2],
+                                  [0,7,3,-10]])
 
+        self.qmat_mod_232 = [(0,1),(2,3),(4,5),tuple(range(6, 18))]
+        self.qmat_params_232 = range(18)
+        self.qmat_232 = np.array([[-16,0,6,0,10,0],
+                                  [1,-19,0,7,0,11],
+                                  [8,0,-24,2,14,0],
+                                  [0,9,3,-27,0,15],
+                                  [12,0,16,0,-32,4],
+                                  [0,13,0,17,5,-35]])
 
+        self.qmat_mod_322 = [(0,1,2,3,4,5),(6,7,8,9,10,11),(12,13,14,15,16,17)]
+        self.qmat_params_322 = range(18)
+        self.qmat_322 = np.array([[-13,0,1,12,0,0],
+                                  [2,-18,3,0,13,0],
+                                  [4,5,-23,0,0,14],
+                                  [15,0,0,-28,6,7],
+                                  [0,16,0,8,-33,9],
+                                  [0,0,17,10,11,-38]])
+
+        self.qmat_mod_242 = [(0,1),(2,3),(4,5),(6,7),tuple(range(8,32))]
+        self.qmat_params_242 = tuple(range(32))
+        self.qmat_242 = np.array([[-36,0,8,0,12,0,16,0],
+                                 [1,-40,0,9,0,13,0,17],
+                                 [10,0,-56,2,20,0,24,0],
+                                 [0,11,3,-60,0,21,0,25],
+                                 [14,0,22,0,-68,4,28,0],
+                                 [0,15,0,23,5,-72,0,29],
+                                 [18,0,26,0,30,0,-80,6],
+                                 [0,19,0,27,0,31,7,-84]])
+    def test_qmatfill_222(self):
+        mod = self.qmat_mod_222
+        Qparams = self.qmat_params_222
+        Q = np.zeros([4,4])
+        hrm_bayesian.fill_model_Q(mod,Qparams,Q)
+        self.assertTrue(np.array_equal(self.qmat_222,Q))
+    def test_qmatfill_232(self):
+        mod = self.qmat_mod_232
+        Qparams = self.qmat_params_232
+        Q = np.zeros([6,6])
+        hrm_bayesian.fill_model_Q(mod,Qparams,Q)
+        self.assertTrue(np.array_equal(self.qmat_232,Q))
+    def test_qmatfill_322(self):
+        mod = self.qmat_mod_322
+        Qparams = self.qmat_params_322
+        Q = np.zeros([6,6])
+        hrm_bayesian.fill_model_Q(mod,Qparams,Q)
+        self.assertTrue(np.array_equal(self.qmat_322,Q))
+    def test_qmatfill_242(self):
+        mod = self.qmat_mod_242
+        Qparams = self.qmat_params_242
+        Q = np.zeros([8,8])
+        hrm_bayesian.fill_model_Q(mod,Qparams,Q)
+        self.assertTrue(np.array_equal(self.qmat_242,Q))
 if __name__ == "__main__":
     unittest.main()

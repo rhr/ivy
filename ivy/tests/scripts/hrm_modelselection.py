@@ -15,17 +15,17 @@ from ivy.chars.hrm_bayesian import *
 # mod_graph = make_model_graph(unique_mods)
 #
 # pickle.dump(mod_graph, open("mod_graph_223.p", "wb"))
-
-mod_graph = pickle.load(open("mod_graph_223.p", "rb"))
-
-qs = make_qmat_stoch(mod_graph)
-
-mod_mc = pymc.MCMC([qs])
-mod_mc.use_step_method(QmatMetropolis, qs, graph=mod_graph)
-
-mod_mc.sample(1000)
-
-sample_from_prior = mod_mc.trace("qmat_stoch")[:]
+#
+# mod_graph = pickle.load(open("mod_graph_223.p", "rb"))
+#
+# qs = make_qmat_stoch(mod_graph)
+#
+# mod_mc = pymc.MCMC([qs])
+# mod_mc.use_step_method(QmatMetropolis, qs, graph=mod_graph)
+#
+# mod_mc.sample(1000)
+#
+# sample_from_prior = mod_mc.trace("qmat_stoch")[:]
 
 #################################################
 tree = ivy.tree.read("support/hrm_600tips.newick")
@@ -167,3 +167,159 @@ qmat_MCMC.use_step_method(QmatMetropolis, qmat_stoch,nparam, nchar, nregime)
 qmat_MCMC.sample(1000000)
 
 modtrace = qmat_MCMC.trace("qmat_stoch")[:]
+
+#############################
+# Model selection with 3 regimes
+##############################
+nregime = 3
+nparam = 3
+modspace_mc_3r = hrm_allmodels_bayes(tree, chars, nregime, nparam)
+modspace_mc_3r.sample(20000, burn=2000, thin=2)
+
+modspace_mc_3r_slow = modspace_mc_3r.trace("slow")[:]
+modspace_mc_3r_alpha = modspace_mc_3r.trace("paramscale_0")[:]
+modspace_mc_3r_beta = modspace_mc_3r.trace("paramscale_1")[:]
+
+
+plt.hist(modspace_mc_3r_slow)
+plt.figure()
+plt.hist(modspace_mc_3r_alpha)
+plt.figure()
+plt.hist(modspace_mc_3r_beta)
+modspace_mc_3r_modcount = collections.Counter([tuple(i) for i in modspace_mc_3r.trace("mod")[:]])
+
+#############################
+# Modelselection with 3 regimes as generating model
+#############################
+generatingQ = np.array([[-.02,0,0.01,0,0.01,0],
+                        [0,-0.02,0,0.01,0,0.01],
+                        [0.01,0,-0.03,0.01,0.01,0],
+                        [0,0.01,0.01,-0.03,0,0.01],
+                        [0.01,0,0.01,0,-0.12,0.1],
+                        [0,0.01,0,0.01,0.1,-0.12]])
+simtree = ivy.sim.discrete_sim.sim_discrete(tree, generatingQ, anc=0)
+chars = [i.sim_char["sim_state"] for i in simtree.leaves()]
+chars =  [i%2 for i in chars]
+
+regime = 3
+nparam = 3
+modfit_3r = hrm_allmodels_bayes(tree, chars, nregime, nparam)
+modfit_3r.sample(20000, burn=2000, thin=2)
+
+
+modfit_3r_modcount = collections.Counter([tuple(i) for i in modfit_3r.trace("mod")[:]])
+modfit_3r_slow = modfit_3r.trace("slow")[:]
+modfit_3r_alpha = modfit_3r.trace("paramscale_0")[:]
+modfit_3r_beta = modfit_3r.trace("paramscale_1")[:]
+
+
+plt.hist(modfit_3r_slow)
+plt.figure()
+plt.hist(modfit_3r_alpha)
+plt.figure()
+plt.hist(modfit_3r_beta)
+############################
+# Model selection: sample from prior
+############################
+nchar = 6
+nregime = 3
+nparam = 3
+nobschar = 2
+minp = find_minp(tree, chars)
+treelen = sum([n.length for n in tree.descendants()])
+slow = pymc.Exponential("slow", beta=treelen/minp)
+
+#Parameters:
+paramscales = [None]*(nparam-1)
+for p in range(nparam-1):
+    paramscales[p] =  ShiftedGamma(name = "paramscale_{}".format(str(p)), shape = GAMMASHAPE, shift=1)
+
+mod = make_qmat_stoch(nobschar = nobschar,nregime=nregime,
+                      nparam=nparam, mod_order_list = list(itertools.product(range(nparam+1), repeat = nobschar**2-nobschar)),
+                      name="mod")
+mod_nodata = pymc.MCMC([slow, paramscales, mod])
+
+mod_nodata.use_step_method(QmatMetropolis, mod, nparam, nchar, nregime)
+
+mod_nodata.sample(20000, burn=2000, thin=2)
+
+nodata_modcount = collections.Counter([tuple(i) for i in mod_nodata.trace("mod")[:]])
+nodata_slow = mod_nodata.trace("slow")[:]
+nodata_alpha = mod_nodata.trace("paramscale_0")[:]
+nodata_beta = mod_nodata.trace("paramscale_1")[:]
+
+plt.figure()
+plt.hist(nodata_slow, color="red")
+plt.figure()
+plt.hist(nodata_alpha, color="red")
+plt.figure()
+plt.hist(nodata_beta, color="red")
+
+
+
+###############################################
+# Well-behaved model testing
+###############################################
+# Two-regime, two parameter
+Q = np.array([[-0.02,0.01,0.01,0],
+              [0.01,-.02,0,0.01],
+              [0.01,0,-.11,0.1],
+              [0,0.01,0.1,-.11]])
+random.seed(2)
+simtree = ivy.sim.discrete_sim.sim_discrete(tree, Q, anc=0)
+fig = treefig(simtree)
+fig.add_layer(ivy.vis.layers.add_branchstates)
+
+chars = [i.sim_char["sim_state"] for i in simtree.leaves()]
+chars =  [i%2 for i in chars]
+
+nchar = 4
+nregime = 2
+nparam = 2
+nobschar = 2
+
+####
+# Without data
+###
+
+minp = find_minp(tree, chars)
+treelen = sum([n.length for n in tree.descendants()])
+slow = pymc.Exponential("slow", beta=treelen/minp)
+
+#Parameters:
+paramscales = [None]*(nparam-1)
+for p in range(nparam-1):
+    paramscales[p] =  ShiftedGamma(name = "paramscale_{}".format(str(p)), shape = GAMMASHAPE, shift=1)
+
+mod = make_qmat_stoch(nobschar = nobschar,nregime=nregime,
+                      nparam=nparam, mod_order_list = list(itertools.product(range(nparam+1), repeat = nobschar**2-nobschar)),
+                      name="mod")
+mod_nodata_2r = pymc.MCMC([slow, paramscales, mod])
+
+mod_nodata_2r.use_step_method(QmatMetropolis, mod, nparam, nchar, nregime)
+
+mod_nodata_2r.sample(20000, burn=2000, thin=2)
+
+mod_nodata_2r_modcount = collections.Counter([tuple(i) for i in mod_nodata_2r.trace("mod")[:]])
+mod_nodata_2r_slow = mod_nodata_2r.trace("slow")[:]
+mod_nodata_2r_alpha = mod_nodata_2r.trace("paramscale_0")[:]
+
+plt.figure()
+plt.hist(mod_nodata_2r_slow, color="red")
+plt.figure()
+plt.hist(mod_nodata_2r_alpha, color="red")
+
+
+#####
+# MLE to pick seed value
+#####
+mod_2r_MLE = hrm.fit_hrm_mkARD(tree, chars, 2, pi="Equal", constraints="Rate")
+MLEQ = np.array([[-0.30729542,  0.03750787,  0.26978755,  0.        ],
+        [ 0.        , -0.41971919,  0.        ,  0.41971919],
+        [ 0.320519  ,  0.        , -0.320519  ,  0.        ],
+        [ 0.        ,  0.        ,  0.27171017, -0.27171017]])
+
+modelseed = (1,0,0,2,1,1,1,0)
+
+modfit_3r = hrm_allmodels_bayes(tree, chars, nregime, nparam, modseed=modelseed)
+modfit_3r.sample(20000, burn=2000, thin=2)

@@ -86,18 +86,6 @@ def make_model_graph(unique_mods):
                 mod_graph.add_edge(mod, n)
     return mod_graph
 
-def make_qmat_stoch(ncell,name="qmat_stoch"):
-    """
-    Make a stochastic to use for a model-changing step
-    """
-    startingval = (1,)*ncell
-
-    @pymc.stochastic(dtype=tuple, name=name)
-    def qmat_stoch(value = startingval):
-        # Flat prior on model likelihood
-        return 0
-    return qmat_stoch
-
 def new_hrm_model(mod, nparam, nchar, nregime, mod_order):
     """
     Return new, valid model by changing one parameter of current model
@@ -129,6 +117,9 @@ def is_valid_model(mod, nparam, nchar, nregime, mod_order):
     mod_indices = [mod_order[mod[i*n_wr:i*n_wr+n_wr]] for i in range(nregime)]
     if sorted(list(set(mod_indices))) != mod_indices:
         return False
+    # Check that there are no fast parameters in BR transitions
+    if nparam in mod[-n_br:]:
+        return False
 
     return True
 def number_connected(mod, nchar, nregime, n_wr, n_br):
@@ -143,6 +134,17 @@ def number_connected(mod, nchar, nregime, n_wr, n_br):
     for c in range(n_pairs):
         connections[c] = set(br_mod[c*nobschar*2:c*nobschar*2+nobschar*2]) != {0}
     return sum(connections)
+def make_qmat_stoch(nobschar,nregime,nparam,mod_order_list,modseed,name="qmat_stoch"):
+    """
+    Make a stochastic to use for a model-changing step
+    """
+    startingval = modseed
+
+    @pymc.stochastic(dtype=tuple, name=name)
+    def qmat_stoch(value = startingval):
+        # Flat prior on model likelihood
+        return 0
+    return qmat_stoch
 
 
 class QmatMetropolis(pymc.Metropolis):
@@ -173,7 +175,44 @@ def ShiftedGamma(shape, shift = 1, name="ShiftedGamma"):
         return pymc.gamma_like(value-shift, shape, 1)
     return shifted_gamma
 
-def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal",
+def fill_model_Q(mod, Qparams, Q):
+    """
+    Create Q matrix given model and parameters.
+
+    Args:
+        mod (list): List of tuples. Code for the mode used. The first nregime
+          tuples correspond to the within-regime transition rates for each
+          regime. The last tuple corresponds to the between-regime transition
+          rates. Ex. [(1, 2), (3, 4), (5, 6, 7, 8)] corresponds to a
+          matrix of:
+              [-,1,5,-]
+              [2,-,-,6]
+              [7,-,-,3]
+              [-,8,4,-]
+        Qparams (list): List of floats corresponding to the values for
+          slow, medium, fast, etc. rates. The first is always 0
+        Q (np.array): Pre-allocated Q matrix
+    """
+    nregime = len(mod)-1
+    nobschar = Q.shape[0]/nregime
+    nchar = Q.shape[0]
+    Q.fill(0.0)
+    for i in range(nregime):
+        subQ = slice(i*nobschar,(i+1)*nobschar)
+        subQvals = [Qparams[x] for s in [(0,)+mod[i][k:k+3] for k in range(0,len(mod[i])+1,nobschar)] for x in s]
+        np.copyto(Q[subQ, subQ], [subQvals[x:x+nobschar] for x in xrange(0, len(subQvals), nobschar)])
+
+    combs = list(itertools.combinations(range(nregime),2))
+    revcombs = [tuple(reversed(i)) for i in combs]
+    submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
+    for i,submatrix_index in enumerate(submatrix_indices):
+        my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
+        my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
+        nregimeswitch =(nregime**2 - nregime)*2
+        np.fill_diagonal(Q[my_slice0,my_slice1],[Qparams[p] for p in mod[nregime][i*nobschar:i*nobschar+nobschar]])
+    np.fill_diagonal(Q, -np.sum(Q,1))
+
+def hrm_allmodels_bayes(tree, chars, nregime, nparam,modseed, pi="Equal",
                         dbname = None):
     """
     Use an MCMC chain to fit a hrm model with a limited number of parameters.
@@ -202,10 +241,6 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal",
     n_wr = nobschar**2-nobschar
     n_br = (nregime**2-nregime)*nobschar
 
-    # TODO: generalize everything
-    assert nobschar == 2
-    assert nregime == 2
-
 
     minp = find_minp(tree, chars)
     treelen = sum([n.length for n in tree.descendants()])
@@ -217,7 +252,10 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal",
     for p in range(nparam-1):
         paramscales[p] =  ShiftedGamma(name = "paramscale_{}".format(str(p)), shape = GAMMASHAPE, shift=1)
 
-    mod = make_qmat_stoch(mod_graph, name="mod")
+    mod = make_qmat_stoch(nobschar = nobschar,nregime=nregime,
+                          nparam=nparam, mod_order_list = list(itertools.product(range(nparam+1), repeat = nobschar**2-nobschar)),
+                          modseed=modseed,
+                          name="mod")
 
     # Likelihood function
     ar = hrm.create_hrm_ar(tree, chars, nregime, findmin=False)
@@ -244,46 +282,10 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam, pi="Equal",
     else:
         mod_mcmc = pymc.MCMC(locals(), calc_deviance=True, db="pickle",
                              dbname=dbname)
-    mod_mcmc.use_step_method(QmatMetropolis, mod, graph=mod_graph)
+    mod_mcmc.use_step_method(QmatMetropolis, mod, nparam, nchar, nregime)
     return mod_mcmc
 
 
-def fill_model_Q(mod, Qparams, Q):
-    """
-    Create Q matrix given model and parameters.
-
-    Args:
-        mod (list): List of tuples. Code for the mode used. The first nregime
-          tuples correspond to the within-regime transition rates for each
-          regime. The last tuple corresponds to the between-regime transition
-          rates. Ex. [(2, 1), (0, 0), (0, 0, 1, 0)] corresponds to a
-          matrix of:
-              [-,2,0,-]
-              [1,-,-,0]
-              [1,-,-,0]
-              [-,0,0,-]
-        Qparams (list): List of floats corresponding to the values for
-          slow, medium, fast, etc. rates. The first is always 0
-        Q (np.array): Pre-allocated Q matrix
-    """
-    nregime = len(mod)-1
-    nobschar = len(mod[0])
-    nchar = nregime*nobschar
-    # TODO: generalize
-    Q.fill(0.0)
-    for i in range(nregime):
-        subQ = slice(i*nobschar,(i+1)*nobschar)
-        np.copyto(Q[subQ, subQ], [[0, Qparams[mod[i][0]]],[Qparams[mod[i][1]], 0]])
-
-    combs = list(itertools.combinations(range(nregime),2))
-    revcombs = [tuple(reversed(i)) for i in combs]
-    submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
-    for i,submatrix_index in enumerate(submatrix_indices):
-        my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
-        my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
-        nregimeswitch =(nregime**2 - nregime)*2
-        np.fill_diagonal(Q[my_slice0,my_slice1],[Qparams[p] for p in mod[nregime][i*nobschar:i*nobschar+nobschar]])
-    np.fill_diagonal(Q, -np.sum(Q,1))
 
 def fill_model_mk(mod, Qparams, Q, mask):
     """
