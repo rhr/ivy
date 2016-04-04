@@ -199,7 +199,7 @@ def _random_Q_matrix(nobschar, nregime):
     Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
     return Q
 
-def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None):
+def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None, orderedRegimes = True):
     """
     Fill a Q matrix with nchar*nregime rows and cols with values from Qparams
 
@@ -215,37 +215,56 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None):
         array: Q-matrix with values filled in. Check to make sure values
           have been filled in properly
     """
+    wrparams = list(wrparams)
+    brparams = list(brparams)
     if out is None:
         Q = np.zeros([nobschar*nregime, nobschar*nregime])
     else:
         Q = out
 
     assert Qtype in ["ARD", "Simple"]
-    grid = np.zeros([(nobschar*nregime)**2, 4], dtype=int)
-    grid[:,0] = np.tile(np.repeat(range(nregime), nobschar), nobschar*nregime)
-    grid[:,1] = np.repeat(range(nregime), nregime*nobschar**2)
-    grid[:,2] = np.tile(range(nobschar), nregime**2*nobschar)
-    grid[:,3] = np.tile(np.repeat(range(nobschar), nregime*nobschar), nregime)
-    if Qtype == "ARD":
-        wrcount = 0
-        brcount = 0
-        for i, qcell in enumerate(np.nditer(Q, order="F", op_flags=["readwrite"])):
-            cell = grid[i]
-            if (cell[0] == cell[1]) and cell[2] != cell[3]:
-                qcell[...] = wrparams[wrcount]
-                wrcount += 1
-            elif(cell[0] in [cell[1]+1, cell[1]-1] and cell[2] == cell[3] ):
-                qcell[...] = brparams[brcount]
-                brcount += 1
-        Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
-    elif Qtype == "Simple":
-        for i,qcell in enumerate(np.nditer(Q, order="F", op_flags=["readwrite"])):
-            cell = grid[i]
-            if (cell[0] == cell[1]) and cell[2] != cell[3]:
-                qcell[...] = wrparams[cell[0]]
-            elif(cell[0] in [cell[1]+1, cell[1]-1] and cell[2] == cell[3] ):
-                qcell[...] = brparams[0]
-        Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1) * -1
+    if orderedRegimes:
+        grid = np.zeros([(nobschar*nregime)**2, 4], dtype=int)
+        grid[:,0] = np.tile(np.repeat(range(nregime), nobschar), nobschar*nregime)
+        grid[:,1] = np.repeat(range(nregime), nregime*nobschar**2)
+        grid[:,2] = np.tile(range(nobschar), nregime**2*nobschar)
+        grid[:,3] = np.tile(np.repeat(range(nobschar), nregime*nobschar), nregime)
+        if Qtype == "ARD":
+            wrcount = 0
+            brcount = 0
+            for i, qcell in enumerate(np.nditer(Q, order="F", op_flags=["readwrite"])):
+                cell = grid[i]
+                if (cell[0] == cell[1]) and cell[2] != cell[3]:
+                    qcell[...] = wrparams[wrcount]
+                    wrcount += 1
+                elif(cell[0] in [cell[1]+1, cell[1]-1] and cell[2] == cell[3] ):
+                    qcell[...] = brparams[brcount]
+                    brcount += 1
+            Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
+        elif Qtype == "Simple":
+            for i,qcell in enumerate(np.nditer(Q, order="F", op_flags=["readwrite"])):
+                cell = grid[i]
+                if (cell[0] == cell[1]) and cell[2] != cell[3]:
+                    qcell[...] = wrparams[cell[0]]
+                elif(cell[0] in [cell[1]+1, cell[1]-1] and cell[2] == cell[3] ):
+                    qcell[...] = brparams[0]
+
+
+    else:
+        n_wr = nobschar**2-nobschar
+        for i,wr in enumerate([wrparams[i:i+n_wr] for i in xrange(0, len(wrparams), n_wr)]):
+            subQ = slice(i*nobschar,(i+1)*nobschar)
+            wrVals = [x for s in [[0]+wr[k:k+nobschar] for k in range(0, len(wr)+1, nobschar)] for x in s]
+            np.copyto(Q[subQ,subQ], [wrVals[x:x+nobschar] for x in xrange(0, len(wrVals), nobschar)])
+        combs = list(itertools.combinations(range(nregime),2))
+        revcombs = [tuple(reversed(i)) for i in combs]
+        submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
+        for i,submatrix_index in enumerate(submatrix_indices):
+            my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
+            my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
+            nregimeswitch = (nregime**2 - nregime)*nobschar
+            np.fill_diagonal(Q[my_slice0,my_slice1],[p for p in brparams[i*nobschar:i*nobschar+nobschar]])
+    Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1) * -1
     if out is None:
         return Q
 
@@ -630,7 +649,8 @@ def create_likelihood_function_hrmmultipass_mk(tree, chars, nregime, Qtype,
     return likelihood_function
 
 def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzjohn",
-                                  findmin = True, constraints = "Rate"):
+                                  findmin = True, constraints = "Rate",
+                                  orderedRegimes = True):
     """
     Create a function that takes values for Q and returns likelihood.
 
@@ -698,10 +718,14 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
         i = 0
         if Qtype == "ARD":
             var["Q"].fill(0.0) # Re-filling with zeroes
-            fill_Q_matrix(nobschar, nregime, Qparams[:nregime*nobschar], Qparams[nregime*nobschar:], Qtype="ARD", out=var["Q"])
+            wr = ((nobschar**2-nobschar)*nregime)
+            fill_Q_matrix(nobschar, nregime, Qparams[:wr], Qparams[wr:],
+                          Qtype="ARD", out=var["Q"], orderedRegimes=orderedRegimes)
+        # TODO: orderedRegimes for simple
         elif Qtype == "Simple":
             var["Q"].fill(0.0)
-            fill_Q_matrix(nobschar, nregime, Qparams[:nregime], Qparams[nregime:], Qtype="Simple", out = var["Q"])
+            fill_Q_matrix(nobschar, nregime, Qparams[:nregime], Qparams[nregime:], Qtype="Simple", out = var["Q"],
+                          orderedRegimes=True)
         else:
             raise ValueError, "Qtype must be ARD or Simple"
         for char in range(nobschar):
@@ -751,7 +775,8 @@ def fit_hrm(tree, chars, nregime, pi="Fitzjohn", constraints="Rate", Qtype="Simp
         return fit_hrm_mkARD(tree, chars, nregime, pi, constraints)
     else:
         raise TypeError, "Qtype must be Simple or ARD"
-def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", constraints="Rate"):
+def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", constraints="Rate",
+                  orderedRegimes = True):
     """
     Fit a hidden-rates mk model to a given tree and list of characters, and
     number of regumes. Return fitted ARD Q matrix and calculated likelihood.
@@ -765,6 +790,8 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", constraints="Rate"):
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root node. Defaults to "Equal"
           Method "Fitzjohn" is not thouroughly tested, use with caution
+        orderedRegimes (bool): Whether or not to constrain regime transitions
+          to only occur between adjacent regimes
     Returns:
         tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
     """
@@ -773,17 +800,19 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", constraints="Rate"):
 
 
     mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
-                                                 Qtype="ARD", pi=pi, constraints=constraints)
+                                                 Qtype="ARD", pi=pi, constraints=constraints,
+                                                 orderedRegimes=orderedRegimes)
 
-    # TODO generalize this
-    x0 = [0.1]*8
-    opt = nlopt.opt(nlopt.LN_SBPLX, 8)
+    ncell = ((nobschar**2-nobschar)*nregime + (nregime**2-nregime)*nobschar)
+    x0 = [0.1]*ncell
+    opt = nlopt.opt(nlopt.LN_SBPLX, ncell)
     opt.set_min_objective(mk_func)
     opt.set_lower_bounds(0)
 
 
     optim = opt.optimize(x0)
-    q = fill_Q_matrix(nobschar, nregime, optim[:nchar], optim[nchar:],"ARD")
+    wr = (nobschar**2-nobschar)*nregime
+    q = fill_Q_matrix(nobschar, nregime, optim[:wr], optim[wr:],"ARD", orderedRegimes=orderedRegimes)
 
     piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
 

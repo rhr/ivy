@@ -199,7 +199,7 @@ def fill_model_Q(mod, Qparams, Q):
     Q.fill(0.0)
     for i in range(nregime):
         subQ = slice(i*nobschar,(i+1)*nobschar)
-        subQvals = [Qparams[x] for s in [(0,)+mod[i][k:k+3] for k in range(0,len(mod[i])+1,nobschar)] for x in s]
+        subQvals = [Qparams[x] for s in [(0,)+mod[i][k:k+nobschar] for k in range(0,len(mod[i])+1,nobschar)] for x in s]
         np.copyto(Q[subQ, subQ], [subQvals[x:x+nobschar] for x in xrange(0, len(subQvals), nobschar)])
 
     combs = list(itertools.combinations(range(nregime),2))

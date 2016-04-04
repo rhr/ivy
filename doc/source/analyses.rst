@@ -282,7 +282,9 @@ al. 2013), as well as for performing ancestor-state reconstructions and
 visualizations of hidden-rates models.
 
 We will demonstrate these functions using an example dataset, fitting a
-two-state character with two different hidden rates or "regimes".
+two-state character with two different hidden rates or "regimes". Let's
+set up our data.
+
 
 .. sourcecode:: ipython
 
@@ -319,6 +321,10 @@ two-state character with two different hidden rates or "regimes".
                     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
                     1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0]
 
+Maximum Likelihood
+~~~~~~~~~~~~~~~~~~
+``ivy`` can fit a maximum likelihood HRM model using the ``fit_hrm`` function.
+Here we will explain the options and uses of this function.
 
 Like the Mk functions, ``ivy``'s HRM functions take as input a tree and a list
 of the characters in preorder sequence. These character states are already in
@@ -341,12 +347,13 @@ Here we will fit a ``Simple`` model.
     In [*]: fit = hrm.fit_hrm(tree, chars, nregime=2, Qtype="Simple", pi="Equal")
     In [*]: fit
     Out[*]:
-    (array([[-0.18387751,  0.08387751,  0.1       ,  0.        ],
-        [ 0.08387751, -0.18387751,  0.        ,  0.1       ],
-        [ 0.1       ,  0.        , -0.2       ,  0.1       ],
-        [ 0.        ,  0.1       ,  0.1       , -0.2       ]]),
-    -83.25296874895388,
-    {0: 0.25, 1: 0.25, 2: 0.25, 3: 0.25})
+    (array([[-0.04596664,  0.03291299,  0.01305365,  0.        ],
+            [ 0.03291299, -0.04596664,  0.        ,  0.01305365],
+            [ 0.01305365,  0.        , -0.44655655,  0.4335029 ],
+            [ 0.        ,  0.01305365,  0.4335029 , -0.44655655]]),
+     -204.52351825389133,
+     {0: 0.25, 1: 0.25, 2: 0.25, 3: 0.25})
+
 
 The output of the ``fit_hrm`` function is a three-length tuple, the first
 item being the estimated Q matrix. The second item is the log-likelihood.
@@ -386,3 +393,9 @@ visualize the reconstructed states on the tree.
 
 Green corresponds to state 0 and blue to state 1. The more saturated colors
 correspond to the faster regime and the duller colors to the slower regime.
+
+Bayesian
+~~~~~~~~
+
+``ivy`` can also perform Bayesian analyses on HRM models. There are a number
+of different ways of fitting a Bayesian HRM model in ``ivy``.
