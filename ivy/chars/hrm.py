@@ -69,26 +69,26 @@ def hrm_mk(tree, chars, Q, nregime, pi="Fitzjohn",returnPi=False,
 
         np.copyto(ar["root_priors"], pi)
 
-        rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
+        rootliks = [ i*ar["root_priors"][n] for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
 
     elif pi == "Equal":
         ar["root_priors"].fill(1.0/nchar)
-        rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1])]
+        rootliks = [ i*ar["root_priors"][n] for n,i in enumerate(ar["nodelist"][-1,:-1])]
 
     elif pi == "Fitzjohn":
         np.copyto(ar["root_priors"],
-                  [ar["nodelist"][-1,:-1][charstate]-
-                   scipy.misc.logsumexp(ar["nodelist"][-1,:-1]) for
+                  [ar["nodelist"][-1,:-1][charstate]/
+                   np.sum(ar["nodelist"][-1,:-1]) for
                    charstate in range(nchar) ])
 
-        rootliks = [ ar["nodelist"][-1,:-1][charstate] +
+        rootliks = [ ar["nodelist"][-1,:-1][charstate] *
                      ar["root_priors"][charstate] for charstate in range(nchar) ]
 
     elif pi == "Equilibrium":
         # Equilibrium pi from the stationary distribution of Q
         np.copyto(ar["root_priors"],qsd(Q))
-        rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
-    logli = scipy.misc.logsumexp(rootliks)
+        rootliks = [ i*ar["root_priors"][n] for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
+    logli = np.log(np.sum(rootliks))
 
     if returnPi:
         return (logli, {k:v for k,v in enumerate(ar["root_priors"])})
@@ -300,20 +300,19 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
     postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
     nnode = len(t)+1
     nodelist = np.zeros((nnode, nchar+1))
-    nodelist.fill(-np.inf)
     childlist = np.zeros(nnode, dtype=object)
     leafind = [ n.isleaf for n in tree.postiter()]
 
     for k,ch in enumerate(postChars):
         hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
-        [ n for i,n in enumerate(nodelist) if leafind[i] ][k][hiddenChs] = np.log(1.0)
+        [ n for i,n in enumerate(nodelist) if leafind[i] ][k][hiddenChs] = 1.0
     for i,n in enumerate(nodelist[:-1]):
         n[nchar] = postnodes.index(postnodes[i].parent)
         childlist[i] = [ nod.pi for nod in postnodes[i].children ]
     childlist[i+1] = [ nod.pi for nod in postnodes[i+1].children ] # Add the root to the childlist array
 
-    # Setting initial node likelihoods to log one for calculations
-    nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = np.log(1.0)
+    # Setting initial node likelihoods to one for calculations
+    nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
 
     # Empty Q matrix
     Q = np.zeros([nchar,nchar], dtype=np.double)
@@ -344,7 +343,69 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
            "root_priors":rootpriors, "nullval":nullval}
     return var
 
+def create_hrm_ar_log(tree, chars, nregime, findmin=True):
+    """
+    Create arrays to be used in hrm likelihood function
+    """
 
+    nchar = len(set(chars)) * nregime
+    nt =  len(tree.descendants())
+    charlist = range(nchar)
+    nobschar = len(set(chars))
+
+    t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
+    nchar = len(set(chars)) * nregime
+    nobschar = len(set(chars))
+
+    preleaves = [ n for n in tree.preiter() if n.isleaf ]
+    postleaves = [n for n in tree.postiter() if n.isleaf ]
+    postnodes = list(tree.postiter())
+    postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
+    nnode = len(t)+1
+    nodelist = np.zeros((nnode, nchar+1))
+    nodelist.fill(-np.inf)
+    childlist = np.zeros(nnode, dtype=object)
+    leafind = [ n.isleaf for n in tree.postiter()]
+
+    for k,ch in enumerate(postChars):
+        hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
+        [ n for i,n in enumerate(nodelist) if leafind[i] ][k][hiddenChs] = np.log(1.0)
+    for i,n in enumerate(nodelist[:-1]):
+        n[nchar] = postnodes.index(postnodes[i].parent)
+        childlist[i] = [ nod.pi for nod in postnodes[i].children ]
+    childlist[i+1] = [ nod.pi for nod in postnodes[i+1].children ] # Add the root to the childlist array
+
+    # Setting initial node likelihoods to one for calculations
+    nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = np.log(1.0)
+
+    # Empty Q matrix
+    Q = np.zeros([nchar,nchar], dtype=np.double)
+    # Empty p matrix
+    p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
+
+
+    nodelistOrig = nodelist.copy() # Second copy to refer back to
+    # Empty root prior array
+    rootpriors = np.empty([nchar], dtype=np.double)
+
+    if findmin:
+        nullval = np.inf
+    else:
+        nullval = -np.inf
+
+    # Upper bounds
+    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
+                   tree.leaves()[0].length])
+    upperbound = len(tree.leaves())/treelen
+
+    # Giving internal function access to these arrays.
+       # Warning: can be tricky
+       # Need to make sure old values
+       # Aren't accidentally re-used
+    var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
+           "nodelistOrig":nodelistOrig, "upperbound":upperbound,
+           "root_priors":rootpriors, "nullval":nullval}
+    return var
 
 def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
                 ar=None, tip_states=None, returnnodes=False):
@@ -437,7 +498,7 @@ def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
         ar["nodelist"][leaf_rownums,:-1] = tip_states
 
     # Calculating the likelihoods for each node in post-order sequence
-    cyexpokit.cy_mk(ar["nodelist"], p, ar["charlist"])
+    cyexpokit.cy_mk(ar["nodelist"], p, np.array(ar["charlist"]))
     # The last row of nodelist contains the likelihood values at the root
     # Applying the correct root prior
     if type(pi) != str:

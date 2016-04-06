@@ -322,7 +322,7 @@ MLEQ = np.array([[-0.30729542,  0.03750787,  0.26978755,  0.        ],
 modelseed = (1,0,0,2,1,1,1,0)
 
 modfit_2r = hrm_allmodels_bayes(tree, chars, nregime, nparam, modseed=modelseed)
-modfit_2r.sample(200000, burn=10000, thin=10)
+modfit_2r.sample(2000000, burn=100000, thin=10)
 
 modfit_2r_modcount = collections.Counter([tuple(i) for i in modfit_2r.trace("mod")[:]])
 modfit_2r_slow = modfit_2r.trace("slow")[:]

@@ -11,9 +11,7 @@ from scipy.optimize import minimize
 from scipy.special import binom
 import random
 
-from ivy.chars.mk import *
-from ivy.chars.mk_mr import *
-from ivy.chars.hrm import *
+
 def nodeLikelihood(node):
     """
     Take node "node" and calculate its likelihood given its children's likelihoods,

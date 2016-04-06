@@ -1,3 +1,5 @@
+# cython: profile=True
+
 import numpy as np
 cimport numpy as np
 from libc.math cimport exp, log
@@ -82,7 +84,7 @@ def dexpm_tree(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
 
     return p
 
-def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
+def dexpm_tree_preallocated_p_log(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
     assert q.shape[0]==q.shape[1], 'q must be square'
     assert np.allclose(q.sum(1), 0, atol= 1e-6), 'rows of q must sum to zero'
 
@@ -93,7 +95,7 @@ def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t,
 
     for i, blen in enumerate(t):
         dexpm_slice_log(q, blen, p, i)
-def dexpm_tree_preallocated_p_nolog(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
+def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
     assert q.shape[0]==q.shape[1], 'q must be square'
     assert np.allclose(q.sum(1), 0, atol= 1e-6), 'rows of q must sum to zero'
 
@@ -104,7 +106,7 @@ def dexpm_tree_preallocated_p_nolog(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndar
 
     for i, blen in enumerate(t):
         dexpm_slice(q, blen, p, i)
-def dexpm_treeMulti_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=3] q,
+def dexpm_treeMulti_preallocated_p_log(np.ndarray[dtype=DTYPE_t, ndim=3] q,
                      np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p,
                      np.ndarray ind):
     assert q.shape[1]==q.shape[2], 'qs must be square'
@@ -118,8 +120,32 @@ def dexpm_treeMulti_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=3] q,
     for i, blen in enumerate(t):
         dexpm_slice(q[ind[i]], blen, p, i)
 
-
 def cy_mk(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
+          np.ndarray[dtype=DTYPE_t, ndim=3] p,
+          list charlist):
+
+    cdef int nchar = len(charlist)
+    cdef int intnode
+    cdef int ind
+    cdef int ch
+    cdef int st
+
+    for intnode in sorted(set(nodelist[:-1,nchar])):
+
+        nextli = nodelist[intnode]
+
+        for ind in np.where(nodelist[:,nchar]==intnode)[0]:
+            li = nodelist[ind]
+
+            for ch in charlist:
+                tmp = 0
+                for st in charlist:
+                    tmp += p[ind][ch,st] * li[st]
+
+                nextli[ch] *= tmp
+
+
+def cy_mk_log(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
           np.ndarray[dtype=DTYPE_t, ndim=3] p,
           list charlist):
 
@@ -197,8 +223,7 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
 
     return m_nl
 
-
-cpdef lse_cython(np.ndarray[DTYPE_t, ndim=1] a):
+cdef lse_cython(np.ndarray[DTYPE_t, ndim=1] a):
     """
     nbviewer.jupyter.org/gist/sebastien-bratieres/285184b4a808dfea7070
     Faster than scipy.misc.logsumexp

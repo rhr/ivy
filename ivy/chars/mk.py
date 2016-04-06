@@ -9,12 +9,9 @@ from scipy.special import binom
 import nlopt
 import random
 
-from ivy.chars.mk import *
-from ivy.chars.mk_mr import *
-from ivy.chars.hrm import *
+import inspect
 
-def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
-          preallocated_arrays=None):
+def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, preallocated_arrays=None):
     """
     Fit mk model and return likelihood for the root node of a tree given a list of characters
     and a Q matrix
@@ -62,8 +59,6 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
         # Creating more arrays
         nnode = len(tree)
         preallocated_arrays["nodelist"] = np.zeros((nnode, nchar+1))
-        # Note: all calculations are performed on log-likelihoods
-        preallocated_arrays["nodelist"].fill(-np.inf) # log of 0 is -inf
         leafind = [ n.isleaf for n in tree.postiter()]
         # Reordering character states to be in postorder sequence
         preleaves = [ n for n in tree.preiter() if n.isleaf ]
@@ -73,11 +68,11 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
         # Filling in the node list. It contains all of the information needed
         # to calculate the likelihoods at each node
         for k,ch in enumerate(postChars):
-            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][ch] = np.log(1.0)
+            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][ch] = 1.0
         for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
             n[nchar] = postnodes.index(postnodes[i].parent)
         # Setting initial node likelihoods to log(1.0) for calculations
-        preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = np.log(1.0)
+        preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
         # Empty array to store root priors
         preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
 
@@ -93,125 +88,32 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False,
 
         np.copyto(preallocated_arrays["root_priors"], pi)
 
-        rootliks = [ i+np.log(preallocated_arrays["root_priors"][n]) for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ]
+        rootliks = [ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ]
 
     elif pi == "Equal":
         preallocated_arrays["root_priors"].fill(1.0/nchar)
-        rootliks = [ i+np.log(preallocated_arrays["root_priors"][n]) for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1])]
+        rootliks = [ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1])]
 
     elif pi == "Fitzjohn":
         np.copyto(preallocated_arrays["root_priors"],
-                  [preallocated_arrays["nodelist"][-1,:-1][charstate]-
-                   scipy.misc.logsumexp(preallocated_arrays["nodelist"][-1,:-1]) for
+                  [preallocated_arrays["nodelist"][-1,:-1][charstate]/
+                   sum(preallocated_arrays["nodelist"][-1,:-1]) for
                    charstate in set(chars) ])
 
-        rootliks = [ preallocated_arrays["nodelist"][-1,:-1][charstate] +
+        rootliks = [ preallocated_arrays["nodelist"][-1,:-1][charstate] *
                      preallocated_arrays["root_priors"][charstate] for charstate in set(chars) ]
 
     elif pi == "Equilibrium":
         # Equilibrium pi from the stationary distribution of Q
         np.copyto(preallocated_arrays["root_priors"],qsd(Q))
-        rootliks = [ i+np.log(preallocated_arrays["root_priors"][n]) for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ]
-    logli = scipy.misc.logsumexp(rootliks)
+        rootliks = [ i * preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ]
+    logli = np.log(np.sum(rootliks))
     if returnPi:
         return (logli, {k:v for k,v in enumerate(preallocated_arrays["root_priors"])}, rootliks)
     else:
         return logli
 
 
-
-# Pure python mk function
-def mk_py(tree, chars, Q, p = None, pi="Equal", returnPi=False):
-    """
-    Fit mk model and return likelihood for the root node of a tree given a list of characters
-    and a Q matrix
-
-    Args:
-        tree (Node): Root node of a tree. All branch lengths must be
-          greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
-        Q (np.array): Instantaneous rate matrix
-        p (np.array): Optional pre-allocated p matrix
-        pi (str or np.array): Option to weight the root node by given values.
-                       Either a string containing the method or an array
-                       of weights. Weights should be given in order.
-
-                       Accepted methods of weighting root:
-
-                       Equal: flat prior
-                       Equilibrium: Prior equal to stationary distribution
-                         of Q matrix
-                       Fitzjohn: Root states weighted by how well they
-                         explain the data at the tips.
-        returnPi (bool): Whether or not to return the pi used
-    """
-    chartree = tree.copy()
-    chartree.char = None; chartree.likelihoodNode={}
-    t = [node.length for node in chartree.descendants()]
-    t = np.array(t, dtype=np.double)
-    nchar = Q.shape[0]
-
-    # Generating probability matrix for each branch
-    if p is None:
-        p = np.empty([len(t), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
-    cyexpokit.dexpm_tree_preallocated_p(Q, t, p) # This changes p in place
-
-
-    for i, nd in enumerate(chartree.descendants()):
-        nd.pmat = p[i] # Assigning probability matrices for each branch
-        nd.likelihoodNode = {}
-        nd.char = None
-
-    for i, lf in enumerate(chartree.leaves()):
-        lf.char = chars[i] # Assigning character states to tips
-
-
-    for node in chartree.postiter():
-        if node.char is not None: # For tip nodes, likelihoods are 1 for observed state and 0 for the rest
-            for state in range(nchar):
-                node.likelihoodNode[state]=np.log(0.0)
-            node.likelihoodNode[node.char]=np.log(1.0)
-        else:
-            for state in range(nchar):
-                likelihoodStateN = []
-                for ch in node.children:
-                    likelihoodStateNCh = []
-                    for chState in range(nchar):
-                        likelihoodStateNCh.append(ch.pmat[state, chState] + ch.likelihoodNode[chState]) #Likelihood for a certain state = p(stateBegin, stateEnd * likelihood(stateEnd))
-                    likelihoodStateN.append(scipy.misc.logsumexp(likelihoodStateNCh))
-                node.likelihoodNode[state]=np.sum(likelihoodStateN)
-
-    if type(pi) != str:
-        assert len(pi) == nchar, "length of given pi does not match Q dimensions"
-        assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
-        assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
-
-
-        rootPriors = {state:li for state,li in enumerate(pi)}
-
-        logli = scipy.misc.logsumexp([ i+np.log(rootPriors[n]) for n,i in chartree.likelihoodNode.iteritems() ])
-
-    elif pi == "Equal":
-        rootPriors = {state:1.0/nchar for state in range(nchar)}
-        logli = scipy.misc.logsumexp([ i+np.log(rootPriors[n]) for n,i in chartree.likelihoodNode.iteritems() ])
-
-    elif pi == "Fitzjohn":
-        rootPriors = { charstate:chartree.likelihoodNode[charstate]-
-                                 scipy.misc.logsumexp(chartree.likelihoodNode.values()) for
-                                 charstate in set(chars) }
-
-        logli = scipy.misc.logsumexp([ chartree.likelihoodNode[charstate] +
-                     rootPriors[charstate] for charstate in set(chars) ])
-    elif pi == "Equilibrium":
-        # Equilibrium pi from the stationary distribution of Q
-        rootPriors = {state:li for state,li in enumerate(qsd(Q))}
-
-        logli = scipy.misc.logsumexp([ i+np.log(rootPriors[n]) for n,i in chartree.likelihoodNode.iteritems() ])
-    if returnPi:
-        return (logli, rootPriors)
-    else:
-        return logli
 
 def _create_nodelist(tree, chars):
     """
@@ -227,16 +129,15 @@ def _create_nodelist(tree, chars):
     postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
     nnode = len(t)+1
     nodelist = np.zeros((nnode, nchar+1))
-    nodelist.fill(-np.inf)
     leafind = [ n.isleaf for n in tree.postiter()]
 
     for k,ch in enumerate(postChars):
-        [ n for i,n in enumerate(nodelist) if leafind[i] ][k][ch] = np.log(1.0)
+        [ n for i,n in enumerate(nodelist) if leafind[i] ][k][ch] = 1.0
     for i,n in enumerate(nodelist[:-1]):
         n[nchar] = postnodes.index(postnodes[i].parent)
 
             # Setting initial node likelihoods to log one for calculations
-    nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = np.log(1.0)
+    nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
 
     return nodelist,t
 
@@ -295,7 +196,6 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
            "root_priors":rootpriors, "nullval":nullval}
-
     def likelihood_function(Qparams, grad=None):
         """
         NLOPT supplies likelihood function with parameters and gradient
