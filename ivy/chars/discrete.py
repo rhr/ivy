@@ -61,3 +61,35 @@ def NoTO(tree, chars):
             if int(parsimonyStates[node][0]) != rootState and parsimonyStates[node.parent][0] == rootState:
                 origins.append(node)
     return len([i for i in chars if not i==rootState])/len(origins)
+
+
+def monotypic_clade_size(tree, chars):
+    """
+    Count diversity contained within subclades having the same character
+    state.
+    """
+    chardict = {t:chars[i] for i,t in enumerate(tree.leaves())}
+    subclades = [n for n in tree.postiter() if not n.isleaf]
+    monotypic_clades = [None]*len(subclades)
+    for i,sc in enumerate(subclades):
+        largest_monotypic = None
+        cur = sc
+        while 1:
+            if is_monotypic(cur, chardict):
+                largest_monotypic = cur
+                cur = cur.parent
+            else:
+                break
+        monotypic_clades[i] = largest_monotypic
+    monotypic_clade_set = set([i for i in monotypic_clades if i is not None])
+    monotypic_clade_descendants = [ n.leaves() for n in list(monotypic_clade_set)]
+    monotypic_clade_sizes = [len(i) for i in monotypic_clade_descendants]
+    monotypic_clade_descendants_flat = [i for s in monotypic_clade_descendants for i in s]
+
+    singletons = [l for l in tree.leaves() if not l in monotypic_clade_descendants_flat ]
+
+    return sorted(monotypic_clade_sizes+[1 for _ in singletons])
+
+
+def is_monotypic(node, chardict):
+    return len(set([chardict[i] for i in node.leaves()])) == 1

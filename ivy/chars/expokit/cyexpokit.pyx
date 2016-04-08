@@ -122,9 +122,8 @@ def dexpm_treeMulti_preallocated_p_log(np.ndarray[dtype=DTYPE_t, ndim=3] q,
 
 def cy_mk(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
           np.ndarray[dtype=DTYPE_t, ndim=3] p,
-          list charlist):
+          int nchar):
 
-    cdef int nchar = len(charlist)
     cdef int intnode
     cdef int ind
     cdef int ch
@@ -137,19 +136,18 @@ def cy_mk(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
         for ind in np.where(nodelist[:,nchar]==intnode)[0]:
             li = nodelist[ind]
 
-            for ch in charlist:
+            for ch in range(nchar):
                 tmp = 0
-                for st in charlist:
-                    tmp += p[ind][ch,st] * li[st]
+                for st in range(nchar):
+                    tmp += p[ind,ch,st] * li[st]
 
                 nextli[ch] *= tmp
 
-
 def cy_mk_log(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
           np.ndarray[dtype=DTYPE_t, ndim=3] p,
-          list charlist):
+          int nchar,
+          np.ndarray[dtype=DTYPE_t, ndim=1] tmp_ar):
 
-    cdef int nchar = len(charlist)
     cdef int intnode
     cdef int ind
     cdef int ch
@@ -161,8 +159,11 @@ def cy_mk_log(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
 
         for ind in np.where(nodelist[:,nchar]==intnode)[0]:
             li = nodelist[ind]
-            for ch in charlist:
-                nextli[ch] += lse_cython([ p[ind][ch,st] for st in charlist ] + li[:-1])
+            for ch in range(nchar):
+                for st in range(nchar):
+                    tmp_ar[st] = p[ind,ch,st]+li[st]
+
+                nextli[ch] += lse_cython(tmp_ar)
 
 def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                  np.ndarray[dtype=DTYPE_t, ndim=2] d_nl,
@@ -223,7 +224,7 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
 
     return m_nl
 
-cdef lse_cython(np.ndarray[DTYPE_t, ndim=1] a):
+cpdef lse_cython(np.ndarray[DTYPE_t, ndim=1] a):
     """
     nbviewer.jupyter.org/gist/sebastien-bratieres/285184b4a808dfea7070
     Faster than scipy.misc.logsumexp
@@ -237,3 +238,16 @@ cdef lse_cython(np.ndarray[DTYPE_t, ndim=1] a):
     for i in range(a.shape[0]):
         result += exp(a[i] - largest_in_a)
     return largest_in_a + log(result)
+
+cpdef lse_cython_ab(DTYPE_t a, DTYPE_t b):
+    """
+    The sum of two logs
+    """
+    cdef int i
+    cdef DTYPE_t result = 0.0
+    cdef DTYPE_t largest = a
+    if a<b:
+        largest = b
+    result += exp(a - largest)
+    result += exp(b - largest)
+    return largest + log(result)

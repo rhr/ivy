@@ -28,7 +28,7 @@ def anc_recon_py(tree, chars, Q, p=None, pi="Fitzjohn"):
     # Generating probability matrix for each branch
     if p is None:
         p = np.empty([len(t), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
-    cyexpokit.dexpm_tree_preallocated_p_nolog(Q, t, p) # This changes p in place
+    cyexpokit.dexpm_tree_preallocated_p(Q, t, p) # This changes p in place
 
 
     for i, nd in enumerate(chartree.descendants()):
@@ -248,7 +248,7 @@ def anc_recon_discrete(tree, chars, Q, p=None, pi="Fitzjohn", ars=None, nregime=
         p = np.empty([len(ars["t"]), Q.shape[0],
                      Q.shape[1]], dtype = np.double, order="C")
     # Creating probability matrices from Q matrix and branch lengths
-    cyexpokit.dexpm_tree_preallocated_p_nolog(Q, ars["t"], p) # This changes p in place
+    cyexpokit.dexpm_tree_preallocated_p(Q, ars["t"], p) # This changes p in place
     np.copyto(ars["down_nl_w"], ars["down_nl_r"]) # Copy original values if they have been changed
     ars["child_inds"].fill(0)
     root_equil = ivy.chars.mk.qsd(Q)

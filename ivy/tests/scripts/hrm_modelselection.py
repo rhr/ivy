@@ -260,13 +260,28 @@ plt.hist(nodata_beta, color="red")
 ###############################################
 # Well-behaved model testing
 ###############################################
+import ivy
+import numpy as np
+import math
+import itertools
+import pymc
+import random
+import collections
+import networkx as nx
+import scipy
+import pickle
+from ivy.chars.hrm_bayesian import *
+from ivy.interactive import *
+
+tree = ivy.tree.read("support/hrm_600tips.newick")
+
 # Two-regime, two parameter
 Q = np.array([[-0.02,0.01,0.01,0],
               [0.01,-.02,0,0.01],
               [0.01,0,-.11,0.1],
               [0,0.01,0.1,-.11]])
-random.seed(2)
-simtree = ivy.sim.discrete_sim.sim_discrete(tree, Q, anc=0)
+rseed = 18
+simtree = ivy.sim.discrete_sim.sim_discrete(tree, Q, anc=0, rseed=rseed)
 fig = treefig(simtree)
 fig.add_layer(ivy.vis.layers.add_branchstates)
 
@@ -313,20 +328,37 @@ plt.hist(mod_nodata_2r_alpha, color="red")
 #####
 # MLE to pick seed value
 #####
-mod_2r_MLE = hrm.fit_hrm_mkARD(tree, chars, 2, pi="Equal", constraints="Rate")
-MLEQ = np.array([[-0.30729542,  0.03750787,  0.26978755,  0.        ],
-        [ 0.        , -0.41971919,  0.        ,  0.41971919],
-        [ 0.320519  ,  0.        , -0.320519  ,  0.        ],
-        [ 0.        ,  0.        ,  0.27171017, -0.27171017]])
+mod_2r_MLE = hrm.fit_hrm_mkARD(tree, chars, 2, pi="Equal", constraints="Rate", orderedRegimes=False)
+MLEQ = np.array([[-0.12103,  0.10938,  0.01165,  0.     ],
+                 [ 0.07892, -0.07892,  0.     ,  0.     ],
+                 [ 0.03479,  0.     , -0.03479,  0.     ],
+                 [ 0.     ,  0.     ,  0.69436, -0.69436]])
 
-modelseed = (1,0,0,2,1,1,1,0)
 
-modfit_2r = hrm_allmodels_bayes(tree, chars, nregime, nparam, modseed=modelseed)
-modfit_2r.sample(2000000, burn=100000, thin=10)
+recon = ivy.chars.anc_recon.anc_recon_discrete(tree, chars, Q=MLEQ, nregime = 2)
+
+modelseed = (1,1,2,2,1,1,1,1)
+
+modfit_2r = hrm_allmodels_bayes(tree, chars, nregime, nparam, modseed=modelseed, dbname="modfit_2r.p")
+modfit_2r.sample(1000000, burn=100000, thin=10)
 
 modfit_2r_modcount = collections.Counter([tuple(i) for i in modfit_2r.trace("mod")[:]])
 modfit_2r_slow = modfit_2r.trace("slow")[:]
 modfit_2r_alpha = modfit_2r.trace("paramscale_0")[:]
 
 
+modfit_2r_modcount.most_common()[:10]
+
 # TODO: Compare to simulated history
+
+
+####################################
+# Exhaustive MLE model selection
+####################################
+modMLE_2r_brvar = hrm.fit_hrm_distinct_regimes(tree, chars, 2, 2, br_variable=True,
+            out_file = "modMLE_2r_brvar")
+modMLE_2r_brcon = fit_hrm_distinct_regimes(tree, chars, 2, 2, br_variable=False,
+            out_file = "modMLE_2r_brcon")
+
+mods_sorted = collections.OrderedDict(sorted(modMLE_2r.items(), key = lambda x: x[1][0]))
+mods_sorted_brcon = collections.OrderedDict(sorted(modMLE_2r_brcon.items(), key = lambda x: x[1][0]))

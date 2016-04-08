@@ -11,7 +11,7 @@ import random
 
 import inspect
 
-def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, preallocated_arrays=None):
+def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
     """
     Fit mk model and return likelihood for the root node of a tree given a list of characters
     and a Q matrix
@@ -41,43 +41,19 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, preallocated_arrays=No
              explain the data at the tips.
         returnPi (bool): Whether or not to return the final values of root
           node weighting
-        preallocated_arrays (dict): Dict of pre-allocated arrays to improve
+        ar (dict): Dict of pre-allocated arrays to improve
           speed by avoiding creating and destroying new arrays
     """
     nchar = Q.shape[0]
-    if preallocated_arrays is None:
+    if ar is None:
         # Creating arrays to be used later
-        preallocated_arrays = {}
-        preallocated_arrays["t"] = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
-        preallocated_arrays["charlist"] = range(Q.shape[0])
-    if p is None: # Instantiating empty array
-        p = np.empty([len(preallocated_arrays["t"]), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
-    # Creating probability matrices from Q matrix and branch lengths
-    cyexpokit.dexpm_tree_preallocated_p(Q, preallocated_arrays["t"], p) # This changes p in place
+        ar = create_mk_ar(tree, chars)
 
-    if len(preallocated_arrays.keys())==2:
-        # Creating more arrays
-        nnode = len(tree)
-        preallocated_arrays["nodelist"] = np.zeros((nnode, nchar+1))
-        leafind = [ n.isleaf for n in tree.postiter()]
-        # Reordering character states to be in postorder sequence
-        preleaves = [ n for n in tree.preiter() if n.isleaf ]
-        postleaves = [ n for n in tree.postiter() if n.isleaf ]
-        postnodes = list(tree.postiter());prenodes = list(tree.preiter())
-        postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
-        # Filling in the node list. It contains all of the information needed
-        # to calculate the likelihoods at each node
-        for k,ch in enumerate(postChars):
-            [ n for i,n in enumerate(preallocated_arrays["nodelist"]) if leafind[i] ][k][ch] = 1.0
-        for i,n in enumerate(preallocated_arrays["nodelist"][:-1]):
-            n[nchar] = postnodes.index(postnodes[i].parent)
-        # Setting initial node likelihoods to log(1.0) for calculations
-        preallocated_arrays["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
-        # Empty array to store root priors
-        preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
+    cyexpokit.dexpm_tree_preallocated_p_log(Q, ar["t"], ar["p"]) # This changes p in place
+
 
     # Calculating the likelihoods for each node in post-order sequence
-    cyexpokit.cy_mk(preallocated_arrays["nodelist"], p, preallocated_arrays["charlist"])
+    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"])
     # The last row of nodelist contains the likelihood values at the root
 
     # Applying the correct root prior
@@ -86,42 +62,43 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, preallocated_arrays=No
         assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
         assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
 
-        np.copyto(preallocated_arrays["root_priors"], pi)
+        np.copyto(ar["root_priors"], pi)
 
-        rootliks = [ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ]
+        rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
 
     elif pi == "Equal":
-        preallocated_arrays["root_priors"].fill(1.0/nchar)
-        rootliks = [ i*preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1])]
+        ar["root_priors"].fill(1.0/nchar)
+        rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1])]
 
     elif pi == "Fitzjohn":
-        np.copyto(preallocated_arrays["root_priors"],
-                  [preallocated_arrays["nodelist"][-1,:-1][charstate]/
-                   sum(preallocated_arrays["nodelist"][-1,:-1]) for
+        np.copyto(ar["root_priors"],
+                  [ar["nodelist"][-1,:-1][charstate]-
+                   scipy.misc.logsumexp(ar["nodelist"][-1,:-1]) for
                    charstate in set(chars) ])
 
-        rootliks = [ preallocated_arrays["nodelist"][-1,:-1][charstate] *
-                     preallocated_arrays["root_priors"][charstate] for charstate in set(chars) ]
+        rootliks = [ ar["nodelist"][-1,:-1][charstate] +
+                     ar["root_priors"][charstate] for charstate in set(chars) ]
 
     elif pi == "Equilibrium":
         # Equilibrium pi from the stationary distribution of Q
-        np.copyto(preallocated_arrays["root_priors"],qsd(Q))
-        rootliks = [ i * preallocated_arrays["root_priors"][n] for n,i in enumerate(preallocated_arrays["nodelist"][-1,:-1]) ]
-    logli = np.log(np.sum(rootliks))
+        np.copyto(ar["root_priors"],qsd(Q))
+        rootliks = [ i + np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
+    logli = scipy.misc.logsumexp(rootliks)
     if returnPi:
-        return (logli, {k:v for k,v in enumerate(preallocated_arrays["root_priors"])}, rootliks)
+        return (logli, {k:v for k,v in enumerate(ar["root_priors"])}, rootliks)
     else:
         return logli
 
 
 
-def _create_nodelist(tree, chars):
+def create_mk_ar(tree, chars, findmin = True):
     """
-    Create nodelist. For use in mk function
+    Create preallocated arrays. For use in mk function
 
-    Returns edgelist of nodes in postorder sequence
+    Nodelist = edgelist of nodes in postorder sequence
     """
     t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
+    nt = len(tree.descendants())
     nchar = len(set(chars))
     preleaves = [ n for n in tree.preiter() if n.isleaf ]
     postleaves = [n for n in tree.postiter() if n.isleaf ]
@@ -129,17 +106,47 @@ def _create_nodelist(tree, chars):
     postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
     nnode = len(t)+1
     nodelist = np.zeros((nnode, nchar+1))
+    nodelist.fill(-np.inf) # the log of 0 is negative infinity
     leafind = [ n.isleaf for n in tree.postiter()]
 
     for k,ch in enumerate(postChars):
-        [ n for i,n in enumerate(nodelist) if leafind[i] ][k][ch] = 1.0
+        [ n for i,n in enumerate(nodelist) if leafind[i] ][k][ch] = np.log(1.0)
     for i,n in enumerate(nodelist[:-1]):
         n[nchar] = postnodes.index(postnodes[i].parent)
 
-            # Setting initial node likelihoods to log one for calculations
-    nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
+    # Setting initial node likelihoods to log one for calculations
+    nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = np.log(1.0)
 
-    return nodelist,t
+    # Empty Q matrix
+    Q = np.zeros([nchar, nchar], dtype=np.double)
+    # Empty p matrix
+    p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
+
+    nodelistOrig = nodelist.copy()
+
+    rootpriors = np.empty([nchar], dtype=np.double)
+
+    if findmin:
+        nullval = np.inf
+    else:
+        nullval = -np.inf
+
+    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
+                   tree.leaves()[0].length])
+    upperbound = len(tree.leaves())/treelen
+    charlist = range(nchar)
+
+    tmp_ar = np.zeros(nchar)
+
+    # Giving internal function access to these arrays.
+       # Warning: can be tricky
+       # Need to make sure old values
+       # Aren't accidentally re-used
+    var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
+           "nodelistOrig":nodelistOrig, "upperbound":upperbound,
+           "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar}
+
+    return var
 
 def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
                                   findmin = True):
@@ -174,28 +181,11 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
     nt =  len(tree.descendants())
     charlist = range(nchar)
 
-    # Empty Q matrix
-    Q = np.zeros([nchar,nchar], dtype=np.double)
-    # Empty p matrix
-    p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
-    # Empty likelihood array
-    nodelist,t = _create_nodelist(tree, chars)
-    nodelistOrig = nodelist.copy() # Second copy to refer back to
-    # Empty root prior array
-    rootpriors = np.empty([nchar], dtype=np.double)
-
-    # Upper bounds
-    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
-                   tree.leaves()[0].length])
-    upperbound = len(tree.leaves())/treelen
-
     # Giving internal function access to these arrays.
        # Warning: can be tricky
        # Need to make sure old values
        # Aren't accidentally re-used
-    var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
-           "nodelistOrig":nodelistOrig, "upperbound":upperbound,
-           "root_priors":rootpriors, "nullval":nullval}
+    var = create_mk_ar(tree, chars, findmin)
     def likelihood_function(Qparams, grad=None):
         """
         NLOPT supplies likelihood function with parameters and gradient
@@ -235,7 +225,7 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
             x = 1
 
         try:
-            li = mk(tree, chars, var["Q"], p=var["p"], pi = pi, preallocated_arrays=var)
+            li = mk(tree, chars, var["Q"], p=var["p"], pi = pi, ar=var)
             return x * li # Minimizing negative log-likelihood
         except ValueError: # If likelihood returned is 0
             return var["nullval"]

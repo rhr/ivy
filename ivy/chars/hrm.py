@@ -57,8 +57,8 @@ def hrm_mk(tree, chars, Q, nregime, pi="Fitzjohn",returnPi=False,
         # Creating arrays to be used later
         ar = create_hrm_ar(tree, chars, nregime)
     # Calculating the likelihoods for each node in post-order sequence
-    cyexpokit.dexpm_tree_preallocated_p(Q, ar["t"], ar["p"])
-    cyexpokit.cy_mk(ar["nodelist"], ar["p"], ar["charlist"])
+    cyexpokit.dexpm_tree_preallocated_p_log(Q, ar["t"], ar["p"])
+    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"])
     # The last row of nodelist contains the likelihood values at the root
 
     # Applying the correct root prior
@@ -69,26 +69,26 @@ def hrm_mk(tree, chars, Q, nregime, pi="Fitzjohn",returnPi=False,
 
         np.copyto(ar["root_priors"], pi)
 
-        rootliks = [ i*ar["root_priors"][n] for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
+        rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
 
     elif pi == "Equal":
         ar["root_priors"].fill(1.0/nchar)
-        rootliks = [ i*ar["root_priors"][n] for n,i in enumerate(ar["nodelist"][-1,:-1])]
+        rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1])]
 
     elif pi == "Fitzjohn":
         np.copyto(ar["root_priors"],
-                  [ar["nodelist"][-1,:-1][charstate]/
-                   np.sum(ar["nodelist"][-1,:-1]) for
+                  [ar["nodelist"][-1,:-1][charstate]-
+                   scipy.misc.logsumexp(ar["nodelist"][-1,:-1]) for
                    charstate in range(nchar) ])
 
-        rootliks = [ ar["nodelist"][-1,:-1][charstate] *
+        rootliks = [ ar["nodelist"][-1,:-1][charstate] +
                      ar["root_priors"][charstate] for charstate in range(nchar) ]
 
     elif pi == "Equilibrium":
         # Equilibrium pi from the stationary distribution of Q
         np.copyto(ar["root_priors"],qsd(Q))
-        rootliks = [ i*ar["root_priors"][n] for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
-    logli = np.log(np.sum(rootliks))
+        rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
+    logli = scipy.misc.logsumexp(rootliks)
 
     if returnPi:
         return (logli, {k:v for k,v in enumerate(ar["root_priors"])})
@@ -240,7 +240,6 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None, 
                 elif(cell[0] in [cell[1]+1, cell[1]-1] and cell[2] == cell[3] ):
                     qcell[...] = brparams[brcount]
                     brcount += 1
-            Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1)*-1
         elif Qtype == "Simple":
             for i,qcell in enumerate(np.nditer(Q, order="F", op_flags=["readwrite"])):
                 cell = grid[i]
@@ -264,7 +263,8 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None, 
             my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
             nregimeswitch = (nregime**2 - nregime)*nobschar
             np.fill_diagonal(Q[my_slice0,my_slice1],[p for p in brparams[i*nobschar:i*nobschar+nobschar]])
-    Q[np.diag_indices(nobschar*nregime)] = np.sum(Q, axis=1) * -1
+
+    Q[np.diag_indices(nobschar*nregime)] = (np.sum(Q, axis=1) * -1)
     if out is None:
         return Q
 
@@ -300,72 +300,10 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
     postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
     nnode = len(t)+1
     nodelist = np.zeros((nnode, nchar+1))
-    childlist = np.zeros(nnode, dtype=object)
-    leafind = [ n.isleaf for n in tree.postiter()]
-
-    for k,ch in enumerate(postChars):
-        hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
-        [ n for i,n in enumerate(nodelist) if leafind[i] ][k][hiddenChs] = 1.0
-    for i,n in enumerate(nodelist[:-1]):
-        n[nchar] = postnodes.index(postnodes[i].parent)
-        childlist[i] = [ nod.pi for nod in postnodes[i].children ]
-    childlist[i+1] = [ nod.pi for nod in postnodes[i+1].children ] # Add the root to the childlist array
-
-    # Setting initial node likelihoods to one for calculations
-    nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
-
-    # Empty Q matrix
-    Q = np.zeros([nchar,nchar], dtype=np.double)
-    # Empty p matrix
-    p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
-
-
-    nodelistOrig = nodelist.copy() # Second copy to refer back to
-    # Empty root prior array
-    rootpriors = np.empty([nchar], dtype=np.double)
-
-    if findmin:
-        nullval = np.inf
-    else:
-        nullval = -np.inf
-
-    # Upper bounds
-    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
-                   tree.leaves()[0].length])
-    upperbound = len(tree.leaves())/treelen
-
-    # Giving internal function access to these arrays.
-       # Warning: can be tricky
-       # Need to make sure old values
-       # Aren't accidentally re-used
-    var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
-           "nodelistOrig":nodelistOrig, "upperbound":upperbound,
-           "root_priors":rootpriors, "nullval":nullval}
-    return var
-
-def create_hrm_ar_log(tree, chars, nregime, findmin=True):
-    """
-    Create arrays to be used in hrm likelihood function
-    """
-
-    nchar = len(set(chars)) * nregime
-    nt =  len(tree.descendants())
-    charlist = range(nchar)
-    nobschar = len(set(chars))
-
-    t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
-    nchar = len(set(chars)) * nregime
-    nobschar = len(set(chars))
-
-    preleaves = [ n for n in tree.preiter() if n.isleaf ]
-    postleaves = [n for n in tree.postiter() if n.isleaf ]
-    postnodes = list(tree.postiter())
-    postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
-    nnode = len(t)+1
-    nodelist = np.zeros((nnode, nchar+1))
     nodelist.fill(-np.inf)
     childlist = np.zeros(nnode, dtype=object)
     leafind = [ n.isleaf for n in tree.postiter()]
+    tmp_ar = np.zeros([nchar]) # For storing calculations in cython code
 
     for k,ch in enumerate(postChars):
         hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
@@ -404,7 +342,7 @@ def create_hrm_ar_log(tree, chars, nregime, findmin=True):
        # Aren't accidentally re-used
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
-           "root_priors":rootpriors, "nullval":nullval}
+           "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar}
     return var
 
 def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
@@ -988,6 +926,9 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_varia
         br_variable (bool): Whether or not between-regime rates are allowed to vary
         parallel (bool): Whether to run in parallel
         ncores (int): If parallel is True, number of cores to run on
+        out_file (str): Optional output file name. If given, results will written
+          into the current directory with this string as
+          the first part of the filename
 
     """
     nchar = len(set(chars))
@@ -1027,8 +968,11 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_varia
             pars[i] = opt.optimize(x0)
             liks[i] = -mk_func(pars[i])
             Qs[i] = fill_distinct_regime_Q(comb, np.insert(pars[i],0,1e-15), nregime, nchar, br_variable=br_variable)
+            if out_file is not None:
+                with open(out_file+str(comb)+".p", "wb") as f:
+                    pickle.dump((comb, liks[i], Qs[i]), f)
             print "{}/{} regimes tested".format(i+1,ncomb)
-            return {r:(liks[i], Qs[i]) for i,r in enumerate(regime_combinations)}
+        return {r:(liks[i], Qs[i]) for i,r in enumerate(regime_combinations)}
 def fill_Q_layout(regimetype, Qparams):
     """
     Fill a single regime matrix based on the regime type and the given

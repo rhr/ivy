@@ -7,7 +7,7 @@ import scipy.stats
 from scipy.stats import rv_discrete
 import random
 
-def sim_discrete(tree, Q, anc=None, charname=None):
+def sim_discrete(tree, Q, anc=None, charname=None, rseed=None):
     """
     Simulate discrete character on a tree given transition rate matrix.
 
@@ -37,6 +37,8 @@ def sim_discrete(tree, Q, anc=None, charname=None):
     ###############################################################
     # Go through the tree in preorder sequence and simulate history
     ###############################################################
+    if rseed:
+        np.random.seed(rseed)
     for node in simtree.descendants():
         prevstate = node.parent.sim_char["sim_state"]
         node.sim_char = {}

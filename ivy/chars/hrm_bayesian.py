@@ -166,7 +166,6 @@ class QmatMetropolis(pymc.Metropolis):
 
     def reject(self):
         self.rejected += 1
-        print self.rejected
         self.stochastic.value = self.stochastic.last_value
 
 

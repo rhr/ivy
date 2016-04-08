@@ -66,17 +66,9 @@ chars = [i.sim_char["sim_state"] for i in simtree.leaves()]
 chars =  [i%2 for i in chars]
 
 ar = ivy.chars.hrm.create_hrm_ar(tree, chars, 2)
-profile = line_profiler.LineProfiler(cyexpokit.cy_mk)
-profile.runcall(cyexpokit.cy_mk, ar["nodelist"],ar["p"],ar["charlist"])
-
-
-
-profile.print_stats()
-
-
-
-ar = ivy.chars.hrm.create_hrm_ar_log(tree, chars, 2)
+cyexpokit.dexpm_tree_preallocated_p_log(Q, ar["t"], ar["p"])
 profile = line_profiler.LineProfiler(cyexpokit.cy_mk_log)
-profile.runcall(cyexpokit.cy_mk_log, ar["nodelist"],ar["p"],ar["charlist"])
+
+profile.runcall(cyexpokit.cy_mk_log, ar["nodelist"],ar["p"],4)
 
 profile.print_stats()
