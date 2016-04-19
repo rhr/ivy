@@ -1,15 +1,14 @@
-import ivy
-import numpy as np
 import math
+import random
+
+import numpy as np
 from ivy.chars.expokit import cyexpokit
 import scipy
 from scipy import special
 from scipy.optimize import minimize
 from scipy.special import binom
 import nlopt
-import random
 
-import inspect
 
 def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
     """
@@ -48,10 +47,7 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
     if ar is None:
         # Creating arrays to be used later
         ar = create_mk_ar(tree, chars)
-
     cyexpokit.dexpm_tree_preallocated_p_log(Q, ar["t"], ar["p"]) # This changes p in place
-
-
     # Calculating the likelihoods for each node in post-order sequence
     cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"])
     # The last row of nodelist contains the likelihood values at the root
@@ -61,24 +57,18 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
         assert len(pi) == nchar, "length of given pi does not match Q dimensions"
         assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
         assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
-
         np.copyto(ar["root_priors"], pi)
-
         rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
-
     elif pi == "Equal":
         ar["root_priors"].fill(1.0/nchar)
         rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1])]
-
     elif pi == "Fitzjohn":
         np.copyto(ar["root_priors"],
                   [ar["nodelist"][-1,:-1][charstate]-
                    scipy.misc.logsumexp(ar["nodelist"][-1,:-1]) for
                    charstate in set(chars) ])
-
         rootliks = [ ar["nodelist"][-1,:-1][charstate] +
                      ar["root_priors"][charstate] for charstate in set(chars) ]
-
     elif pi == "Equilibrium":
         # Equilibrium pi from the stationary distribution of Q
         np.copyto(ar["root_priors"],qsd(Q))
@@ -88,7 +78,6 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
         return (logli, {k:v for k,v in enumerate(ar["root_priors"])}, rootliks)
     else:
         return logli
-
 
 
 def create_mk_ar(tree, chars, findmin = True):
@@ -121,23 +110,17 @@ def create_mk_ar(tree, chars, findmin = True):
     Q = np.zeros([nchar, nchar], dtype=np.double)
     # Empty p matrix
     p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
-
     nodelistOrig = nodelist.copy()
-
     rootpriors = np.empty([nchar], dtype=np.double)
-
     if findmin:
         nullval = np.inf
     else:
         nullval = -np.inf
-
     treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
                    tree.leaves()[0].length])
     upperbound = len(tree.leaves())/treelen
     charlist = range(nchar)
-
     tmp_ar = np.zeros(nchar)
-
     # Giving internal function access to these arrays.
        # Warning: can be tricky
        # Need to make sure old values
@@ -145,8 +128,8 @@ def create_mk_ar(tree, chars, findmin = True):
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
            "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar}
-
     return var
+
 
 def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
                                   findmin = True):
@@ -176,11 +159,9 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
         nullval = np.inf
     else:
         nullval = -np.inf
-
     nchar = len(set(chars))
     nt =  len(tree.descendants())
     charlist = range(nchar)
-
     # Giving internal function access to these arrays.
        # Warning: can be tricky
        # Need to make sure old values
@@ -190,13 +171,11 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
         """
         NLOPT supplies likelihood function with parameters and gradient
         """
-
         # Enforcing upper bound on parameters
         if (sum(Qparams) > var["upperbound"]) or any(Qparams <= 0):
             return var["nullval"]
         if any(np.isnan(Qparams)):
             return var["nullval"]
-
         # Filling Q matrices:
         if Qtype == "ER":
             var["Q"].fill(Qparams[0])
@@ -214,22 +193,18 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
             var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
         else:
             raise ValueError, "Qtype must be one of: ER, Sym, ARD"
-
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
-
         if findmin:
             x = -1
         else:
             x = 1
-
         try:
             li = mk(tree, chars, var["Q"], p=var["p"], pi = pi, ar=var)
             return x * li # Minimizing negative log-likelihood
         except ValueError: # If likelihood returned is 0
             return var["nullval"]
-
     return likelihood_function
 
 

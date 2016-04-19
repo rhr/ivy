@@ -102,7 +102,7 @@ class NodelikelihoodMethods(unittest.TestCase):
         # State 1
         UL1E = DL1E*(UL0F_m_E * P01E + UL1F_m_E * P11E)
 
-        t = ivy.chars.anc_recon.anc_recon_py(tree, chars, Q)
+        t = ivy.chars.recon.recon_py(tree, chars, Q)
 
         self.assertTrue(np.isclose(t["E"].marginal_likelihood[0], UL0E) and np.isclose(t["E"].marginal_likelihood[1], UL1E))
 
@@ -184,7 +184,7 @@ class NodelikelihoodMethods(unittest.TestCase):
         # State 1
         UL1E = DL1E*(UL0F_m_E * P01E + UL1F_m_E * P11E)
 
-        t = ivy.chars.anc_recon.anc_recon_py(tree, chars, Q)
+        t = ivy.chars.recon.recon_py(tree, chars, Q)
 
         self.assertTrue(np.isclose(t["E"].marginal_likelihood[0], UL0E) and np.isclose(t["E"].marginal_likelihood[1], UL1E))
     def test_ancrecon_4tiptree_matchesCorhmm(self):
@@ -195,7 +195,7 @@ class NodelikelihoodMethods(unittest.TestCase):
         out_cor = np.array([[0.68038206,0.3196179],
                             [0.59350514,0.4064949],
                             [0.05419418,0.9458058]])
-        out = ivy.chars.anc_recon.anc_recon(tree, chars, Q)
+        out = ivy.chars.recon.recon(tree, chars, Q)
 
         for i in range(2):
             for char in set(chars):
@@ -211,7 +211,7 @@ class NodelikelihoodMethods(unittest.TestCase):
                              [0.54462274, 0.4553773],
                              [0.08647845, 0.9135216]])
 
-        out = ivy.chars.anc_recon.anc_recon(tree, chars, Q)
+        out = ivy.chars.recon.recon(tree, chars, Q)
 
         for i in range(2):
             for char in set(chars):

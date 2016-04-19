@@ -1,17 +1,15 @@
 # Mk multi regime models
-import ivy
-import numpy as np
 import math
-from ivy.chars.expokit import cyexpokit
+import random
+
+import numpy as np
 import scipy
 from scipy import special
 from scipy.optimize import minimize
 from scipy.special import binom
-import random
 
-from ivy.chars.mk import *
-from ivy.chars.mk_mr import *
-from ivy.chars.hrm import *
+from ivy.chars.expokit import cyexpokit
+
 
 
 def mk_multi_regime(tree, chars, Qs, locs, p=None, pi="Fitzjohn", returnPi=False,
@@ -124,6 +122,7 @@ def mk_multi_regime(tree, chars, Qs, locs, p=None, pi="Fitzjohn", returnPi=False
     else:
         return logli
 
+
 def create_likelihood_function_multimk(tree, chars, Qtype, locs, pi="Equal",
                                   min = True):
     if min:
@@ -199,6 +198,7 @@ def create_likelihood_function_multimk(tree, chars, Qtype, locs, pi="Equal",
             return var["nullval"]
 
     return likelihood_function
+
 
 def create_likelihood_function_multimk_b(tree, chars, Qtype, nregime, pi="Equal",
                                   min = True):
@@ -276,6 +276,7 @@ def create_likelihood_function_multimk_b(tree, chars, Qtype, nregime, pi="Equal"
             return var["nullval"]
 
     return likelihood_function
+
 
 def locs_from_switchpoint(tree, switch, locs=None):
     """

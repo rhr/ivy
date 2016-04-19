@@ -1,12 +1,17 @@
-import scipy, numpy
+#!/usr/bin/env python
+import scipy
+import numpy
+
 
 def default_costmatrix(numstates, dtype=numpy.int):
     "a square array with zeroes along the diagonal, ones elsewhere"
     return scipy.logical_not(scipy.identity(numstates)).astype(float)
 
+
 def minstates(v):
     "return the indices of v that equal the minimum"
     return scipy.nonzero(scipy.equal(v, min(v)))
+
 
 def downpass(node, states, stepmatrix, chardata, node2dpv=None):
     if node2dpv is None:
@@ -75,6 +80,7 @@ def uppass(node, states, stepmatrix, node2dpv, node2upm={},
 
     return node2ancstates
 
+
 def ancstates(tree, chardata, stepmatrix):
     """
     Return parsimony ancestral states
@@ -90,6 +96,7 @@ def ancstates(tree, chardata, stepmatrix):
     states = range(len(stepmatrix))
     return uppass(tree, states, stepmatrix,
                   downpass(tree, states, stepmatrix, chardata))
+
 
 def _bindeltran(node, stepmatrix, node2dpv, node2deltr=None, ancstate=None):
     if node2deltr is None:
@@ -107,6 +114,7 @@ def _bindeltran(node, stepmatrix, node2dpv, node2deltr=None, ancstate=None):
         _bindeltran(child, stepmatrix, node2dpv, node2deltr, s)
 
     return node2deltr
+
 
 def binary_deltran(tree, chardata, stepmatrix):
     states = range(len(stepmatrix))

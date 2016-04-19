@@ -30,11 +30,11 @@ trueSimFig.add_layer(layers.add_branchstates)
 hrm_MLE = ivy.chars.hrm.fit_hrm_mkSimple(tree, chars, 2, pi="Equal")
 
 
-#t = ivy.chars.anc_recon.anc_recon(tree, chars, np.array([[-0.5,0.5],[0.5,-0.5]]), pi="Equal")
+#t = ivy.chars.recon.recon(tree, chars, np.array([[-0.5,0.5],[0.5,-0.5]]), pi="Equal")
 #pickle.dump(t, open("prev_ancrecon_results.p", "wb"))
 
 t = pickle.load(open("prev_ancrecon_results.p", "rb"))
-recon = ivy.chars.anc_recon.anc_recon_discrete(tree, chars,hrm_MLE[0], pi="Equal", nregime = 2)
+recon = ivy.chars.recon.recon_discrete(tree, chars,hrm_MLE[0], pi="Equal", nregime = 2)
 
 
 fig = treefig(tree)

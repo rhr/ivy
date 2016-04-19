@@ -225,7 +225,7 @@ nchar = 6
 nregime = 3
 nparam = 3
 nobschar = 2
-minp = find_minp(tree, chars)
+minp = pscore(tree, chars)
 treelen = sum([n.length for n in tree.descendants()])
 slow = pymc.Exponential("slow", beta=treelen/minp)
 
@@ -297,7 +297,7 @@ nobschar = 2
 # Without data
 ###
 
-minp = find_minp(tree, chars)
+minp = pscore(tree, chars)
 treelen = sum([n.length for n in tree.descendants()])
 slow = pymc.Exponential("slow", beta=treelen/minp)
 
@@ -335,7 +335,7 @@ MLEQ = np.array([[-0.12103,  0.10938,  0.01165,  0.     ],
                  [ 0.     ,  0.     ,  0.69436, -0.69436]])
 
 
-recon = ivy.chars.anc_recon.anc_recon_discrete(tree, chars, Q=MLEQ, nregime = 2)
+recon = ivy.chars.recon.recon_discrete(tree, chars, Q=MLEQ, nregime = 2)
 
 modelseed = (1,1,2,2,1,1,1,1)
 

@@ -1,16 +1,18 @@
-"""
-Functions for fitting mk model to a tree
-"""
-import ivy
-import numpy as np
+#!/usr/bin/env python
 import math
-from ivy.chars.expokit import cyexpokit
+import random
+
+import numpy as np
 import scipy
 from scipy import special
 from scipy.optimize import minimize
 from scipy.special import binom
-import random
 
+from ivy.chars.expokit import cyexpokit
+
+"""
+Functions for discrete characters
+"""
 
 def nodeLikelihood(node):
     """
@@ -30,6 +32,7 @@ def nodeLikelihood(node):
 
     return sum(likelihoodNode.values())
 
+
 def tip_age_rank_sum(tree, chars):
     """
     Calculate tip age rank sums of two traits
@@ -46,13 +49,14 @@ def tip_age_rank_sum(tree, chars):
 
     return stat, pval
 
+
 def NoTO(tree, chars):
     """
     Number of Tips Per Origin
 
     See: Bromham et al. 2016
     """
-    parsimonyStates = ivy.chars.anc_recon.parsimony_recon(tree, chars)
+    parsimonyStates = ivy.chars.recon.parsimony_recon(tree, chars)
     rootState = int(parsimonyStates[tree][0])
 
     origins = []

@@ -658,7 +658,7 @@ def add_ancestor_noderecon(treeplot, internal_vals, vis=True, colors=None, nregi
 
     Args:
         internal_vals: Array of dimensions [nchar+2, nnodes]. Identical to the
-          format returned by anc_recon_discrete
+          format returned by anc_recon_cat
          colors: List of length = nchar. The colors for each character. Optional.
          nregime: Number of regimes. If given and colors = None, function will
          automatically color-code characters by regime. (NOT IMPLEMENTED)

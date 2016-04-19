@@ -1,26 +1,30 @@
+#!/usr/bin/env python
+
+import math
+import itertools
+import random
+import collections
+
+import matplotlib
+import matplotlib.pylab as plt
+import numpy as np
+import pymc
+import networkx as nx
+import scipy
+
+from ivy.chars.recon import pscore
+from ivy.chars import hrm, mk
+
 """
 Functions for testing an hrm model by assigning parameters to different
 cells of the Q matrix. Use custom step methods in pymc to traverse all
 possible models.
 """
-import ivy
-import numpy as np
-import math
-import itertools
-import pymc
-import random
-import collections
-import networkx as nx
-import scipy
-
-import matplotlib
-import matplotlib.pylab as plt
-from ivy.chars.anc_recon import find_minp
-from ivy.chars import hrm, mk
 
 GAMMASHAPE = 3.55 # The shape parameter of a gamma distribution that is shifted by 1
-                  # Such that 95% of the distribution falls between 2 and 10
-                  # with a scaling parameter of 1
+                  # such that 95% of the distribution falls between 2 and 10
+                  # with a scaling parameter of 1.
+
 
 def unique_models(nchar, nregime, nparam):
     """
@@ -49,7 +53,7 @@ def unique_models(nchar, nregime, nparam):
 
     # Between-regime parameters
     n_br = (nregime**2 - nregime)*nchar
-    # Disallow the fasted parameter in between-regime transitions
+    # Disallow the fastest parameter in between-regime transitions
     br = list(itertools.product(param_ranks[:-1], repeat = n_br))
     br.pop(0) # Need to handle "no transition" models separately
 
@@ -63,6 +67,7 @@ def unique_models(nchar, nregime, nparam):
     mods_flat = [ tuple([i for s in  x for i in s]) for x in mods ]
 
     return mods_flat
+
 
 def make_model_graph(unique_mods):
     """
@@ -86,6 +91,7 @@ def make_model_graph(unique_mods):
                 mod_graph.add_edge(mod, n)
     return mod_graph
 
+
 def new_hrm_model(mod, nparam, nchar, nregime, mod_order):
     """
     Return new, valid model by changing one parameter of current model
@@ -97,6 +103,7 @@ def new_hrm_model(mod, nparam, nchar, nregime, mod_order):
         newmod = mod[:i] + (v,) + mod[i+1:]
         if is_valid_model(newmod, nparam, nchar, nregime, mod_order):
             return newmod
+
 
 def is_valid_model(mod, nparam, nchar, nregime, mod_order):
     """
@@ -120,8 +127,9 @@ def is_valid_model(mod, nparam, nchar, nregime, mod_order):
     # Check that there are no fast parameters in BR transitions
     if nparam in mod[-n_br:]:
         return False
-
     return True
+
+
 def number_connected(mod, nchar, nregime, n_wr, n_br):
     """
     Test how many regimes are connected in some way
@@ -134,6 +142,8 @@ def number_connected(mod, nchar, nregime, n_wr, n_br):
     for c in range(n_pairs):
         connections[c] = set(br_mod[c*nobschar*2:c*nobschar*2+nobschar*2]) != {0}
     return sum(connections)
+
+
 def make_qmat_stoch(nobschar,nregime,nparam,mod_order_list,modseed,name="qmat_stoch"):
     """
     Make a stochastic to use for a model-changing step
@@ -170,10 +180,14 @@ class QmatMetropolis(pymc.Metropolis):
 
 
 def ShiftedGamma(shape, shift = 1, name="ShiftedGamma"):
+    """
+    Gamma distribution that has been shifted by some constant.
+    """
     @pymc.stochastic(name=name)
     def shifted_gamma(value=2, shape=shape):
         return pymc.gamma_like(value-shift, shape, 1)
     return shifted_gamma
+
 
 def fill_model_Q(mod, Qparams, Q):
     """
@@ -212,6 +226,7 @@ def fill_model_Q(mod, Qparams, Q):
         np.fill_diagonal(Q[my_slice0,my_slice1],[Qparams[p] for p in mod[nregime][i*nobschar:i*nobschar+nobschar]])
     np.fill_diagonal(Q, -np.sum(Q,1))
 
+
 def hrm_allmodels_bayes(tree, chars, nregime, nparam,modseed, pi="Equal",
                         dbname = None):
     """
@@ -220,7 +235,6 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam,modseed, pi="Equal",
     The chain will step through different models, placing a prior on simpler
     models
 
-
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
@@ -228,6 +242,8 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam,modseed, pi="Equal",
           preoder sequence. Character states must be in the form of 0,1,2,...
         nregime (int): Number of regimes
         nparam (int): Number of unique parameters to allow in a model
+        modseed (tuple): Starting model for the MCMC chain. A tuple of ints.
+           Must be a valid model or adjacent to at least one valid model.
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root node. Defaults to "Equal"
           Method "Fitzjohn" is not thouroughly tested, use with caution
@@ -242,7 +258,7 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam,modseed, pi="Equal",
     n_br = (nregime**2-nregime)*nobschar
 
 
-    minp = find_minp(tree, chars)
+    minp = pscore(tree, chars)
     treelen = sum([n.length for n in tree.descendants()])
     # Prior on slowest distribution (beta = 1/mean)
     slow = pymc.Exponential("slow", beta=treelen/minp)
@@ -303,7 +319,7 @@ def mk_allmodels_bayes(tree, chars, nparam, pi="Equal", dbname=None):
     ncell = nchar**2 - nchar
     assert nparam <= ncell
 
-    minp = find_minp(tree, chars)
+    minp = pscore(tree, chars)
     treelen = sum([n.length for n in tree.descendants()])
     ### Parameters
     # Prior on slowest distribution (beta = 1/mean)
@@ -343,6 +359,7 @@ def mk_allmodels_bayes(tree, chars, nparam, pi="Equal", dbname=None):
     mod_mcmc.use_step_method(QmatMetropolis_mk, mod, all_mods)
     return mod_mcmc
 
+
 def make_qmat_stoch_mk(all_mods, name="qmat_stoch"):
     """
     Stochastic for use in model-changing step
@@ -355,6 +372,7 @@ def make_qmat_stoch_mk(all_mods, name="qmat_stoch"):
         # Flat prior for all models
         return 0
     return qmat_stoch
+
 
 class QmatMetropolis_mk(pymc.Metropolis):
     """
