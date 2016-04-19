@@ -68,6 +68,8 @@ def monotypic_clade_size(tree, chars):
     Count diversity contained within subclades having the same character
     state.
     """
+    if len(set(chars)) == 1:
+        return [len(chars)]
     chardict = {t:chars[i] for i,t in enumerate(tree.leaves())}
     subclades = [n for n in tree.postiter() if not n.isleaf]
     monotypic_clades = [None]*len(subclades)

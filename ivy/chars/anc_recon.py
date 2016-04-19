@@ -357,6 +357,8 @@ def find_minp(tree, chars):
     Return the minimum number of changes needed by parsimony to observe
     given data on the tree
     """
+    if len(set(chars)) == 1:
+        return 0
     def get_childstates(node, precon):
         chstates = [None] * len(node.children)
         for i,n in enumerate(node.children):
