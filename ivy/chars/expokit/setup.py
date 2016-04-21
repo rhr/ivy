@@ -18,5 +18,5 @@ ext = Extension(
 if __name__ == "__main__":
     setup(name = "Expokit f->f90->c extension module",
           cmdclass = {"build_ext": build_ext},
-          ext_modules = [ext])
+          ext_modules = [ext], gdb_debug=True)
       

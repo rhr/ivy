@@ -702,6 +702,48 @@ def add_branchstates(treeplot,vis=True, colors=None):
                        label=str(i))
     treeplot.legend(handles=leg_handles)
 
+def add_ancrecon(treeplot, liks, vis=True, width=2):
+    """
+    Plot ancestor reconstruction for a binary mk model
+    """
+    root = treeplot.root
+    horz_seg_collections = [None] * (len(root)-1)
+    horz_seg_colors = [None]*(len(root)-1)
+    vert_seg_collections = [None] * (len(root)-1)
+    vert_seg_colors = [None] * (len(root)-1)
+
+    nchar = liks.shape[1]-2
+    for i,n in enumerate(root.descendants()):
+        n_lik = liks[i+1]
+        par_lik = liks[n.parent.ni]
+        n_col = twoS_colormaker(n_lik[:nchar])
+        par_col = twoS_colormaker(par_lik[:nchar])
+
+        n_coords = treeplot.n2c[n]
+        par_coords = treeplot.n2c[n.parent]
+
+        p1 = (n_coords.x, n_coords.y)
+        p2 = (par_coords.x, n_coords.y)
+
+        hsegs,hcols = gradient_segment_horz(p1,p2,n_col.rgb,par_col.rgb)
+
+        horz_seg_collections[i] = hsegs
+        horz_seg_colors[i] = hcols
+
+        vert_seg_collections[i] = ([(par_coords.x,par_coords.y),
+                                     (par_coords.x, n_coords.y)])
+        vert_seg_colors[i] = (par_col.rgb)
+    horz_seg_collections = [i for s in horz_seg_collections for i in s]
+    horz_seg_colors = [i for s in horz_seg_colors for i in s]
+    lc = LineCollection(horz_seg_collections + vert_seg_collections,
+                        colors = horz_seg_colors + vert_seg_colors,
+                        lw = width)
+    lc.set_visible(vis)
+    treeplot.add_collection(lc)
+
+    treeplot.figure.canvas.draw_idle()
+
+
 def add_ancrecon_hrm(treeplot, liks, vis=True, width=2):
     """
     Color branches on tree based on likelihood of being in a state
@@ -783,7 +825,15 @@ def twoS_twoR_colormaker(lik):
     col.saturation = 0.35 + (r1*0.35)
     col.hue *= 1 - (0.2*r0)
     return col
-
+def twoS_colormaker(lik):
+    """
+    Given node likelihood, return approrpiate color
+    """
+    s0 = lik[0]
+    s1 = lik[1]
+    col = Color(rgb=(s0,0.1,s1))
+    col.luminance = 0.75
+    return col
 def gradient_segment_horz(p1, p2, c1, c2, width=4):
     """
     Create a horizontal segment that is filled with a gradient

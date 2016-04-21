@@ -1206,7 +1206,17 @@ class Node(object):
         """
         assert self.parent is not None
         return [c for c in self.parent.children if not c==self]
-           
+    def ntaxa(self):
+        """
+        Number of leaves descended from self
+        """
+        return len(self.leaves())
+    def tiplabels(self):
+        """
+        List of labels of leaves descended from self, in preorder sequence
+        """
+        return [n.label for n in self.leaves()]
+
 
 
 

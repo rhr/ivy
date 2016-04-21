@@ -892,3 +892,107 @@ def fill_distinct_regime_Q(regimetypes, Qparams,nregime, nobschar, Q = None, Q_l
     np.fill_diagonal(Q, -np.sum(Q,1))
     if returnQ:
         return Q
+
+def fit_hrm_model(tree, chars, nregime, mod, pi="Equal", findmin=True):
+    """
+    Fit parameters for a single model specified by the user
+    """
+    nobschar = len(set(chars))
+    if nobschar != 2:
+        raise ValueError,"Binary characters only. Number of states given:{}".format(nchar)
+    nchar = nobschar * nregime
+    ar = create_hrm_ar(tree, chars, nregime)
+    nfreeparams = len(set([i for s in mod for i in s if i != 0]))
+
+    mk_func = fit_hrm_model_likelihood(tree, chars, nregime, mod, pi, findmin)
+    x0 = [0.1]*nfreeparams
+    opt = nlopt.opt(nlopt.LN_SBPLX, nfreeparams)
+    opt.set_min_objective(mk_func)
+    opt.set_lower_bounds(0)
+
+    par = opt.optimize(x0)
+    lik = -mk_func(par)
+    Q = np.zeros([nchar, nchar])
+    fill_model_Q(mod, np.insert(par, 0, 1e-15), Q)
+
+def fill_model_Q(mod, Qparams, Q):
+    """
+    Create Q matrix given model and parameters.
+
+    Args:
+        mod (list): List of tuples. Code for the mode used. The first nregime
+          tuples correspond to the within-regime transition rates for each
+          regime. The last tuple corresponds to the between-regime transition
+          rates. Ex. [(1, 2), (3, 4), (5, 6, 7, 8)] corresponds to a
+          matrix of:
+              [-,1,5,-]
+              [2,-,-,6]
+              [7,-,-,3]
+              [-,8,4,-]
+        Qparams (list): List of floats corresponding to the values for
+          slow, medium, fast, etc. rates. The first is always 0
+        Q (np.array): Pre-allocated Q matrix
+    """
+    nregime = len(mod)-1
+    nobschar = Q.shape[0]/nregime
+    nchar = Q.shape[0]
+    Q.fill(0.0)
+    for i in range(nregime):
+        subQ = slice(i*nobschar,(i+1)*nobschar)
+        subQvals = [Qparams[x] for s in [(0,)+mod[i][k:k+nobschar] for k in range(0,len(mod[i])+1,nobschar)] for x in s]
+        np.copyto(Q[subQ, subQ], [subQvals[x:x+nobschar] for x in xrange(0, len(subQvals), nobschar)])
+
+    combs = list(itertools.combinations(range(nregime),2))
+    revcombs = [tuple(reversed(i)) for i in combs]
+    submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
+    for i,submatrix_index in enumerate(submatrix_indices):
+        my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
+        my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
+        nregimeswitch =(nregime**2 - nregime)*2
+        np.fill_diagonal(Q[my_slice0,my_slice1],[Qparams[p] for p in mod[nregime][i*nobschar:i*nobschar+nobschar]])
+    np.fill_diagonal(Q, -np.sum(Q,1))
+
+
+def fit_hrm_model_likelihood(tree, chars, nregime, mod, pi="Equal", findmin=True):
+    """
+    Likelihood functoin for fitting user-specified model
+    """
+    nobschar = len(set(chars))
+    nchar = nobschar*nregime
+    nt =  len(tree.descendants())
+    charlist = range(nchar)
+
+    var = create_hrm_ar(tree, chars, nregime, findmin)
+    var["Q_layout"] = np.zeros([nregime,nobschar,nobschar])
+    def likelihood_function(Qparams, grad=None):
+        """
+        NLOPT inputs the parameter array as well as a gradient object.
+        The gradient object is ignored for this optimizer (LN_SBPLX)
+        """
+        if any(np.isnan(Qparams)):
+            return var["nullval"]
+        if not all(sorted(Qparams) == Qparams):
+            return var["nullval"]
+
+
+        Qparams = np.insert(Qparams, 0, 1e-15)
+
+        fill_model_Q(mod, Qparams, var["Q"])
+
+        # Resetting the values in these arrays
+        np.copyto(var["nodelist"], var["nodelistOrig"])
+        var["root_priors"].fill(1.0)
+
+        if findmin:
+            x = -1
+        else:
+            x = 1
+        try:
+            logli =  hrm_mk(tree, chars, var["Q"],nregime, pi = pi, ar=var)
+            if not np.isnan(logli):
+                return x * logli# Minimizing negative log-likelihood
+
+        except ValueError: # If likelihood returned is 0
+            return var["nullval"]
+
+    return likelihood_function

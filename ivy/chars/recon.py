@@ -3,6 +3,7 @@ import math
 
 import numpy as np
 
+import ivy
 from ivy.chars.expokit import cyexpokit
 from ivy.chars import catpars
 
@@ -60,7 +61,7 @@ def anc_recon_cat(tree, chars, Q, p=None, pi="Fitzjohn", ars=None, nregime=1):
     ars["child_inds"].fill(0)
     root_equil = ivy.chars.mk.qsd(Q)
 
-    cyexpokit.cy_recon(p, ars["down_nl_w"], ars["charlist"], ars["childlist"],
+    cyexpokit.cy_anc_recon(p, ars["down_nl_w"], ars["charlist"], ars["childlist"],
                         ars["up_nl"], ars["marginal_nl"], ars["partial_parent_nl"],
                         ars["partial_nl"], ars["child_inds"], root_equil,ars["temp_dotprod"],
                         nregime)
