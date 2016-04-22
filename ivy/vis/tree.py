@@ -177,7 +177,7 @@ class TreeFigure(object):
         return self.detail
 
     def add(self, data, name=None, support=70,
-            branchlabels=False, leaflabels=True):
+            branchlabels=False, leaflabels=True, mark_named=True):
         """
         Add a new tree in a new window
 
@@ -194,7 +194,8 @@ class TreeFigure(object):
         ##            branchlabels=self.branchlabels)
         newfig.add(data, name=name, support=support,
                    branchlabels=branchlabels,
-                   leaflabels=leaflabels)
+                   leaflabels=leaflabels,
+                   mark_named=mark_named)
         return newfig
 
     def toggle_leaflabels(self):
@@ -606,7 +607,7 @@ class MultiTreeFigure(object):
             return self.name2plot.get(x)
 
     def add(self, data, name=None, support=70, scaled=True,
-            branchlabels=False, leaflabels=True):
+            branchlabels=False, leaflabels=True, mark_named=True):
         root = None
         if isinstance(data, tree.Node):
             root = data
@@ -624,7 +625,7 @@ class MultiTreeFigure(object):
             p.change_geometry(1, N, i+1)
         plt = TreePlot(fig, 1, N, N, app=self, name=name, support=support,
                        scaled=scaled, branchlabels=branchlabels,
-                       leaflabels=leaflabels)
+                       leaflabels=leaflabels, mark_named=mark_named)
         p = fig.add_subplot(plt)
         p.set_root(root)
         p.plot_tree()
