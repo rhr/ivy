@@ -17,6 +17,7 @@ import pickle
 from ivy.chars.mk import *
 from ivy.chars.mk_mr import *
 from ivy.chars.hrm import *
+from scipy import cluster
 import nlopt
 np.seterr(invalid="warn")
 
@@ -524,7 +525,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
     charlist = range(nchar)
     nobschar = len(set(chars))
     var = create_hrm_ar(tree, chars, nregime,findmin)
-    def likelihood_function(Qparams, grad):
+    def likelihood_function(Qparams, grad=None):
         """
         NLOPT inputs the parameter array as well as a gradient object.
         The gradient object is ignored for this optimizer (LN_SBPLX)
@@ -536,13 +537,17 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
             return var["nullval"]
         if Qtype == "ARD":
             if constraints == "Rate":
-                qmax = [max(Qparams[:nchar*nregime][i:i+nobschar]) for i in xrange(0, len(Qparams)/2, nobschar)]
+                qmax = [max(Qparams[i:i+nobschar]) for i in xrange(0, len(Qparams)/2, nobschar)]
                 if sorted(qmax) != qmax:
                     return var["nullval"]
             elif constraints == "Symmetry":
                 # TODO: generalize this
                 assert len(Qparams) == 8
                 if not ((Qparams[0]/Qparams[1] <= 1) and (Qparams[2]/Qparams[3] >= 1)):
+                    return var["nullval"]
+            elif constraints == "corHMM":
+                assert len(Qparams) == 8
+                if not Qparams[1] < Qparams[3]:
                     return var["nullval"]
         elif Qtype == "Simple":
             if any(sorted(Qparams[:-1]) != Qparams[:-1]):
@@ -563,14 +568,10 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
                           orderedRegimes=False)
         else:
             raise ValueError, "Qtype must be ARD or Simple"
-        for char in range(nobschar):
-            hiddenchar =  [y + char for y in [x * nobschar for x in range(nregime) ]]
-            for char2 in [ ch for ch in range(nobschar) if not ch == char ]:
-                hiddenchar2 =  [y + char2 for y in [x * nobschar for x in range(nregime) ]]
-                rs = [var["Q"][ch1, ch2] for ch1, ch2 in zip(hiddenchar, hiddenchar2)]
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
+
         if findmin:
             x = -1
         else:
@@ -640,6 +641,7 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", constraints="Rate",
     opt.set_min_objective(mk_func)
     opt.set_lower_bounds(0)
     optim = opt.optimize(x0)
+
 
     wr = (nobschar**2-nobschar)*nregime
     q = fill_Q_matrix(nobschar, nregime, optim[:wr], optim[wr:],"ARD", orderedRegimes=orderedRegimes)
@@ -902,10 +904,13 @@ def fit_hrm_model(tree, chars, nregime, mod, pi="Equal", findmin=True):
         raise ValueError,"Binary characters only. Number of states given:{}".format(nchar)
     nchar = nobschar * nregime
     ar = create_hrm_ar(tree, chars, nregime)
-    nfreeparams = len(set([i for s in mod for i in s if i != 0]))
+    nfreeparams = len(set([i for i in mod if i != 0]))
+    n_wr = nobschar**2 - nobschar
+    mod_format = [tuple(mod[i:i+n_wr]) for i in range(0, n_wr*nregime, n_wr)]
+    mod_format.append(tuple(mod[n_wr*nregime:]))
 
-    mk_func = fit_hrm_model_likelihood(tree, chars, nregime, mod, pi, findmin)
-    x0 = [0.1]*nfreeparams
+    mk_func = fit_hrm_model_likelihood(tree, chars, nregime, mod_format, pi, findmin)
+    x0 = [0.01]*nfreeparams
     opt = nlopt.opt(nlopt.LN_SBPLX, nfreeparams)
     opt.set_min_objective(mk_func)
     opt.set_lower_bounds(0)
@@ -913,11 +918,13 @@ def fit_hrm_model(tree, chars, nregime, mod, pi="Equal", findmin=True):
     par = opt.optimize(x0)
     lik = -mk_func(par)
     Q = np.zeros([nchar, nchar])
-    fill_model_Q(mod, np.insert(par, 0, 1e-15), Q)
+    fill_model_Q(mod_format, np.insert(par, 0, 1e-15), Q)
+
+    return Q, lik
 
 def fill_model_Q(mod, Qparams, Q):
     """
-    Create Q matrix given model and parameters.
+    Fill Q matrix given model and parameters.
 
     Args:
         mod (list): List of tuples. Code for the mode used. The first nregime
@@ -955,7 +962,7 @@ def fill_model_Q(mod, Qparams, Q):
 
 def fit_hrm_model_likelihood(tree, chars, nregime, mod, pi="Equal", findmin=True):
     """
-    Likelihood functoin for fitting user-specified model
+    Likelihood function for fitting user-specified model
     """
     nobschar = len(set(chars))
     nchar = nobschar*nregime
@@ -974,6 +981,11 @@ def fit_hrm_model_likelihood(tree, chars, nregime, mod, pi="Equal", findmin=True
         if not all(sorted(Qparams) == Qparams):
             return var["nullval"]
 
+        if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
+            return var["nullval"]
+
+        if any(sorted(Qparams)!=Qparams):
+            return var["nullval"]
 
         Qparams = np.insert(Qparams, 0, 1e-15)
 
@@ -996,3 +1008,50 @@ def fit_hrm_model_likelihood(tree, chars, nregime, mod, pi="Equal", findmin=True
             return var["nullval"]
 
     return likelihood_function
+
+
+def cluster_models(tree, chars, Q, nregime, pi="Equal", findmin=True):
+    """
+    Given an MLE Q, return candidate models with more parsimonious
+    parameter set by merging similar parameters
+    """
+    Q_params = extract_Qparams(Q, nregime)
+
+    ts = np.linspace(-10, 0, 11)
+    Q_dist = np.array(zip(list(Q_params), [0]*len(Q_params)))
+    candidate_models = list(set([tuple(scipy.cluster.hierarchy.fclusterdata(Q_dist, i)) for i in ts]))
+    if any(np.isclose(Q_params, 0.0)):
+        for i,c in enumerate(candidate_models):
+            candidate_models[i] = tuple([x-1 for x in c])
+
+    nmod = len(candidate_models)
+    print("Testing {} models".format(nmod))
+    alt_mods = {c:fit_hrm_model(tree,chars,nregime,c,pi=pi,findmin=findmin)
+                for c in candidate_models}
+    return alt_mods
+
+
+def extract_Qparams(Q, nregime):
+    nchar = Q.shape[0]
+    nobschar = nchar/nregime
+
+    n_wr = (nobschar**2-nobschar)
+    n_br = (nregime**2-nregime)*nobschar
+
+    Q_params = np.zeros([n_wr*nregime + n_br])
+
+    for i in range(nregime):
+        subQ = slice(i*nobschar,(i+1)*nobschar)
+        mask = np.ones([nobschar,nobschar], dtype=bool)
+        mask[np.diag_indices(nobschar)]=False
+        np.copyto(Q_params[i*n_wr:(i+1)*n_wr], Q[subQ,subQ][mask])
+
+    combs = list(itertools.combinations(range(nregime),2))
+    revcombs = [tuple(reversed(i)) for i in combs]
+    submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
+    for i,submatrix_index in enumerate(submatrix_indices):
+        my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
+        my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
+        nregimeswitch =(nregime**2 - nregime)*2
+        Q_params[n_wr*nregime + i*nobschar:n_wr*nregime+(i+1)*nobschar] = Q[my_slice0,my_slice1][np.diag_indices(nobschar)]
+    return Q_params
