@@ -1030,6 +1030,37 @@ def cluster_models(tree, chars, Q, nregime, pi="Equal", findmin=True):
                 for c in candidate_models}
     return alt_mods
 
+def AIC(l, k):
+    return 2*k - 2*l
+
+
+def pairwise_param_merging(tree, chars, Q, l, nregime, pi="Equal", findmin=True):
+    """
+    Given an MLE Q, merge similar parameters pairwise to find more
+    parsimonious models
+    """
+    Q_params = extract_Qparams(Q, nregime)
+    prev_AIC = AIC(l, len(Q_params))
+    prev_mod = Q_params.argsort().argsort()
+
+    dist_mat = abs(Q_params[..., np.newaxis] - Q_params[np.newaxis, ...])
+    dist_mat[np.tril_indices(len(Q_params))] = np.inf
+
+    while 1:
+        closest_pair = divmod(np.argmin(dist_mat), len(Q_params))
+        greater = max(prev_mod[list(closest_pair)])
+        new_mod = np.array([i if i<greater else i-1 for i in prev_mod])
+
+        new_Q, new_l = fit_hrm_model(tree,chars,nregime,tuple(new_mod),pi=pi,findmin=findmin)
+        new_AIC = AIC(new_l, len(set(new_mod)))
+        if new_AIC < prev_AIC:
+            dist_mat[closest_pair[0], closest_pair[1]] = np.inf
+            prev_mod = new_mod[:]
+            prev_AIC = new_AIC
+        else:
+            break
+
+
 
 def extract_Qparams(Q, nregime):
     nchar = Q.shape[0]
