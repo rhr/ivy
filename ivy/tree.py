@@ -6,32 +6,15 @@ ivy does not have a Tree class per se, as most functions operate
 directly on Node objects.
 """
 import os, types
+import csv
+import itertools
+
 from storage import Storage
 from copy import copy as _copy
 from matrix import vcv
 import newick
 from itertools import izip_longest
-import csv
 import numpy as np
-import itertools
-
-## class Tree(object):
-##     """
-##     A simple Tree class.
-##     """
-##     def __init__(self, data=None, format="newick", name=None, ttable=None):
-##         self.root = None
-##         if data:
-##             self.root = read(data, format, name, ttable)
-##         self.name = name
-##         self.ttable = ttable
-
-##     def __getattribute__(self, a):
-##         r = object.__getattribute__(self, 'root')
-##         try:
-##             return object.__getattribute__(r, a)
-##         except AttributeError:
-##             return object.__getattribute__(self, a)
 
 def traverse(node):
     "recursive preorder iterator based solely on .children attribute"
@@ -262,33 +245,6 @@ class Node(object):
         p.get_root().reindex()
         return p
 
-#    def copy_old(self, recurse=False):
-#        """
-#        Return a shallow copy of the node, but not copies of children, parent,
-#        or any attribute that is a Node.
-#
-#        If `recurse` is True, recursively copy child nodes.
-#
-#        Args:
-#            recurse (bool): Whether or not to copy children as well as self.
-#
-#        Returns:
-#            Node: A copy of self.
-#
-#
-#
-#        RR: This function runs rather slowly -CZ
-#        """
-#        newnode = Node()
-#        for attr, value in self.__dict__.items():
-#            if (attr not in ("children", "parent") and
-#                not isinstance(value, Node)):
-#                setattr(newnode, attr, _copy(value))
-#            if recurse:
-#                newnode.children = [
-#                    child.copy(True) for child in self.children
-#                    ]
-#        return newnode
     def copy(self, recurse=True, _par=None):
         """
         Return a shallow copy of self. If recurse = False, do not copy children,
@@ -313,8 +269,6 @@ class Node(object):
             if _par:
                 newnode.parent = _par
         return newnode
-
-
 
     def leafsets(self, d=None, labels=False):
         """return a mapping of nodes to leaf sets (nodes or labels)"""
@@ -356,37 +310,6 @@ class Node(object):
             return seen
         f(self)
         return anc[0]
-
-    ## def mrca(self, *nodes):
-    ##     """
-    ##     Find most recent common ancestor of *nodes*
-    ##     """
-    ##     if len(nodes) == 1:
-    ##         nodes = tuple(nodes[0])
-    ##     if len(nodes) == 1:
-    ##         return nodes[0]
-    ##     ## assert len(nodes) > 1, (
-    ##     ##     "Need more than one node for mrca(), got %s" % nodes
-    ##     ##     )
-    ##     def f(x):
-    ##         if isinstance(x, Node):
-    ##             return x
-    ##         elif type(x) in types.StringTypes:
-    ##             return self.find(x)
-    ##     nodes = map(f, nodes)
-    ##     assert all(filter(lambda x: isinstance(x, Node), nodes))
-
-    ##     #v = [ list(n.rootpath()) for n in nodes if n in self ]
-    ##     v = [ list(x) for x in izip_longest(*[ reversed(list(n.rootpath()))
-    ##                                            for n in nodes if n in self ]) ]
-    ##     if len(v) == 1:
-    ##         return v[0][0]
-    ##     anc = None
-    ##     for x in v:
-    ##         s = set(x)
-    ##         if len(s) == 1: anc = list(s)[0]
-    ##         else: break
-    ##     return anc
 
     def ismono(self, *leaves):
         """
@@ -432,7 +355,14 @@ class Node(object):
                     c.order_subtrees_by_size(n2s, recurse=True, reverse=reverse)
 
     def ladderize(self, reverse=False):
+        """
+        Rotate nodes so tree is ordered by clade size.
+
+        WARNING: May cause strange results with functions that rely on
+          pre- and post- ordering of nodes
+        """
         self.order_subtrees_by_size(recurse=True, reverse=reverse)
+        #TODO: fix reindex
         self.reindex()
         return self
 
@@ -442,7 +372,6 @@ class Node(object):
 
         Args:
             child (Node): A node object
-
         """
         assert child not in self.children
         self.children.append(child)
@@ -462,7 +391,6 @@ class Node(object):
 
         Returns:
             Node: A new node.
-
         """
         assert self.parent
         assert 0 < distance < 1
@@ -481,7 +409,6 @@ class Node(object):
 
         Args:
             child (Node): A node object that is a child of self
-
         """
         assert child in self.children, "node '%s' not child of node '%s'" % (child.label or child.id, self.label or self.id)
         self.children.remove(child)
@@ -509,7 +436,6 @@ class Node(object):
 
         Returns:
             list: A list of leaves that are true for f (if f is given)
-
         """
         if f: return [ n for n in self if (n.isleaf and f(n)) ]
         return [ n for n in self if n.isleaf ]
@@ -524,7 +450,6 @@ class Node(object):
 
         Returns:
             list: A list of internal nodes that are true for f (if f is given)
-
         """
         if f: return [ n for n in self if (n.children and f(n)) ]
         return [ n for n in self if n.children ]
@@ -535,7 +460,6 @@ class Node(object):
 
         Returns:
             list: A list of internal nodes descended from self.
-
         """
         return [ n for n in self if not n.isleaf ]
 
@@ -550,7 +474,6 @@ class Node(object):
         Yields:
             Node: Nodes descended from self (including self) in
               preorder sequence
-
         """
         if (f and f(self)) or (not f):
             yield self
@@ -596,7 +519,6 @@ class Node(object):
 
         Returns:
             list: A list of nodes descended from self not including self.
-
         """
         v = v or []
         for child in self.children:
@@ -608,6 +530,7 @@ class Node(object):
             if child.children:
                 child.descendants(order, v, f)
         return v
+
     def drop_tip(self, nodes):
         """
         Return a NEW TREE with the given tips dropped from it. Does not
@@ -623,7 +546,6 @@ class Node(object):
         nodes = sorted(nodes, key=lambda x: x.ni)
         assert all([ x.isleaf for x in nodes ]), "All nodes given must be tips"
         root = t
-
 
         for node in nodes:
             cp = node.parent
@@ -650,13 +572,14 @@ class Node(object):
                         root.isroot = True
         for n in root.descendants():
             # This removes all knees in the tree. It mimics what ape's
-            # drop.tip function does. Unsure what the behavior
-            # should actually be.
+            # drop.tip function does. Unsure what the behavior for ivy
+            # should be.
             if n.nchildren == 1:
                 n.excise()
         root.isroot = True
         root.reindex()
         return root
+
     def keep_tip(self, nodes):
         """
         Return a NEW TREE containing only the given tips.
@@ -768,58 +691,6 @@ class Node(object):
         """Return a list of found nodes."""
         return list(self.find(f, *args, **kwargs))
 
-    # def is_same_tree(self, tree, check_id=False, verbose=False):
-    #     """
-    #     Test if two trees are the same (same topology, characteristics, labels,
-    #     etc.) Ignores IDs by default.
-    #
-    #     Args:
-    #         tree (Node): Another tree to compare to
-    #         check_id (bool): Whether or not to compare IDs. Defaults to False
-    #         verbose (bool): Whether or not to print a message containing
-    #           the non-matching properties
-    #     Returns:
-    #         bool: Whether or not the trees are the same.
-    #     """
-    #     assert self.isroot and tree.isroot, "Must compare root nodes"
-    #     # Recursively check properties of both trees EXCEPT for IDs and children/parents
-    #     # (IDs are ignored by default and children/parents will be checked
-    #     # during the enumeration of all nodes)
-    #     a_tree = self.copy()
-    #     b_tree = tree.copy()
-    #
-    #     # a_tree.ladderize()
-    #     # b_tree.ladderize()
-    #
-    #     ignoreProps = ["children", "parent", "left", "right", "back","pi","next","treename"]
-    #     if not check_id:
-    #         ignoreProps.append("id")
-    #
-    #     for i,node in enumerate(a_tree):
-    #         for property, value in vars(node).iteritems():
-    #             if property in ignoreProps:
-    #                 pass
-    #             else:
-    #                 if (type(vars(a_tree[i])[property]) != float) or (type(vars(b_tree[i])[property]) != float):
-    #                     try: #Trycatch in case property does not exist in both trees
-    #                         if vars(a_tree[i])[property] != vars(b_tree[i])[property]:
-    #                             if verbose:
-    #                                 print (str(["Nonmatching properties:",
-    #                                     property, str(vars(a_tree[i])[property]),
-    #                                     str(vars(b_tree[i])[property]), a_tree[i], b_tree[i]]))
-    #                             return False
-    #                     except KeyError:
-    #                         if verbose:
-    #                             print "Missing Property", str(property)
-    #                         return False
-    #                 else: # Want to test if floats are close, not identical
-    #                     if not np.isclose(vars(a_tree[i])[property], vars(b_tree[i])[property]):
-    #                         if verbose:
-    #                             print (str(["Nonmatching properties:",
-    #                                 property, str(vars(a_tree[i])[property]),
-    #                                 str(vars(b_tree[i])[property])]))
-    #                         return False
-    #     return True
     def is_same_tree(self, tree):
         """
         Test if two trees are the same (same topology, characteristics, labels,
@@ -845,7 +716,7 @@ class Node(object):
         """
         Two nodes are isomorphic if all of their properties are identical;
         Two leaves with identical properties are isomorphic
-        Two internals are identical if either their child nodes are identical
+        Two internals are identical if their child nodes are identical
         in any order.
 
         """

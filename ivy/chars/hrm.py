@@ -1073,10 +1073,8 @@ def pairwise_param_merging(tree, chars, Q, nregime, pi="Equal", findmin=True):
             best_mod = prev_mod
             best_Q = prev_Q
             best_l = prev_l
-
             break
     return [best_mod, best_Q, best_l]
-
 
 
 def extract_Qparams(Q, nregime):

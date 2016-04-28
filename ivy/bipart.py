@@ -1,4 +1,5 @@
 import sys
+
 from pprint import pprint
 from glob import glob
 from storage import Storage
@@ -98,7 +99,7 @@ def compare(set1, set2, support=None):
                 conflicts1[bp1.node].add(bp2.node)
                 conflicts2[bp2.node].add(bp1.node)
     return hits1, hits2, conflicts1, conflicts2
-    
+
 ## a = Bipart("abcdef", "abc")
 ## b = Bipart("abcdef", "def")
 ## c = Bipart("abcdef", "ab")
@@ -108,4 +109,4 @@ def compare(set1, set2, support=None):
 ## print a.iscompatible(c)
 ## print a.iscompatible(d)
 ## print c.iscompatible(d)
-## sys.exit()    
+## sys.exit()

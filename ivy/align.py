@@ -1,4 +1,5 @@
 import os
+
 from subprocess import Popen, PIPE
 from Bio import AlignIO
 from Bio.Alphabet import IUPAC
@@ -31,10 +32,10 @@ def musclep(seqs1, seqs2, cmd="/usr/bin/muscle"):
     aln = AlignIO.read(StringIO(out), 'fasta', alphabet=IUPAC.ambiguous_dna)
     f1.file.close(); f2.file.close()
     return aln
-    
+
 def read(data, format=None, name=None):
     from types import StringTypes
-    
+
     def strip(s):
         fname = os.path.split(s)[-1]
         head, tail = os.path.splitext(fname)
@@ -74,7 +75,7 @@ def read(data, format=None, name=None):
 
 def write(data, f, format='fasta'):
     AlignIO.write(data, f, format)
-    
+
 def find(aln, substr):
     """
     generator that yields (seqnum, pos) tuples for every position of
@@ -85,11 +86,11 @@ def find(aln, substr):
     for i, rec in enumerate(aln):
         for j in finditer(rec.seq, substr):
             yield (i,j)
-            
+
 def find_id(aln, regexp):
     import re
     return [ (i,s) for i, s in enumerate(aln) if re.search(regexp, s.id) ]
-    
+
 def gapcols(aln, c='-'):
     from numpy import array
     a = array([ list(x.seq) for x in aln ])
