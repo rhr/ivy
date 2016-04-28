@@ -41,3 +41,9 @@ Q = hrm_mle[0]
 #########################
 
 alt_mods = cluster_models(tree, chars, Q, nregime)
+
+
+###################
+# Merging
+###################
+out = pairwise_param_merging(tree, chars, Q, 2)

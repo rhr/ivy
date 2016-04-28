@@ -256,7 +256,7 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None, 
         return Q
 
 
-def n_Q_params(nchar, nregime):
+def n_Qparams(nchar, nregime):
     """
     Number of free Q params for a matrix with nchar and nregimes
     """
@@ -585,7 +585,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
     return likelihood_function
 
 
-def fit_hrm(tree, chars, nregime, pi="Fitzjohn", constraints="Rate", Qtype="Simple"):
+def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="Simple"):
     """
     Fit a hidden-rates mk model to a given tree and list of characters, and
     number of regumes. Return fitted ARD Q matrix and calculated likelihood.
@@ -895,7 +895,7 @@ def fill_distinct_regime_Q(regimetypes, Qparams,nregime, nobschar, Q = None, Q_l
     if returnQ:
         return Q
 
-def fit_hrm_model(tree, chars, nregime, mod, pi="Equal", findmin=True):
+def fit_hrm_model(tree, chars, nregime, mod, pi="Equal", findmin=True, initialvals = None):
     """
     Fit parameters for a single model specified by the user
     """
@@ -910,7 +910,10 @@ def fit_hrm_model(tree, chars, nregime, mod, pi="Equal", findmin=True):
     mod_format.append(tuple(mod[n_wr*nregime:]))
 
     mk_func = fit_hrm_model_likelihood(tree, chars, nregime, mod_format, pi, findmin)
-    x0 = [0.01]*nfreeparams
+    if initialvals is None:
+        x0 = [0.1]*nfreeparams
+    else:
+        x0 = initialvals
     opt = nlopt.opt(nlopt.LN_SBPLX, nfreeparams)
     opt.set_min_objective(mk_func)
     opt.set_lower_bounds(0)
@@ -984,8 +987,6 @@ def fit_hrm_model_likelihood(tree, chars, nregime, mod, pi="Equal", findmin=True
         if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
             return var["nullval"]
 
-        if any(sorted(Qparams)!=Qparams):
-            return var["nullval"]
 
         Qparams = np.insert(Qparams, 0, 1e-15)
 
@@ -1015,12 +1016,12 @@ def cluster_models(tree, chars, Q, nregime, pi="Equal", findmin=True):
     Given an MLE Q, return candidate models with more parsimonious
     parameter set by merging similar parameters
     """
-    Q_params = extract_Qparams(Q, nregime)
+    Qparams = extract_Qparams(Q, nregime)
 
     ts = np.linspace(-10, 0, 11)
-    Q_dist = np.array(zip(list(Q_params), [0]*len(Q_params)))
+    Q_dist = np.array(zip(list(Qparams), [0]*len(Qparams)))
     candidate_models = list(set([tuple(scipy.cluster.hierarchy.fclusterdata(Q_dist, i)) for i in ts]))
-    if any(np.isclose(Q_params, 0.0)):
+    if any(np.isclose(Qparams, 0.0)):
         for i,c in enumerate(candidate_models):
             candidate_models[i] = tuple([x-1 for x in c])
 
@@ -1030,35 +1031,51 @@ def cluster_models(tree, chars, Q, nregime, pi="Equal", findmin=True):
                 for c in candidate_models}
     return alt_mods
 
+
 def AIC(l, k):
     return 2*k - 2*l
 
 
-def pairwise_param_merging(tree, chars, Q, l, nregime, pi="Equal", findmin=True):
+def pairwise_param_merging(tree, chars, Q, nregime, pi="Equal", findmin=True):
     """
     Given an MLE Q, merge similar parameters pairwise to find more
     parsimonious models
     """
-    Q_params = extract_Qparams(Q, nregime)
-    prev_AIC = AIC(l, len(Q_params))
-    prev_mod = Q_params.argsort().argsort()
+    Qparams = extract_Qparams(Q, nregime)
+    prev_mod = Qparams.argsort().argsort() + 1
+    prev_l = fit_hrm_model(tree,chars,nregime,tuple(prev_mod),pi=pi,findmin=findmin,
+                           initialvals=sorted(Qparams))[1]
+    prev_AIC = AIC(prev_l, len(Qparams))
+    prev_Q = Q
 
-    dist_mat = abs(Q_params[..., np.newaxis] - Q_params[np.newaxis, ...])
-    dist_mat[np.tril_indices(len(Q_params))] = np.inf
+    dist_mat = abs(Qparams[..., np.newaxis] - Qparams[np.newaxis, ...])
+    dist_mat[np.tril_indices(len(Qparams))] = np.inf
 
     while 1:
-        closest_pair = divmod(np.argmin(dist_mat), len(Q_params))
+        closest_pair = divmod(np.argmin(dist_mat), len(Qparams))
         greater = max(prev_mod[list(closest_pair)])
         new_mod = np.array([i if i<greater else i-1 for i in prev_mod])
 
-        new_Q, new_l = fit_hrm_model(tree,chars,nregime,tuple(new_mod),pi=pi,findmin=findmin)
+        initialvals = sorted(list(set(Qparams[new_mod])))
+
+        new_Q, new_l = fit_hrm_model(tree,chars,nregime,tuple(new_mod),pi=pi,findmin=findmin,
+                                     initialvals=initialvals)
         new_AIC = AIC(new_l, len(set(new_mod)))
         if new_AIC < prev_AIC:
-            dist_mat[closest_pair[0], closest_pair[1]] = np.inf
+            # dist_mat[closest_pair[0], closest_pair[1]] = np.inf
+            dist_mat[closest_pair[1],] = np.inf
+            dist_mat[:,closest_pair[1]] = np.inf
             prev_mod = new_mod[:]
             prev_AIC = new_AIC
+            prev_l = new_l
+            prev_Q = new_Q
         else:
+            best_mod = prev_mod
+            best_Q = prev_Q
+            best_l = prev_l
+
             break
+    return [best_mod, best_Q, best_l]
 
 
 
@@ -1069,13 +1086,13 @@ def extract_Qparams(Q, nregime):
     n_wr = (nobschar**2-nobschar)
     n_br = (nregime**2-nregime)*nobschar
 
-    Q_params = np.zeros([n_wr*nregime + n_br])
+    Qparams = np.zeros([n_wr*nregime + n_br])
 
     for i in range(nregime):
         subQ = slice(i*nobschar,(i+1)*nobschar)
         mask = np.ones([nobschar,nobschar], dtype=bool)
         mask[np.diag_indices(nobschar)]=False
-        np.copyto(Q_params[i*n_wr:(i+1)*n_wr], Q[subQ,subQ][mask])
+        np.copyto(Qparams[i*n_wr:(i+1)*n_wr], Q[subQ,subQ][mask])
 
     combs = list(itertools.combinations(range(nregime),2))
     revcombs = [tuple(reversed(i)) for i in combs]
@@ -1084,5 +1101,5 @@ def extract_Qparams(Q, nregime):
         my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
         my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
         nregimeswitch =(nregime**2 - nregime)*2
-        Q_params[n_wr*nregime + i*nobschar:n_wr*nregime+(i+1)*nobschar] = Q[my_slice0,my_slice1][np.diag_indices(nobschar)]
-    return Q_params
+        Qparams[n_wr*nregime + i*nobschar:n_wr*nregime+(i+1)*nobschar] = Q[my_slice0,my_slice1][np.diag_indices(nobschar)]
+    return Qparams
