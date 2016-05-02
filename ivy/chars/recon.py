@@ -170,13 +170,13 @@ def pscore(tree, chars):
     minp = 0.0
     for node in tree:
         if not node.isleaf:
-            ch = get_childstates(node, precon)
+            ch = get_childstates(node, precon, chars)
             pa = precon[node]
             minp += average_nchanges(ch, pa)
     return minp
 
 
-def get_childstates(node, precon):
+def get_childstates(node, precon, chars):
     """
     For use in pscore function
     """

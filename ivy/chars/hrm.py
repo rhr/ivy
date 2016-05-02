@@ -322,172 +322,6 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
     return var
 
 
-def hrm_back_mk(tree, chars, Q, nregime, p=None, pi="Fitzjohn",returnPi=False,
-                ar=None, tip_states=None, returnnodes=False):
-    """
-    Calculate probability vector at root given tree, characters, and Q matrix,
-    then reconstruct probability vectors for tips and use those in another
-    up-pass to calculate probability vector at root.
-
-    Args:
-        tree (Node): Root node of a tree. All branch lengths must be
-          greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
-        Q (np.array): Instantaneous rate matrix
-        p (np.array): Optional pre-allocated p matrix
-        pi (str or np.array): Option to weight the root node by given values.
-           Either a string containing the method or an array
-           of weights. Weights should be given in order.
-
-           Accepted methods of weighting root:
-
-           Equal: flat prior
-           Equilibrium: Prior equal to stationary distribution
-             of Q matrix
-           Fitzjohn: Root states weighted by how well they
-             explain the data at the tips.
-        returnPi (bool): Whether or not to return the final values of root
-          node weighting
-        ar (dict): Dict of pre-allocated arrays to improve
-          speed by avoiding creating and destroying new arrays
-    """
-    nchar = Q.shape[0]
-    nobschar = nchar/nregime
-    if ar is None:
-        # Creating arrays to be used later
-        ar = {}
-        t = [node.length for node in tree.postiter() if not node.isroot]
-        t = np.array(t, dtype=np.double)
-        ar["charlist"] = range(Q.shape[0])
-        ar["t"] = t
-
-    if p is None: # Instantiating empty array
-        p = np.empty([len(ar["t"]), Q.shape[0], Q.shape[1]], dtype = np.double, order="C")
-    # Creating probability matrices from Q matrix and branch lengths
-    cyexpokit.dexpm_tree_preallocated_p(Q, ar["t"], p) # This changes p in place
-
-    if len(ar.keys())==2:
-        # Creating more arrays
-        nnode = len(tree.descendants())+1
-        ar["nodelist"] = np.zeros((nnode, nchar+1))
-        ar["childlist"] = np.zeros(nnode, dtype=object)
-        leafind = [ n.isleaf for n in tree.postiter()]
-        # Reordering character states to be in postorder sequence
-        preleaves = [ n for n in tree.preiter() if n.isleaf ]
-        postleaves = [n for n in tree.postiter() if n.isleaf ]
-        postnodes = list(tree.postiter());prenodes = list(tree.preiter())
-        postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
-        # Filling in the node list. It contains all of the information needed
-        # to calculate the likelihoods at each node
-
-        # Q matrix is in the form of "0S, 1S, 0F, 1F" etc. Probabilities
-        # set to 1 for all hidden states of the observed state.
-        for k,ch in enumerate(postChars):
-            # Indices of hidden rates of observed state. These will all be set to 1
-            hiddenChs = [y + ch for y in [x * nobschar for x in range(nregime) ]]
-            [ n for i,n in enumerate(ar["nodelist"]) if leafind[i] ][k][hiddenChs] = 1.0/nregime
-        for i,n in enumerate(ar["nodelist"][:-1]):
-            n[nchar] = postnodes.index(postnodes[i].parent)
-            ar["childlist"][i] = [ nod.pi for nod in postnodes[i].children ]
-        ar["childlist"][i+1] = [ nod.pi for nod in postnodes[i+1].children ]
-
-        # Setting initial node likelihoods to 1.0 for calculations
-        ar["nodelist"][[ i for i,b in enumerate(leafind) if not b],:-1] = 1.0
-
-        # Empty array to store root priors
-        ar["root_priors"] = np.empty([nchar], dtype=np.double)
-        ar["nodelist-up"] = ar["nodelist"].copy()
-        ar["t_Q"] = Q
-        ar["p_up"] = p.copy()
-        ar["v"] = np.zeros([nchar])
-        ar["tmp"] = np.zeros([nchar+1])
-        ar["motherRow"] = np.zeros([nchar+1])
-
-    leafind = [ n.isleaf for n in tree.postiter()]
-    if tip_states is not None:
-        leaf_rownums = [i for i,n in enumerate(leafind) if n]
-        tip_states = ar["nodelist"][leaf_rownums][:,:-1] * tip_states[:,:-1]
-        tip_states = tip_states/np.sum(tip_states,1)[:,None]
-
-        ar["nodelist"][leaf_rownums,:-1] = tip_states
-
-    # Calculating the likelihoods for each node in post-order sequence
-    cyexpokit.cy_mk(ar["nodelist"], p, np.array(ar["charlist"]))
-    # The last row of nodelist contains the likelihood values at the root
-    # Applying the correct root prior
-    if type(pi) != str:
-        assert len(pi) == nchar, "length of given pi does not match Q dimensions"
-        assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
-        assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
-
-        np.copyto(ar["root_priors"], pi)
-
-        li = sum([ i*ar["root_priors"][n] for n,i in enumerate(ar["nodelist"][-1,:-1]) ])
-        logli = math.log(li)
-
-    elif pi == "Equal":
-        ar["root_priors"].fill(1.0/nchar)
-        li = sum([ float(i)/nchar for i in ar["nodelist"][-1] ])
-
-        logli = math.log(li)
-
-    elif pi == "Fitzjohn":
-        np.copyto(ar["root_priors"],
-                  [ar["nodelist"][-1,:-1][charstate]/
-                   sum(ar["nodelist"][-1,:-1]) for
-                   charstate in range(nchar) ])
-
-        li = sum([ ar["nodelist"][-1,:-1][charstate] *
-                     ar["root_priors"][charstate] for charstate in set(chars) ])
-        logli = math.log(li)
-    elif pi == "Equilibrium":
-        # Equilibrium pi from the stationary distribution of Q
-        np.copyto(ar["root_priors"],qsd(Q))
-        li = sum([ i*ar["root_priors"][n] for n,i in enumerate(ar["nodelist"][-1,:-1]) ])
-        logli = math.log(li)
-
-    # Transposal of Q for up-pass now that down-pass is completed
-    np.copyto(ar["t_Q"], Q)
-    ar["t_Q"] = np.transpose(ar["t_Q"])
-    ar["t_Q"][np.diag_indices(nchar)] = 0
-    ar["t_Q"][np.diag_indices(nchar)] = -np.sum(ar["t_Q"], 1)
-    ar["t_Q"] = np.ascontiguousarray(ar["t_Q"])
-    cyexpokit.dexpm_tree_preallocated_p(ar["t_Q"], ar["t"], ar["p_up"])
-    ar["nodelist-up"][:,:-1] = 1.0
-    ar["nodelist-up"][-1] = ar["nodelist"][-1]
-
-    ni = len(ar["nodelist-up"]) - 2
-
-    root_marginal =  ivy.chars.mk.qsd(Q) # Change to Fitzjohn Q?
-
-    for n in ar["nodelist-up"][::-1][1:]:
-        curRow = n[:-1]
-        motherRowNum = int(n[nchar])
-        np.copyto(ar["motherRow"], ar["nodelist-up"][int(motherRowNum)])
-        sisterRows = [ (ar["nodelist-up"][i],i) for i in ar["childlist"][motherRowNum] if not i==ni]
-
-        # If the mother is the root...
-        if ar["motherRow"][nchar] == 0.0:
-            # The marginal of the root
-            np.copyto(ar["v"],root_marginal) # Only need to calculate once
-        else:
-            # If the mother is not the root, calculate prob. of being in any state
-            # Use transposed matrix
-            np.dot(ar["p_up"][motherRowNum], ar["nodelist-up"][motherRowNum][:nchar], out=ar["v"])
-        for s in sisterRows:
-            # Use non-transposed matrix
-            np.copyto(ar["tmp"], ar["nodelist"][s[1]])
-            ar["tmp"][:nchar] = ar["tmp"][:-1]/sum(ar["tmp"][:nchar])
-            ar["v"] *= np.dot(p[s[1]], ar["tmp"][:nchar])
-        ar["nodelist-up"][ni][:nchar] = ar["v"]
-        ni -= 1
-    out = [ar["nodelist-up"][[ t.pi for t in tree.leaves() ]], logli]
-    if returnnodes:
-        out.append(ar["nodelist-up"])
-    return out
-
-
 def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzjohn",
                                   findmin = True, constraints = "Rate",
                                   orderedRegimes = True):
@@ -585,7 +419,8 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
     return likelihood_function
 
 
-def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="Simple"):
+def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
+            orderedRegimes=True, startingvals=None):
     """
     Fit a hidden-rates mk model to a given tree and list of characters, and
     number of regumes. Return fitted ARD Q matrix and calculated likelihood.
@@ -599,19 +434,25 @@ def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="Simple"
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root node. Defaults to "Equal"
           Method "Fitzjohn" is not thouroughly tested, use with caution
+        orderedRegimes (bool): Whether or not to constrain regime transitions
+          to only occur between adjacent regimes
+        startingvals (list): Values to initialize optimization at. Optional
     Returns:
         tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
     """
     if Qtype == "Simple":
-        return fit_hrm_mkSimple(tree, chars, nregime, pi)
+        Q, logli, rootLiks = out = fit_hrm_mkSimple(tree, chars, nregime, pi,
+                                                    orderedRegimes,startingvals)
     elif Qtype == "ARD":
-        return fit_hrm_mkARD(tree, chars, nregime, pi, constraints)
+        Q, logli, rootLiks = fit_hrm_mkARD(tree, chars, nregime, pi, constraints,
+                                           orderedRegimes,startingvals)
     else:
         raise TypeError, "Qtype must be Simple or ARD"
+    return {"Q":Q, "Log-likelihood":logli,"rootLiks":rootLiks}
 
 
-def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", constraints="Rate",
-                  orderedRegimes = True):
+def fit_hrm_mkARD(tree, chars, nregime, pi="Equal", constraints="Rate",
+                  orderedRegimes=True, startingvals=None):
     """
     Fit a hidden-rates mk model to a given tree and list of characters, and
     number of regumes. Return fitted ARD Q matrix and calculated likelihood.
@@ -636,7 +477,10 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", constraints="Rate",
                                                  Qtype="ARD", pi=pi, constraints=constraints,
                                                  orderedRegimes=orderedRegimes)
     ncell = ((nobschar**2-nobschar)*nregime + (nregime**2-nregime)*nobschar)
-    x0 = [0.1]*ncell
+    if startingvals is None:
+        x0 = [0.1]*ncell
+    else:
+        x0 = startingvals
     opt = nlopt.opt(nlopt.LN_SBPLX, ncell)
     opt.set_min_objective(mk_func)
     opt.set_lower_bounds(0)
@@ -648,7 +492,8 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Fitzjohn", constraints="Rate",
     piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
     return (q, -1*float(mk_func(optim, None)), piRates)
 
-def fit_hrm_mkSimple(tree, chars, nregime, pi="Fitzjohn"):
+def fit_hrm_mkSimple(tree, chars, nregime, pi="Equal", orderedRegimes=True,
+                     startingvals=None):
     """
     Fit a hidden-rates mk model to a given tree and list of characters, and
     number of regumes. Return fitted ARD Q matrix and calculated likelihood.
@@ -669,7 +514,10 @@ def fit_hrm_mkSimple(tree, chars, nregime, pi="Fitzjohn"):
     nobschar = len(set(chars))
     mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
                                                  Qtype="Simple", pi=pi)
-    x0 = [0.1] * (nregime+1)
+    if startingvals is None:
+        x0 = [0.1](*nregime+1)
+    else:
+        x0 = startingvals
     opt = nlopt.opt(nlopt.LN_SBPLX, nregime+1)
     opt.set_min_objective(mk_func)
     opt.set_lower_bounds(0)
@@ -809,7 +657,6 @@ def fill_Q_layout(regimetype, Qparams):
     """
     Fill a single regime matrix based on the regime type and the given
     parameters.
-
     """
     Q = np.array([[0,Qparams[regimetype[0]]],
                  [Qparams[regimetype[1]],0]])
@@ -906,8 +753,7 @@ def fit_hrm_model(tree, chars, nregime, mod, pi="Equal", findmin=True, initialva
     ar = create_hrm_ar(tree, chars, nregime)
     nfreeparams = len(set([i for i in mod if i != 0]))
     n_wr = nobschar**2 - nobschar
-    mod_format = [tuple(mod[i:i+n_wr]) for i in range(0, n_wr*nregime, n_wr)]
-    mod_format.append(tuple(mod[n_wr*nregime:]))
+    mod_format = format_mod(mod, nregime, nobschar)
 
     mk_func = fit_hrm_model_likelihood(tree, chars, nregime, mod_format, pi, findmin)
     if initialvals is None:
@@ -1033,48 +879,88 @@ def cluster_models(tree, chars, Q, nregime, pi="Equal", findmin=True):
 
 
 def AIC(l, k):
+    """
+    Akaike information criterion
+    """
     return 2*k - 2*l
 
 
-def pairwise_param_merging(tree, chars, Q, nregime, pi="Equal", findmin=True):
+def pairwise_merge(tree, chars, Q, nregime, pi="Equal"):
     """
     Given an MLE Q, merge similar parameters pairwise to find more
     parsimonious models
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (list): List of character states corresponding to leaf nodes in
+          preoder sequence. Character states must be numbered 0,1,2,...
+        Q (np.array): Instantaneous rate matrix
+        nregime (int): Number of regimes in the model
+        pi (str or np.array): Option to weight the root node by given values.
+           Either a string containing the method or an array
+           of weights. Weights should be given in order.
+           Accepted methods of weighting root:
+             Equal: flat prior
+             Equilibrium: Prior equal to stationary distribution
+               of Q matrix
+             Fitzjohn: Root states weighted by how well they
+               explain the data at the tips.
     """
     Qparams = extract_Qparams(Q, nregime)
     prev_mod = Qparams.argsort().argsort() + 1
-    prev_l = fit_hrm_model(tree,chars,nregime,tuple(prev_mod),pi=pi,findmin=findmin,
-                           initialvals=sorted(Qparams))[1]
-    prev_AIC = AIC(prev_l, len(Qparams))
-    prev_Q = Q
+    nobschar = len(set(chars))
 
+    prev_l = hrm_mk(tree, chars, Q, nregime, pi=pi)
+    prev_AIC = AIC(prev_l, len(Qparams))
+    prev_Q = Q.copy()
+    new_Q = Q.copy()
+    new_Qparams = Qparams.copy()
+    prev_Qparams = Qparams.copy()
+
+    # Matrix of distance between pairs
     dist_mat = abs(Qparams[..., np.newaxis] - Qparams[np.newaxis, ...])
     dist_mat[np.tril_indices(len(Qparams))] = np.inf
 
+    # Pre-allocated arrays to speed up likelihood calculations
+    ar = create_hrm_ar(tree, chars, nregime)
+
     while 1:
+        # Cleaning pre-allocated arrays
+        np.copyto(ar["nodelist"], ar["nodelistOrig"])
+        ar["root_priors"].fill(1.0)
+        # Merging parameters
         closest_pair = divmod(np.argmin(dist_mat), len(Qparams))
         greater = max(prev_mod[list(closest_pair)])
         new_mod = np.array([i if i<greater else i-1 for i in prev_mod])
-
-        initialvals = sorted(list(set(Qparams[new_mod])))
-
-        new_Q, new_l = fit_hrm_model(tree,chars,nregime,tuple(new_mod),pi=pi,findmin=findmin,
-                                     initialvals=initialvals)
+        new_param = np.mean(Qparams[list(closest_pair)])
+        inds = np.logical_or(Qparams==Qparams[closest_pair[0]],
+                             Qparams==Qparams[closest_pair[1]])
+        new_Qparams[inds] = new_param
+        # Calculating likelihood
+        fill_model_Q(format_mod(new_mod, nregime, nobschar),
+                    np.insert(sorted(set(new_Qparams)), 0, 1e-15), new_Q)
+        new_l = hrm_mk(tree,chars,new_Q,nregime,pi=pi,ar=ar)
         new_AIC = AIC(new_l, len(set(new_mod)))
+
+        # Recording that we have checked this pair
+        dist_mat[closest_pair[0], closest_pair[1]] = np.inf
+
         if new_AIC < prev_AIC:
-            # dist_mat[closest_pair[0], closest_pair[1]] = np.inf
+            # Merging the two pairs
             dist_mat[closest_pair[1],] = np.inf
             dist_mat[:,closest_pair[1]] = np.inf
-            prev_mod = new_mod[:]
+
+            # Recording new best model so far
+            prev_mod = new_mod.copy()
             prev_AIC = new_AIC
             prev_l = new_l
-            prev_Q = new_Q
-        else:
-            best_mod = prev_mod
-            best_Q = prev_Q
-            best_l = prev_l
+            prev_Q = new_Q.copy()
+            Qparams = new_Qparams.copy()
+        if (dist_mat==np.inf).all():
             break
-    return [best_mod, best_Q, best_l]
+    re_optim = fit_hrm_model(tree, chars, nregime, prev_mod, pi=pi, findmin=True, initialvals=sorted(set(Qparams)))
+    return [prev_mod, re_optim[0], re_optim[1]]
 
 
 def extract_Qparams(Q, nregime):
@@ -1101,3 +987,14 @@ def extract_Qparams(Q, nregime):
         nregimeswitch =(nregime**2 - nregime)*2
         Qparams[n_wr*nregime + i*nobschar:n_wr*nregime+(i+1)*nobschar] = Q[my_slice0,my_slice1][np.diag_indices(nobschar)]
     return Qparams
+
+
+def format_mod(mod, nregime, nobschar):
+    """
+    Convert flattened model to formatted model for use in
+    fill_model_Q
+    """
+    n_wr = nobschar**2 - nobschar
+    mod_format = [tuple(mod[i:i+n_wr]) for i in range(0, n_wr*nregime, n_wr)]
+    mod_format.append(tuple(mod[n_wr*nregime:]))
+    return mod_format

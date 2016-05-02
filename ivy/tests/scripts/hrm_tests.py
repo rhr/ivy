@@ -235,8 +235,8 @@ import numpy as np
 from ivy.chars import bayesian_models
 import pymc
 import matplotlib.pyplot as plt
-from ivy.chars.hrm import _create_hrmnodelist
 from ivy.chars.hrm import *
+from ivy.chars import hrm
 
 
 tree = ivy.tree.read("/home/cziegler/src/christie-master/ivy/ivy/tests/support/hrm_600tips.newick")

@@ -339,7 +339,7 @@ def fitMkARD(tree, chars, pi="Equal"):
     return (q, -1*mk_func(optim), piRates, rootLiks)
 
 
-def fitMk(tree, chars, Q = "Equal", pi = "Equal"):
+def fit_Mk(tree, chars, Q = "Equal", pi = "Equal"):
     """
     Fit an mk model to a given tree and list of characters. Return fitted
     Q matrix and calculated likelihood.

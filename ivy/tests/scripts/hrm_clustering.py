@@ -33,7 +33,7 @@ chars =  [i%2 for i in chars]
 # 8-param MLE
 ##########################
 hrm_mle = hrm.fit_hrm(tree, chars, nregime=2, Qtype="ARD")
-Q = hrm_mle[0]
+Q = hrm_mle[0].copy()
 
 
 #########################
