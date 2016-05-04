@@ -33,7 +33,7 @@ chars =  [i%2 for i in chars]
 # 8-param MLE
 ##########################
 hrm_mle = hrm.fit_hrm(tree, chars, nregime=2, Qtype="ARD")
-Q = hrm_mle[0].copy()
+Q = hrm_mle["Q"].copy()
 
 
 #########################
@@ -46,4 +46,4 @@ alt_mods = cluster_models(tree, chars, Q, nregime)
 ###################
 # Merging
 ###################
-out = pairwise_param_merging(tree, chars, Q, 2)
+out = hrm.pairwise_merge(tree, chars, Q, 2)
