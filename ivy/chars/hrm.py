@@ -129,15 +129,8 @@ def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn"
         i = 0
         if Qtype == "ARD":
             var["Q"].fill(0.0) # Re-filling with zeroes
-            for rC in range(nregime):
-                for charC in range(nobschar):
-                  for rR in range(nregime):
-                        for charR in range(nobschar):
-                            if not ((rR == rC) and (charR == charC)):
-                                if ((rR == rC) or ((charR == charC)) and (rR+1 == rC or rR-1 == rC)):
-                                    var["Q"][charR+rR*nobschar, charC+rC*nobschar] = Qparams[i]
-                                    i += 1
-            var["Q"][np.diag_indices(nchar)] = np.sum(var["Q"], axis=1)*-1
+            fill_Q_matrix(nobschar, nregime, Qparams[:nregime], Qparams[nregime:], Qtype="ARD", out = var["Q"])
+
         elif Qtype == "Simple":
             var["Q"].fill(0.0)
             fill_Q_matrix(nobschar, nregime, Qparams[:nregime], Qparams[nregime:], Qtype="Simple", out = var["Q"])
@@ -420,7 +413,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
 
 
 def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
-            orderedRegimes=True, startingvals=None):
+            orderedRegimes=True, startingvals=None, se=False):
     """
     Fit a hidden-rates mk model to a given tree and list of characters, and
     number of regumes. Return fitted ARD Q matrix and calculated likelihood.
@@ -441,13 +434,20 @@ def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
         tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
     """
     if Qtype == "Simple":
-        Q, logli, rootLiks = out = fit_hrm_mkSimple(tree, chars, nregime, pi,
+        Q, logli, rootLiks, f, par = fit_hrm_mkSimple(tree, chars, nregime, pi,
                                                     orderedRegimes,startingvals)
     elif Qtype == "ARD":
-        Q, logli, rootLiks = fit_hrm_mkARD(tree, chars, nregime, pi, constraints,
+        Q, logli, rootLiks, f, par = fit_hrm_mkARD(tree, chars, nregime, pi, constraints,
                                            orderedRegimes,startingvals)
     else:
         raise TypeError, "Qtype must be Simple or ARD"
+
+    if se:
+        # If standard error is to be calculated:
+        def f_i(par):
+            return -1*f(par)
+        hess = nd.Hessian(f_i, full_output=True)(par)
+
     return {"Q":Q, "Log-likelihood":logli,"rootLiks":rootLiks}
 
 
@@ -490,7 +490,7 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Equal", constraints="Rate",
     wr = (nobschar**2-nobschar)*nregime
     q = fill_Q_matrix(nobschar, nregime, optim[:wr], optim[wr:],"ARD", orderedRegimes=orderedRegimes)
     piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
-    return (q, -1*float(mk_func(optim, None)), piRates)
+    return (q, -1*float(mk_func(optim, None)), piRates, mk_func, optim)
 
 def fit_hrm_mkSimple(tree, chars, nregime, pi="Equal", orderedRegimes=True,
                      startingvals=None):
@@ -525,7 +525,7 @@ def fit_hrm_mkSimple(tree, chars, nregime, pi="Equal", orderedRegimes=True,
 
     q = fill_Q_matrix(nobschar, nregime, optim[:-1], [optim[-1]],"Simple")
     piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
-    return (q, -1*float(mk_func(optim, None)), piRates)
+    return (q, -1*float(mk_func(optim, None)), piRates, mk_func, optim)
 
 
 def make_regime_type_combos(nregime, nparams):
@@ -936,6 +936,7 @@ def pairwise_merge(tree, chars, Q, nregime, pi="Equal"):
         new_param = np.mean(Qparams[list(closest_pair)])
         inds = np.logical_or(Qparams==Qparams[closest_pair[0]],
                              Qparams==Qparams[closest_pair[1]])
+        new_Qparams = Qparams.copy()
         new_Qparams[inds] = new_param
         # Calculating likelihood
         fill_model_Q(format_mod(new_mod, nregime, nobschar),

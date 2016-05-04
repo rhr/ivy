@@ -548,19 +548,19 @@ class Node(object):
         root = t
 
         for node in nodes:
-            cp = node.parent
+            cp = node.parent # current parent
             cp.remove_child(node)
             if cp.length:
                 node.length += cp.length
-            if len(cp.children) == 1:
+            if len(cp.children) == 1: # If parent is now a "knee"...
                 try:
-                    cp.excise()
-                except AssertionError:
+                    cp.excise() # Remove parent
+                except AssertionError: # If parent was the root, assign new root
                     t.isroot = False
                     root = cp.children[0]
                     root.parent = None
             elif len(cp.children) == 0:
-                cpp = cp.parent
+                cpp = cp.parent # current parent's parent
                 cp.parent.remove_child(cp)
                 if cpp.nchildren == 1:
                     try:
@@ -1013,15 +1013,15 @@ class Node(object):
         newroot = oldroot[newroot]
         assert newroot in oldroot
         assert newroot not in oldroot.children
-        t = newroot.bisect_branch(distance)
+        newtree = newroot.bisect_branch(distance)
 
-        v = list(t.rootpath())
-        t.parent = None
-        t.children.append(v[0])
+        root_path = list(newtree.rootpath())
+        newtree.parent = None
+        newtree.children.append(root_path[0])
 
-        newparent = t
-        newlen = t.length
-        for node in v:
+        newparent = newtree
+        newlen = newtree.length
+        for node in root_path:
             node.children = [ x for x in node.children if x is not newparent ]
             node.children.append(node.parent)
             node.parent = newparent
@@ -1029,14 +1029,14 @@ class Node(object):
             node.length = newlen
             newlen = oldlen
             newparent = node
-        v[-1].children = [ x for x in v[-1].children if x ]
+        root_path[-1].children = [ x for x in root_path[-1].children if x ]
         try:
-            v[-1].excise()
+            root_path[-1].excise()
         except:
             pass
 
-        t.isroot = True
-        return t
+        newtree.isroot = True
+        return newtree
     def makeroot(self, shift_labels=False):
         """
         shift_labels: flag to shift internal parent-child node labels
