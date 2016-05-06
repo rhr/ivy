@@ -157,24 +157,123 @@ class hrmMethods(unittest.TestCase):
                    [ 0. ,  0.1,  0.1, -0.2]])
         Qparams = np.array([0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1])
 
-        f = hrm.create_likelihood_function_hrm_mk(tree, chars, 2, "ARD", pi="Equal")
+        f = hrm.create_likelihood_function_hrm_mk_MLE(tree, chars, 2, "ARD", pi="Equal")
         val = hrm.hrm_mk(tree, chars, Q, 2, pi="Equal")
 
         self.assertTrue(np.isclose(f(Qparams), -1*val))
+    #
+    # def test_fitMkARD_600tiptree_matchescorHMM(self):
+    #     tree = self.randTree600
+    #     chars = self.randChars600
+    #
+    #     corHMMQ = np.array([[-0.05468,  0.03712,  0.01756,  0.     ],
+    #                          [ 0.01246, -0.01246,  0.,       0.     ],
+    #                          [ 0.,       0.,      -0.43921,  0.43921],
+    #                          [ 0.,       0.02909,  0.46159, -0.49068]]
+    #                         )
+    #
+    #     out = hrm.fit_hrm(tree, chars, 2,Qtype="ARD",pi="Equal",startingvals=[0.001]*8)
+    #
+    #     ivyQ = out["Q"]
+    #
+    #     try:
+    #         np.testing.assert_allclose(ivyQ, corHMMQ, atol = 1e-5)
+    #     except:
+    #         self.fail("expectedParam != calculatedParam")
+    #
+    # def test_fitMkARD_600tiptree_symmetry(self):
+    #     tree = self.randTree600
+    #     chars = self.randChars600
+    #
+    #     corHMMQ = np.array([[-0.05468,  0.03712,  0.01756,  0.     ],
+    #                          [ 0.01246, -0.01246,  0.,       0.     ],
+    #                          [ 0.,       0.,      -0.43921,  0.43921],
+    #                          [ 0.,       0.02909,  0.46159, -0.49068]]
+    #                         )
+    #
+    #     out = hrm.fit_hrm(tree, chars, 2,Qtype="ARD",pi="Equal",startingvals=[0.001]*8,
+    #                       constraints="Symmetry")
+    #
+    #     ivyQ = out["Q"]
+    #
+    #     try:
+    #         np.testing.assert_allclose(ivyQ, corHMMQ, atol = 1e-5)
+    #     except:
+    #         self.fail("expectedParam != calculatedParam")
 
-    def test_fitMkARD_600tiptree_matchescorHMM(self):
+    # def test_mkARD_600tip_3regime(self):
+    #     tree = self.randTree600
+    #     chars = self.randChars600
+    #
+    #     out = hrm.fit_hrm(tree, chars, 3,Qtype="ARD",pi="Equal",startingvals=[0.001]*18)
+    #     print out["Q"]
+
+    def test_constraintRateARD_badvals(self):
         tree = self.randTree600
         chars = self.randChars600
+        nregime = 2
+        Qtype="ARD"
+        constraints="Rate"
 
-        corHMMQ = np.array([[ -0.2028,   0.2028,   0.    ,   0.    ],
-                            [  0.0202,  -0.0202,   0.    ,   0.    ],
-                            [  0.0412,   0.    ,  -0.1842,   0.1431],
-                            [  0.    ,  14.2146,  65.3782, -79.5928]])
+        f = hrm.create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, constraints=constraints)
 
-        out = hrm.fit_hrm(tree, chars, 2,Qtype="ARD",startingvals=[0.05]*8)
+        test_param = np.array([0.5,0.5,0.1,0.1,0.1,0.1,0.1,0.1])
 
-        ivyQ = out["Q"]
+        out = f(test_param)
+        self.assertTrue(out==np.inf)
+    def test_constraintRateARD_goodvals(self):
+        tree = self.randTree600
+        chars = self.randChars600
+        nregime = 2
+        Qtype="ARD"
+        constraints="Rate"
 
+        f = hrm.create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, constraints=constraints)
+
+        test_param = np.array([0.1,0.1,0.5,0.5,0.1,0.1,0.1,0.1])
+
+        out = f(test_param)
+        self.assertTrue(out!=np.inf)
+    def test_constraintSymmetryARD_badvals(self):
+        tree = self.randTree600
+        chars = self.randChars600
+        nregime = 2
+        Qtype="ARD"
+        constraints="Symmetry"
+
+        f = hrm.create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, constraints=constraints)
+
+        test_param = np.array([0.5,0.1,0.5,0.1,0.1,0.1,0.1,0.1])
+
+        out = f(test_param)
+        self.assertTrue(out==np.inf)
+    def test_constraintSymmetryARD_goodvals(self):
+        tree = self.randTree600
+        chars = self.randChars600
+        nregime = 2
+        Qtype="ARD"
+        constraints="Symmetry"
+
+        f = hrm.create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, constraints=constraints)
+        test_param = np.array([0.5,0.1,0.1,0.5,0.1,0.1,0.1,0.1])
+
+        out = f(test_param)
+        self.assertTrue(out!=np.inf)
+
+
+    def test_fillQ_simple2_2(self):
+        wrparams = [0.1,0.2]
+        brparams = [0.05]
+
+        Q = hrm.fill_Q_matrix(2,2,wrparams,brparams,Qtype="Simple")
+        expected_Q = np.array([[-0.15,  0.1 ,  0.05,  0.  ],
+                               [ 0.1 , -0.15,  0.  ,  0.05],
+                               [ 0.05,  0.  , -0.25,  0.2 ],
+                               [ 0.  ,  0.05,  0.2 , -0.25]])
+        try:
+            np.testing.assert_allclose(Q, expected_Q)
+        except:
+            self.fail("expectedParam != calculatedParam")
 
 if __name__ == "__main__":
     unittest.main()

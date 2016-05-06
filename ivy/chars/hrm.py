@@ -84,81 +84,14 @@ def hrm_mk(tree, chars, Q, nregime, pi="Equal",returnPi=False,
         # Equilibrium pi from the stationary distribution of Q
         np.copyto(ar["root_priors"],qsd(Q))
         rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
+    else:
+        raise ValueError, "invalid value for pi: {}".format(pi)
     logli = scipy.misc.logsumexp(rootliks)
 
     if returnPi:
         return (logli, {k:v for k,v in enumerate(ar["root_priors"])})
     else:
         return logli
-
-
-def create_likelihood_function_hrm_mk(tree, chars, nregime, Qtype, pi="Fitzjohn",
-                                  findmin = True):
-    """
-    Create a function that takes values for Q and returns likelihood.
-
-    Specify the Q to be ER, Sym, or ARD
-
-    Returned function to be passed into scipy.optimize
-
-    Args:
-        tree (Node): Root node of a tree. All branch lengths must be
-          greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
-        Qtype (str): ARD only
-        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
-          values at root  node.
-        min (bool): Whether the function is to be minimized (False means
-          it will be maximized)
-    Returns:
-        function: Function accepting a list of parameters and returning
-          log-likelihood. To be optmimized with scipy.optimize.minimize
-    """
-    nchar = len(set(chars)) * nregime
-    nt =  len(tree.descendants())
-    charlist = range(nchar)
-    nobschar = len(set(chars))
-    var = create_hrm_ar(tree, chars, nregime, findmin)
-    def likelihood_function(Qparams):
-        # Enforcing upper bound on parameters
-        if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
-            return var["nullval"]
-
-        # Filling Q matrices:
-        i = 0
-        if Qtype == "ARD":
-            var["Q"].fill(0.0) # Re-filling with zeroes
-            fill_Q_matrix(nobschar, nregime, Qparams[:nregime], Qparams[nregime:], Qtype="ARD", out = var["Q"])
-
-        elif Qtype == "Simple":
-            var["Q"].fill(0.0)
-            fill_Q_matrix(nobschar, nregime, Qparams[:nregime], Qparams[nregime:], Qtype="Simple", out = var["Q"])
-        else:
-            raise ValueError, "Qtype must be ARD or Simple"
-        for char in range(nobschar):
-            hiddenchar =  [y + char for y in [x * nobschar for x in range(nregime) ]]
-            for char2 in [ ch for ch in range(nobschar) if not ch == char ]:
-                hiddenchar2 =  [y + char2 for y in [x * nobschar for x in range(nregime) ]]
-                rs = [var["Q"][ch1, ch2] for ch1, ch2 in zip(hiddenchar, hiddenchar2)]
-                if not(rs == sorted(rs)):
-                    return var["nullval"]
-        # Resetting the values in these arrays
-        np.copyto(var["nodelist"], var["nodelistOrig"])
-        var["root_priors"].fill(1.0)
-        if findmin:
-            x = -1
-        else:
-            x = 1
-        try:
-            logli =  hrm_mk(tree, chars, var["Q"],nregime, pi = pi, ar=var)
-            if not np.isnan(logli):
-                return x * logli# Minimizing negative log-likelihood
-            else:
-                return var["nullval"]
-        except ValueError: # If likelihood returned is 0
-            return var["nullval"]
-    return likelihood_function
 
 
 def _random_Q_matrix(nobschar, nregime):
@@ -205,6 +138,7 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None, 
         Q = np.zeros([nobschar*nregime, nobschar*nregime])
     else:
         Q = out
+    # TODO: DRY this (and fill_model_Q)
     assert Qtype in ["ARD", "Simple"]
     if orderedRegimes:
         grid = np.zeros([(nobschar*nregime)**2, 4], dtype=int)
@@ -232,30 +166,42 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None, 
                     qcell[...] = brparams[0]
     else:
         n_wr = nobschar**2-nobschar
-        for i,wr in enumerate([wrparams[i:i+n_wr] for i in xrange(0, len(wrparams), n_wr)]):
-            subQ = slice(i*nobschar,(i+1)*nobschar)
-            wrVals = [x for s in [[0]+wr[k:k+nobschar] for k in range(0, len(wr)+1, nobschar)] for x in s]
-            np.copyto(Q[subQ,subQ], [wrVals[x:x+nobschar] for x in xrange(0, len(wrVals), nobschar)])
-        combs = list(itertools.combinations(range(nregime),2))
-        revcombs = [tuple(reversed(i)) for i in combs]
-        submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
-        for i,submatrix_index in enumerate(submatrix_indices):
-            my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
-            my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
-            nregimeswitch = (nregime**2 - nregime)*nobschar
-            np.fill_diagonal(Q[my_slice0,my_slice1],[p for p in brparams[i*nobschar:i*nobschar+nobschar]])
+        if Qtype == "ARD":
+            # Within-regime
+            for i,wr in enumerate([wrparams[i:i+n_wr] for i in xrange(0, len(wrparams), n_wr)]):
+                subQ = slice(i*nobschar,(i+1)*nobschar)
+                wrVals = [x for s in [[0]+wr[k:k+nobschar] for k in range(0, len(wr)+1, nobschar)] for x in s]
+                np.copyto(Q[subQ,subQ], [wrVals[x:x+nobschar] for x in xrange(0, len(wrVals), nobschar)])
+            # between regime
+            combs = list(itertools.combinations(range(nregime),2))
+            revcombs = [tuple(reversed(i)) for i in combs]
+            submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
+            for i,submatrix_index in enumerate(submatrix_indices):
+                my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
+                my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
+                nregimeswitch = (nregime**2 - nregime)*nobschar
+                np.fill_diagonal(Q[my_slice0,my_slice1],[p for p in brparams[i*nobschar:i*nobschar+nobschar]])
+        elif Qtype == "Simple":
+            #Within-regime
+            for i,wr_p in enumerate(wrparams):
+                wr = [wr_p] * n_wr
+                subQ = slice(i*nobschar,(i+1)*nobschar)
+                wrVals = [x for s in [[0]+wr[k:k+nobschar] for k in range(0, len(wr)+1, nobschar)] for x in s]
+                np.copyto(Q[subQ,subQ], [wrVals[x:x+nobschar] for x in xrange(0, len(wrVals), nobschar)])
+            # between-regime
+            combs = list(itertools.combinations(range(nregime),2))
+            revcombs = [tuple(reversed(i)) for i in combs]
+            submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
+            for i,submatrix_index in enumerate(submatrix_indices):
+                my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
+                my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
+                nregimeswitch = (nregime**2 - nregime)*nobschar
+                np.fill_diagonal(Q[my_slice0,my_slice1],brparams)
+
+
     Q[np.diag_indices(nobschar*nregime)] = (np.sum(Q, axis=1) * -1)
     if out is None:
         return Q
-
-
-def n_Qparams(nchar, nregime):
-    """
-    Number of free Q params for a matrix with nchar and nregimes
-    """
-    Cs = [ (i,j) for i in range(nregime) for j in range(nchar)]
-    n = [(i,j) for i in Cs for j in Cs if (i!=j and (i[0] + 1 == j[0] or i[0] - 1 == j[0] or i[0]==j[0]) and (i[0]==j[0] or i[1] == j[1])) ]
-    return(len(n))
 
 
 def create_hrm_ar(tree, chars, nregime, findmin=True):
@@ -315,7 +261,7 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
     return var
 
 
-def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzjohn",
+def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Equal",
                                   findmin = True, constraints = "Rate",
                                   orderedRegimes = True):
     """
@@ -362,43 +308,41 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
         # Enforcing upper bound on parameters
         if (sum(Qparams) > (var["upperbound"]*2)) or any(Qparams <= 0):
             return var["nullval"]
+        # Filling Q matrices
         if Qtype == "ARD":
+            var["Q"].fill(0.0) # Re-filling with zeroes
+            wr = ((nobschar**2-nobschar)*nregime)
+            fill_Q_matrix(nobschar, nregime, Qparams[:wr], Qparams[wr:],Qtype="ARD", out=var["Q"], orderedRegimes=orderedRegimes)
+
             if constraints == "Rate":
                 qmax = [max(Qparams[i:i+nobschar]) for i in xrange(0, len(Qparams)/2, nobschar)]
                 if sorted(qmax) != qmax:
                     return var["nullval"]
             elif constraints == "Symmetry":
-                # TODO: generalize this
-                assert len(Qparams) == 8
-                if not ((Qparams[0]/Qparams[1] <= 1) and (Qparams[2]/Qparams[3] >= 1)):
+                regimes = extract_regimes(var["Q"], nobschar, nregime)
+                for i in range(nregime):
+                    regimes[i] = regimes[i].argsort(axis=None).argsort().reshape(nobschar, nobschar)
+                # Check if any regimes have identical ordering
+                if any_equal(regimes):
                     return var["nullval"]
             elif constraints == "corHMM":
                 assert len(Qparams) == 8
                 if not Qparams[1] < Qparams[3]:
                     return var["nullval"]
         elif Qtype == "Simple":
+            var["Q"].fill(0.0)
+            fill_Q_matrix(nobschar, nregime, Qparams[:nregime], Qparams[nregime:], Qtype="Simple", out = var["Q"],
+                          orderedRegimes=orderedRegimes)
             if any(sorted(Qparams[:-1]) != Qparams[:-1]):
                 return var["nullval"]
             if Qparams[-2] < Qparams[-1]:
                 return var["nullval"]
         # Filling Q matrices:
-        i = 0
-        if Qtype == "ARD":
-            var["Q"].fill(0.0) # Re-filling with zeroes
-            wr = ((nobschar**2-nobschar)*nregime)
-            fill_Q_matrix(nobschar, nregime, Qparams[:wr], Qparams[wr:],
-                          Qtype="ARD", out=var["Q"], orderedRegimes=orderedRegimes)
-        # TODO: orderedRegimes for simple
-        elif Qtype == "Simple":
-            var["Q"].fill(0.0)
-            fill_Q_matrix(nobschar, nregime, Qparams[:nregime], Qparams[nregime:], Qtype="Simple", out = var["Q"],
-                          orderedRegimes=False)
         else:
             raise ValueError, "Qtype must be ARD or Simple"
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
-
         if findmin:
             x = -1
         else:
@@ -412,8 +356,33 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Fitzj
     return likelihood_function
 
 
+def any_equal(ar):
+    """
+    Given a 3-D matrix, test if any of the sub-matrices are equal.
+    For use in evaluating symmetric constraint in hrm likelihood function
+    """
+    combs = list(itertools.combinations(range(len(ar)),2))
+    for c in combs:
+        if (ar[c[0]]==ar[c[1]]).all():
+            return True
+    return False
+
+
+def extract_regimes(Q, nobschar, nregime):
+    """
+    Given a HRM Q matrix,extract the within-regime transitions
+    """
+    out = np.zeros([nobschar,nobschar,nregime])
+    for i in range(nregime):
+        subQ = slice(i*nobschar,(i+1)*nobschar)
+        mask = np.ones([nobschar,nobschar], dtype=bool)
+        mask[np.diag_indices(nobschar)]=False
+        np.copyto(out[i],Q[subQ, subQ])
+    return out
+
+
 def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
-            orderedRegimes=True, startingvals=None, se=False):
+            orderedRegimes=True, startingvals=None):
     """
     Fit a hidden-rates mk model to a given tree and list of characters, and
     number of regumes. Return fitted ARD Q matrix and calculated likelihood.
@@ -441,12 +410,6 @@ def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
                                            orderedRegimes,startingvals)
     else:
         raise TypeError, "Qtype must be Simple or ARD"
-
-    if se:
-        # If standard error is to be calculated:
-        def f_i(par):
-            return -1*f(par)
-        hess = nd.Hessian(f_i, full_output=True)(par)
 
     return {"Q":Q, "Log-likelihood":logli,"rootLiks":rootLiks}
 
@@ -476,7 +439,10 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Equal", constraints="Rate",
     mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
                                                  Qtype="ARD", pi=pi, constraints=constraints,
                                                  orderedRegimes=orderedRegimes)
-    ncell = ((nobschar**2-nobschar)*nregime + (nregime**2-nregime)*nobschar)
+    if not orderedRegimes:
+        ncell = ((nobschar**2-nobschar)*nregime + (nregime**2-nregime)*nobschar)
+    else:
+        ncell = ((nobschar**2-nobschar)*nregime) + (nregime-1)*2*nobschar
     if startingvals is None:
         x0 = [0.1]*ncell
     else:
