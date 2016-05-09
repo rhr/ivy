@@ -1,5 +1,12 @@
 from distutils.core import setup, Extension
 import datetime
+try:
+    from distutils.command.build_py import build_py_2to3 as build_py
+    from distutils.command.build_scripts import build_scripts_2to3 as build_scripts
+except ImportError:
+    # 2.x
+    from distutils.command.build_py import build_py
+    from distutils.command.build_scripts import build_scripts
 
 
 try:
@@ -13,11 +20,11 @@ version = datetime.date.today().isoformat().replace("-","")
 #version = "0.2" # 2010-12-09
 
 
-
-
 # Cython extensions
 
-cmdclass = { }
+cmdclass =  {'build_py': build_py,
+             'build_scripts': build_scripts
+             }
 ext_modules = [ ]
 
 use_cython = False
