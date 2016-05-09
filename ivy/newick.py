@@ -6,7 +6,7 @@ the parsed tree.
 """
 import string, sys, re, shlex, types, itertools
 import numpy
-import nexus
+import ivy.nexus
 from cStringIO import StringIO
 from pprint import pprint
 
@@ -133,11 +133,10 @@ def parse(data, ttable=None, treename=None):
             if not (token == ''):
                 try: brlen = float(token)
                 except ValueError:
-                    raise ValueError, ("invalid literal for branch length, "
+                    raise ValueError("invalid literal for branch length, "
                                        "'%s'" % token)
             else:
-                raise 'NewickError', \
-                      'unexpected end-of-file (expecting branch length)'
+                raise ValueError('unexpected end-of-file (expecting branch length)')
 
             node.length = brlen
         # comment

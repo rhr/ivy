@@ -35,7 +35,7 @@ from matplotlib._png import read_png
 from matplotlib.ticker import MaxNLocator, FuncFormatter, NullLocator
 from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from ivy.vis import symbols, colors
+import ivy.vis.colors
 from ivy.vis import hardcopy2 as HC
 from ivy.vis import events, layers
 try:
@@ -43,7 +43,7 @@ try:
 except ImportError:
     from PIL import Image
 
-_tango = colors.tango()
+_tango = ivy.vis.colors.tango()
 class TreeFigure(object):
     """
     mpl Figure for plotting trees.

@@ -452,7 +452,6 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Equal", constraints="Rate",
     opt.set_lower_bounds(0)
     optim = opt.optimize(x0)
 
-
     wr = (nobschar**2-nobschar)*nregime
     q = fill_Q_matrix(nobschar, nregime, optim[:wr], optim[wr:],"ARD", orderedRegimes=orderedRegimes)
     piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]

@@ -12,7 +12,7 @@ import itertools
 from storage import Storage
 from copy import copy as _copy
 from matrix import vcv
-import newick
+import ivy.newick
 from itertools import izip_longest
 import numpy as np
 

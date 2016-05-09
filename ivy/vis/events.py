@@ -33,8 +33,7 @@ from matplotlib._png import read_png
 from matplotlib.ticker import MaxNLocator, FuncFormatter, NullLocator
 from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from ivy.vis import symbols, colors
-from ivy.vis import hardcopy as HC
+from ivy.vis import colors
 try:
     import Image
 except ImportError:

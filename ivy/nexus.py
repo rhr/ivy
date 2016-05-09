@@ -1,6 +1,6 @@
 import itertools
 from collections import defaultdict
-import newick
+import ivy.newick
 
 class Newick(object):
     """
@@ -22,7 +22,7 @@ class Newick(object):
         self.newick = parse_results.newick
         if ttable: self.ttable = ttable
 
-    def parse(self, newick=newick):
+    def parse(self):
         assert self.newick
         self.root = newick.parse(
             self.newick, ttable=self.ttable, treename=self.name
@@ -63,7 +63,7 @@ def parse_treesblock(infile):
             comment.setResultsName("tree_comment") +
             Suppress("=") +
             comment.setResultsName("root_comment") +
-            newick.setResultsName("newick"))
+            setResultsName("newick"))
     ## treesblock = Group(beginblock +
     ##                    Optional(ttable.setResultsName("ttable")) +
     ##                    Group(OneOrMore(tree)) +
