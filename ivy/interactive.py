@@ -6,7 +6,6 @@ Adds to the interactive IPython/pylab environment
 import sys, os, re
 import ivy
 import ivy.vis
-from ivy.vis import symbols
 
 def readtree(data, *args, **kwargs): return ivy.tree.read(data, *args, **kwargs)
 

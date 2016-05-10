@@ -1,9 +1,9 @@
 import ivy
 import numpy as np
 import scipy
-from ivy.chars import discrete
+from ivy.chars import mk
 from scipy.special import binom
-from ivy.chars import cyexpokit
+from ivy.chars.expokit import cyexpokit
 import math
 import cProfile
 
@@ -19,22 +19,20 @@ Q = np.array([[-2.09613850e-01, 1.204029e-01, 8.921095e-02],
               [2.415020e-06, 5.958744e-07, -3.01089440e-06]])
 
 
-out = discrete.fitMk(tree, chars, Q="ARD", pi="Equal")
+out = mk.fit_Mk(tree, chars, Q="ARD", pi="Equal")
 
-cProfile.run('discrete.fitMk(tree, chars, Q="ARD", pi="Equal")')
+cProfile.run('mk.fit_Mk(tree, chars, Q="ARD", pi="Equal")')
 
 Q = np.array([[-2.09613850e-01, 1.204029e-01, 8.921095e-02],
               [5.654382e-01, -5.65438217e-01, 1.713339e-08],
               [2.415020e-06, 5.958744e-07, -3.01089440e-06]])
-calculatedLikelihood = discrete.mk(tree, chars, Q,
+calculatedLikelihood = mk.mk(tree, chars, Q,
                                          pi = "Fitzjohn")
-calculatedLogLikelihood = math.log(calculatedLikelihood)
-
-calculatedLogLikelihood
 
 
 
-tree = ivy.tree.read("../support/randtree100tips.newick")
+
+tree = ivy.tree.read("support/randtree100tips.newick")
 
 chars = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -42,4 +40,4 @@ chars = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-q,l = discrete.fitMk(tree, chars, Q="Sym", pi="Equilibrium")
+out = mk.fit_Mk(tree, chars, Q="Sym", pi="Equilibrium")

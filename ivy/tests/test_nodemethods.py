@@ -14,20 +14,68 @@ class tree_methods(unittest.TestCase):
         self.primatesBPoly = ivy.tree.read("support/primatesBPoly.newick")
         self.primatesAPoly = ivy.tree.read("support/primatesAPoly.newick")
 
+class basic_tree_methods(tree_methods):
+    def test_asciitree(self):
+        print(self.primates.ascii())
+    def test_contains_true(self):
+        t = self.primates
+        self.assertTrue(t["A"] in t["C"])
+    def test_contains_false(self):
+        t = self.primates
+        self.assertFalse(t["C"] in t["A"])
+    def test_contains_selfTrue(self):
+        t = self.primates
+        self.assertTrue(t["A"] in t["A"])
+    def test_len_returnslen(self):
+        self.assertTrue(len(self.primates)==9)
+    def test_preiter_returnsorder(self):
+        t = self.primates
+        preorder = list(self.primates.preiter())
+        trueorder = [t["root"], t["C"],t["B"],
+                    t["A"],t["Homo"],t["Pongo"],
+                    t["Macaca"],t["Ateles"],t["Galago"]]
+        self.assertEqual(preorder, trueorder)
+    def test_postiter_returnsorder(self):
+        t = self.primates
+        postorder = list(self.primates.postiter())
+        trueorder = [t["Homo"], t["Pongo"],t["A"],
+                    t["Macaca"],t["B"],t["Ateles"],
+                    t["C"],t["Galago"],t["root"]]
+        self.assertEqual(postorder, trueorder)
+
+    def test_children(self):
+        children = self.primates["C"].children
+        trueChildren = [self.primates["B"],self.primates["Ateles"]]
+        self.assertEqual(children, trueChildren)
+    def test_parent(self):
+        parent = self.primates["B"].parent
+        trueParent = self.primates["C"]
+        self.assertEqual(parent,trueParent)
+    def test_grep_ignorecase(self):
+        t = self.primates
+        found = t.grep("A")
+        trueFound = [t["A"],t["Macaca"],t["Ateles"],t["Galago"]]
+        self.assertEqual(found,trueFound)
+    def test_grep_case(self):
+        t = self.primates
+        found = t.grep("A", ignorecase=False)
+        trueFound = [t["A"],t["Ateles"]]
+        self.assertEqual(found,trueFound)
+
+
 class tree_properties_methods(tree_methods):
     ## Ape IDX
     def test_apeNodeIdx_primatetree_correctvals(self):
         self.primates.ape_node_idx()
         trueIds = [6, 7, 8, 9, 1, 2, 3, 4, 5]
         ids = [ n.apeidx for n in self.primates ]
-        self.assertEquals(trueIds, ids)
-
+        self.assertEqual(trueIds, ids)
     ## MRCA
     def test_mrca_primatesHomoPongo_returnsA(self):
-        self.assertEquals(self.primates["A"],
+        self.assertEqual(self.primates["A"],
              self.primates.mrca("Homo","Pongo"))
     def test_mrca_internalNodes_returnsB(self):
-        self.assertEquals(self.primates["B"],
+        self.assertEqual(self.primates["B"],
                           self.primates.mrca("A", "B"))
 
     ## ismono
@@ -56,48 +104,48 @@ class tree_properties_methods(tree_methods):
         try:
             self.primates.ismono("Homo")
             self.fail
-        except AssertionError, e:
-            self.assertEquals(e.message[:36], "Need more than one leaf for ismono()")
+        except AssertionError as e:
+            self.assertEqual(str(e)[:36], "Need more than one leaf for ismono()")
     def test_ismono_HomoList_raisesAssertionError(self):
         try:
             self.primates.ismono(["Homo"])
             self.fail
-        except AssertionError, e:
-            self.assertEquals(e.message[:36], "Need more than one leaf for ismono()")
+        except AssertionError as e:
+            self.assertEqual(str(e)[:36], "Need more than one leaf for ismono()")
     def test_ismono_HomoNode_raisesAssertionError(self):
         try:
             self.primates.ismono(self.primates["Homo"])
             self.fail
-        except AssertionError, e:
-            self.assertEquals(e.message[:36], "Need more than one leaf for ismono()")
+        except AssertionError as e:
+            self.assertEqual(str(e)[:36], "Need more than one leaf for ismono()")
     def test_ismono_HomoNodeList_raisesAssertionError(self):
         try:
             self.primates.ismono([self.primates["Homo"]])
             self.fail
-        except AssertionError, e:
-            self.assertEquals(e.message[:36], "Need more than one leaf for ismono()")
+        except AssertionError as e:
+            self.assertEqual(str(e)[:36], "Need more than one leaf for ismono()")
 
     def test_ismono_HomoA_raisesAssertionError(self):
         try:
             self.primates.ismono("Homo", "A")
             self.self
-        except AssertionError, e:
-            self.assertEquals(e.message,
+        except AssertionError as e:
+            self.assertEqual(str(e),
              "All given nodes must be leaves")
     def test_ismono_HomoAList_raisesAssertionError(self):
         try:
             self.primates.ismono(["Homo", "A"])
             self.self
-        except AssertionError, e:
-            self.assertEquals(e.message,
+        except AssertionError as e:
+            self.assertEqual(str(e),
              "All given nodes must be leaves")
     def test_ismono_HomoANodes_raisesAssertionError(self):
         tree = self.primates
         try:
             self.primates.ismono(tree["Homo"], tree["A"])
             self.self
-        except AssertionError, e:
-            self.assertEquals(e.message,
+        except AssertionError as e:
+            self.assertEqual(str(e),
              "All given nodes must be leaves")
     ## labeled
     def test_labeled_primates_returnsLabeledNodes(self):
@@ -106,29 +154,30 @@ class tree_properties_methods(tree_methods):
                       "Pongo", "Macaca", "Ateles",
                       "Galago"]
         labeledNodes = [self.primates[n] for n in trueLabels]
-        self.assertEquals(labelMethod, labeledNodes)
+        self.assertEqual(labelMethod, labeledNodes)
 
     ## leaves
     def test_leaves_nofilter_returnsLeaves(self):
         trueLeaflabels = ["Homo", "Pongo", "Macaca", "Ateles", "Galago"]
         trueLeaves = [self.primates[n] for n in trueLeaflabels]
-        self.assertEquals(self.primates.leaves(), trueLeaves)
+        self.assertEqual(self.primates.leaves(), trueLeaves)
     def test_leaves_simplefilter_returnsFilteredLeaves(self):
         def f(node):
             return "o" in node.label
         trueleafLabels = ["Homo","Pongo","Galago"]
         trueLeaves = [self.primates[n] for n in trueleafLabels]
 
-        self.assertEquals(self.primates.leaves(f), trueLeaves)
-    def test_updatepi_primates_assignscorrectpi(self):
-        tree = self.primates
-        tree2 = tree.copy()
-
-        for t in tree:
-            t.pi = 999
-        tree.update_pi()
-
-        self.assertTrue([n.pi for n in tree] == [n.pi for n in tree2])
+        self.assertEqual(self.primates.leaves(f), trueLeaves)
+    #TODO: replace with reindex()
+    # def test_updatepi_primates_assignscorrectpi(self):
+    #     tree = self.primates
+    #     tree2 = tree.copy()
+    #
+    #     for t in tree:
+    #         t.pi = 999
+    #     tree.update_pi()
+    #
+    #     self.assertTrue([n.pi for n in tree] == [n.pi for n in tree2])
 
 
 
@@ -143,8 +192,8 @@ class alterTreeMethods(tree_methods):
         try:
             tree.collapse()
             self.fail("AssertionErrorNotRaised")
-        except AssertionError, e:
-            if e.message == "AssertionErrorNotRaised":
+        except AssertionError as e:
+            if str(e) == "AssertionErrorNotRaised":
                 self.fail("AssertionErrorNotRaised")
     def test_collapse_addlength_returnsCorrectLength(self):
         tree = self.primates
@@ -176,8 +225,8 @@ class alterTreeMethods(tree_methods):
         try:
             tree["A"].add_child(tree["Homo"])
             self.fail("AssertionErrorNotRaised")
-        except AssertionError, e:
-            if e.message == "AssertionErrorNotRaised":
+        except AssertionError as e:
+            if str(e) == "AssertionErrorNotRaised":
                 self.fail("AssertionErrorNotRaised")
 
     def test_bisectBranch_distance50_returnsKnee(self):
@@ -197,16 +246,16 @@ class alterTreeMethods(tree_methods):
         try:
             tree.bisect_branch()
             self.fail("AssertionErrorNotRaised")
-        except AssertionError, e:
-            if e.message == "AssertionErrorNotRaised":
+        except AssertionError as e:
+            if str(e) == "AssertionErrorNotRaised":
                 self.fail("AssertionErrorNotRaised")
     def test_bisectBranch_distancenegative_assertionError(self):
         tree = self.primates
         try:
             tree["A"].bisect_branch(-1.0)
             self.fail("AssertionErrorNotRaised")
-        except AssertionError, e:
-            if e.message == "AssertionErrorNotRaised":
+        except AssertionError as e:
+            if str(e) == "AssertionErrorNotRaised":
                 self.fail("AssertionErrorNotRaised")
 
     def test_removeChild_removeChild_createsKnee(self):
@@ -228,8 +277,8 @@ class alterTreeMethods(tree_methods):
         try:
             tree["A"].remove_child(tree["B"])
             self.fail("AssertionError not raised")
-        except AssertionError, e:
-            self.assertEquals(e.message, "node 'B' not child of node 'A'")
+        except AssertionError as e:
+            self.assertEqual(str(e), "node 'B' not child of node 'A'")
 
     def test_dropTip_primatesDropOneTip_returnsTree(self):
         tree = self.primates
@@ -305,38 +354,38 @@ class alterTreeMethods(tree_methods):
 
 
 
-class is_same_tree_Methods(tree_methods):
-    """
-    Tests for the is_same_tree method of ivy.tree.Node
-    """
-    def test_sameTreeDifIDSignoreID_returnsTrue(self):
-        a = ivy.tree.read("../../examples/primates.newick")
-        b = ivy.tree.read("../../examples/primates.newick")
-
-        self.assertTrue(a.is_same_tree(b))
-
-    def test_sameTreeSameIDScheckID_returnsTrue(self):
-        a = ivy.tree.read("../../examples/primates.newick")
-        b = a.copy()
-
-        self.assertTrue(a.is_same_tree(b))
-
-    def test_difTrees_returnsFalse(self):
-        a = ivy.tree.read("../../examples/primates.newick")
-        b = ivy.tree.read("../../examples/plants.newick")
-
-        self.assertFalse(a.is_same_tree(b))
-    def test_sameTreeLadderized_returnsTrue(self):
-        """
-        Unsure what behavior should be. Will return true for now
-        """
-        a = self.primates
-        b = a.copy()
-
-        b.ladderize()
-
-        self.assertTrue(a.is_same_tree(b))
-
+# class is_same_tree_Methods(tree_methods):
+#     """
+#     Tests for the is_same_tree method of ivy.tree.Node
+#     """
+#     def test_sameTreeDifIDSignoreID_returnsTrue(self):
+#         a = ivy.tree.read("../../examples/primates.newick")
+#         b = ivy.tree.read("../../examples/primates.newick")
+#
+#         self.assertTrue(a.is_same_tree(b))
+#
+#     def test_sameTreeSameIDScheckID_returnsTrue(self):
+#         a = ivy.tree.read("../../examples/primates.newick")
+#         b = a.copy()
+#
+#         self.assertTrue(a.is_same_tree(b))
+#
+#     def test_difTrees_returnsFalse(self):
+#         a = ivy.tree.read("../../examples/primates.newick")
+#         b = ivy.tree.read("../../examples/plants.newick")
+#
+#         self.assertFalse(a.is_same_tree(b))
+#     def test_sameTreeLadderized_returnsTrue(self):
+#         """
+#         Unsure what behavior should be. Will return true for now
+#         """
+#         a = self.primates
+#         b = a.copy()
+#
+#         b.ladderize()
+#
+#         self.assertTrue(a.is_same_tree(b))
+#
 
 if __name__ == "__main__":
     unittest.main()

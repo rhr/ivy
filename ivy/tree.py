@@ -16,6 +16,12 @@ import ivy.newick
 from itertools import izip_longest
 import numpy as np
 
+StringTypes = types.StringTypes
+try: # Python 2
+    iter(StringTypes)
+except TypeError: # Python 3
+    StringTypes = [StringTypes]
+
 def traverse(node):
     "recursive preorder iterator based solely on .children attribute"
     yield node
@@ -106,7 +112,7 @@ class Node(object):
             bool: Whether or not the other node is a descendant of self
         """
         otype = type(other)
-        if other and otype in types.StringTypes:
+        if other and otype in StringTypes:
             for x in self:
                 if other == x.label:
                     return True
@@ -155,6 +161,7 @@ class Node(object):
         """
         Can only assign ni, li, and ii
         """
+        #TODO: fix
         assert self.isroot, "Only the root can be reindexed"
 
         ni = 0
@@ -679,7 +686,7 @@ class Node(object):
 
         """
         if not f: return
-        if type(f) in types.StringTypes:
+        if type(f) in StringTypes:
             func = lambda x: (f or None) in (x.label or "")
         else:
             func = f
@@ -1155,7 +1162,7 @@ def clade_sizes(node, results={}):
 
 def write(node, outfile=None, format="newick", length_fmt=":%g",
           clobber=False):
-    if format=="newick" or ((type(outfile) in types.StringTypes) and
+    if format=="newick" or ((type(outfile) in StringTypes) and
                             (outfile.endswith(".newick") or
                              outfile.endswith(".new"))):
         s = write_newick(node, outfile, length_fmt, True, clobber)
@@ -1185,14 +1192,17 @@ def write_newick(node, outfile=None, length_fmt=":%g", end=False,
     s = "%s%s%s" % (node_str, length_str, semicolon)
     if end and outfile:
         flag = False
-        if type(outfile) in types.StringTypes:
+        if type(outfile) in StringTypes:
             if not clobber:
                 assert not os.path.isfile(outfile), "File '%s' exists! (Set clobber=True to overwrite)" % outfile
             flag = True
-            outfile = file(outfile, "w")
+            outfile = open(outfile, "w")
         outfile.write(s)
-        if flag:
+        try:
             outfile.close()
+        except:
+            pass
+
     return s
 
 def read(data, format=None, treename=None, ttable=None):
@@ -1209,7 +1219,7 @@ def read(data, format=None, treename=None, ttable=None):
         Node: The root node.
     """
     import newick
-    StringTypes = types.StringTypes
+
 
     def strip(s):
         fname = os.path.split(s)[-1]
@@ -1235,8 +1245,10 @@ def read(data, format=None, treename=None, ttable=None):
         if type(data) in StringTypes:
             if os.path.isfile(data):
                 treename = strip(data)
-                return newick.parse(file(data), treename=treename,
-                                    ttable=ttable)
+                with open(data, "r") as f:
+                    parsed = newick.parse(f, treename=treename,
+                                        ttable=ttable)
+                return parsed
             else:
                 return newick.parse(data, ttable=ttable)
 
@@ -1286,7 +1298,7 @@ def read(data, format=None, treename=None, ttable=None):
 
 def readmany(data, format="newick"):
     """Iterate over trees from a source."""
-    if type(data) in types.StringTypes:
+    if type(data) in StringTypes:
         if os.path.isfile(data):
             data = open(data)
         else:

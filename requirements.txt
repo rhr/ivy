@@ -4,6 +4,7 @@ biopython
 matplotlib
 bokeh
 nlopt
+pymc
 # used in ivy/nexus.py
 pyparsing 
 # used in ivy/treegraph.py
@@ -11,5 +12,5 @@ graph_tool
 # used in ivy/treebase.py and ivy/ubio.py
 lxml
 # used in ivy/vis/hardcopy.py 
-pypdf
+pypdf2
 

@@ -1,7 +1,7 @@
 # cython: profile=True
 
 import numpy as np
-cimport numpy as np 
+cimport numpy as np
 from libc.math cimport exp, log
 
 
@@ -179,21 +179,21 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                  int nregime):
 
     cdef int nchar = len(charlist)
-    cdef int i
-    cdef int intnode
-    cdef int ind
-    cdef int ch
-    cdef int st
+    cdef int i # Iterator
+    cdef int intnode #integer node number
+    cdef int ind # Index
+    cdef int ch # Character state
+    cdef int st # Character state
 
     cdef np.ndarray[dtype=DTYPE_t, ndim=1] l
-    cdef int spi
-    cdef int ppi
+    cdef int spi # Self postorder index
+    cdef int ppi # Parent postorder index
     # ------------- downpass
     for intnode in map(int, sorted(set(d_nl[:-1,nchar]))):
         nextli = d_nl[intnode]
         for chi, child in enumerate(childlist[intnode]):
-            li = d_nl[child]
-            p_li = p_nl[intnode][chi]
+            li = d_nl[child] # Likelihood
+            p_li = p_nl[intnode][chi] # Parent likelihood
             for ch in charlist:
                 p_li[ch] = sum([ p[child][ch,st] for st in charlist ]
                                * li[:nchar])
@@ -208,13 +208,13 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
             m_nl[i][:nchar] = (l[:nchar] * d_nl[-1][:nchar])
             m_nl[i][:nchar] /= sum(m_nl[i][:nchar])
         else:
-            spi = int(l[nchar+1])
-            ppi = int(l[nchar])
+            spi = int(l[nchar+1]) # Self postorder index
+            ppi = int(l[nchar]) # Parent postorder index
             if ppi == root_posti:
-                pp_nl[spi] = (p_nl[ppi].take(range(ci[ppi])+range(ci[ppi]+1,p_nl[ppi].shape[0]),0) * root_equil)
+                pp_nl[spi] = (p_nl[ppi].take(list(range(ci[ppi]))+list(range(ci[ppi]+1,p_nl[ppi].shape[0])),0) * root_equil)
             else:
                 np.dot(p[ppi].T, pp_nl[ppi], out=temp_dotprod)
-                pp_nl[spi] = (p_nl[ppi].take(range(ci[ppi])+range(ci[ppi]+1,p_nl[ppi].shape[0]),0) * temp_dotprod)
+                pp_nl[spi] = (p_nl[ppi].take(list(range(ci[ppi]))+list(range(ci[ppi]+1,p_nl[ppi].shape[0])),0) * temp_dotprod)
             l[:nchar] = np.dot(p[spi].T, pp_nl[spi])
 
             ci[ppi] += 1

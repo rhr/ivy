@@ -11,7 +11,7 @@ from ivy.chars import catpars
 Ancestor state reconstruction
 """
 
-def anc_recon_cat(tree, chars, Q, p=None, pi="Fitzjohn", ars=None, nregime=1):
+def anc_recon_cat(tree, chars, Q, p=None, pi="Equal", ars=None, nregime=1):
     """
     Given tree, character states at tips, and transition matrix perform
     ancestor reconstruction for a discrete character.

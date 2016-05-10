@@ -4,7 +4,7 @@ import numpy as np
 from ivy.chars import bayesian_models
 import pymc
 import matplotlib.pyplot as plt
-from ivy.chars.hrm import _create_hrmnodelist
+from ivy.chars.hrm import create_hrmnodelist
 from ivy.chars.hrm import *
 
 tree = ivy.tree.read("../support/hrm_300tips.newick")

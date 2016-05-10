@@ -9,6 +9,7 @@ from scipy.optimize import minimize
 from scipy.special import binom
 import nlopt
 
+# TODO: rehaul character format
 
 def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
     """
@@ -55,7 +56,7 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
     # Applying the correct root prior
     if type(pi) != str:
         assert len(pi) == nchar, "length of given pi does not match Q dimensions"
-        assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
+        assert str(type(pi)) in ["<type 'numpy.ndarray'>","<class 'numpy.ndarray'>"], "pi must be str or numpy array"
         assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
         np.copyto(ar["root_priors"], pi)
         rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
@@ -188,8 +189,8 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
             var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
         elif Qtype == "ARD":
             var["Q"].fill(0.0) # Re-filling with zeroes
-            var["Q"][np.triu_indices(nchar, k=1)] = Qparams[:len(Qparams)/2]
-            var["Q"][np.tril_indices(nchar, k=-1)] = Qparams[len(Qparams)/2:]
+            var["Q"][np.triu_indices(nchar, k=1)] = Qparams[:int(len(Qparams)/2)]
+            var["Q"][np.tril_indices(nchar, k=-1)] = Qparams[int(len(Qparams)/2):]
             var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
         else:
             raise ValueError, "Qtype must be one of: ER, Sym, ARD"
@@ -274,7 +275,7 @@ def fitMkSym(tree, chars, pi="Equal"):
     nchar = len(set(chars))
     # Number of params equal to binom(nchar, 2)
     # Initial values arbitrary
-    x0 = [0.5] * binom(nchar, 2) # Starting values for our symmetrical rates model
+    x0 = [0.5] * int(binom(nchar, 2)) # Starting values for our symmetrical rates model
     mk_func = create_likelihood_function_mk(tree, chars, Qtype="Sym", pi = pi)
 
     # Need to constrain values to be greater than 0
@@ -330,8 +331,8 @@ def fitMkARD(tree, chars, pi="Equal"):
 
     q = np.zeros([nchar,nchar], dtype=np.double)
 
-    q[np.triu_indices(nchar, k=1)] = optim[:len(optim)/2]
-    q[np.tril_indices(nchar, k=-1)] = optim[len(optim)/2:]
+    q[np.triu_indices(nchar, k=1)] = optim[:int(len(optim)/2)]
+    q[np.tril_indices(nchar, k=-1)] = optim[int(len(optim)/2):]
     q[np.diag_indices(nchar)] = 0-np.sum(q, 1)
 
     piRates, rootLiks = mk(tree, chars, q, pi=pi, returnPi=True)[1:]
@@ -382,7 +383,7 @@ def fit_Mk(tree, chars, Q = "Equal", pi = "Equal"):
 
 
     else:
-        assert str(type(Q)) == "<type 'numpy.ndarray'>", "Q must be str or numpy array"
+        assert str(type(Q)) in ["<type 'numpy.ndarray'>" ,"<class 'numpy.ndarray'>"], "Q must be str or numpy array"
         assert len(Q[0]) == len(set(chars)), "Supplied Q has wrong dimensions"
 
         l,piRates, rootLiks = mk(tree, chars, Q, pi=pi, returnPi=True)

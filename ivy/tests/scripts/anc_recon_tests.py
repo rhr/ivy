@@ -4,10 +4,10 @@ import numpy as np
 from ivy.chars import bayesian_models
 import pymc
 import matplotlib.pyplot as plt
-from ivy.chars.mk import _create_nodelist
+from ivy.chars.mk import create_mk_ar
 import math
 from ivy.chars.expokit import cyexpokit
-from ivy.chars.recon import recon, recon_purepy, create_ancrecon_ars
+from ivy.chars.recon import create_ancrecon_ars
 np.set_printoptions(precision=5, suppress=True)
 
 tree = ivy.tree.read("(((A:1,B:1)E:1,C:2)F:1,D:3)R;")

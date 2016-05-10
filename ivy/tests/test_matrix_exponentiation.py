@@ -108,8 +108,8 @@ class Dexpm_treeMethods(unittest.TestCase):
             try:
                 cyexpokit.dexpm_tree(Q, t)
                 self.fail()
-            except AssertionError, e:
-                self.assertEquals('q must be square', e.message)
+            except AssertionError as e:
+                self.assertEqual('q must be square', str(e))
         def test_dexpmtree_twithzeroes_assertionerror(self):
             """
             Test that dexpm_tree returns an assertion error if given a t-array
@@ -122,8 +122,8 @@ class Dexpm_treeMethods(unittest.TestCase):
             try:
                 cyexpokit.dexpm_tree(Q, t)
                 self.fail()
-            except AssertionError, e:
-                self.assertEquals("All branch lengths must be greater than zero", e.message)
+            except AssertionError as e:
+                self.assertEqual("All branch lengths must be greater than zero", str(e))
 
 
 

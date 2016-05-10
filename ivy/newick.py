@@ -69,8 +69,14 @@ def parse(data, ttable=None, treename=None):
         Node: The root node.
     """
     from tree import Node
+    try: # Python 2
+        iter(types.StringTypes)
+        StringTypes = types.StringTypes
+    except TypeError: # Python 3
+        StringTypes = [types.StringTypes]
 
-    if type(data) in types.StringTypes:
+
+    if type(data) in StringTypes:
         data = StringIO(data)
 
     start_pos = data.tell()

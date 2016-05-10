@@ -1,19 +1,28 @@
 from array import array
-from layout import depth_length_preorder_traversal
+from ivy.layout import depth_length_preorder_traversal
 
 class AsciiBuffer:
     def __init__(self, width, height):
-        self.width = width
-        self.height = height
-        self._b = [ array('c', ' '*width) for line in range(height) ]
+        self.width = int(width)
+        self.height = int(height)
+        try:# Python 2
+            self._b = [ array('c', ' '*self.width) for line in range(self.height) ]
+        except TypeError: # Python 3
+            self._b = [ array('b', (' '*self.width).encode()) for line in range(self.height) ]
 
     def putstr(self, r, c, s):
         assert r < self.height
         assert c+len(s) <= self.width, "%s %s %s '%s'" % (self.width, r, c, s)
-        self._b[r][c:c+len(s)] = array('c', s)
+        try: # python 2
+            self._b[r][c:c+len(s)] = array('c', s)
+        except TypeError:
+            self._b[r][c:c+len(s)] = array('b', s.encode())
 
     def __str__(self):
-        return "\n".join([ b.tostring() for b in self._b ])
+        try: # Python 2
+            return "\n".join([ b.tostring() for b in self._b ])
+        except TypeError: # Python 3
+            return "\n".join([ b.tobytes().decode() for b in self._b ])
 
 def sum_to_root(node, internodes=True, length=False):
     """
@@ -80,7 +89,7 @@ def set_rpos(node, n2c):
 def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
            show_internal_labels=True):
     """
-    Create the ascii tree to be shown with print()
+    Create an ascii tree to be shown with print()
     """
     n2c = depth_length_preorder_traversal(root)
     leaves = root.leaves(); nleaves = len(leaves)
@@ -128,27 +137,27 @@ def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
             pc = n2c[node.parent]
             for r in range(min([nc.r, pc.r]),
                            max([nc.r, pc.r])):
-                buf.putstr(r, pc.c, ":")
+                buf.putstr(r, int(pc.c), ":")
 
             sym = getattr(nc, "hchar", "-")
-            vbar = sym*(nc.c-pc.c)
-            buf.putstr(nc.r, pc.c, vbar)
+            vbar = sym*(int(nc.c)-int(pc.c))
+            buf.putstr(int(nc.r), int(pc.c), vbar)
 
         if node.isleaf:
-            buf.putstr(nc.r, nc.c+1, " "+node.label)
+            buf.putstr(int(nc.r), int(nc.c)+1, " "+node.label)
         else:
             if node.label and show_internal_labels:
-                buf.putstr(nc.r, nc.c-len(node.label), node.label)
+                buf.putstr(int(nc.r), int(nc.c-len(node.label)), node.label)
 
-        buf.putstr(nc.r, nc.c, "+")
+        buf.putstr(int(nc.r), int(nc.c), "+")
 
     return str(buf)
 
 if __name__ == "__main__":
-    import random, tree
+    import random, ivy.tree
     rand = random.Random()
 
-    t = tree.read(
+    t = ivy.tree.read(
         "(foo,((bar,(dog,cat)dc)dcb,(shoe,(fly,(cow, bowwow)cowb)cbf)X)Y)Z;"
         )
 
@@ -158,7 +167,7 @@ if __name__ == "__main__":
     i = 1
     print render(t, scaled=0, show_internal_labels=1)
     r = t.get("cat").parent
-    tree.reroot(t, r)
+    ivy.tree.reroot(t, r)
     tp = t.parent
     tp.remove_child(t)
     c = t.children[0]

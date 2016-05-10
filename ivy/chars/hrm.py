@@ -315,7 +315,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Equal
             fill_Q_matrix(nobschar, nregime, Qparams[:wr], Qparams[wr:],Qtype="ARD", out=var["Q"], orderedRegimes=orderedRegimes)
 
             if constraints == "Rate":
-                qmax = [max(Qparams[i:i+nobschar]) for i in xrange(0, len(Qparams)/2, nobschar)]
+                qmax = [max(Qparams[i:i+nobschar]) for i in xrange(0, int(len(Qparams)/2), nobschar)]
                 if sorted(qmax) != qmax:
                     return var["nullval"]
             elif constraints == "Symmetry":

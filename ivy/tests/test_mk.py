@@ -362,7 +362,7 @@ class estimateQMethods(unittest.TestCase):
         expectedParam = np.array([[-0.4549581,0.4549581],[0.4549581,-0.4549581]])
         expectedLogLikelihood = -27.26863
 
-        calculated = mk.fitMk(tree, chars, Q="Equal", pi="Equal")
+        calculated = mk.fit_Mk(tree, chars, Q="Equal", pi="Equal")
 
         calculatedParam = calculated["Q"]
         calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -385,7 +385,7 @@ class estimateQMethods(unittest.TestCase):
                                   [0.278108,0.278108,-0.556216]])
         expectedLogLikelihood = -41.508675
 
-        calculated = mk.fitMk(tree, chars, Q="Equal", pi="Equal")
+        calculated = mk.fit_Mk(tree, chars, Q="Equal", pi="Equal")
 
         calculatedParam = calculated["Q"]
         calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -407,7 +407,7 @@ class estimateQMethods(unittest.TestCase):
         expectedParam = np.array([[-0.4549581,0.4549581],[0.4549581,-0.4549581]])
         expectedLogLikelihood = -27.26863
 
-        calculated = mk.fitMk(tree, chars, Q="Sym", pi="Equal")
+        calculated = mk.fit_Mk(tree, chars, Q="Sym", pi="Equal")
 
         calculatedParam = calculated["Q"]
         calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -429,7 +429,7 @@ class estimateQMethods(unittest.TestCase):
                         [0.168128,0.000000,-0.168128]])
         expectedLogLikelihood = -39.141458
 
-        calculated = mk.fitMk(tree, chars, Q="Sym", pi="Equal")
+        calculated = mk.fit_Mk(tree, chars, Q="Sym", pi="Equal")
 
         calculatedParam = calculated["Q"]
         calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -451,7 +451,7 @@ class estimateQMethods(unittest.TestCase):
 
         expectedLogLikelihood = -25.813332
 
-        calculated = mk.fitMk(tree, chars, Q="ARD", pi="Equal")
+        calculated = mk.fit_Mk(tree, chars, Q="ARD", pi="Equal")
 
         calculatedParam = calculated["Q"]
         calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -474,7 +474,7 @@ class estimateQMethods(unittest.TestCase):
 
         expectedLogLikelihood = -32.697278
 
-        calculated = mk.fitMk(tree, chars, Q="ARD", pi="Equal")
+        calculated = mk.fit_Mk(tree, chars, Q="ARD", pi="Equal")
 
         calculatedParam = calculated["Q"]
         calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -496,7 +496,7 @@ class estimateQMethods(unittest.TestCase):
         expectedParam = np.array([[-0.4549581,0.4549581],[0.4549581,-0.4549581]])
         expectedLogLikelihood = -27.26863
 
-        calculated = mk.fitMk(tree, chars, Q="Equal", pi="Equilibrium")
+        calculated = mk.fit_Mk(tree, chars, Q="Equal", pi="Equilibrium")
 
         calculatedParam = calculated["Q"]
         calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -520,7 +520,7 @@ class estimateQMethods(unittest.TestCase):
                                   [0.278108,0.278108,-0.556216]])
         expectedLogLikelihood = -41.508675
 
-        calculated = mk.fitMk(tree, chars, Q="Equal", pi="Equilibrium")
+        calculated = mk.fit_Mk(tree, chars, Q="Equal", pi="Equilibrium")
 
         calculatedParam = calculated["Q"]
         calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -545,7 +545,7 @@ class estimateQMethods(unittest.TestCase):
         expectedParam = np.array([[-0.4549581,0.4549581],[0.4549581,-0.4549581]])
         expectedLogLikelihood = -27.26863
 
-        calculated = mk.fitMk(tree, chars, Q="Sym", pi="Equilibrium")
+        calculated = mk.fit_Mk(tree, chars, Q="Sym", pi="Equilibrium")
 
         calculatedParam = calculated["Q"]
         calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -570,7 +570,7 @@ class estimateQMethods(unittest.TestCase):
                                   [0.090821,0.000000,-0.090821]])
         expectedLogLikelihood = -34.398614
 
-        calculated = mk.fitMk(tree, chars, Q="Sym", pi="Equilibrium")
+        calculated = mk.fit_Mk(tree, chars, Q="Sym", pi="Equilibrium")
 
         calculatedParam = calculated["Q"]
         calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -593,7 +593,7 @@ class estimateQMethods(unittest.TestCase):
     #                               [0.882763, -0.882763]])
     #     expectedLogLikelihood = -25.671774
     #
-    #     calculated = mk.fitMk(tree, chars, Q="ARD", pi="Equilibrium")
+    #     calculated = mk.fit_Mk(tree, chars, Q="ARD", pi="Equilibrium")
     #
     #     calculatedParam = calculated["Q"]
     #     calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -615,7 +615,7 @@ class estimateQMethods(unittest.TestCase):
     #                               [3.107009,0.000000,-3.107009]])
     #     expectedLogLikelihood = -32.536296
     #
-    #     calculated = mk.fitMk(tree, chars, Q="ARD", pi="Equilibrium")
+    #     calculated = mk.fit_Mk(tree, chars, Q="ARD", pi="Equilibrium")
     #
     #     calculatedParam = calculated["Q"]
     #     calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -637,7 +637,7 @@ class estimateQMethods(unittest.TestCase):
     #                               [3.107009,0.000000,-3.107009]])
     #     expectedLogLikelihood = -32.536296
     #
-    #     calculated = mk.fitMk(tree, chars, Q="ARD", pi="Equilibrium")
+    #     calculated = mk.fit_Mk(tree, chars, Q="ARD", pi="Equilibrium")
     #
     #     calculatedParam = calculated["Q"]
     #     calculatedLogLikelihood = calculated["Log-likelihood"]
@@ -657,7 +657,7 @@ class estimateQMethods(unittest.TestCase):
 
         Q = np.array([[-.2,.1,.1],[.1,-.2,.1],[.1,.1,-.2]], dtype = np.double)
 
-        calculated = mk.fitMk(tree, chars, Q)
+        calculated = mk.fit_Mk(tree, chars, Q)
 
         calcq = calculated["Q"]
         calclik = calculated["Log-likelihood"]
@@ -668,7 +668,7 @@ class estimateQMethods(unittest.TestCase):
         tree = self.randTree100Scale2
         chars = self.simChars100states3Scale2
 
-        calculated = mk.fitMk(tree, chars, Q="ARD", pi="Equilibrium")
+        calculated = mk.fit_Mk(tree, chars, Q="ARD", pi="Equilibrium")
 
     def test_fitMk_equalQ3traits_matchesPhytools(self):
         pass
@@ -749,9 +749,9 @@ class estimateQMethods(unittest.TestCase):
         try:
             mk.mk(tree, chars, Q, pi=pi)
             self.fail("Assertion error not raised")
-        except AssertionError, e:
-            self.assertEquals("length of given pi does not match Q dimensions",
-                              e.message)
+        except AssertionError as e:
+            self.assertEqual("length of given pi does not match Q dimensions",
+                              str(e))
     def test_mk_piNotSumTo1_raisesAssertionError(self):
         tree = self.randTree100Scale2
         chars = self.simChars100states3Scale2
@@ -764,9 +764,9 @@ class estimateQMethods(unittest.TestCase):
         try:
             mk.mk(tree, chars, Q, pi=pi)
             self.fail("Assertion error not raised")
-        except AssertionError, e:
-            self.assertEquals("values of given pi must sum to 1",
-                              e.message)
+        except AssertionError as e:
+            self.assertEqual("values of given pi must sum to 1",
+                              str(e))
 
     def test_mk_piWrongType_raisesAssertionError(self):
         tree = self.randTree100Scale2
@@ -780,9 +780,9 @@ class estimateQMethods(unittest.TestCase):
         try:
             mk.mk(tree, chars, Q, pi=pi)
             self.fail("Assertion error not raised")
-        except AssertionError, e:
-            self.assertEquals("pi must be str or numpy array",
-                              e.message)
+        except AssertionError as e:
+            self.assertEqual("pi must be str or numpy array",
+                              str(e))
 
     def test_fitMk_invalidQstring_raisesValueError(self):
         tree = self.randTree100Scale2
@@ -791,11 +791,11 @@ class estimateQMethods(unittest.TestCase):
         Q = "This is not a valid Q"
 
         try:
-            mk.fitMk(tree, chars, Q)
+            mk.fit_Mk(tree, chars, Q)
             self.fail("Value error not raised")
-        except ValueError, e:
-            self.assertEquals("Q str must be one of: 'Equal', 'Sym', 'ARD'",
-                              e.message)
+        except ValueError as e:
+            self.assertEqual("Q str must be one of: 'Equal', 'Sym', 'ARD'",
+                              str(e))
 
 
     def test_fitMk_invalidQMatrix_raisesAssertionError(self):
@@ -805,20 +805,20 @@ class estimateQMethods(unittest.TestCase):
         Q = np.ones([3,3])
 
         try:
-            mk.fitMk(tree, chars, Q)
+            mk.fit_Mk(tree, chars, Q)
             self.fail("Assertion error not raised")
-        except AssertionError, e:
-            self.assertEquals("rows of q must sum to zero", e.message)
+        except AssertionError as e:
+            self.assertEqual("rows of q must sum to zero", str(e))
 
     def test_fitMk_invalidpi_raisesAssertionError(self):
         tree = self.randTree100Scale2
         chars = self.simChars100states3Scale2
 
         try:
-            mk.fitMk(tree, chars, pi = "invalid pi")
+            mk.fit_Mk(tree, chars, pi = "invalid pi")
             self.fail("Assertion error not raised")
-        except AssertionError, e:
-            self.assertEquals("Pi must be one of: 'Equal', 'Fitzjohn', 'Equilibrium'", e.message)
+        except AssertionError as e:
+            self.assertEqual("Pi must be one of: 'Equal', 'Fitzjohn', 'Equilibrium'", str(e))
 
 
     # def test_mkMultiRegime_sameQ_matchesmk(self):
@@ -837,7 +837,7 @@ class estimateQMethods(unittest.TestCase):
     #     single = mk.mk(tree, chars, Q)
     #     multi = mk.mk_multi_regime(tree, chars, Qs, locs, pi="Equal")
     #
-    #     self.assertEquals(single, multi)
+    #     self.assertEqual(single, multi)
 
     # def test_createLikelihoodMulti_twoRtwoSER_correctresult(self):
     #     tree = self.randTree100Scale2
