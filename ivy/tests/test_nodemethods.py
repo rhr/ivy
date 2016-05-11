@@ -168,16 +168,15 @@ class tree_properties_methods(tree_methods):
         trueLeaves = [self.primates[n] for n in trueleafLabels]
 
         self.assertEqual(self.primates.leaves(f), trueLeaves)
-    #TODO: replace with reindex()
-    # def test_updatepi_primates_assignscorrectpi(self):
-    #     tree = self.primates
-    #     tree2 = tree.copy()
-    #
-    #     for t in tree:
-    #         t.pi = 999
-    #     tree.update_pi()
-    #
-    #     self.assertTrue([n.pi for n in tree] == [n.pi for n in tree2])
+    def test_reindex_primates_assignscorrectpi(self):
+        tree = self.primates
+        tree2 = tree.copy()
+
+        for t in tree:
+            t.pi = 999
+        tree.reindex()
+
+        self.assertTrue([n.pi for n in tree] == [n.pi for n in tree2])
 
 
 

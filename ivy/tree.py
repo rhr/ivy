@@ -159,43 +159,26 @@ class Node(object):
 
     def reindex(self):
         """
-        Can only assign ni, li, and ii
+        Re-assign the following attributes to all nodes in the tree:
+        "pi", "ni", "ii", "li", "back", "next", "right", "left"
+
+        Warning: somewhat slow
         """
-        #TODO: fix
-        assert self.isroot, "Only the root can be reindexed"
+        assert self.isroot, "Must give root to re-index tree"
 
-        ni = 0
-        li = 0
-        ii = 0
+        newickstr = self.write()
+        newtree = read(newickstr)
 
-        for n in self:
-            n.ni = ni
-            ni += 1
-            if n.isleaf:
-                try: # Delete leftover properties that no longer apply
-                    del(n.ii)
-                except:
-                    pass
-                n.li = li
-                li += 1
-            else:
-                try:
-                    del(n.li)
-                except:
-                    pass
-                n.ii = ii
-                ii += 1
-    #
-    #     newtree = read(newickstr)
-    #
-    #     vars_to_index = ["pi", "ni", "ii", "li", "back", "next",
-    #                      "right", "left"]
-    #
-    #     for i,n in enumerate(self):
-    #         for var in vars(n):
-    #             if var in vars_to_index:
-    #                 print var
-    #                 n.var = newtree[i].var
+        vars_to_index = ["pi", "ni", "ii", "li", "back", "next",
+                         "right", "left"]
+
+        for i,n in enumerate(self):
+            for var in vars(n):
+                if var in vars_to_index:
+                    try:
+                        setattr(n,var,getattr(newtree[i],var))
+                    except AttributeError:
+                        pass
 
     def ape_node_idx(self): # For use in phylorate plot
         i = 1
@@ -1070,14 +1053,7 @@ class Node(object):
             s = write_newick(self, outfile, length_fmt, True, clobber)
             if not outfile:
                 return s
-    # def update_pi(self, count=0):
-    #     """
-    #     Given root node, traverse tree in postorder sequence and update
-    #     pi property of nodes
-    #     """
-    #     assert self.isroot
-    #     count = 0
-    #     tree.leaves()[0].pi = count
+
     def get_siblings(self):
         """
         Return list of siblings of node

@@ -48,13 +48,25 @@ from colour import Color
 
 
 _tango = colors.tango()
+StringTypes = types.StringTypes
+try: # Python 2
+    iter(StringTypes)
+except TypeError: # Python 3
+    StringTypes = [StringTypes]
 
 
 def xy(plot, p):
+    """
+    Get xy coordinates of a node
+
+    Args:
+        plot (TreeSubplot): treeplot
+        p: node or node label
+    """
     if isinstance(p, tree.Node):
         c = plot.n2c[p]
         p = (c.x, c.y)
-    elif type(p) in types.StringTypes:
+    elif type(p) in StringTypes:
         c = plot.n2c[plot.root[p]]
         p = c.x, c.y
     elif isinstance(p, (list, tuple)):
@@ -163,13 +175,13 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
     """
     if x:
         nodes = set()
-        if type(x) in types.StringTypes:
+        if type(x) in StringTypes:
             nodes = treeplot.root.findall(x)
         elif isinstance(x, tree.Node):
             nodes = set(x)
         else:
             for n in x:
-                if type(n) in types.StringTypes:
+                if type(n) in StringTypes:
                     found = treeplot.root.findall(n)
                     if found:
                         nodes |= set(found)
@@ -261,7 +273,7 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
         if mrca:
             if isinstance(nodes, tree.Node):
                 spec = nodes
-            elif type(nodes) in types.StringTypes:
+            elif type(nodes) in StringTypes:
                 spec = treeplot.root.get(nodes)
             else:
                 spec = treeplot.root.mrca(nodes)
@@ -278,14 +290,14 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
         y = sorted([ n2c[n].y for n in leaves ])
         ymin = y[0]; ymax = y[-1]; y = (ymax+ymin)*0.5
         treeplot.figure.canvas.draw_idle()
-        if x is None:
+        if x is None: # Determining how far bar should be from tips
             x = max([ n2c[n].x for n in leaves ])
             _x = 0
             for lf in leaves:
                 txt = treeplot.node2label.get(lf)
-                #print "Accessing", str(txt), str(id(txt))
                 if txt and txt.get_visible():
                     treeplot.figure.canvas.draw_idle()
+                    pyplot.pause(0.001) # Pause necessary for getting window extent
                     _x = max(_x, transform(txt.get_window_extent())[1,0])
             if _x > x: x = _x
 
@@ -331,13 +343,13 @@ def add_image(treeplot, x, imgfiles, maxdim=100, border=0, xoff=4,
     """
     if x:
         nodes = []
-    if type(x) in types.StringTypes:
+    if type(x) in StringTypes:
         nodes = treeplot.root[x]
     elif isinstance(x, tree.Node):
         nodes = [x]
     else:
         for n in x:
-            if type(n) in types.StringTypes:
+            if type(n) in StringTypes:
                 nodes.append(treeplot.root[n])
             elif isinstance(n, tree.Node):
                 nodes.append(n)

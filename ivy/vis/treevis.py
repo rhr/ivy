@@ -378,13 +378,13 @@ class TreeFigure(object):
         - Dataplot
         - Decorations
 
-        If *kwargs* contains
-        the key-value pair ('store', *name*), the layer function
-        is stored in self.layers and called upon every redraw
 
         Args:
             func (function): Function that takes a TreePlot (self.tree)
               as input and returns (and draws) an Artist
+        Keyword Args:
+            store (str): Name of layer. If given, the layer is stored in
+              self.layers and called upon every redraw
 
         """
         self.redraw()
@@ -395,7 +395,7 @@ class TreeFigure(object):
         func(self.tree, *args, **kwargs)
         self.layers[name]=functools.partial(func, self.tree,
                                             vis=vis, *args, **kwargs)
-        if ov and self.overview_width > 0.001: # Hackish way to check if overview is visible. Maybe should change
+        if ov and self.overview_width > 0.001: # Hackish way to check if overview is on
             self.ovlayers[name]=functools.partial(func, self.overview,
                                                   vis=vis, *args, **kwargs)
             func(self.overview, *args, **kwargs)
@@ -481,7 +481,6 @@ class TreeFigure(object):
             vis (bool): Whether or not the object is visible. Defaults to true
         """
         self.add_layer(layers.add_highlight, x, *args, **kwargs)
-
     def cbar(self, nodes, *args, **kwargs):
         """
         Convenience function for adding clade bar along y axis
@@ -1111,6 +1110,9 @@ class RadialTree(Tree):
     """
     Matplotlib axes subclass for rendering radial trees
     """
+    def __init__(self,fig,rect,tf=None,*args,**kwargs):
+        Tree.__init__(self,fig,rect,tf,*args,**kwargs)
+        self.axes.axis("equal")
     def layout(self):
         from ..layout_polar import calc_node_positions
         start = self.start if hasattr(self, 'start') else 0
@@ -1230,6 +1232,8 @@ class OverviewTree(Tree):
         Tree.redraw_keeptemp(self)
         self.add_overview_rect()
         self.figure.canvas.draw_idle()
+
+# TODO: facing plots
 class MultiTreeFigure(TreeFigure):
     """
     Class for drawing multiple trees in one figure

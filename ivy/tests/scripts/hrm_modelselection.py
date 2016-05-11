@@ -349,7 +349,6 @@ modfit_2r_alpha = modfit_2r.trace("paramscale_0")[:]
 
 modfit_2r_modcount.most_common()[:10]
 
-# TODO: Compare to simulated history
 
 
 ####################################

@@ -9,7 +9,11 @@ from bokeh.plotting import figure, output_file, show, ColumnDataSource, \
 from bokeh.models import Range1d, HoverTool, BoxZoomTool, WheelZoomTool, \
      ResizeTool, ResetTool, PanTool, PreviewSaveTool
 from ivy.layout import cartesian
-
+StringTypes = types.StringTypes
+try: # Python 2
+    iter(StringTypes)
+except TypeError: # Python 3
+    StringTypes = [StringTypes]
 
 class BokehTree(object):
 	def __init__(self, root, scaled = True, nodelabels = True,
@@ -181,13 +185,13 @@ class BokehTree(object):
 		"""
 		if x:
 			nodes = set()
-			if type(x) in types.StringTypes:
+			if type(x) in StringTypes:
 				nodes = self.root.findall(x)
 			elif isinstance(x, tree.Node):
 				nodes = set(x)
 			else:
 				for n in x:
-					if type(n) in types.StringTypes:
+					if type(n) in StringTypes:
 						found = self.root.findall(n)
 						if found:
 							nodes |= set(found)
