@@ -260,12 +260,14 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
             label (str): Optional label for bar. If None, the clade's
               label is used instead. Defaults to None.
             width (float): Width of bar
+            x (float): Distance from tip of tree to bar. Optional,
+              if None, calculated based on leaf labels.
             xoff (float): Offset from label to bar
             showlabel (bool): Whether or not to draw the label
             mrca (bool): Whether to draw the bar encompassing all descendants
               of the MRCA of ``nodes``
         """
-        assert treeplot.plottype != "radial", "No cbar for radial trees"
+        #assert treeplot.plottype != "radial", "No cbar for radial trees"
         xlim = treeplot.get_xlim(); ylim = treeplot.get_ylim()
         if color is None: color = _tango.next()
         transform = treeplot.transData.inverted().transform
@@ -277,11 +279,9 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
                 spec = treeplot.root.get(nodes)
             else:
                 spec = treeplot.root.mrca(nodes)
-
             assert spec in treeplot.root
             label = label or spec.label
             leaves = spec.leaves()
-
         else:
             leaves = nodes
 
@@ -305,8 +305,18 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
         xoff = v[1]-v[0]
         x += xoff
 
-        Axes.plot(treeplot, [x,x], [ymin, ymax], '-',
-                  linewidth=width, color=color, visible=vis, zorder=1)
+        if treeplot.plottype in ("phylogram", "overview"):
+            Axes.plot(treeplot, [x,x], [ymin, ymax], '-',
+                      linewidth=width, color=color, visible=vis, zorder=1)
+        else:
+            arc_center = [0,0]
+            diam = 2.0 + x
+            theta1 = n2c[leaves[0]].angle
+            theta2 = n2c[leaves[-1]].angle
+
+            p = matplotlib.patches.Arc(arc_center, diam,diam, theta1=theta1, theta2=theta2,
+                                       color=color, visible=vis,zorder=1,linewidth=width)
+            treeplot.add_patch(p)
 
         if showlabel and label:
             xo = leaf_offset
@@ -434,7 +444,7 @@ def add_circles(treeplot, nodes, colors="g", size=15, xoff=0, yoff=0, vis=True):
 def add_pie(treeplot, node, values, colors=None, size=16, norm=True,
         xoff=0, yoff=0,
         halign=0.5, valign=0.5,
-        xycoords='data', boxcoords=('offset points')):
+        xycoords='data', boxcoords=('offset points'), vis=True):
     """
     Draw a pie chart
 
@@ -469,6 +479,7 @@ def add_pie(treeplot, node, values, colors=None, size=16, norm=True,
                          box_alignment=(halign,valign),
                          boxcoords=boxcoords)
     treeplot.add_artist(box)
+    box.set_visible(vis)
     treeplot.figure.canvas.draw_idle()
     return box
 

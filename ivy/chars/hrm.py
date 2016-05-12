@@ -480,7 +480,7 @@ def fit_hrm_mkSimple(tree, chars, nregime, pi="Equal", orderedRegimes=True,
     mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
                                                  Qtype="Simple", pi=pi)
     if startingvals is None:
-        x0 = [0.1](*nregime+1)
+        x0 = [0.1]*(nregime+1)
     else:
         x0 = startingvals
     opt = nlopt.opt(nlopt.LN_SBPLX, nregime+1)

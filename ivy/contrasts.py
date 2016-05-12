@@ -3,7 +3,7 @@ Calculate independent contrasts
 
 TODO: include utilities for transforming data, etc.
 """
-def PIC(node, data, results={}):
+def PIC(node, data, results=None):
     """
     Phylogenetic independent contrasts.
 
@@ -21,6 +21,8 @@ def PIC(node, data, results={}):
 
     TODO: modify to accommodate polytomies.
     """
+    if results is None:
+        results = {}
     X = []; v = []
     for child in node.children:
         if child.children:

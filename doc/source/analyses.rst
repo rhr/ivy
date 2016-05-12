@@ -27,6 +27,7 @@ Note: this function currently cannot handle polytomies.
     In [*]: import csv
     In [*]: import matplotlib.pyplot as plt
     In [*]: r = ivy.tree.read("examples/solanaceae_sarkinen2013.newick")
+    In [*]: r.length = 0
     In [*]: polvol = {}; stylen = {}
     In [*]: with open("examples/pollenvolume_stylelength.csv", "r") as csvfile:
                 traits = csv.DictReader(csvfile, delimiter = ",", quotechar = '"')
@@ -54,32 +55,16 @@ branch lengths proportional to time).
 .. sourcecode:: ipython
 
     In [*]: import ivy
-    In [*]: r = ivy.tree.read("examples/primates.newick")
+    In [*]: r = ivy.tree.read("examples/solanaceae_sarkinen2013.newick")
     In [*]: v = ivy.ltt(r)
-    In [*]: print r.ascii()
-                                   ---------+ Homo
-                          --------A+
-                 --------B+        ---------+ Pongo
-                 :        :
-        --------C+        ------------------+ Macaca
-        :        :
-    root+        ---------------------------+ Ateles
-        :
-        ------------------------------------+ Galago
-    In [*]: for i in l:
-                print i
-    [ 0.    0.38  0.51  0.79]
-    [ 1.  2.  3.  4.]
 
-
-You can plot your results using ``Matplotlib``.
+You can plot your results using ``matplotlib``.
 
 
 .. sourcecode:: ipython
 
     In [*]: import matplotlib.pyplot as plt
     In [*]: plt.step(v[0], v[1])
-    In [*]: plt.margins(.2, .2)
     In [*]: plt.xlabel("Time"); plt.ylabel("Lineages"); plt.title("LTT")
     In [*]: plt.show()
 
@@ -98,7 +83,7 @@ The following analysis is done using the whales dataset provided with BAMMtools.
 
 .. sourcecode:: ipython
 
-    In [*]:  from ivy.r_funcs import phylorate
+    In [*]: from ivy.r_funcs import phylorate
     In [*]: e = "whaleEvents.csv" # Event data created with BAMM
     In [*]: treefile = "whales.tre"
     In [*]: rates = phylorate(e, treefile, "netdiv")
@@ -136,14 +121,14 @@ This gives us a dictionary mapping binomials to character states.
 .. sourcecode:: ipython
 
     In [*]: tree = ivy.tree.read("examples/nicotiana.newick")
-    In [*]: chars = ivy.tree.loadChars("examples/nicotianaHabit.csv")
+    In [*]: chars = ivy.tree.load_chars("examples/nicotianaHabit.csv")
 
 Let's get our data into the correct format: we need to convert `chars` into
 a list of 0's and 1's matching the character states in preorder sequence
 
 .. sourcecode:: ipython
 
-    In [*]: charsPreorder = [ chars[n.label] for n in tree.leaves() ]
+    In [*]: charsPreorder = [ chars[n.label]["Habit"] for n in tree.leaves() ]
     In [*]: charList = map(lambda x: 0 if x=="Herb" else 1, charsPreorder)
 
 We can take a look at how the states are distributed on the tree using the
@@ -203,8 +188,8 @@ and the weighting at the root node.
 
 .. sourcecode:: ipython
 
-    In [*]: from ivy.chars import discrete
-    In [*]: mk_results = discrete.fitMk(tree, charList, Q="ARD", pi="Fitzjohn")
+    In [*]: from ivy.chars import mk
+    In [*]: mk_results = mk.fit_Mk(tree, charList, Q="ARD", pi="Fitzjohn")
     In [*]: print mk_results["Q"]
     [[-0.01246449  0.01246449]
      [ 0.09898439 -0.09898439]]
@@ -213,10 +198,8 @@ and the weighting at the root node.
     In [*]: print mk_results["pi"]
     {0: 0.088591248260230959, 1: 0.9114087517397691}
 
-Even this simple example has produced some interesting results. It is
-interesting to see that the model has placed a higher weight on the root
-being shrubby because transitions to shrubbiness are less common than the
-reverse.
+
+.. TODO: plotting Mk
 
 Bayesian
 ~~~~~~~~
@@ -347,18 +330,17 @@ Here we will fit a ``Simple`` model.
     In [*]: fit = hrm.fit_hrm(tree, chars, nregime=2, Qtype="Simple", pi="Equal")
     In [*]: fit
     Out[*]:
-    (array([[-0.04596664,  0.03291299,  0.01305365,  0.        ],
+    {'Log-likelihood':-204.52351825389133,
+    'Q': (array([[-0.04596664,  0.03291299,  0.01305365,  0.        ],
             [ 0.03291299, -0.04596664,  0.        ,  0.01305365],
             [ 0.01305365,  0.        , -0.44655655,  0.4335029 ],
             [ 0.        ,  0.01305365,  0.4335029 , -0.44655655]]),
-     -204.52351825389133,
-     {0: 0.25, 1: 0.25, 2: 0.25, 3: 0.25})
+    'rootLiks': {0: 0.25, 1: 0.25, 2: 0.25, 3: 0.25})
 
 
-The output of the ``fit_hrm`` function is a three-length tuple, the first
-item being the estimated Q matrix. The second item is the log-likelihood.
-The final item is the root prior. In this case, we set the root
-prior to be equal.
+The output of the ``fit_hrm`` function is a dictionary containing the
+fitted Q matrix, the log-likelihood, and the prior weighting at the root (all
+values are equal in this case because we set pi to be "Equal")
 
 
 Now that we have our reconstructed Q matrix, we can perform ancestral state

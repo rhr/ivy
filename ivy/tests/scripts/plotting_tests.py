@@ -6,6 +6,7 @@ from ivy.vis import layers
 tree = ivy.tree.read("support/hrm_600tips.newick")
 
 fig = treefig(tree)
+
 fig.toggle_leaflabels()
 fig.toggle_leaflabels()
 
@@ -31,5 +32,9 @@ fig.remove_layer("circle")
 
 fig.add_layer(layers.add_pie, "t20", [.5,.5])
 
+h = fig.hardcopy()
+
 # Radial
 fig2 = treefig(tree, radial=True)
+fig2.highlight(tree[221])
+fig2.cbar(tree[221])

@@ -29,13 +29,13 @@ node of the tree.
                 "B:0.13,Ateles:0.62)C:0.38,Galago:1.00)root;")
     In [*]: # These three methods are identical
 
-You can copy a read tree using the ``copy_new`` method on the root node. ``Node``
+You can copy a read tree using the ``copy`` method on the root node. ``Node``
 objects are mutable, so this method is preferred over ``r2 = r`` if you want
 to create a deep copy.
 
 .. sourcecode:: ipython
 
-    In [*]: r2 = r.copy_new(recurse=True) # If recurse=False, won't copy children.
+    In [*]: r2 = r.copy()
 
 Viewing
 -------
@@ -185,9 +185,6 @@ We can also ``grep`` leaf nodes and internal nodes specifically.
 
 
 
-
-
-
 We can also search for nodes that match a certain criterion using the
 ``find`` method. ``find`` takes a function that takes a node as its
 first argument and returns a ``bool``.
@@ -211,12 +208,13 @@ Testing
 
 We can test many attributes of a node in ``ivy``.
 
-We can test whether a node contains another node
+We can test whether a node contains another node. Recall that a node contains
+all of its descendants as well as itself.
 
 .. sourcecode:: ipython
 
     In [*]: r["A"] in r["C"]
-    Out[*]: True
+    Out[*]: True # Nodes contain descendants
     In [*]: r["C"] in r["A"]
     Out[*]: False
     In [*]: r["C"] in r["C"]
@@ -265,6 +263,7 @@ Collapsing removes a node and attaches its descendants to the node's parent.
 .. sourcecode:: ipython
 
     In [*]: r["A"].collapse()
+    Out[*]: Node(140622783265744, 'B') # This function returns the node's parent and also alters the tree
     In [*]: print r.ascii()
                                 ------------+ Macaca
                                 :
@@ -280,7 +279,6 @@ Pruning removes a node and its descendants
 
 .. sourcecode:: ipython
 
-    In [*]: cladeB = r["B"] # Store this node: we will add it back later
     In [*]: r["B"].prune()
     In [*]: print r.ascii()
         -----------------C+-----------------+ Ateles
@@ -300,20 +298,6 @@ and its single child.
     root+
         -------------------------------------+ Ateles
 
-It is important to note that although the tree has changed, the nodes in the
-tree retain some of their original attributes, including their indices:
-
-.. sourcecode:: ipython
-
-    In [*]: r[0]
-    Out[*]: Node(140144821291920, root, 'root')
-    In [*]: r[1] # Node 1 ("C") no longer exists
-    ---------------------------------------------------------------------------
-    IndexError                                Traceback (most recent call last)
-
-    IndexError: 1
-    In [*]: r[7] # You can access existing nodes with their original indices
-    Out[*]: Node(140144821292368, leaf, 'Ateles')
 
 To recap:
 
@@ -334,7 +318,7 @@ Bisecting creates a 'knee' node halfway between a parent and a child.
 
     In [*]: r["Galago"].bisect_branch()
     Out[*]: Node(140144821654480)
-    In [*]: print r.ascii
+    In [*]: print r.ascii()
         ------------------------------------+ Ateles
     root+
         ------------------+-----------------+ Galago
@@ -342,20 +326,37 @@ Bisecting creates a 'knee' node halfway between a parent and a child.
 We now have a brand new node. We can set some of its attributes, including its
 label.
 
-Note: we `cannot` access this new node by using node indicies (that is,
-r[1], etc.). We also cannot use its label because it has none. We'll access
-it using its ID instead (if you're following along, your ID will be different).
+Note: modifying a tree can have unwanted side effects for node indices.
+Watch what happens when we print out the pre-order index for each node:
 
 .. sourcecode:: ipython
 
-    In [*]: r[140144821654480].label = "N"
+    In [*]: print [n.ni for n in r]
+    [0, 7, None, 8]
+
+We would expect the indices to be [0,1,2,3]. We can fix the indices by calling
+the ```reindex`` method.
+
+.. sourcecode:: ipython
+
+    In [*] r.reindex()
+    In [*] print [n.ni for n in r]
+    [0, 1, 2, 3]
+
+Now that we have fixed the indices, we can access the new node by its index and
+set its label.
+
+
+.. sourcecode:: ipython
+
+    In [*]: r[2].label = "N"
 
 Now let's add a node as a child of N. We can do this using the ``add_child``
-method.
+method. Let's use a node from the copy of ``r`` we made, ``r2``.
 
 .. sourcecode:: ipython
 
-    In [*]: r["N"].add_child(cladeB["Homo"])
+    In [*]: r["N"].add_child(r2["Homo"])
     In [*]: print r.ascii()
         ------------------------------------+ Ateles
     root+
@@ -368,8 +369,8 @@ current node. In doing so, it also adds a new node as parent to both nodes.
 
 .. sourcecode:: ipython
 
-    In [*]: r["Ateles"].graft(cladeB["Macaca"])
-    In [*]: r["Galago"].graft(cladeB["Pongo"])
+    In [*]: r["Ateles"].graft(r2["Macaca"])
+    In [*]: r["Galago"].graft(r2["Pongo"])
     In [*]: print r.ascii()
                     ------------------------+ Homo
         -----------N+
@@ -424,8 +425,8 @@ old tree is not modified.
 
 .. sourcecode:: ipython
 
-    In [*]: r2 = r.reroot(r["Galago"])
-    In [*]: print r2.ascii()
+    In [*]: r_reroot = r.reroot(r["Galago"])
+    In [*]: print r_reroot.ascii()
     ----------------------------------------+ Galago
     +
     :         ------------------------------+ Pongo
@@ -446,7 +447,7 @@ This function takes a list of tip labels as input.
 
 .. sourcecode:: ipython
 
-    In [*]: r3 = r.drop_tips(["Pongo", "Macaca"])
+    In [*]: r_dropped = r_reroot.drop_tip(["Pongo", "Macaca"])
 
 Writing
 -------
@@ -459,8 +460,8 @@ currently only write in newick format.
 
 .. sourcecode:: ipython
 
-    In [*]: with open("examples/primates_mangled.newick", "w") as f:
-                ivy.tree.write(r3, outfile = f)
+    In [*]: with open("primates_altered.newick", "w") as f:
+                ivy.tree.write(r_dropped, outfile = f)
 
 
 
@@ -520,7 +521,7 @@ from ivy.interactive, you may, for instance, use ``readtree`` instead of
     In [*]: r = readtree("examples/primates.newick")
     In [*]: fig = treefig(r)
 
-You can also use the magic command ``%maketree`` in the ipython console to
+You can also use the magic command ``%maketree`` in the Ipython console to
 read in a tree.
 
 .. sourcecode:: ipython
@@ -625,7 +626,7 @@ As we can see, our figure has "leaflabels" and "branchlabels" as layers, as
 well as the new "circles" layer. You can toggle the visibility of a layer
 using the ``toggle_layer`` method and the layer's name. The layer is still
 there and can be accessed with ``fig.layers``, but it is not visible on
-the plot.
+the plot. It can be toggled back on at any time
 
 .. sourcecode:: ipython
     In [*]: fig.toggle_layer("circles")
@@ -720,4 +721,3 @@ spread across 4x4 letter-size pages.
 
     In [*]: h = fig.hardcopy()
     In [*]: h.render_multipage(outfile="plants.pdf", dims = [34.0, 44.4])
-

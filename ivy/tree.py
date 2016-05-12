@@ -4,6 +4,7 @@ etc.
 
 ivy does not have a Tree class per se, as most functions operate
 directly on Node objects.
+
 """
 import os, types
 import csv
@@ -232,7 +233,6 @@ class Node(object):
             if add and (c.length is not None):
                 c.length += self.length
         self.children = []
-        p.get_root().reindex()
         return p
 
     def copy(self, recurse=True, _par=None):
@@ -351,9 +351,8 @@ class Node(object):
         WARNING: May cause strange results with functions that rely on
           pre- and post- ordering of nodes
         """
+        assert self.isroot, "Must provide root node to ladderize tree"
         self.order_subtrees_by_size(recurse=True, reverse=reverse)
-        #TODO: fix reindex
-        self.reindex()
         return self
 
     def add_child(self, child):
@@ -567,7 +566,6 @@ class Node(object):
             if n.nchildren == 1:
                 n.excise()
         root.isroot = True
-        root.reindex()
         return root
 
     def keep_tip(self, nodes):
@@ -771,31 +769,6 @@ class Node(object):
         n.add_child(node)
         parent.add_child(n)
 
-    ## def leaf_distances(self, store=None, measure="length"):
-    ##     """
-    ##     for each internal node, calculate the distance to each leaf,
-    ##     measured in branch length or internodes
-    ##     """
-    ##     if store is None:
-    ##         store = {}
-    ##     leaf2len = {}
-    ##     if self.children:
-    ##         for child in self.children:
-    ##             if measure == "length":
-    ##                 dist = child.length
-    ##             elif measure == "nodes":
-    ##                 dist = 1
-    ##             child.leaf_distances(store, measure)
-    ##             if child.isleaf:
-    ##                 leaf2len[child] = dist
-    ##             else:
-    ##                 for k, v in store[child].items():
-    ##                     leaf2len[k] = v + dist
-    ##     else:
-    ##         leaf2len[self] = {self: 0}
-    ##     store[self] = leaf2len
-    ##     return store
-
     def leaf_distances(self, measure="length"):
         """
         RR: I don't quite understand the structure of the output. Also,
@@ -940,45 +913,6 @@ class Node(object):
 
         return d
 
-    def reroot_orig(self, newroot):
-        assert newroot in self
-        self.isroot = False
-        newroot.isroot = True
-        v = []
-        n = newroot
-        while 1:
-            v.append(n)
-            if not n.parent: break
-            n = n.parent
-        v.reverse()
-        for i, cp in enumerate(v[:-1]):
-            node = v[i+1]
-            # node is current node; cp is current parent
-            cp.remove_child(node)
-            node.add_child(cp)
-            cp.length = node.length
-        return newroot
-
-    def reroot_org2(self, newroot):
-        """
-        RR: I can't get this to work properly -CZ
-        """
-        newroot = self[newroot]
-        assert newroot in self
-        self.isroot = False
-        n = newroot
-        v = list(n.rootpath())
-        v.reverse()
-        for node in (v+[n])[1:]:
-            # node is current node; cp is current parent
-            cp = node.parent
-            cp.remove_child(node)
-            node.add_child(cp)
-            cp.length = node.length
-            cp.label = node.label
-        newroot.isroot = True
-        return newroot
-
     def reroot(self, newroot, distance = 0.5):
         """
         Reroot the tree between newroot and its parent.
@@ -999,8 +933,9 @@ class Node(object):
             Node: Root node of new rerooted tree.
         """
         oldroot = self.copy()
+        newroot = self[newroot]
         oldroot.isroot = False
-        newroot = oldroot[newroot]
+        newroot = oldroot[newroot.id]
         assert newroot in oldroot
         assert newroot not in oldroot.children
         newtree = newroot.bisect_branch(distance)

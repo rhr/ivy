@@ -36,7 +36,7 @@ from matplotlib.ticker import MaxNLocator, FuncFormatter, NullLocator
 from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from ivy.vis import colors
-from ivy.vis import hardcopy2 as HC
+from ivy.vis import hardcopy as HC
 from ivy.vis import events, layers
 try:
     import Image
@@ -426,12 +426,10 @@ class TreeFigure(object):
         else:
             vis = val
             # Functools allows previously-defined arguments to be overwritten
-        self.layers[layername] = functools.partial(self.layers[layername],
-                                                   vis = vis)
+        self.layers[layername].keywords["vis"] = vis
         if self.overview:
             try:
-                self.ovlayers[layername] = functools.partial(
-                                            self.ovlayers[layername], vis = vis)
+                self.ovlayers[layername].keywords["vis"] = vis
             except: pass
         self.redraw(keeptemp=True)
     def reorder_layers(self, neworder):
