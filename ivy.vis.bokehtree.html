@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.vis.bokehtree module &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy.vis package" href="ivy.vis.html" />
+    <link rel="next" title="ivy.vis.colors module" href="ivy.vis.colors.html" />
+    <link rel="prev" title="ivy.vis.axes_utils module" href="ivy.vis.axes_utils.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.colors.html" title="ivy.vis.colors module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.axes_utils.html" title="ivy.vis.axes_utils module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.vis.html" accesskey="U">ivy.vis package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ivy.vis.bokehtree">
+<span id="ivy-vis-bokehtree-module"></span><h1>ivy.vis.bokehtree module<a class="headerlink" href="#module-ivy.vis.bokehtree" title="Permalink to this headline">¶</a></h1>
+<p>Viewer for trees using Bokeh</p>
+<dl class="class">
+<dt id="ivy.vis.bokehtree.BokehTree">
+<em class="property">class </em><code class="descclassname">ivy.vis.bokehtree.</code><code class="descname">BokehTree</code><span class="sig-paren">(</span><em>root</em>, <em>scaled=True</em>, <em>nodelabels=True</em>, <em>tiplabels=True</em>, <em>showplot=True</em>, <em>hover=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.connectors">
+<code class="descname">connectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.connectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.connectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method draws branches between nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.drawlabels">
+<code class="descname">drawlabels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.drawlabels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.drawlabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method draws labels for tips and internal nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.drawtree">
+<code class="descname">drawtree</code><span class="sig-paren">(</span><em>showplot=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.drawtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.drawtree" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method sets the output file and creates the figure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.highlight">
+<code class="descname">highlight</code><span class="sig-paren">(</span><em>x=None</em>, <em>color='red'</em>, <em>width=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.highlight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highlight selected clade(s)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; <p>A str or list of strs or node or list of nodes.
+color (str): The color of the highlighted nodes. Optional,</p>
+<blockquote>
+<div>defaults to red</div></blockquote>
+<dl class="docutils">
+<dt>width (int): The width of the highlighted branches. Optional,</dt>
+<dd>defaults to 3.</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.layout">
+<code class="descname">layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method calculates the coordinates of the nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.makehovertool">
+<code class="descname">makehovertool</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.makehovertool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.makehovertool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.set_root">
+<code class="descname">set_root</code><span class="sig-paren">(</span><em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.set_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.set_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method sets root, leaves, and nleaves.
+Detects if tree is scaled or not.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.vis.axes_utils.html"
+                        title="previous chapter">ivy.vis.axes_utils module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.vis.colors.html"
+                        title="next chapter">ivy.vis.colors module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.vis.bokehtree.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.colors.html" title="ivy.vis.colors module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.axes_utils.html" title="ivy.vis.axes_utils module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.vis.html" >ivy.vis package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

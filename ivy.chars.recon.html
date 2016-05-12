@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.chars.recon module &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy.chars package" href="ivy.chars.html" />
+    <link rel="next" title="ivy.sim package" href="ivy.sim.html" />
+    <link rel="prev" title="ivy.chars.mk_mr module" href="ivy.chars.mk_mr.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.sim.html" title="ivy.sim package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.mk_mr.html" title="ivy.chars.mk_mr module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.chars.html" accesskey="U">ivy.chars package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ivy.chars.recon">
+<span id="ivy-chars-recon-module"></span><h1>ivy.chars.recon module<a class="headerlink" href="#module-ivy.chars.recon" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="ivy.chars.recon.anc_recon_cat">
+<code class="descclassname">ivy.chars.recon.</code><code class="descname">anc_recon_cat</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>p=None</em>, <em>pi='Equal'</em>, <em>ars=None</em>, <em>nregime=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/recon.html#anc_recon_cat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.recon.anc_recon_cat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given tree, character states at tips, and transition matrix perform
+ancestor reconstruction for a discrete character.</p>
+<p>Perform downpass using mk function, then perform uppass.</p>
+<p>Return reconstructed states - including tips</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</li>
+<li><strong>p</strong> (<em>np.array</em>) &#8211; 3-D array of dimensions branch_number * nchar * nchar.
+Optional. Pre-allocated space for efficient calculations</li>
+<li><strong>pi</strong> (<em>str or np.array</em>) &#8211; <p>Option to weight the root node by given values.
+Either a string containing the method or an array
+of weights. Weights should be given in order.
+Accepted methods of weighting root:</p>
+<blockquote>
+<div>Equal: Flat prior
+Equilibrium: Prior equal to stationary distribution<blockquote>
+<div>of Q matrix</div></blockquote>
+<dl class="docutils">
+<dt>Fitzjohn: Root states weighted by how well they</dt>
+<dd>explain the data at the tips.</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><strong>ars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; Dict of pre-allocated arrays to improve
+speed by avoiding creating and destroying new arrays. Can be
+created with create_ancrecon_ars function. Optional.</li>
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; If hidden-rates model is used, the number
+of regimes to consider in the reconstruction. Optional, defaults
+to 1 (no hidden rates)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Array of nodes in preorder sequence containing marginal
+likelihoods.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.recon.average_nchanges">
+<code class="descclassname">ivy.chars.recon.</code><code class="descname">average_nchanges</code><span class="sig-paren">(</span><em>ch</em>, <em>pa</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/recon.html#average_nchanges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.recon.average_nchanges" title="Permalink to this definition">¶</a></dt>
+<dd><p>For use in pscore function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.recon.create_ancrecon_ars">
+<code class="descclassname">ivy.chars.recon.</code><code class="descname">create_ancrecon_ars</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/recon.html#create_ancrecon_ars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.recon.create_ancrecon_ars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create nodelists. For use in recon function</p>
+<p>Returns edgelist of nodes in postorder sequence, edgelist of nodes in preorder sequence,
+partial likelihood vector for each node&#8217;s children, childlist, and branch lengths.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.recon.get_childstates">
+<code class="descclassname">ivy.chars.recon.</code><code class="descname">get_childstates</code><span class="sig-paren">(</span><em>node</em>, <em>precon</em>, <em>chars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/recon.html#get_childstates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.recon.get_childstates" title="Permalink to this definition">¶</a></dt>
+<dd><p>For use in pscore function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.recon.parsimony_recon">
+<code class="descclassname">ivy.chars.recon.</code><code class="descname">parsimony_recon</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/recon.html#parsimony_recon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.recon.parsimony_recon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use parsimony to reconstruct the minimum number of changes needed to observe
+states at the tips.</p>
+<p>Equal weights assumed</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of tree</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of characters in preorder sequence</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Array of assigned states of interior nodes</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.recon.pscore">
+<code class="descclassname">ivy.chars.recon.</code><code class="descname">pscore</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/recon.html#pscore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.recon.pscore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the minimum number of changes needed by parsimony to observe
+given data on the tree</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.chars.mk_mr.html"
+                        title="previous chapter">ivy.chars.mk_mr module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.sim.html"
+                        title="next chapter">ivy.sim package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.chars.recon.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.sim.html" title="ivy.sim package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.mk_mr.html" title="ivy.chars.mk_mr module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.chars.html" >ivy.chars package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>&lt;no title&gt; &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="code python highlight-python"><div class="highlight"><pre>%matplotlib notebook
+# ``ivy`` is designed to be used both as a library and interactively, in
+# the IPython shell.  `IPython &lt;http://ipython.scipy.org&gt;`_ is an
+# enhanced Python interpreter designed for interactive and exploratory
+# scientific computing.
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># In interactive mode, ``ivy`` provides some useful shortcut functions</span>
+<span class="c"># (e.g., readtree, readaln, treefig, alnfig) that you will typically</span>
+<span class="c"># want to import as follows.</span>
+
+<span class="kn">from</span> <span class="nn">ivy.interactive</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c"># Viewing a tree</span>
+<span class="c"># --------------</span>
+
+<span class="c"># Assuming you have started the shell,</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="s">&quot;../../examples/primates.newick&quot;</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">treefig</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>&lt;IPython.core.display.Javascript object&gt;
+</pre></div>
+</div>
+<img src="data:image/png;base64,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">
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/using_nb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

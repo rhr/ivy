@@ -7,227 +7,42 @@ Subpackages
 .. toctree::
 
     ivy.chars
+    ivy.sim
     ivy.vis
 
 Submodules
 ----------
 
-ivy.ages module
----------------
+.. toctree::
 
-.. automodule:: ivy.ages
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.align module
-----------------
-
-.. automodule:: ivy.align
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.ascii module
-----------------
-
-.. automodule:: ivy.ascii
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.autocollapse module
------------------------
-
-.. automodule:: ivy.autocollapse
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.bipart module
------------------
-
-.. automodule:: ivy.bipart
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.birthdeath module
----------------------
-
-.. automodule:: ivy.birthdeath
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.contrasts module
---------------------
-
-.. automodule:: ivy.contrasts
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.data module
----------------
-
-.. automodule:: ivy.data
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.demo module
----------------
-
-.. automodule:: ivy.demo
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.genbank module
-------------------
-
-.. automodule:: ivy.genbank
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.interactive module
-----------------------
-
-.. automodule:: ivy.interactive
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.ivy_completers module
--------------------------
-
-.. automodule:: ivy.ivy_completers
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.layout module
------------------
-
-.. automodule:: ivy.layout
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.layout_polar module
------------------------
-
-.. automodule:: ivy.layout_polar
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.ltt module
---------------
-
-.. automodule:: ivy.ltt
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.matrix module
------------------
-
-.. automodule:: ivy.matrix
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.newick module
------------------
-
-.. automodule:: ivy.newick
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.nexus module
-----------------
-
-.. automodule:: ivy.nexus
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.ordereddict module
-----------------------
-
-.. automodule:: ivy.ordereddict
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.pyperclip module
---------------------
-
-.. automodule:: ivy.pyperclip
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.sequtil module
-------------------
-
-.. automodule:: ivy.sequtil
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.storage module
-------------------
-
-.. automodule:: ivy.storage
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.tree module
----------------
-
-.. automodule:: ivy.tree
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.treebase module
--------------------
-
-.. automodule:: ivy.treebase
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.treegraph module
---------------------
-
-.. automodule:: ivy.treegraph
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.treegraph_experimental module
----------------------------------
-
-.. automodule:: ivy.treegraph_experimental
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.ubio module
----------------
-
-.. automodule:: ivy.ubio
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   ivy.ages
+   ivy.align
+   ivy.ascii
+   ivy.autocollapse
+   ivy.bipart
+   ivy.birthdeath
+   ivy.contrasts
+   ivy.data
+   ivy.demo
+   ivy.genbank
+   ivy.interactive
+   ivy.ivy_completers
+   ivy.layout
+   ivy.layout_polar
+   ivy.ltt
+   ivy.matrix
+   ivy.newick
+   ivy.nexus
+   ivy.ordereddict
+   ivy.pyperclip
+   ivy.r_funcs
+   ivy.sequtil
+   ivy.storage
+   ivy.tree
+   ivy.treebase
+   ivy.treegraph
+   ivy.treegraph_experimental
+   ivy.ubio
 
 Module contents
 ---------------

@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.r_funcs &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for ivy.r_funcs</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions that interface with r using rpy2</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">rpy2</span>
+<span class="kn">from</span> <span class="nn">rpy2.robjects.packages</span> <span class="kn">import</span> <span class="n">importr</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="phylorate"><a class="viewcode-back" href="../../ivy.r_funcs.html#ivy.r_funcs.phylorate">[docs]</a><span class="k">def</span> <span class="nf">phylorate</span><span class="p">(</span><span class="n">eventfile</span><span class="p">,</span> <span class="n">treefile</span><span class="p">,</span> <span class="n">spex</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use BAMMtools to get rate data for characters or speciation/extinction</span>
+<span class="sd">    rates along the branches of tree</span>
+
+<span class="sd">    (http://bamm-project.org/introduction.html)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        eventfile (str): Path to event data output from BAMM</span>
+<span class="sd">        treefile (str): Path to tree</span>
+<span class="sd">        spex (str): &quot;s&quot;, &quot;e&quot;, or &quot;netdiv&quot;. Whether to get speciation,</span>
+<span class="sd">          extinction, or net diversification rates.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of rates and node indices associated with the rates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ape</span> <span class="o">=</span> <span class="n">importr</span><span class="p">(</span><span class="s">&#39;ape&#39;</span><span class="p">)</span>
+    <span class="n">bamm</span> <span class="o">=</span> <span class="n">importr</span><span class="p">(</span><span class="s">&#39;BAMMtools&#39;</span><span class="p">)</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ape</span><span class="o">.</span><span class="n">read_tree</span><span class="p">(</span><span class="n">treefile</span><span class="p">)</span>
+    <span class="n">edata</span> <span class="o">=</span> <span class="n">bamm</span><span class="o">.</span><span class="n">getEventData</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">eventdata</span><span class="o">=</span><span class="n">eventfile</span><span class="p">,</span> <span class="n">burnin</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+    <span class="n">dtrates</span> <span class="o">=</span> <span class="n">bamm</span><span class="o">.</span><span class="n">dtRates</span><span class="p">(</span><span class="n">edata</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">tmat</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">rx2</span><span class="p">(</span><span class="s">&#39;dtrates&#39;</span><span class="p">)</span>
+    <span class="n">nodeidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dtrates</span><span class="o">.</span><span class="n">rx2</span><span class="p">(</span><span class="s">&#39;tmat&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rx</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dtrates</span><span class="o">.</span><span class="n">rx2</span><span class="p">(</span><span class="s">&#39;rates&#39;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">spex</span> <span class="o">==</span> <span class="s">&quot;s&quot;</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">rates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">spex</span> <span class="o">==</span> <span class="s">&quot;e&quot;</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">rates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">spex</span> <span class="o">==</span> <span class="s">&quot;netdiv&quot;</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">rates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">rates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">nodeidx</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

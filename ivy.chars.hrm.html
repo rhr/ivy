@@ -1,0 +1,541 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.chars.hrm module &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy.chars package" href="ivy.chars.html" />
+    <link rel="next" title="ivy.chars.hrm_bayesian module" href="ivy.chars.hrm_bayesian.html" />
+    <link rel="prev" title="ivy.chars.evolve module" href="ivy.chars.evolve.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.hrm_bayesian.html" title="ivy.chars.hrm_bayesian module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.evolve.html" title="ivy.chars.evolve module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.chars.html" accesskey="U">ivy.chars package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ivy.chars.hrm">
+<span id="ivy-chars-hrm-module"></span><h1>ivy.chars.hrm module<a class="headerlink" href="#module-ivy.chars.hrm" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="ivy.chars.hrm.AIC">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">AIC</code><span class="sig-paren">(</span><em>l</em>, <em>k</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#AIC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.AIC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Akaike information criterion</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.any_equal">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">any_equal</code><span class="sig-paren">(</span><em>ar</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#any_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.any_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a 3-D matrix, test if any of the sub-matrices are equal.
+For use in evaluating symmetric constraint in hrm likelihood function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.cluster_models">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">cluster_models</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>findmin=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#cluster_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.cluster_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an MLE Q, return candidate models with more parsimonious
+parameter set by merging similar parameters</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.create_hrm_ar">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">create_hrm_ar</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>findmin=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#create_hrm_ar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.create_hrm_ar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create arrays to be used in hrm likelihood function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.create_likelihood_function_hrm_mk_MLE">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">create_likelihood_function_hrm_mk_MLE</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>Qtype</em>, <em>pi='Equal'</em>, <em>findmin=True</em>, <em>constraints='Rate'</em>, <em>orderedRegimes=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#create_likelihood_function_hrm_mk_MLE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.create_likelihood_function_hrm_mk_MLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a function that takes values for Q and returns likelihood.</p>
+<p>Specify the Q to be ER, Sym, or ARD</p>
+<p>Returned function to be passed into scipy.optimize</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>Qtype</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; ARD only</li>
+<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+values at root  node.</li>
+<li><strong>min</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether the function is to be minimized (False means
+it will be maximized)</li>
+<li><strong>orderedRegimes</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not regimes are ordered such that
+a transition from 1 -&gt; 3 is not possible (a branch in state 1 must
+pass through 2 to get to 3)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>Constraints:</dt>
+<dd>The maximum rate within each rate category must be ordered (
+fastest rate in slower regime must be slower than fastest rate
+in fastest regime)</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Function accepting a list of parameters and returning
+log-likelihood. To be optmimized with scipy.optimize.minimize</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">function</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.extract_Qparams">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">extract_Qparams</code><span class="sig-paren">(</span><em>Q</em>, <em>nregime</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#extract_Qparams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.extract_Qparams" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.extract_regimes">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">extract_regimes</code><span class="sig-paren">(</span><em>Q</em>, <em>nobschar</em>, <em>nregime</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#extract_regimes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.extract_regimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a HRM Q matrix,extract the within-regime transitions</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fill_Q_layout">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fill_Q_layout</code><span class="sig-paren">(</span><em>regimetype</em>, <em>Qparams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fill_Q_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fill_Q_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill a single regime matrix based on the regime type and the given
+parameters.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fill_Q_matrix">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fill_Q_matrix</code><span class="sig-paren">(</span><em>nobschar</em>, <em>nregime</em>, <em>wrparams</em>, <em>brparams</em>, <em>Qtype='ARD'</em>, <em>out=None</em>, <em>orderedRegimes=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fill_Q_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fill_Q_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill a Q matrix with nchar*nregime rows and cols with values from Qparams</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nchar</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of observed characters</li>
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of hidden rates per character</li>
+<li><strong>wrparams</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of unique Q values for within-regime transitions,
+in order as they appear in columnwise iteration</li>
+<li><strong>brparams</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; list of unique Q values for between-regime transition,
+in order as they appear in columnwise iteration</li>
+<li><strong>Qtype</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;ARD&#8221; or &#8220;Simple&#8221;. What type of Q matrix to fill.</li>
+<li><strong>out</strong> (<em>np.array</em>) &#8211; Optional numpy array to put output into</li>
+<li><strong>orderedRegimes</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not regimes are ordered such that
+a transition from 1 -&gt; 3 is not possible (a branch in state 1 must
+pass through 2 to get to 3)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Q-matrix with values filled in. Check to make sure values
+have been filled in properly</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/array.html#module-array" title="(in Python v2.7)">array</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fill_distinct_regime_Q">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fill_distinct_regime_Q</code><span class="sig-paren">(</span><em>regimetypes</em>, <em>Qparams</em>, <em>nregime</em>, <em>nobschar</em>, <em>Q=None</em>, <em>Q_layout=None</em>, <em>br_variable=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fill_distinct_regime_Q"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fill_distinct_regime_Q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fill_model_Q">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fill_model_Q</code><span class="sig-paren">(</span><em>mod</em>, <em>Qparams</em>, <em>Q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fill_model_Q"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fill_model_Q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill Q matrix given model and parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>mod</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; <p>List of tuples. Code for the mode used. The first nregime
+tuples correspond to the within-regime transition rates for each
+regime. The last tuple corresponds to the between-regime transition
+rates. Ex. [(1, 2), (3, 4), (5, 6, 7, 8)] corresponds to a
+matrix of:</p>
+<blockquote>
+<div>[-,1,5,-]
+[2,-,-,6]
+[7,-,-,3]
+[-,8,4,-]</div></blockquote>
+</li>
+<li><strong>Qparams</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of floats corresponding to the values for
+slow, medium, fast, etc. rates. The first is always 0</li>
+<li><strong>Q</strong> (<em>np.array</em>) &#8211; Pre-allocated Q matrix</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fit_hrm">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>constraints='Rate'</em>, <em>Qtype='ARD'</em>, <em>orderedRegimes=True</em>, <em>startingvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a hidden-rates mk model to a given tree and list of characters, and
+number of regumes. Return fitted ARD Q matrix and calculated likelihood.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be in the form of 0,1,2,...</li>
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of hidden rates per character</li>
+<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+values at root node. Defaults to &#8220;Equal&#8221;
+Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
+<li><strong>orderedRegimes</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not to constrain regime transitions
+to only occur between adjacent regimes</li>
+<li><strong>startingvals</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; Values to initialize optimization at. Optional</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple of fitted Q matrix (a np array) and log-likelihood value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)">tuple</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fit_hrm_distinct_regimes">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_distinct_regimes</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>nparams</em>, <em>pi='Equal'</em>, <em>br_variable=False</em>, <em>parallel=False</em>, <em>ncores=2</em>, <em>out_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_distinct_regimes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_distinct_regimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit hrm with distinct regime types given number of regimes and
+number of parameters</p>
+<p>BINARY CHARACTERS ONLY</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of tree</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; Character states in preorder sequence</li>
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of regimes to test in model</li>
+<li><strong>nparams</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of unique parameters available for regimes</li>
+<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Root prior</li>
+<li><strong>br_variable</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not between-regime rates are allowed to vary</li>
+<li><strong>parallel</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether to run in parallel</li>
+<li><strong>ncores</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; If parallel is True, number of cores to run on</li>
+<li><strong>out_file</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Optional output file name. If given, results will written
+into the current directory with this string as
+the first part of the filename</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fit_hrm_mkARD">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_mkARD</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>constraints='Rate'</em>, <em>orderedRegimes=True</em>, <em>startingvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_mkARD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_mkARD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a hidden-rates mk model to a given tree and list of characters, and
+number of regumes. Return fitted ARD Q matrix and calculated likelihood.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be in the form of 0,1,2,...</li>
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of hidden rates per character</li>
+<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+values at root node. Defaults to &#8220;Equal&#8221;
+Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
+<li><strong>orderedRegimes</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not to constrain regime transitions
+to only occur between adjacent regimes</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple of fitted Q matrix (a np array) and log-likelihood value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)">tuple</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fit_hrm_mkSimple">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_mkSimple</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>orderedRegimes=True</em>, <em>startingvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_mkSimple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_mkSimple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a hidden-rates mk model to a given tree and list of characters, and
+number of regumes. Return fitted ARD Q matrix and calculated likelihood.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be in the form of 0,1,2,...</li>
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of hidden rates per character</li>
+<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+values at root node. Defaults to &#8220;Equal&#8221;
+Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple of fitted Q matrix (a np array) and log-likelihood value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)">tuple</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fit_hrm_model">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_model</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>mod</em>, <em>pi='Equal'</em>, <em>findmin=True</em>, <em>initialvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit parameters for a single model specified by the user</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fit_hrm_model_likelihood">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_model_likelihood</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>mod</em>, <em>pi='Equal'</em>, <em>findmin=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_model_likelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_model_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Likelihood function for fitting user-specified model</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.format_mod">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">format_mod</code><span class="sig-paren">(</span><em>mod</em>, <em>nregime</em>, <em>nobschar</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#format_mod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.format_mod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert flattened model to formatted model for use in
+fill_model_Q</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.hrm_disctinct_regimes_likelihoodfunc">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">hrm_disctinct_regimes_likelihoodfunc</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>regimetypes</em>, <em>pi='Equal'</em>, <em>findmin=True</em>, <em>br_variable=False</em>, <em>ar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#hrm_disctinct_regimes_likelihoodfunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.hrm_disctinct_regimes_likelihoodfunc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.hrm_mk">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">hrm_mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>returnPi=False</em>, <em>ar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#hrm_mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.hrm_mk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return log-likelihood of hidden-rates-markov mk model as described in
+Beaulieu et al. 2013</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</li>
+<li><strong>p</strong> (<em>np.array</em>) &#8211; Optional pre-allocated p matrix</li>
+<li><strong>pi</strong> (<em>str or np.array</em>) &#8211; <p>Option to weight the root node by given values.
+Either a string containing the method or an array
+of weights. Weights should be given in order.
+Accepted methods of weighting root:</p>
+<blockquote>
+<div>Equal: flat prior
+Equilibrium: Prior equal to stationary distribution<blockquote>
+<div>of Q matrix</div></blockquote>
+<dl class="docutils">
+<dt>Fitzjohn: Root states weighted by how well they</dt>
+<dd>explain the data at the tips.</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><strong>returnPi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not to return the final values of root
+node weighting</li>
+<li><strong>ar</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; Dict of pre-allocated arrays to improve
+speed by avoiding creating and destroying new arrays</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.make_identity_regime">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">make_identity_regime</code><span class="sig-paren">(</span><em>regimePair</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#make_identity_regime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.make_identity_regime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given one regime pair, reduce it to its identity (eg (2,2),(3,3) becomes
+(1,1),(2,2)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.make_regime_type_combos">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">make_regime_type_combos</code><span class="sig-paren">(</span><em>nregime</em>, <em>nparams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#make_regime_type_combos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.make_regime_type_combos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create regime combinations for a binary character</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.optimize_regime">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">optimize_regime</code><span class="sig-paren">(</span><em>comb</em>, <em>tree=None</em>, <em>chars=None</em>, <em>nregime=None</em>, <em>nparams=None</em>, <em>pi=None</em>, <em>br_variable=None</em>, <em>out_file=None</em>, <em>ar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#optimize_regime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.optimize_regime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Top-level function for optimizing hrm distinct-regime model in parallel.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.pairwise_merge">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">pairwise_merge</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>nregime</em>, <em>pi='Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#pairwise_merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.pairwise_merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an MLE Q, merge similar parameters pairwise to find more
+parsimonious models</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</li>
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of regimes in the model</li>
+<li><strong>pi</strong> (<em>str or np.array</em>) &#8211; <p>Option to weight the root node by given values.
+Either a string containing the method or an array
+of weights. Weights should be given in order.
+Accepted methods of weighting root:</p>
+<blockquote>
+<div>Equal: flat prior
+Equilibrium: Prior equal to stationary distribution<blockquote>
+<div>of Q matrix</div></blockquote>
+<dl class="docutils">
+<dt>Fitzjohn: Root states weighted by how well they</dt>
+<dd>explain the data at the tips.</dd>
+</dl>
+</div></blockquote>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.remove_redundant_regimes">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">remove_redundant_regimes</code><span class="sig-paren">(</span><em>regimePairs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#remove_redundant_regimes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.remove_redundant_regimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove redundant regime pairs (eg (1,1),(2,2) and (2,2),(3,3) are
+redundant and only one should be kept)</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.chars.evolve.html"
+                        title="previous chapter">ivy.chars.evolve module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.chars.hrm_bayesian.html"
+                        title="next chapter">ivy.chars.hrm_bayesian module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.chars.hrm.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.hrm_bayesian.html" title="ivy.chars.hrm_bayesian module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.evolve.html" title="ivy.chars.evolve module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.chars.html" >ivy.chars package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

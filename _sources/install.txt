@@ -17,6 +17,74 @@ dependencies.
 
 More detailed instructions for Mac and Windows are in the works.
 
+Install Guide
+=============
+
+Windows
+~~~~~~~
+
+To install ``ivy`` on Windows, you must first install a few dependencies.
+
+First, you must have Python 2.7 installed. ``ivy`` is currently not
+compatible with Python 3.
+
+The easiest way to install ``ivy`` and its dependencies is to use ``pip``.
+Python 2.7.9+ is shipped with ``pip``. If you have an earlier version of python,
+you must install ``pip``. Instructions can be found here: `How to install pip
+on Windows <http://stackoverflow.com/questions/4750806/how-to-install-pip-on-windows>`
+
+You may need to add the path to ``pip`` to your PATH variable. If you have
+a newer version of python, ``pip`` will be automatically installed into
+``C:\Python27\Scripts\pip``. To add this to your PATH variable, run the
+following:
+
+.. code-block:: bash
+
+    setx PATH "%PATH%;C:\Python27\Scripts"
+
+Once ``pip`` is installed, dependencies can be installed as follows:
+
+First, install Microsoft Visual C++ Compiler for Python 2.7 if you do not
+have it already: http://www.microsoft.com/en-us/download/details.aspx?id=44266
+
+Then, install the package dependencies
+.. code-block:: bash
+    pip install matplotlib :: This will also install numpy
+    pip install biopython
+    pip install pyparsing
+    pip install lxml
+    pip install bokeh
+    pip install pydf
+
+
+Next you need to install SciPy. It may be easiest to download the binary from here:
+http://www.lfd.uci.edu/~gohlke/pythonlibs/. Look for either
+scipy‑0.16.0‑cp27‑none‑win32.whl or scipy‑0.16.0‑cp27‑none‑win_amd64.whl, depending
+on whether you have 32- or 64-bit python. Then run:
+
+..code-block::bash
+    pip install /path/to/binary/scipy‑0.16.0‑cp27‑none‑win32.whl
+
+
+It is recommended that you run ``ivy`` using ``ipython``.
+
+..code-block::bash
+    pip install ipython
+
+It is also recommended that you run ``ivy`` in a VirtualEnvironment
+
+..code-block::bash
+    pip install virtualenv :: install virtualenv
+    virtualenv mypy :: Create the virtualenvironment
+    mypy\Scripts\activate :: Run the virutalenvironment
+
+Now you may install ``ivy``
+
+..code-block::bash
+    pip install git+git://github.com/rhr/ivy.git@christie-master
+
+
+
 Dependencies
 ============
 
@@ -138,4 +206,3 @@ Source code
 ===========
 
 Ivy source code is hosted at https://github.com/rhr/ivy
-

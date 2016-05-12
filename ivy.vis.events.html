@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.vis.events module &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy.vis package" href="ivy.vis.html" />
+    <link rel="next" title="ivy.vis.hardcopy module" href="ivy.vis.hardcopy.html" />
+    <link rel="prev" title="ivy.vis.colors module" href="ivy.vis.colors.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.hardcopy.html" title="ivy.vis.hardcopy module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.colors.html" title="ivy.vis.colors module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.vis.html" accesskey="U">ivy.vis package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ivy.vis.events">
+<span id="ivy-vis-events-module"></span><h1>ivy.vis.events module<a class="headerlink" href="#module-ivy.vis.events" title="Permalink to this headline">¶</a></h1>
+<p>Events for tree figures</p>
+<dl class="class">
+<dt id="ivy.vis.events.UpdatingRect">
+<em class="property">class </em><code class="descclassname">ivy.vis.events.</code><code class="descname">UpdatingRect</code><span class="sig-paren">(</span><em>xy</em>, <em>width</em>, <em>height</em>, <em>angle=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#UpdatingRect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.UpdatingRect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.patches.Rectangle</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.axes_enter">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">axes_enter</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#axes_enter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.axes_enter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.axes_leave">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">axes_leave</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#axes_leave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.axes_leave" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.connect_events">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">connect_events</code><span class="sig-paren">(</span><em>canvas</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#connect_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.connect_events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onbuttonrelease">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onbuttonrelease</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onbuttonrelease"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onbuttonrelease" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onclick">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onclick</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onclick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onclick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.ondrag">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">ondrag</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#ondrag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.ondrag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onkeypress">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onkeypress</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onkeypress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onkeypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onpick">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onpick</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onpick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onpick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onscroll">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onscroll</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onscroll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onscroll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onselect">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onselect</code><span class="sig-paren">(</span><em>estart</em>, <em>estop</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onselect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onselect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.vis.colors.html"
+                        title="previous chapter">ivy.vis.colors module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.vis.hardcopy.html"
+                        title="next chapter">ivy.vis.hardcopy module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.vis.events.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.hardcopy.html" title="ivy.vis.hardcopy module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.vis.colors.html" title="ivy.vis.colors module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.vis.html" >ivy.vis package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

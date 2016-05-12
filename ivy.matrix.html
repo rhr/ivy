@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.matrix module &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy package" href="ivy.html" />
+    <link rel="next" title="ivy.newick module" href="ivy.newick.html" />
+    <link rel="prev" title="ivy.ltt module" href="ivy.ltt.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.newick.html" title="ivy.newick module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.ltt.html" title="ivy.ltt module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" accesskey="U">ivy package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ivy.matrix">
+<span id="ivy-matrix-module"></span><h1>ivy.matrix module<a class="headerlink" href="#module-ivy.matrix" title="Permalink to this headline">¶</a></h1>
+<p>Functions for dealing with trees as matrices.</p>
+<dl class="function">
+<dt id="ivy.matrix.readEL">
+<code class="descclassname">ivy.matrix.</code><code class="descname">readEL</code><span class="sig-paren">(</span><em>el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/matrix.html#readEL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.matrix.readEL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a tree from an edge list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; Edge list where each index is a node and each index&#8217;s value
+is the node&#8217;s parent. The root is its own parent.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Tree from the edge list</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node">Node</a></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Example</p>
+<p>el = [1,1,1,3,3]</p>
+<p>print readEL(el).ascii()</p>
+<blockquote>
+<div>&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8211;+ 2</div></blockquote>
+<dl class="docutils">
+<dt>1+</dt>
+<dd><p class="first">:                     &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;-+ 4
+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;3+</p>
+<blockquote class="last">
+<div>&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;-+ 5</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.matrix.vcv">
+<code class="descclassname">ivy.matrix.</code><code class="descname">vcv</code><span class="sig-paren">(</span><em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/matrix.html#vcv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.matrix.vcv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Leaf variances and covariances
+:param root: A node object
+:type root: Node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A defaultdict mapping pairs of nodes to variances
+cov: A defaultdict mapping pairs of nodes to covariances</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">var</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.ltt.html"
+                        title="previous chapter">ivy.ltt module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.newick.html"
+                        title="next chapter">ivy.newick module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.matrix.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.newick.html" title="ivy.newick module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.ltt.html" title="ivy.ltt module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

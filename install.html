@@ -63,6 +63,63 @@ software to work.  The following instructions assume a Debian-based
 Linux system like Ubuntu.  On a Mac, you can <a class="reference external" href="http://docs.continuum.io/anaconda/install">use Anaconda</a> to install
 dependencies.</p>
 <p>More detailed instructions for Mac and Windows are in the works.</p>
+<div class="section" id="install-guide">
+<h2>Install Guide<a class="headerlink" href="#install-guide" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
+<p>To install <code class="docutils literal"><span class="pre">ivy</span></code> on Windows, you must first install a few dependencies.</p>
+<p>First, you must have Python 2.7 installed. <code class="docutils literal"><span class="pre">ivy</span></code> is currently not
+compatible with Python 3.</p>
+<p>The easiest way to install <code class="docutils literal"><span class="pre">ivy</span></code> and its dependencies is to use <code class="docutils literal"><span class="pre">pip</span></code>.
+Python 2.7.9+ is shipped with <code class="docutils literal"><span class="pre">pip</span></code>. If you have an earlier version of python,
+you must install <code class="docutils literal"><span class="pre">pip</span></code>. Instructions can be found here: <cite>How to install pip
+on Windows &lt;http://stackoverflow.com/questions/4750806/how-to-install-pip-on-windows&gt;</cite></p>
+<p>You may need to add the path to <code class="docutils literal"><span class="pre">pip</span></code> to your PATH variable. If you have
+a newer version of python, <code class="docutils literal"><span class="pre">pip</span></code> will be automatically installed into
+<code class="docutils literal"><span class="pre">C:\Python27\Scripts\pip</span></code>. To add this to your PATH variable, run the
+following:</p>
+<div class="highlight-bash"><div class="highlight"><pre>setx PATH <span class="s2">&quot;%PATH%;C:\Python27\Scripts&quot;</span>
+</pre></div>
+</div>
+<p>Once <code class="docutils literal"><span class="pre">pip</span></code> is installed, dependencies can be installed as follows:</p>
+<p>First, install Microsoft Visual C++ Compiler for Python 2.7 if you do not
+have it already: <a class="reference external" href="http://www.microsoft.com/en-us/download/details.aspx?id=44266">http://www.microsoft.com/en-us/download/details.aspx?id=44266</a></p>
+<p>Then, install the package dependencies
+.. code-block:: bash</p>
+<blockquote>
+<div>pip install matplotlib :: This will also install numpy
+pip install biopython
+pip install pyparsing
+pip install lxml
+pip install bokeh
+pip install pydf</div></blockquote>
+<p>Next you need to install SciPy. It may be easiest to download the binary from here:
+<a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">http://www.lfd.uci.edu/~gohlke/pythonlibs/</a>. Look for either
+scipy‑0.16.0‑cp27‑none‑win32.whl or scipy‑0.16.0‑cp27‑none‑win_amd64.whl, depending
+on whether you have 32- or 64-bit python. Then run:</p>
+<dl class="docutils">
+<dt>..code-block::bash</dt>
+<dd>pip install /path/to/binary/scipy‑0.16.0‑cp27‑none‑win32.whl</dd>
+</dl>
+<p>It is recommended that you run <code class="docutils literal"><span class="pre">ivy</span></code> using <code class="docutils literal"><span class="pre">ipython</span></code>.</p>
+<dl class="docutils">
+<dt>..code-block::bash</dt>
+<dd>pip install ipython</dd>
+</dl>
+<p>It is also recommended that you run <code class="docutils literal"><span class="pre">ivy</span></code> in a VirtualEnvironment</p>
+<dl class="docutils">
+<dt>..code-block::bash</dt>
+<dd>pip install virtualenv :: install virtualenv
+virtualenv mypy :: Create the virtualenvironment
+mypyScriptsactivate :: Run the virutalenvironment</dd>
+</dl>
+<p>Now you may install <code class="docutils literal"><span class="pre">ivy</span></code></p>
+<dl class="docutils">
+<dt>..code-block::bash</dt>
+<dd>pip install git+git://github.com/rhr/ivy.git&#64;christie-master</dd>
+</dl>
+</div>
+</div>
 <div class="section" id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal"><span class="pre">ivy</span></code> depends on several Python libraries for numerical and other
@@ -137,12 +194,9 @@ by &#8216;sourcing&#8217; the <code class="docutils literal"><span class="pre">a
 <span class="nv">$ </span><span class="k">done</span>
 </pre></div>
 </div>
-<div class="section" id="ipython">
-<h3>IPython<a class="headerlink" href="#ipython" title="Permalink to this headline">¶</a></h3>
 <p>You will also want to install IPython in your virtual environment:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install ipython
 </pre></div>
-</div>
 </div>
 </div>
 <div class="section" id="installing-ivy">
@@ -167,11 +221,12 @@ by &#8216;sourcing&#8217; the <code class="docutils literal"><span class="pre">a
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Downloading and Installing</a><ul>
-<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
-<li><a class="reference internal" href="#preparing-a-virtual-python-environment">Preparing a virtual Python environment</a><ul>
-<li><a class="reference internal" href="#ipython">IPython</a></li>
+<li><a class="reference internal" href="#install-guide">Install Guide</a><ul>
+<li><a class="reference internal" href="#windows">Windows</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li><a class="reference internal" href="#preparing-a-virtual-python-environment">Preparing a virtual Python environment</a></li>
 <li><a class="reference internal" href="#installing-ivy">Installing <code class="docutils literal"><span class="pre">ivy</span></code></a></li>
 <li><a class="reference internal" href="#source-code">Source code</a></li>
 </ul>

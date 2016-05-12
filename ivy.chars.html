@@ -24,8 +24,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ivy 0.1 documentation" href="index.html" />
-    <link rel="up" title="ivy API documentation" href="apiindex.html" />
-    <link rel="prev" title="ivy.vis package" href="ivy.vis.html" /> 
+    <link rel="up" title="ivy package" href="ivy.html" />
+    <link rel="next" title="ivy.chars.expokit package" href="ivy.chars.expokit.html" />
+    <link rel="prev" title="ivy package" href="ivy.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -38,10 +39,14 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ivy.vis.html" title="ivy.vis package"
+          <a href="ivy.chars.expokit.html" title="ivy.chars.expokit package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.html" title="ivy package"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="apiindex.html" accesskey="U">ivy API documentation</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" accesskey="U">ivy package</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,144 +57,37 @@
             
   <div class="section" id="ivy-chars-package">
 <h1>ivy.chars package<a class="headerlink" href="#ivy-chars-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ivy.chars.expokit.html">ivy.chars.expokit package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ivy.chars.expokit.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ivy.chars.expokit.cyexpokit.html">ivy.chars.expokit.cyexpokit module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ivy.chars.expokit.setup.html">ivy.chars.expokit.setup module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ivy.chars.expokit.html#module-ivy.chars.expokit">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-ivy.chars.catpars">
-<span id="ivy-chars-catpars-module"></span><h2>ivy.chars.catpars module<a class="headerlink" href="#module-ivy.chars.catpars" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="ivy.chars.catpars.ancstates">
-<code class="descclassname">ivy.chars.catpars.</code><code class="descname">ancstates</code><span class="sig-paren">(</span><em>tree</em>, <em>chardata</em>, <em>stepmatrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/catpars.html#ancstates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.catpars.ancstates" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.catpars.binary_deltran">
-<code class="descclassname">ivy.chars.catpars.</code><code class="descname">binary_deltran</code><span class="sig-paren">(</span><em>tree</em>, <em>chardata</em>, <em>stepmatrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/catpars.html#binary_deltran"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.catpars.binary_deltran" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.catpars.default_costmatrix">
-<code class="descclassname">ivy.chars.catpars.</code><code class="descname">default_costmatrix</code><span class="sig-paren">(</span><em>numstates</em>, <em>dtype=&lt;type 'int'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/catpars.html#default_costmatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.catpars.default_costmatrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>a square array with zeroes along the diagonal, ones elsewhere</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.catpars.downpass">
-<code class="descclassname">ivy.chars.catpars.</code><code class="descname">downpass</code><span class="sig-paren">(</span><em>node</em>, <em>states</em>, <em>stepmatrix</em>, <em>chardata</em>, <em>node2dpv=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/catpars.html#downpass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.catpars.downpass" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.catpars.minstates">
-<code class="descclassname">ivy.chars.catpars.</code><code class="descname">minstates</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/catpars.html#minstates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.catpars.minstates" title="Permalink to this definition">¶</a></dt>
-<dd><p>return the indices of v that equal the minimum</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.catpars.uppass">
-<code class="descclassname">ivy.chars.catpars.</code><code class="descname">uppass</code><span class="sig-paren">(</span><em>node</em>, <em>states</em>, <em>stepmatrix</em>, <em>node2dpv</em>, <em>node2upm={}</em>, <em>node2ancstates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/catpars.html#uppass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.catpars.uppass" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-<div class="section" id="module-ivy.chars.evolve">
-<span id="ivy-chars-evolve-module"></span><h2>ivy.chars.evolve module<a class="headerlink" href="#module-ivy.chars.evolve" title="Permalink to this headline">¶</a></h2>
-<p>Functions for evolving traits and trees.</p>
-<dl class="function">
-<dt id="ivy.chars.evolve.brownian">
-<code class="descclassname">ivy.chars.evolve.</code><code class="descname">brownian</code><span class="sig-paren">(</span><em>root</em>, <em>sigma=1.0</em>, <em>init=0.0</em>, <em>values={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/evolve.html#brownian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.evolve.brownian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Recursively evolve a trait by Brownian motion up from the node
-<em>root</em>.</p>
-<ul class="simple">
-<li><em>sigma</em>: standard deviation of the normal random variate after
-one unit of branch length</li>
-<li><em>init</em>: initial value</li>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ivy.chars.bayesian_models.html">ivy.chars.bayesian_models module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ivy.chars.catpars.html">ivy.chars.catpars module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ivy.chars.discrete.html">ivy.chars.discrete module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ivy.chars.evolve.html">ivy.chars.evolve module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ivy.chars.hrm.html">ivy.chars.hrm module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ivy.chars.hrm_bayesian.html">ivy.chars.hrm_bayesian module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ivy.chars.mk.html">ivy.chars.mk module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ivy.chars.mk_mr.html">ivy.chars.mk_mr module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ivy.chars.recon.html">ivy.chars.recon module</a></li>
 </ul>
-<p>Returns: <em>values</em> - a dictionary mapping nodes to evolved values</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.evolve.test_brownian">
-<code class="descclassname">ivy.chars.evolve.</code><code class="descname">test_brownian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/evolve.html#test_brownian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.evolve.test_brownian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evolve a trait up an example tree of primates:.</p>
-<p>((((Homo:0.21,Pongo:0.21)N1:0.28,Macaca:0.49)N2:0.13,
-Ateles:0.62)N3:0.38,Galago:1.00)root;</p>
-<p>Returns: (<em>root</em>, <em>data</em>) - the root node and evolved data.</p>
-</dd></dl>
-
 </div>
-<div class="section" id="module-ivy.chars.mk">
-<span id="ivy-chars-mk-module"></span><h2>ivy.chars.mk module<a class="headerlink" href="#module-ivy.chars.mk" title="Permalink to this headline">¶</a></h2>
-<p>Categorical Markov models with k states.</p>
-<dl class="class">
-<dt id="ivy.chars.mk.Q">
-<em class="property">class </em><code class="descclassname">ivy.chars.mk.</code><code class="descname">Q</code><span class="sig-paren">(</span><em>k=2</em>, <em>layout=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#Q"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.Q" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
-<dt id="ivy.chars.mk.Q.default_priors">
-<code class="descname">default_priors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#Q.default_priors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.Q.default_priors" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="ivy.chars.mk.Q.fill">
-<code class="descname">fill</code><span class="sig-paren">(</span><em>rates</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#Q.fill"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.Q.fill" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.conditionals">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">conditionals</code><span class="sig-paren">(</span><em>root</em>, <em>data</em>, <em>Q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#conditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.conditionals" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.contrasts">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">contrasts</code><span class="sig-paren">(</span><em>root</em>, <em>data</em>, <em>Q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#contrasts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.contrasts" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.draw_new_state">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">draw_new_state</code><span class="sig-paren">(</span><em>states</em>, <em>Q</em>, <em>si</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#draw_new_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.draw_new_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a rate matrix Q, a starting state si, and an ordered
-sequence of states, eg (0, 1), draw a new state sj with
-probability -(qij/qii)</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.lnL">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">lnL</code><span class="sig-paren">(</span><em>root</em>, <em>data</em>, <em>Q</em>, <em>priors</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#lnL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.lnL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.optimize">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">optimize</code><span class="sig-paren">(</span><em>root</em>, <em>data</em>, <em>Q</em>, <em>priors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.optimize" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.sample_ancstates">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">sample_ancstates</code><span class="sig-paren">(</span><em>node</em>, <em>states</em>, <em>conditionals</em>, <em>n2p</em>, <em>fixed={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#sample_ancstates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.sample_ancstates" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample ancestral states from their conditional likelihoods</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.sample_weighted">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">sample_weighted</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#sample_weighted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.sample_weighted" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.sim">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">sim</code><span class="sig-paren">(</span><em>root</em>, <em>n2p</em>, <em>s0</em>, <em>d=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#sim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.sim" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.simulate_on_branch">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">simulate_on_branch</code><span class="sig-paren">(</span><em>states</em>, <em>si</em>, <em>sj</em>, <em>Q</em>, <em>brlen</em>, <em>condition_on_success</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#simulate_on_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.simulate_on_branch" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ivy.chars.mk.stmap">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">stmap</code><span class="sig-paren">(</span><em>root</em>, <em>states</em>, <em>ancstates</em>, <em>Q</em>, <em>condition_on_success</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#stmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.stmap" title="Permalink to this definition">¶</a></dt>
-<dd><p>This and its dependent functions below need testing and
-optimization.</p>
-</dd></dl>
-
 </div>
 <div class="section" id="module-ivy.chars">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ivy.chars" title="Permalink to this headline">¶</a></h2>
@@ -205,18 +103,19 @@ optimization.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">ivy.chars package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-ivy.chars.catpars">ivy.chars.catpars module</a></li>
-<li><a class="reference internal" href="#module-ivy.chars.evolve">ivy.chars.evolve module</a></li>
-<li><a class="reference internal" href="#module-ivy.chars.mk">ivy.chars.mk module</a></li>
 <li><a class="reference internal" href="#module-ivy.chars">Module contents</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="ivy.vis.html"
-                        title="previous chapter">ivy.vis package</a></p>
+  <p class="topless"><a href="ivy.html"
+                        title="previous chapter">ivy package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.chars.expokit.html"
+                        title="next chapter">ivy.chars.expokit package</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -251,10 +150,14 @@ optimization.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ivy.vis.html" title="ivy.vis package"
+          <a href="ivy.chars.expokit.html" title="ivy.chars.expokit package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.html" title="ivy package"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="apiindex.html" >ivy API documentation</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

@@ -55,7 +55,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">string</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">shlex</span><span class="o">,</span> <span class="nn">types</span><span class="o">,</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">import</span> <span class="nn">nexus</span>
+<span class="kn">import</span> <span class="nn">ivy.nexus</span>
 <span class="kn">from</span> <span class="nn">cStringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 
@@ -72,11 +72,11 @@
 <span class="n">LABELCHARS</span> <span class="o">=</span> <span class="s">&#39;-.|/?#&amp;&#39;</span>
 <span class="n">META</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;([^,=\s]+)\s*=\s*(\{[^=}]*\}|&quot;[^&quot;]*&quot;|[^,]+)?&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="add_label_chars"><a class="viewcode-back" href="../../ivy.html#ivy.newick.add_label_chars">[docs]</a><span class="k">def</span> <span class="nf">add_label_chars</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
+<div class="viewcode-block" id="add_label_chars"><a class="viewcode-back" href="../../ivy.newick.html#ivy.newick.add_label_chars">[docs]</a><span class="k">def</span> <span class="nf">add_label_chars</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">LABELCHARS</span>
     <span class="n">LABELCHARS</span> <span class="o">+=</span> <span class="n">chars</span>
 </div>
-<div class="viewcode-block" id="Tokenizer"><a class="viewcode-back" href="../../ivy.html#ivy.newick.Tokenizer">[docs]</a><span class="k">class</span> <span class="nc">Tokenizer</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">shlex</span><span class="p">):</span>
+<div class="viewcode-block" id="Tokenizer"><a class="viewcode-back" href="../../ivy.newick.html#ivy.newick.Tokenizer">[docs]</a><span class="k">class</span> <span class="nc">Tokenizer</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">shlex</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Provides tokens for parsing newick strings.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">infile</span><span class="p">):</span>
         <span class="k">global</span> <span class="n">LABELCHARS</span>
@@ -85,7 +85,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">wordchars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wordchars</span><span class="o">+</span><span class="n">LABELCHARS</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">quotes</span> <span class="o">=</span> <span class="s">&quot;&#39;&quot;</span>
 
-<div class="viewcode-block" id="Tokenizer.parse_embedded_comment"><a class="viewcode-back" href="../../ivy.html#ivy.newick.Tokenizer.parse_embedded_comment">[docs]</a>    <span class="k">def</span> <span class="nf">parse_embedded_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tokenizer.parse_embedded_comment"><a class="viewcode-back" href="../../ivy.newick.html#ivy.newick.Tokenizer.parse_embedded_comment">[docs]</a>    <span class="k">def</span> <span class="nf">parse_embedded_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whitespace</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">whitespace</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
         <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
@@ -104,7 +104,7 @@
         <span class="k">return</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="c">## print &quot;comment:&quot;, v</span>
 </div></div>
-<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../../ivy.html#ivy.newick.parse">[docs]</a><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ttable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">treename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../../ivy.newick.html#ivy.newick.parse">[docs]</a><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ttable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">treename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse a newick string.</span>
 
@@ -118,8 +118,14 @@
 <span class="sd">        Node: The root node.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">tree</span> <span class="kn">import</span> <span class="n">Node</span>
+    <span class="k">try</span><span class="p">:</span> <span class="c"># Python 2</span>
+        <span class="nb">iter</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">)</span>
+        <span class="n">StringTypes</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span> <span class="c"># Python 3</span>
+        <span class="n">StringTypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="n">start_pos</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
@@ -182,11 +188,10 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">token</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span> <span class="n">brlen</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="p">(</span><span class="s">&quot;invalid literal for branch length, &quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;invalid literal for branch length, &quot;</span>
                                        <span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">token</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="s">&#39;NewickError&#39;</span><span class="p">,</span> \
-                      <span class="s">&#39;unexpected end-of-file (expecting branch length)&#39;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;unexpected end-of-file (expecting branch length)&#39;</span><span class="p">)</span>
 
             <span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">brlen</span>
         <span class="c"># comment</span>
@@ -280,7 +285,7 @@
 <span class="c">##     ## return trees</span>
 <span class="c">##     return ttable, trees</span>
 </div>
-<div class="viewcode-block" id="parse_ampersand_comment"><a class="viewcode-back" href="../../ivy.html#ivy.newick.parse_ampersand_comment">[docs]</a><span class="k">def</span> <span class="nf">parse_ampersand_comment</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="parse_ampersand_comment"><a class="viewcode-back" href="../../ivy.newick.html#ivy.newick.parse_ampersand_comment">[docs]</a><span class="k">def</span> <span class="nf">parse_ampersand_comment</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">pyparsing</span>
     <span class="n">pyparsing</span><span class="o">.</span><span class="n">ParserElement</span><span class="o">.</span><span class="n">enablePackrat</span><span class="p">()</span>
     <span class="kn">from</span> <span class="nn">pyparsing</span> <span class="kn">import</span> <span class="n">Word</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">QuotedString</span><span class="p">,</span> <span class="n">CaselessKeyword</span><span class="p">,</span> \
@@ -309,7 +314,7 @@
         <span class="n">d</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">d</span>
 </div>
-<div class="viewcode-block" id="nexus_iter"><a class="viewcode-back" href="../../ivy.html#ivy.newick.nexus_iter">[docs]</a><span class="k">def</span> <span class="nf">nexus_iter</span><span class="p">(</span><span class="n">infile</span><span class="p">):</span>
+<div class="viewcode-block" id="nexus_iter"><a class="viewcode-back" href="../../ivy.newick.html#ivy.newick.nexus_iter">[docs]</a><span class="k">def</span> <span class="nf">nexus_iter</span><span class="p">(</span><span class="n">infile</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">pyparsing</span>
     <span class="n">pyparsing</span><span class="o">.</span><span class="n">ParserElement</span><span class="o">.</span><span class="n">enablePackrat</span><span class="p">()</span>
     <span class="kn">from</span> <span class="nn">pyparsing</span> <span class="kn">import</span> <span class="n">Word</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">QuotedString</span><span class="p">,</span> <span class="n">CaselessKeyword</span><span class="p">,</span> \
@@ -377,7 +382,7 @@
 <span class="c">##             r = parse(rec.newick, ttable=rec.ttable)</span>
 <span class="c">##             for x in r: print x, x.comments</span>
 </div>
-<div class="viewcode-block" id="test_parse_comment"><a class="viewcode-back" href="../../ivy.html#ivy.newick.test_parse_comment">[docs]</a><span class="k">def</span> <span class="nf">test_parse_comment</span><span class="p">():</span>
+<div class="viewcode-block" id="test_parse_comment"><a class="viewcode-back" href="../../ivy.newick.html#ivy.newick.test_parse_comment">[docs]</a><span class="k">def</span> <span class="nf">test_parse_comment</span><span class="p">():</span>
     <span class="n">v</span> <span class="o">=</span> <span class="p">((</span><span class="s">&quot;height_median=1.1368683772161603E-13,height=9.188229043880098E-14,&quot;</span>
           <span class="s">&quot;height_95%_HPD={5.6843418860808015E-14,1.7053025658242404E-13},&quot;</span>
           <span class="s">&quot;height_range={0.0,2.8421709430404007E-13}&quot;</span><span class="p">),</span>

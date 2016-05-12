@@ -1,33 +1,27 @@
 ivy.chars package
 =================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    ivy.chars.expokit
+
 Submodules
 ----------
 
-ivy.chars.catpars module
-------------------------
+.. toctree::
 
-.. automodule:: ivy.chars.catpars
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.chars.evolve module
------------------------
-
-.. automodule:: ivy.chars.evolve
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ivy.chars.mk module
--------------------
-
-.. automodule:: ivy.chars.mk
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   ivy.chars.bayesian_models
+   ivy.chars.catpars
+   ivy.chars.discrete
+   ivy.chars.evolve
+   ivy.chars.hrm
+   ivy.chars.hrm_bayesian
+   ivy.chars.mk
+   ivy.chars.mk_mr
+   ivy.chars.recon
 
 Module contents
 ---------------

@@ -50,10 +50,12 @@
 <span class="kn">import</span> <span class="nn">matplotlib</span>
 <span class="kn">from</span> <span class="nn">matplotlib.backends.backend_agg</span> <span class="kn">import</span> <span class="n">FigureCanvasAgg</span> <span class="k">as</span> <span class="n">FigureCanvas</span>
 <span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span>
-<span class="kn">import</span> <span class="nn">tree</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">ivy.vis</span>
 <span class="kn">from</span> <span class="nn">axes_utils</span> <span class="kn">import</span> <span class="n">adjust_limits</span>
-<span class="kn">from</span> <span class="nn">pyPdf</span> <span class="kn">import</span> <span class="n">PdfFileWriter</span><span class="p">,</span> <span class="n">PdfFileReader</span>
+<span class="kn">from</span> <span class="nn">PyPDF2</span> <span class="kn">import</span> <span class="n">PdfFileWriter</span><span class="p">,</span> <span class="n">PdfFileReader</span>
 <span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">import</span> <span class="nn">functools</span>
 
 <span class="c">## class TreeFigure:</span>
 <span class="c">##     def __init__(self):</span>
@@ -61,16 +63,16 @@
 
 <span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">&quot;xtick.direction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;out&quot;</span>
 
-<div class="viewcode-block" id="TreeFigure"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.hardcopy.TreeFigure">[docs]</a><span class="k">class</span> <span class="nc">TreeFigure</span><span class="p">:</span>
+<div class="viewcode-block" id="TreeFigure"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure">[docs]</a><span class="k">class</span> <span class="nc">TreeFigure</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">relwidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">leafpad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">support</span><span class="o">=</span><span class="mf">70.0</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">mark_named</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
                  <span class="n">leaf_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">branch_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                  <span class="n">branch_width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">branch_color</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span>
                  <span class="n">highlight_support</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-                 <span class="n">branchlabels</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">leaflabels</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">decorators</span><span class="o">=</span><span class="p">[],</span>
+                 <span class="n">branchlabels</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">leaflabels</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="p">[],</span>
                  <span class="n">xoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                  <span class="n">xlim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">height</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+                 <span class="n">height</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">plottype</span><span class="o">=</span><span class="s">&quot;phylogram&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">root</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relwidth</span> <span class="o">=</span> <span class="n">relwidth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">leafpad</span> <span class="o">=</span> <span class="n">leafpad</span>
@@ -85,7 +87,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">highlight_support</span> <span class="o">=</span> <span class="n">highlight_support</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">branchlabels</span> <span class="o">=</span> <span class="n">branchlabels</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">leaflabels</span> <span class="o">=</span> <span class="n">leaflabels</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">decorators</span> <span class="o">=</span> <span class="n">decorators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">layers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xoff</span> <span class="o">=</span> <span class="n">xoff</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yoff</span> <span class="o">=</span> <span class="n">yoff</span>
 
@@ -94,83 +96,72 @@
         <span class="n">h</span> <span class="o">=</span> <span class="n">height</span> <span class="ow">or</span> <span class="p">(</span><span class="n">nleaves</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">leaf_fontsize</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">leafpad</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">dpi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">h</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">relwidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plottype</span> <span class="o">=</span> <span class="n">plottype</span>
         <span class="c">## p = min(self.width, self.height)*0.1</span>
         <span class="c">## self.height += p</span>
         <span class="c">## self.width += p</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dpi</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span>
-            <span class="n">tree</span><span class="o">.</span><span class="n">TreePlot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span>
-                          <span class="n">support</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">support</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treefigure</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">treevis</span><span class="o">.</span><span class="n">TreeFigure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span>
                           <span class="n">scaled</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scaled</span><span class="p">,</span>
                           <span class="n">mark_named</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mark_named</span><span class="p">,</span>
-                          <span class="n">leaf_fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leaf_fontsize</span><span class="p">,</span>
-                          <span class="n">branch_fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">branch_fontsize</span><span class="p">,</span>
-                          <span class="n">branch_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">branch_width</span><span class="p">,</span>
-                          <span class="n">branch_color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">branch_color</span><span class="p">,</span>
-                          <span class="n">highlight_support</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">highlight_support</span><span class="p">,</span>
                           <span class="n">branchlabels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">branchlabels</span><span class="p">,</span>
                           <span class="n">leaflabels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leaflabels</span><span class="p">,</span>
                           <span class="n">interactive</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                          <span class="n">decorators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">decorators</span><span class="p">,</span>
                           <span class="n">xoff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xoff</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yoff</span><span class="p">,</span>
-                          <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">plot_tree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
-            <span class="p">)</span>
+                          <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">overview</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">radial</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">plottype</span><span class="o">==</span><span class="s">&quot;radial&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">treefigure</span><span class="o">.</span><span class="n">tree</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s">&quot;left&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_smart_bounds</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s">&quot;bottom&quot;</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">node2label</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">v</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
-
-        <span class="c">## for k, v in self.decorators:</span>
-        <span class="c">##     func, args, kwargs = v</span>
-        <span class="c">##     func(self.axes, *args, **kwargs)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treefigure</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treefigure</span><span class="o">.</span><span class="n">redraw</span><span class="p">(</span><span class="n">keeptemp</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">lay</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span> <span class="c"># Draw the layers.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">lay</span><span class="p">]</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">lay</span><span class="p">]</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">lay</span><span class="p">]</span><span class="o">.</span><span class="n">keywords</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="c">## self.axes.home()</span>
         <span class="c">## adjust_limits(self.axes)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.95</span><span class="p">,</span><span class="mf">0.95</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">detail</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span>
-        
-<div class="viewcode-block" id="TreeFigure.savefig"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.hardcopy.TreeFigure.savefig">[docs]</a>    <span class="k">def</span> <span class="nf">savefig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;pdf&quot;</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="n">format</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TreeFigure.savefig"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure.savefig">[docs]</a>    <span class="k">def</span> <span class="nf">savefig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;pdf&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treefigure</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="n">format</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.set_relative_width"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.hardcopy.TreeFigure.set_relative_width">[docs]</a>    <span class="k">def</span> <span class="nf">set_relative_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relwidth</span><span class="p">):</span>
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="n">h</span><span class="o">*</span><span class="n">relwidth</span><span class="p">)</span>
+<div class="viewcode-block" id="TreeFigure.set_relative_width"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure.set_relative_width">[docs]</a>    <span class="k">def</span> <span class="nf">set_relative_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relwidth</span><span class="p">):</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">treefigure</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treefigure</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="n">h</span><span class="o">*</span><span class="n">relwidth</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.autoheight"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.hardcopy.TreeFigure.autoheight">[docs]</a>    <span class="k">def</span> <span class="nf">autoheight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.autoheight"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure.autoheight">[docs]</a>    <span class="k">def</span> <span class="nf">autoheight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="s">&quot;adjust figure height to show all leaf labels&quot;</span>
         <span class="n">nleaves</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">leaves</span><span class="p">())</span>
         <span class="n">h</span> <span class="o">=</span> <span class="p">(</span><span class="n">nleaves</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">leaf_fontsize</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">leafpad</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">dpi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">h</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treefigure</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">nleaves</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.home"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.hardcopy.TreeFigure.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.home"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
-        
-        </div>
-<div class="viewcode-block" id="TreeFigure.render_multipage"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.hardcopy.TreeFigure.render_multipage">[docs]</a>    <span class="k">def</span> <span class="nf">render_multipage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">pagesize</span> <span class="o">=</span> <span class="p">[</span><span class="mf">8.5</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">],</span> 
+
+</div>
+<div class="viewcode-block" id="TreeFigure.render_multipage"><a class="viewcode-back" href="../../../ivy.vis.hardcopy.html#ivy.vis.hardcopy.TreeFigure.render_multipage">[docs]</a>    <span class="k">def</span> <span class="nf">render_multipage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">pagesize</span> <span class="o">=</span> <span class="p">[</span><span class="mf">8.5</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">],</span>
                          <span class="n">dims</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">border</span> <span class="o">=</span> <span class="mf">0.393701</span><span class="p">,</span> <span class="n">landscape</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a multi-page PDF document where the figure is cut into</span>
 <span class="sd">        multiple pages. Used for printing large figures.</span>
-<span class="sd">        </span>
-<span class="sd">        </span>
+
+
 <span class="sd">        Args:</span>
 <span class="sd">            outfile (string): The path to the output file.</span>
 <span class="sd">            pagesize (list): Two floats. Page size of each individual page</span>
 <span class="sd">              in inches. Defaults to 8.5 x 11.0.</span>
-<span class="sd">            dims (list): Two floats. The dimensions of the final figure in </span>
+<span class="sd">            dims (list): Two floats. The dimensions of the final figure in</span>
 <span class="sd">              inches. Defaults to the original size of the figure.</span>
-<span class="sd">            border (float): The amount of overlap (in inches) between each page </span>
+<span class="sd">            border (float): The amount of overlap (in inches) between each page</span>
 <span class="sd">              to make taping them together easier. Defaults to 0.393701 (1 cm)</span>
 <span class="sd">            landscape (bool): Whether or not each page will be in landscape</span>
 <span class="sd">              orientation. Defaults to false.</span>
@@ -182,20 +173,20 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">treefigure</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">&gt;</span> <span class="n">pgwidth</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">border</span><span class="p">:</span>
             <span class="n">scalefact</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
-                <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">-</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">/</span><span class="n">pgwidth</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">border</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> 
+                <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">-</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">/</span><span class="n">pgwidth</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">border</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
                  <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="o">-</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="o">/</span><span class="n">pgheight</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">border</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
-            <span class="c">#self.figure.set_size_inches(scalefact*self.width, scalefact*self.height)</span>
+            <span class="c">#self.treefigure.figure.set_size_inches(scalefact*self.width, scalefact*self.height)</span>
             <span class="c">#self.width = scalefact*self.width; self.height = scalefact*self.height</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">scalefact</span> <span class="o">=</span> <span class="mf">1.0</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*=</span> <span class="n">scalefact</span> <span class="c"># In inches</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">*=</span> <span class="n">scalefact</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
-      
+        <span class="bp">self</span><span class="o">.</span><span class="n">treefigure</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+
         <span class="c">#border *= scalefact</span>
         <span class="n">dwidth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">72.0</span> <span class="c"># In pixels (72 DPI)</span>
         <span class="n">dheight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">*</span> <span class="mf">72.0</span>
@@ -207,18 +198,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
         <span class="n">pgwidth</span> <span class="o">=</span> <span class="n">pgwidth</span><span class="o">*</span><span class="mi">72</span>
         <span class="n">pgheight</span> <span class="o">=</span> <span class="n">pgheight</span><span class="o">*</span><span class="mi">72</span>
-        
+
         <span class="n">upper</span> <span class="o">=</span> <span class="n">border</span>
         <span class="n">lower</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">right</span> <span class="o">=</span> <span class="n">pgwidth</span>
         <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span>
-        
+
         <span class="n">pgnum</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">vpgnum</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">hpgnum</span> <span class="o">=</span> <span class="mi">0</span>
-        
+
         <span class="n">border</span> <span class="o">=</span> <span class="n">border</span><span class="o">*</span><span class="mi">72</span> <span class="c"># Converting to pixels in 72 DPI</span>
-        
+
         <span class="k">while</span> <span class="n">upper</span> <span class="o">&lt;</span> <span class="n">dheight</span><span class="p">:</span>
             <span class="c">#if vpgnum == 0:</span>
             <span class="c">#    vdelta = 0.0</span>
@@ -251,8 +242,8 @@
 
         <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pgnum</span><span class="p">,</span> <span class="n">scalefact</span>
-        
-        </div></div>
+
+</div></div>
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">ivy</span>
     <span class="kn">from</span> <span class="nn">ivy.interactive</span> <span class="kn">import</span> <span class="o">*</span>
@@ -260,7 +251,6 @@
     <span class="n">f</span> <span class="o">=</span> <span class="n">treefig</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">hardcopy</span><span class="p">()</span>
     <span class="n">h</span><span class="o">.</span><span class="n">render_multipage</span><span class="p">(</span><span class="n">outfile</span> <span class="o">=</span> <span class="s">&quot;test.pdf&quot;</span><span class="p">)</span>
-    
 </pre></div>
 
           </div>

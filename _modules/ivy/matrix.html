@@ -50,11 +50,12 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Functions for dealing with trees as matrices.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">ivy</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-    
 
-<div class="viewcode-block" id="vcv"><a class="viewcode-back" href="../../ivy.html#ivy.matrix.vcv">[docs]</a><span class="k">def</span> <span class="nf">vcv</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+
+<div class="viewcode-block" id="vcv"><a class="viewcode-back" href="../../ivy.matrix.html#ivy.matrix.vcv">[docs]</a><span class="k">def</span> <span class="nf">vcv</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Leaf variances and covariances</span>
 <span class="sd">    Args:</span>
@@ -103,6 +104,41 @@
 <span class="c">##                                       if x.parent ])</span>
 <span class="c">##                     break</span>
 <span class="c">##     return var, cov</span>
+</div>
+<div class="viewcode-block" id="readEL"><a class="viewcode-back" href="../../ivy.matrix.html#ivy.matrix.readEL">[docs]</a><span class="k">def</span> <span class="nf">readEL</span><span class="p">(</span><span class="n">el</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a tree from an edge list</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        el(list): Edge list where each index is a node and each index&#39;s value</span>
+<span class="sd">          is the node&#39;s parent. The root is its own parent.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        Node: Tree from the edge list</span>
+<span class="sd">    Example:</span>
+
+<span class="sd">        el = [1,1,1,3,3]</span>
+
+<span class="sd">        print readEL(el).ascii()</span>
+
+<span class="sd">         --------------------------------------------+ 2</span>
+<span class="sd">        1+</span>
+<span class="sd">         :                     ----------------------+ 4</span>
+<span class="sd">         ---------------------3+</span>
+<span class="sd">                               ----------------------+ 5</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">isroot</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">2</span>
+        <span class="n">root</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="n">root</span>
+
 </div>
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">tree</span><span class="o">,</span> <span class="nn">ascii</span>

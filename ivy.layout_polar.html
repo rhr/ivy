@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.layout_polar module &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy package" href="ivy.html" />
+    <link rel="next" title="ivy.ltt module" href="ivy.ltt.html" />
+    <link rel="prev" title="ivy.layout module" href="ivy.layout.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.ltt.html" title="ivy.ltt module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.layout.html" title="ivy.layout module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" accesskey="U">ivy package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ivy.layout_polar">
+<span id="ivy-layout-polar-module"></span><h1>ivy.layout_polar module<a class="headerlink" href="#module-ivy.layout_polar" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ivy.layout_polar.Coordinates">
+<em class="property">class </em><code class="descclassname">ivy.layout_polar.</code><code class="descname">Coordinates</code><a class="reference internal" href="_modules/ivy/layout_polar.html#Coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.layout_polar.Coordinates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.layout_polar.calc_node_positions">
+<code class="descclassname">ivy.layout_polar.</code><code class="descname">calc_node_positions</code><span class="sig-paren">(</span><em>node</em>, <em>radius=1.0</em>, <em>pole=None</em>, <em>start=0</em>, <em>end=None</em>, <em>direction=1</em>, <em>scaled=False</em>, <em>n2coords=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/layout_polar.html#calc_node_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.layout_polar.calc_node_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate where nodes should be positioned in 2d space for drawing a
+polar tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>node</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A (root) node</li>
+<li><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The radius of the tree. Optional, defaults to 1</li>
+<li><strong>pole</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) &#8211; Tuple of floats. The cartesian coordinate of the pole.
+Optional, defaults to None.</li>
+<li><strong>end</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Where the tree ends. For best results, between 0 and 360.
+Optional, defaults to None.</li>
+<li><strong>direction</strong> &#8211; CLOCKWISE or COUNTERCLOCKWISE. The direction the tree is
+drawn. Optional, defaults to COUNTERCLOCKWISE</li>
+<li><strong>scaled</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not the tree is scaled. Optional, defaults
+to False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Mapping of nodes to Coordinates object</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.layout_polar.depth_length_preorder_traversal">
+<code class="descclassname">ivy.layout_polar.</code><code class="descname">depth_length_preorder_traversal</code><span class="sig-paren">(</span><em>node</em>, <em>n2coords=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/layout_polar.html#depth_length_preorder_traversal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.layout_polar.depth_length_preorder_traversal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate node depth (root = depth 0) and length to root</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; A node object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Mapping of nodes to coordinates instances. Coordinate
+instances have attributes &#8220;depth&#8221; and &#8220;length_to_root&#8221;</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.layout_polar.smooth_xpos">
+<code class="descclassname">ivy.layout_polar.</code><code class="descname">smooth_xpos</code><span class="sig-paren">(</span><em>node</em>, <em>n2coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/layout_polar.html#smooth_xpos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.layout_polar.smooth_xpos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.layout_polar.test">
+<code class="descclassname">ivy.layout_polar.</code><code class="descname">test</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/layout_polar.html#test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.layout_polar.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.layout.html"
+                        title="previous chapter">ivy.layout module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.ltt.html"
+                        title="next chapter">ivy.ltt module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.layout_polar.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.ltt.html" title="ivy.ltt module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.layout.html" title="ivy.layout module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

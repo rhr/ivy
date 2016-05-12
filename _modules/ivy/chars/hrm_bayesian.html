@@ -1,0 +1,483 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.chars.hrm_bayesian &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for ivy.chars.hrm_bayesian</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pymc</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="kn">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+
+<span class="kn">from</span> <span class="nn">ivy.chars.recon</span> <span class="kn">import</span> <span class="n">pscore</span>
+<span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="kn">import</span> <span class="n">hrm</span><span class="p">,</span> <span class="n">mk</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions for testing an hrm model by assigning parameters to different</span>
+<span class="sd">cells of the Q matrix. Use custom step methods in pymc to traverse all</span>
+<span class="sd">possible models.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">GAMMASHAPE</span> <span class="o">=</span> <span class="mf">3.55</span> <span class="c"># The shape parameter of a gamma distribution that is shifted by 1</span>
+                  <span class="c"># such that 95% of the distribution falls between 2 and 10</span>
+                  <span class="c"># with a scaling parameter of 1.</span>
+
+
+<div class="viewcode-block" id="unique_models"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.unique_models">[docs]</a><span class="k">def</span> <span class="nf">unique_models</span><span class="p">(</span><span class="n">nchar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">nparam</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a list of all possible models for a Q matrix with nchar distinct</span>
+<span class="sd">    character states and nregime distinct regimes, filling all cells</span>
+<span class="sd">    with nparam + 0.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nchar (int): Number of observed characters</span>
+<span class="sd">        nregime (int): Number of regimes in model</span>
+<span class="sd">        nparam (int): Number of unique parameters in model (not including 0)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: List of all unique models. Each item contains a tuple of the</span>
+<span class="sd">          within-regime parameters and a tuple of the between-regime parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">param_ranks</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparam</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">n_wr</span> <span class="o">=</span> <span class="n">nchar</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">nchar</span>
+
+    <span class="c"># Within-regime parameters</span>
+    <span class="n">distinct_regimes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="n">param_ranks</span><span class="p">,</span><span class="n">n_wr</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">param_ranks</span><span class="p">:</span>
+        <span class="n">distinct_regimes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+    <span class="n">wr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">distinct_regimes</span><span class="p">,</span><span class="n">nregime</span><span class="p">))</span>
+    <span class="n">wr_flat</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span>  <span class="n">x</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">wr</span> <span class="p">]</span>
+
+    <span class="c"># Between-regime parameters</span>
+    <span class="n">n_br</span> <span class="o">=</span> <span class="p">(</span><span class="n">nregime</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">nregime</span><span class="p">)</span><span class="o">*</span><span class="n">nchar</span>
+    <span class="c"># Disallow the fastest parameter in between-regime transitions</span>
+    <span class="n">br</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">param_ranks</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span> <span class="o">=</span> <span class="n">n_br</span><span class="p">))</span>
+    <span class="n">br</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c"># Need to handle &quot;no transition&quot; models separately</span>
+
+    <span class="n">mods</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">wr_flat</span><span class="p">,</span> <span class="n">br</span><span class="p">))</span>
+
+    <span class="c"># &quot;no transition&quot; models</span>
+    <span class="n">nt_wr</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">n_wr</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">distinct_regimes</span> <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">!=</span> <span class="p">{</span><span class="mi">0</span><span class="p">}</span> <span class="p">]</span>
+    <span class="n">nt_mods</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">n_br</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">nt_wr</span> <span class="p">]</span>
+    <span class="n">mods</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">nt_mods</span><span class="p">)</span>
+
+    <span class="n">mods_flat</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span>  <span class="n">x</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">mods</span> <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">mods_flat</span>
+
+</div>
+<div class="viewcode-block" id="make_model_graph"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.make_model_graph">[docs]</a><span class="k">def</span> <span class="nf">make_model_graph</span><span class="p">(</span><span class="n">unique_mods</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create graph of models where each model is adjacent to all other models</span>
+<span class="sd">    that differ from it by one parameter</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        unique_mods (list): List of models (must be tuples). Identical to output</span>
+<span class="sd">          of unique_models</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Graph: Nx graph of all models</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mod_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+    <span class="n">mod_graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">unique_mods</span><span class="p">)</span>
+
+    <span class="c"># Adding edges</span>
+    <span class="c"># Iterate over all pairs and determine if they form an edge</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">mod</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unique_mods</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">unique_mods</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">([</span><span class="n">mod</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mod</span><span class="p">))])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">mod_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mod_graph</span>
+
+</div>
+<div class="viewcode-block" id="new_hrm_model"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.new_hrm_model">[docs]</a><span class="k">def</span> <span class="nf">new_hrm_model</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">nparam</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">mod_order</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return new, valid model by changing one parameter of current model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mod</span><span class="p">)))</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparam</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">==</span><span class="n">mod</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+
+        <span class="n">newmod</span> <span class="o">=</span> <span class="n">mod</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">v</span><span class="p">,)</span> <span class="o">+</span> <span class="n">mod</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="n">is_valid_model</span><span class="p">(</span><span class="n">newmod</span><span class="p">,</span> <span class="n">nparam</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">mod_order</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">newmod</span>
+
+</div>
+<div class="viewcode-block" id="is_valid_model"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.is_valid_model">[docs]</a><span class="k">def</span> <span class="nf">is_valid_model</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">nparam</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">mod_order</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a given model is valid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nobschar</span> <span class="o">=</span> <span class="n">nchar</span><span class="o">/</span><span class="n">nregime</span>
+    <span class="n">n_wr</span> <span class="o">=</span> <span class="n">nobschar</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nobschar</span>
+    <span class="n">n_br</span> <span class="o">=</span> <span class="p">(</span><span class="n">nregime</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nregime</span><span class="p">)</span><span class="o">*</span><span class="n">nobschar</span>
+    <span class="n">all_params_zero</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparam</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">all_params</span> <span class="o">=</span> <span class="n">all_params_zero</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="c"># Test if all params are present. If not, return false</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">mod</span><span class="p">))</span> <span class="o">==</span> <span class="n">all_params_zero</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">mod</span><span class="p">))</span> <span class="o">==</span> <span class="n">all_params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="c"># Test if all regimes are connected</span>
+    <span class="k">if</span> <span class="n">number_connected</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">n_wr</span><span class="p">,</span> <span class="n">n_br</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="c"># Check order and identity of sub-matrices</span>
+    <span class="n">mod_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">mod_order</span><span class="p">[</span><span class="n">mod</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">n_wr</span><span class="p">:</span><span class="n">i</span><span class="o">*</span><span class="n">n_wr</span><span class="o">+</span><span class="n">n_wr</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">mod_indices</span><span class="p">)))</span> <span class="o">!=</span> <span class="n">mod_indices</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="c"># Check that there are no fast parameters in BR transitions</span>
+    <span class="k">if</span> <span class="n">nparam</span> <span class="ow">in</span> <span class="n">mod</span><span class="p">[</span><span class="o">-</span><span class="n">n_br</span><span class="p">:]:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="bp">True</span>
+
+</div>
+<div class="viewcode-block" id="number_connected"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.number_connected">[docs]</a><span class="k">def</span> <span class="nf">number_connected</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">n_wr</span><span class="p">,</span> <span class="n">n_br</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test how many regimes are connected in some way</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">br_mod</span> <span class="o">=</span> <span class="n">mod</span><span class="p">[</span><span class="n">n_wr</span><span class="o">*</span><span class="n">nregime</span><span class="p">:]</span>
+    <span class="n">n_pairs</span> <span class="o">=</span> <span class="p">(</span><span class="n">nregime</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nregime</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+    <span class="n">connections</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span><span class="o">*</span><span class="n">n_pairs</span>
+    <span class="n">nobschar</span> <span class="o">=</span> <span class="n">nchar</span><span class="o">/</span><span class="n">nregime</span>
+
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_pairs</span><span class="p">):</span>
+        <span class="n">connections</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">br_mod</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">nobschar</span><span class="o">*</span><span class="mi">2</span><span class="p">:</span><span class="n">c</span><span class="o">*</span><span class="n">nobschar</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="n">nobschar</span><span class="o">*</span><span class="mi">2</span><span class="p">])</span> <span class="o">!=</span> <span class="p">{</span><span class="mi">0</span><span class="p">}</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">connections</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="make_qmat_stoch"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.make_qmat_stoch">[docs]</a><span class="k">def</span> <span class="nf">make_qmat_stoch</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">nparam</span><span class="p">,</span><span class="n">mod_order_list</span><span class="p">,</span><span class="n">modseed</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;qmat_stoch&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a stochastic to use for a model-changing step</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">startingval</span> <span class="o">=</span> <span class="n">modseed</span>
+
+    <span class="nd">@pymc.stochastic</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">qmat_stoch</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">startingval</span><span class="p">):</span>
+        <span class="c"># Flat prior on model likelihood</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">qmat_stoch</span>
+
+</div>
+<div class="viewcode-block" id="QmatMetropolis"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.QmatMetropolis">[docs]</a><span class="k">class</span> <span class="nc">QmatMetropolis</span><span class="p">(</span><span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom step algorithm for selecting a new model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic</span><span class="p">,</span> <span class="n">nparam</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">):</span>
+        <span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nparam</span> <span class="o">=</span> <span class="n">nparam</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nchar</span> <span class="o">=</span> <span class="n">nchar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nregime</span> <span class="o">=</span> <span class="n">nregime</span>
+        <span class="n">nobschar</span> <span class="o">=</span> <span class="n">nchar</span><span class="o">/</span><span class="n">nregime</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nparam</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">repeat</span> <span class="o">=</span> <span class="n">nobschar</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nobschar</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mod_order</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="p">:</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">order</span><span class="p">)}</span>
+<div class="viewcode-block" id="QmatMetropolis.propose"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.QmatMetropolis.propose">[docs]</a>    <span class="k">def</span> <span class="nf">propose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cur_mod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">new_hrm_model</span><span class="p">(</span><span class="n">cur_mod</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nparam</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nchar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nregime</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mod_order</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">new</span>
+</div>
+<div class="viewcode-block" id="QmatMetropolis.reject"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.QmatMetropolis.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejected</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">last_value</span>
+
+</div></div>
+<div class="viewcode-block" id="ShiftedGamma"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.ShiftedGamma">[docs]</a><span class="k">def</span> <span class="nf">ShiftedGamma</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">shift</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;ShiftedGamma&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gamma distribution that has been shifted by some constant.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@pymc.stochastic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">shifted_gamma</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pymc</span><span class="o">.</span><span class="n">gamma_like</span><span class="p">(</span><span class="n">value</span><span class="o">-</span><span class="n">shift</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">shifted_gamma</span>
+
+</div>
+<div class="viewcode-block" id="fill_model_Q"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.fill_model_Q">[docs]</a><span class="k">def</span> <span class="nf">fill_model_Q</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create Q matrix given model and parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mod (list): List of tuples. Code for the mode used. The first nregime</span>
+<span class="sd">          tuples correspond to the within-regime transition rates for each</span>
+<span class="sd">          regime. The last tuple corresponds to the between-regime transition</span>
+<span class="sd">          rates. Ex. [(1, 2), (3, 4), (5, 6, 7, 8)] corresponds to a</span>
+<span class="sd">          matrix of:</span>
+<span class="sd">              [-,1,5,-]</span>
+<span class="sd">              [2,-,-,6]</span>
+<span class="sd">              [7,-,-,3]</span>
+<span class="sd">              [-,8,4,-]</span>
+<span class="sd">        Qparams (list): List of floats corresponding to the values for</span>
+<span class="sd">          slow, medium, fast, etc. rates. The first is always 0</span>
+<span class="sd">        Q (np.array): Pre-allocated Q matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nregime</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">nobschar</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">nregime</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Q</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
+        <span class="n">subQ</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="n">nobschar</span><span class="p">,(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">nobschar</span><span class="p">)</span>
+        <span class="n">subQvals</span> <span class="o">=</span> <span class="p">[</span><span class="n">Qparams</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,)</span><span class="o">+</span><span class="n">mod</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="n">nobschar</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">mod</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">nobschar</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">subQ</span><span class="p">,</span> <span class="n">subQ</span><span class="p">],</span> <span class="p">[</span><span class="n">subQvals</span><span class="p">[</span><span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">nobschar</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">subQvals</span><span class="p">),</span> <span class="n">nobschar</span><span class="p">)])</span>
+
+    <span class="n">combs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">),</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">revcombs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">combs</span><span class="p">]</span>
+    <span class="n">submatrix_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[[</span><span class="n">combs</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+</span> <span class="p">[</span><span class="n">revcombs</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">combs</span><span class="p">))]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">submatrix_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">submatrix_indices</span><span class="p">):</span>
+        <span class="n">my_slice0</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">submatrix_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">nobschar</span><span class="p">,</span> <span class="p">(</span><span class="n">submatrix_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">nobschar</span><span class="p">)</span>
+        <span class="n">my_slice1</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">submatrix_index</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">nobschar</span><span class="p">,</span> <span class="p">(</span><span class="n">submatrix_index</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">nobschar</span><span class="p">)</span>
+        <span class="n">nregimeswitch</span> <span class="o">=</span><span class="p">(</span><span class="n">nregime</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">nregime</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">my_slice0</span><span class="p">,</span><span class="n">my_slice1</span><span class="p">],[</span><span class="n">Qparams</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">mod</span><span class="p">[</span><span class="n">nregime</span><span class="p">][</span><span class="n">i</span><span class="o">*</span><span class="n">nobschar</span><span class="p">:</span><span class="n">i</span><span class="o">*</span><span class="n">nobschar</span><span class="o">+</span><span class="n">nobschar</span><span class="p">]])</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="hrm_allmodels_bayes"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.hrm_allmodels_bayes">[docs]</a><span class="k">def</span> <span class="nf">hrm_allmodels_bayes</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">nparam</span><span class="p">,</span><span class="n">modseed</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+                        <span class="n">dbname</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use an MCMC chain to fit a hrm model with a limited number of parameters.</span>
+
+<span class="sd">    The chain will step through different models, placing a prior on simpler</span>
+<span class="sd">    models</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tree (Node): Root node of a tree. All branch lengths must be</span>
+<span class="sd">          greater than 0 (except root)</span>
+<span class="sd">        chars (list): List of character states corresponding to leaf nodes in</span>
+<span class="sd">          preoder sequence. Character states must be in the form of 0,1,2,...</span>
+<span class="sd">        nregime (int): Number of regimes</span>
+<span class="sd">        nparam (int): Number of unique parameters to allow in a model</span>
+<span class="sd">        modseed (tuple): Starting model for the MCMC chain. A tuple of ints.</span>
+<span class="sd">           Must be a valid model or adjacent to at least one valid model.</span>
+<span class="sd">        pi (str): Either &quot;Equal&quot;, &quot;Equilibrium&quot;, or &quot;Fitzjohn&quot;. How to weight</span>
+<span class="sd">          values at root node. Defaults to &quot;Equal&quot;</span>
+<span class="sd">          Method &quot;Fitzjohn&quot; is not thouroughly tested, use with caution</span>
+<span class="sd">        mod_graph (Graph): Nx graph of all possible models. Optional, if not</span>
+<span class="sd">          provided will generate graph, which may be time-consuming</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">nparam</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&quot;nparam must be at least two&quot;</span>
+
+    <span class="n">nobschar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="n">nobschar</span> <span class="o">*</span> <span class="n">nregime</span>
+    <span class="n">n_wr</span> <span class="o">=</span> <span class="n">nobschar</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nobschar</span>
+    <span class="n">n_br</span> <span class="o">=</span> <span class="p">(</span><span class="n">nregime</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nregime</span><span class="p">)</span><span class="o">*</span><span class="n">nobschar</span>
+
+
+    <span class="n">minp</span> <span class="o">=</span> <span class="n">pscore</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">)</span>
+    <span class="n">treelen</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">()])</span>
+    <span class="c"># Prior on slowest distribution (beta = 1/mean)</span>
+    <span class="n">slow</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="s">&quot;slow&quot;</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">treelen</span><span class="o">/</span><span class="n">minp</span><span class="p">)</span>
+
+    <span class="c">#Parameters:</span>
+    <span class="n">paramscales</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nparam</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparam</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">paramscales</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span>  <span class="n">ShiftedGamma</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;paramscale_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)),</span> <span class="n">shape</span> <span class="o">=</span> <span class="n">GAMMASHAPE</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">make_qmat_stoch</span><span class="p">(</span><span class="n">nobschar</span> <span class="o">=</span> <span class="n">nobschar</span><span class="p">,</span><span class="n">nregime</span><span class="o">=</span><span class="n">nregime</span><span class="p">,</span>
+                          <span class="n">nparam</span><span class="o">=</span><span class="n">nparam</span><span class="p">,</span> <span class="n">mod_order_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nparam</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">repeat</span> <span class="o">=</span> <span class="n">nobschar</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nobschar</span><span class="p">)),</span>
+                          <span class="n">modseed</span><span class="o">=</span><span class="n">modseed</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="s">&quot;mod&quot;</span><span class="p">)</span>
+
+    <span class="c"># Likelihood function</span>
+    <span class="n">ar</span> <span class="o">=</span> <span class="n">hrm</span><span class="o">.</span><span class="n">create_hrm_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">nchar</span><span class="p">,</span><span class="n">nchar</span><span class="p">])</span>
+
+    <span class="nd">@pymc.potential</span>
+    <span class="k">def</span> <span class="nf">mklik</span><span class="p">(</span><span class="n">mod</span><span class="o">=</span><span class="n">mod</span><span class="p">,</span> <span class="n">slow</span><span class="o">=</span><span class="n">slow</span><span class="p">,</span> <span class="n">paramscales</span><span class="o">=</span><span class="n">paramscales</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="n">ar</span><span class="p">):</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelistOrig&quot;</span><span class="p">])</span>
+        <span class="n">ar</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1e-15</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nparam</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c"># Initializing blank Qparams (maybe more efficient to do outside of function)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">slow</span>
+        <span class="n">Qparams</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">slow</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">paramscales</span><span class="p">):</span>
+            <span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">p</span>
+
+        <span class="n">mod_form</span> <span class="o">=</span> <span class="p">[</span><span class="n">mod</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">n_wr</span><span class="p">:</span><span class="n">i</span><span class="o">*</span><span class="n">n_wr</span><span class="o">+</span><span class="n">n_wr</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="n">mod</span><span class="p">[</span><span class="o">-</span><span class="n">n_br</span><span class="p">:]]</span>
+        <span class="n">fill_model_Q</span><span class="p">(</span><span class="n">mod_form</span><span class="p">,</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span>
+
+        <span class="n">lik</span> <span class="o">=</span> <span class="n">hrm</span><span class="o">.</span><span class="n">hrm_mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="n">pi</span><span class="p">,</span> <span class="n">returnPi</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">ar</span><span class="o">=</span><span class="n">ar</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">lik</span>
+    <span class="k">if</span> <span class="n">dbname</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">mod_mcmc</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">MCMC</span><span class="p">(</span><span class="nb">locals</span><span class="p">(),</span> <span class="n">calc_deviance</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mod_mcmc</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">MCMC</span><span class="p">(</span><span class="nb">locals</span><span class="p">(),</span> <span class="n">calc_deviance</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="s">&quot;pickle&quot;</span><span class="p">,</span>
+                             <span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">)</span>
+    <span class="n">mod_mcmc</span><span class="o">.</span><span class="n">use_step_method</span><span class="p">(</span><span class="n">QmatMetropolis</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">nparam</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mod_mcmc</span>
+
+
+</div>
+<div class="viewcode-block" id="fill_model_mk"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.fill_model_mk">[docs]</a><span class="k">def</span> <span class="nf">fill_model_mk</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fill cells of Q with Qparams based on mod</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Q</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mod</span><span class="p">]</span>
+    <span class="n">Q</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="mk_allmodels_bayes"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.mk_allmodels_bayes">[docs]</a><span class="k">def</span> <span class="nf">mk_allmodels_bayes</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nparam</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit an mk model with nparam parameters distributed about the Q matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
+    <span class="n">ncell</span> <span class="o">=</span> <span class="n">nchar</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">nchar</span>
+    <span class="k">assert</span> <span class="n">nparam</span> <span class="o">&lt;=</span> <span class="n">ncell</span>
+
+    <span class="n">minp</span> <span class="o">=</span> <span class="n">pscore</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">)</span>
+    <span class="n">treelen</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">()])</span>
+    <span class="c">### Parameters</span>
+    <span class="c"># Prior on slowest distribution (beta = 1/mean)</span>
+    <span class="n">slow</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="s">&quot;slow&quot;</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">treelen</span><span class="o">/</span><span class="n">minp</span><span class="p">)</span>
+
+
+    <span class="n">paramscales</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nparam</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparam</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">paramscales</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span>  <span class="n">pymc</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;paramscale_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)),</span> <span class="n">lower</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="c">### Model</span>
+    <span class="n">paramset</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparam</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">nonzeros</span> <span class="o">=</span> <span class="n">paramset</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">all_mods</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">paramset</span><span class="p">,</span> <span class="n">repeat</span> <span class="o">=</span> <span class="n">ncell</span><span class="p">))</span>
+    <span class="n">all_mods</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">all_mods</span> <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">nonzeros</span><span class="p">])]</span>
+
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">make_qmat_stoch_mk</span><span class="p">(</span><span class="n">all_mods</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;mod&quot;</span><span class="p">)</span>
+
+    <span class="n">l</span> <span class="o">=</span> <span class="n">mk</span><span class="o">.</span><span class="n">create_likelihood_function_mk</span><span class="p">(</span><span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="o">=</span><span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="o">=</span><span class="s">&quot;ARD&quot;</span><span class="p">,</span>
+                                         <span class="n">pi</span><span class="o">=</span><span class="n">pi</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">nchar</span><span class="p">,</span> <span class="n">nchar</span><span class="p">])</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">nchar</span><span class="p">,</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="nd">@pymc.potential</span>
+    <span class="k">def</span> <span class="nf">mklik</span><span class="p">(</span><span class="n">mod</span><span class="o">=</span><span class="n">mod</span><span class="p">,</span><span class="n">slow</span><span class="o">=</span><span class="n">slow</span><span class="p">,</span><span class="n">paramscales</span><span class="o">=</span><span class="n">paramscales</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;mklik&quot;</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nparam</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">slow</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">paramscales</span><span class="p">):</span>
+            <span class="n">params</span><span class="p">[</span><span class="mi">2</span><span class="o">+</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">*</span> <span class="n">s</span>
+
+        <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mod</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">l</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Qparams</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">dbname</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">mod_mcmc</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">MCMC</span><span class="p">(</span><span class="nb">locals</span><span class="p">(),</span> <span class="n">calc_deviance</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mod_mcmc</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">MCMC</span><span class="p">(</span><span class="nb">locals</span><span class="p">(),</span> <span class="n">calc_deviance</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="s">&quot;pickle&quot;</span><span class="p">,</span>
+                             <span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">)</span>
+    <span class="n">mod_mcmc</span><span class="o">.</span><span class="n">use_step_method</span><span class="p">(</span><span class="n">QmatMetropolis_mk</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">all_mods</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mod_mcmc</span>
+
+</div>
+<div class="viewcode-block" id="make_qmat_stoch_mk"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.make_qmat_stoch_mk">[docs]</a><span class="k">def</span> <span class="nf">make_qmat_stoch_mk</span><span class="p">(</span><span class="n">all_mods</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;qmat_stoch&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stochastic for use in model-changing step</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">startingval</span> <span class="o">=</span> <span class="n">all_mods</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@pymc.stochastic</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">qmat_stoch</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">startingval</span><span class="p">):</span>
+        <span class="c"># Flat prior for all models</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">qmat_stoch</span>
+
+</div>
+<div class="viewcode-block" id="QmatMetropolis_mk"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.QmatMetropolis_mk">[docs]</a><span class="k">class</span> <span class="nc">QmatMetropolis_mk</span><span class="p">(</span><span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom step algorithm for selecting a new model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic</span><span class="p">,</span> <span class="n">all_mods</span><span class="p">):</span>
+        <span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_mods</span> <span class="o">=</span> <span class="n">all_mods</span>
+<div class="viewcode-block" id="QmatMetropolis_mk.propose"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.QmatMetropolis_mk.propose">[docs]</a>    <span class="k">def</span> <span class="nf">propose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cur_mod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_mods</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="o">==</span><span class="n">cur_mod</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">new</span>
+</div>
+<div class="viewcode-block" id="QmatMetropolis_mk.reject"><a class="viewcode-back" href="../../../ivy.chars.hrm_bayesian.html#ivy.chars.hrm_bayesian.QmatMetropolis_mk.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejected</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">last_value</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

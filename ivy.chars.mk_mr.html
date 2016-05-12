@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.chars.mk_mr module &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy.chars package" href="ivy.chars.html" />
+    <link rel="next" title="ivy.chars.recon module" href="ivy.chars.recon.html" />
+    <link rel="prev" title="ivy.chars.mk module" href="ivy.chars.mk.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.recon.html" title="ivy.chars.recon module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.mk.html" title="ivy.chars.mk module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.chars.html" accesskey="U">ivy.chars package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ivy.chars.mk_mr">
+<span id="ivy-chars-mk-mr-module"></span><h1>ivy.chars.mk_mr module<a class="headerlink" href="#module-ivy.chars.mk_mr" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="ivy.chars.mk_mr.create_likelihood_function_multimk">
+<code class="descclassname">ivy.chars.mk_mr.</code><code class="descname">create_likelihood_function_multimk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Qtype</em>, <em>locs</em>, <em>pi='Equal'</em>, <em>min=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk_mr.html#create_likelihood_function_multimk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk_mr.create_likelihood_function_multimk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.mk_mr.create_likelihood_function_multimk_b">
+<code class="descclassname">ivy.chars.mk_mr.</code><code class="descname">create_likelihood_function_multimk_b</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Qtype</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>min=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk_mr.html#create_likelihood_function_multimk_b"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk_mr.create_likelihood_function_multimk_b" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.mk_mr.locs_from_switchpoint">
+<code class="descclassname">ivy.chars.mk_mr.</code><code class="descname">locs_from_switchpoint</code><span class="sig-paren">(</span><em>tree</em>, <em>switch</em>, <em>locs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk_mr.html#locs_from_switchpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk_mr.locs_from_switchpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a tree and a single node to be the switchpoint, return an
+array of all node indices in one regime vs the other</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of tree</li>
+<li><strong>switch</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Internal node to be the switchpoint. This node
+is included in its own regime.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Array of all nodes descended from switch, and all other nodes</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/array.html#module-array" title="(in Python v2.7)">array</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.mk_mr.mk_multi_regime">
+<code class="descclassname">ivy.chars.mk_mr.</code><code class="descname">mk_multi_regime</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Qs</em>, <em>locs</em>, <em>p=None</em>, <em>pi='Fitzjohn'</em>, <em>returnPi=False</em>, <em>preallocated_arrays=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk_mr.html#mk_multi_regime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk_mr.mk_multi_regime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate likelhiood of mk model with BAMM-like multiple regimes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
+preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>Qs</strong> (<em>np.array</em>) &#8211; Array of instantaneous rate matrices</li>
+<li><strong>locs</strong> (<em>np.array</em>) &#8211; Array of the same length as Qs containing the
+node indices that correspond to each Q matrix</li>
+<li><strong>p</strong> (<em>np.array</em>) &#8211; Optional pre-allocated p matrix</li>
+<li><strong>pi</strong> (<em>str or np.array</em>) &#8211; <p>Option to weight the root node by given values.
+Either a string containing the method or an array
+of weights. Weights should be given in order.</p>
+<p>Accepted methods of weighting root:</p>
+<p>Equal: flat prior
+Equilibrium: Prior equal to stationary distribution</p>
+<blockquote>
+<div>of Q matrix</div></blockquote>
+<dl class="docutils">
+<dt>Fitzjohn: Root states weighted by how well they</dt>
+<dd>explain the data at the tips.</dd>
+</dl>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.chars.mk.html"
+                        title="previous chapter">ivy.chars.mk module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.chars.recon.html"
+                        title="next chapter">ivy.chars.recon module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.chars.mk_mr.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.recon.html" title="ivy.chars.recon module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.mk.html" title="ivy.chars.mk module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.chars.html" >ivy.chars package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

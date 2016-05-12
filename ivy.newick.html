@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.newick module &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy package" href="ivy.html" />
+    <link rel="next" title="ivy.nexus module" href="ivy.nexus.html" />
+    <link rel="prev" title="ivy.matrix module" href="ivy.matrix.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.nexus.html" title="ivy.nexus module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.matrix.html" title="ivy.matrix module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" accesskey="U">ivy package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ivy.newick">
+<span id="ivy-newick-module"></span><h1>ivy.newick module<a class="headerlink" href="#module-ivy.newick" title="Permalink to this headline">¶</a></h1>
+<p>Parse newick strings.</p>
+<p>The function of interest is <cite>parse</cite>, which returns the root node of
+the parsed tree.</p>
+<dl class="class">
+<dt id="ivy.newick.Tokenizer">
+<em class="property">class </em><code class="descclassname">ivy.newick.</code><code class="descname">Tokenizer</code><span class="sig-paren">(</span><em>infile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/newick.html#Tokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.newick.Tokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/shlex.html#shlex.shlex" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">shlex.shlex</span></code></a></p>
+<p>Provides tokens for parsing newick strings.</p>
+<dl class="method">
+<dt id="ivy.newick.Tokenizer.parse_embedded_comment">
+<code class="descname">parse_embedded_comment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/newick.html#Tokenizer.parse_embedded_comment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.newick.Tokenizer.parse_embedded_comment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.newick.add_label_chars">
+<code class="descclassname">ivy.newick.</code><code class="descname">add_label_chars</code><span class="sig-paren">(</span><em>chars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/newick.html#add_label_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.newick.add_label_chars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.newick.nexus_iter">
+<code class="descclassname">ivy.newick.</code><code class="descname">nexus_iter</code><span class="sig-paren">(</span><em>infile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/newick.html#nexus_iter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.newick.nexus_iter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.newick.parse">
+<code class="descclassname">ivy.newick.</code><code class="descname">parse</code><span class="sig-paren">(</span><em>data</em>, <em>ttable=None</em>, <em>treename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/newick.html#parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.newick.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a newick string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> &#8211; Any file-like object that can be coerced into shlex, or
+a string (converted to StringIO)</li>
+<li><strong>ttable</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; Mapping of node labels in the newick string
+to other values.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The root node.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node">Node</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.newick.parse_ampersand_comment">
+<code class="descclassname">ivy.newick.</code><code class="descname">parse_ampersand_comment</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/newick.html#parse_ampersand_comment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.newick.parse_ampersand_comment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.newick.test_parse_comment">
+<code class="descclassname">ivy.newick.</code><code class="descname">test_parse_comment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/newick.html#test_parse_comment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.newick.test_parse_comment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.matrix.html"
+                        title="previous chapter">ivy.matrix module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.nexus.html"
+                        title="next chapter">ivy.nexus module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.newick.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.nexus.html" title="ivy.nexus module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.matrix.html" title="ivy.matrix module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

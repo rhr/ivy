@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.sim.discrete_sim &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for ivy.sim.discrete_sim</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">ivy</span>
+<span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="kn">import</span> <span class="n">mk</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">rv_discrete</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<div class="viewcode-block" id="sim_discrete"><a class="viewcode-back" href="../../../ivy.sim.discrete_sim.html#ivy.sim.discrete_sim.sim_discrete">[docs]</a><span class="k">def</span> <span class="nf">sim_discrete</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">anc</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">charname</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rseed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simulate discrete character on a tree given transition rate matrix.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tree (Node): Root node of tree.</span>
+<span class="sd">        Q (np.array): Instantaneous rate matrix</span>
+<span class="sd">        anc (int): Root state. Optional. If None, root state is chosen</span>
+<span class="sd">          from stationary distrubution of Q matrix</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Node: Copy of tree with each node containing its simulated</span>
+<span class="sd">          state and the character history of its subtending branch.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">tree</span><span class="o">.</span><span class="n">isroot</span><span class="p">,</span> <span class="s">&quot;Given node must be root&quot;</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">simtree</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+
+    <span class="c">####################################</span>
+    <span class="c"># Start with ancestral state of root</span>
+    <span class="c">####################################</span>
+    <span class="k">if</span> <span class="n">anc</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c"># Randomly pick ancestral state from stationary distribution</span>
+        <span class="n">anc</span> <span class="o">=</span> <span class="n">rv_discrete</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">),</span><span class="n">mk</span><span class="o">.</span><span class="n">qsd</span><span class="p">(</span><span class="n">Q</span><span class="p">)))</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span>
+    <span class="n">simtree</span><span class="o">.</span><span class="n">sim_char</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">simtree</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">anc</span>
+    <span class="n">simtree</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_hist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c">###############################################################</span>
+    <span class="c"># Go through the tree in preorder sequence and simulate history</span>
+    <span class="c">###############################################################</span>
+    <span class="k">if</span> <span class="n">rseed</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">rseed</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">simtree</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
+        <span class="n">prevstate</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_state&quot;</span><span class="p">]</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">sim_char</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prevstate</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_hist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">dt</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/-</span><span class="n">Q</span><span class="p">[</span><span class="n">prevstate</span><span class="p">,</span><span class="n">prevstate</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="n">node</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">vals</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">Q</span><span class="p">[</span><span class="n">prevstate</span><span class="p">][:</span><span class="n">prevstate</span><span class="p">],</span><span class="n">Q</span><span class="p">[</span><span class="n">prevstate</span><span class="p">][</span><span class="n">prevstate</span><span class="o">+</span><span class="mi">1</span><span class="p">:]))</span>
+                <span class="n">newstate</span> <span class="o">=</span> <span class="n">rv_discrete</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)[:</span><span class="n">prevstate</span><span class="p">]</span> <span class="o">+</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)[</span><span class="n">prevstate</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span>
+                                    <span class="n">vals</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">vals</span><span class="p">)))</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_hist&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">newstate</span><span class="p">,</span><span class="n">dt</span><span class="p">))</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newstate</span>
+                <span class="n">prevstate</span> <span class="o">=</span> <span class="n">newstate</span>
+    <span class="k">return</span> <span class="n">simtree</span>
+<span class="c">#</span>
+<span class="c"># def sim_discrete_nielsen(tree, Q, anc=None, charname=None):</span>
+<span class="c">#     &quot;&quot;&quot;</span>
+<span class="c">#     Simulate discrete character on a tree given transition rate matrix</span>
+<span class="c">#     following Nielsen 2001.</span>
+<span class="c">#</span>
+<span class="c">#     Args:</span>
+<span class="c">#         tree (Node): Root node of tree.</span>
+<span class="c">#         Q (np.array): Instantaneous rate matrix</span>
+<span class="c">#         anc (int): Root state. Optional. If None, root state is chosen</span>
+<span class="c">#           from stationary distrubution of Q matrix</span>
+<span class="c">#     Returns:</span>
+<span class="c">#         Node: Copy of tree with each node containing its simulated</span>
+<span class="c">#           state and the character history of its subtending branch.</span>
+<span class="c">#           Simulated states contained in the attribute &quot;sim_char&quot;</span>
+<span class="c">#     &quot;&quot;&quot;</span>
+<span class="c">#     assert tree.isroot, &quot;Given node must be root&quot;</span>
+<span class="c">#     nchar = Q.shape[0]</span>
+<span class="c">#     simtree = tree.copy()</span>
+<span class="c">#</span>
+<span class="c">#</span>
+<span class="c">#     ####################################</span>
+<span class="c">#     # Start with ancestral state of root</span>
+<span class="c">#     ####################################</span>
+<span class="c">#     if anc is None:</span>
+<span class="c">#         # Randomly pick ancestral state from stationary distribution</span>
+<span class="c">#         anc = rv_discrete(values=(range(nchar),mk.qsd(Q))).rvs()</span>
+<span class="c">#     simtree.sim_char = {}</span>
+<span class="c">#     simtree.sim_char[&quot;sim_state&quot;] = anc</span>
+<span class="c">#     simtree.sim_char[&quot;sim_hist&quot;] = []</span>
+<span class="c">#     ###############################################################</span>
+<span class="c">#     # Go through the tree in preorder sequence and simulate history</span>
+<span class="c">#     ###############################################################</span>
+<span class="c">#     for node in simtree.descendants():</span>
+<span class="c">#         prevstate = node.parent.sim_char[&quot;sim_state&quot;]</span>
+<span class="c">#         node.sim_char = {}</span>
+<span class="c">#         node.sim_char[&quot;sim_hist&quot;] = []</span>
+<span class="c">#         QA = -1*Q[prevstate,prevstate]</span>
+<span class="c">#         if node.length == 0:</span>
+<span class="c">#             pass</span>
+<span class="c">#         else:</span>
+<span class="c">#             stateprobs = scipy.linalg.expm(Q * node.length)[prevstate]</span>
+<span class="c">#             newstate = rv_discrete(values=(range(nchar),stateprobs)).rvs()</span>
+<span class="c">#             node.sim_char[&quot;sim_state&quot;] = newstate</span>
+<span class="c">#             if newstate == prevstate:</span>
+<span class="c">#                 nmuts = np.random.poisson(QA*node.length)</span>
+<span class="c">#             else:</span>
+<span class="c">#                 nmuts = np.random.poisson(QA*node.length)</span>
+<span class="c">#                 t1 = -np.log(1 - random.random() * math.exp(-QA*node.length))/(-1*QA)</span>
+<span class="c">#</span>
+<span class="c">#     return simtree</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

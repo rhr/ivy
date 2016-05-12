@@ -1,0 +1,450 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>5. Performing analyses &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="User’s Guide" href="using.html" />
+    <link rel="next" title="ivy" href="modules.html" />
+    <link rel="prev" title="2. Trees in Ivy" href="introduction.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="ivy"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="2. Trees in Ivy"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="using.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="performing-analyses">
+<h1>5. Performing analyses<a class="headerlink" href="#performing-analyses" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> has many tools for performing analyses on trees. Here we will cover
+a few analyses you can perform.</p>
+<div class="section" id="phylogenetically-independent-contrasts">
+<h2>5.1. Phylogenetically Independent Contrasts<a class="headerlink" href="#phylogenetically-independent-contrasts" title="Permalink to this headline">¶</a></h2>
+<p>You can perform PICs using <code class="docutils literal"><span class="pre">ivy</span></code>&#8216;s <code class="docutils literal"><span class="pre">PIC</span></code> function. This function takes a
+root node and a dictionary mapping node labels to character traits as inputs
+and outputs a dictionary mappinginternal nodes to tuples containing ancestral
+state, its variance (error), the contrast, and the contrasts&#8217;s variance.</p>
+<p>The following example uses a consensus tree from Sarkinen et al. 2013 and
+Ziegler et al. unpub. data.</p>
+<p>Note: This function requires that the root node have a length that is not none.
+Note: this function currently cannot handle polytomies.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">ivy</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">csv</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;examples/solanaceae_sarkinen2013.newick&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">polvol</span> <span class="o">=</span> <span class="p">{};</span> <span class="n">stylen</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;examples/pollenvolume_stylelength.csv&quot;</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">traits</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s">&quot;,&quot;</span><span class="p">,</span> <span class="n">quotechar</span> <span class="o">=</span> <span class="s">&#39;&quot;&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">traits</span><span class="p">:</span>
+                <span class="n">polvol</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="s">&quot;Binomial&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s">&quot;PollenVolume&quot;</span><span class="p">])</span>
+                <span class="n">stylen</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="s">&quot;Binomial&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s">&quot;StyleLength&quot;</span><span class="p">])</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="n">p</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">contrasts</span><span class="o">.</span><span class="n">PIC</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">polvol</span><span class="p">)</span> <span class="c"># Contrasts for log-transformed pollen volume</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">9</span><span class="p">]:</span> <span class="n">s</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">contrasts</span><span class="o">.</span><span class="n">PIC</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">stylen</span><span class="p">)</span> <span class="c"># Contrasts for log-transformed style length</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">10</span><span class="p">]:</span> <span class="n">pcons</span><span class="p">,</span> <span class="n">scons</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">2</span><span class="p">]]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">])</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">11</span><span class="p">]:</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">scons</span><span class="p">,</span><span class="n">pcons</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">12</span><span class="p">]:</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="lineages-through-time">
+<h2>5.2. Lineages Through Time<a class="headerlink" href="#lineages-through-time" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> has functions for computing LTTs. The <code class="docutils literal"><span class="pre">ltt</span></code> function takes a root
+node as input and returns a tuple of 1D-arrays containing the results of
+times and diverisities.</p>
+<p>Note: The tree is expected to be an ultrametric chromogram (extant leaves,
+branch lengths proportional to time).</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">13</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">ivy</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">14</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;examples/solanaceae_sarkinen2013.newick&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">15</span><span class="p">]:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">ltt</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can plot your results using <code class="docutils literal"><span class="pre">matplotlib</span></code>.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">16</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">17</span><span class="p">]:</span> <span class="n">plt</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">18</span><span class="p">]:</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Time&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Lineages&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;LTT&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">19</span><span class="p">]:</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/ltt.png"><img alt="_images/ltt.png" src="_images/ltt.png" style="width: 700px;" /></a>
+</div>
+<div class="section" id="phylorate-plot">
+<h2>5.3. Phylorate plot<a class="headerlink" href="#phylorate-plot" title="Permalink to this headline">¶</a></h2>
+<p>By accessing R libraries using <a class="reference external" href="http://rpy.sourceforge.net/">rpy2</a>, we can use
+the functions in the <a class="reference external" href="https://cran.r-project.org/web/packages/BAMMtools/index.html">BAMMtools</a>
+R library to generate phylorate plots.</p>
+<p>The following analysis is done using the whales dataset provided with BAMMtools.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">20</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.r_funcs</span> <span class="kn">import</span> <span class="n">phylorate</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">21</span><span class="p">]:</span> <span class="n">e</span> <span class="o">=</span> <span class="s">&quot;whaleEvents.csv&quot;</span> <span class="c"># Event data created with BAMM</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">22</span><span class="p">]:</span> <span class="n">treefile</span> <span class="o">=</span> <span class="s">&quot;whales.tre&quot;</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">23</span><span class="p">]:</span> <span class="n">rates</span> <span class="o">=</span> <span class="n">phylorate</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">treefile</span><span class="p">,</span> <span class="s">&quot;netdiv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can add the results as a layer to a plot using the <code class="docutils literal"><span class="pre">add_phylorate</span></code> function
+in <code class="docutils literal"><span class="pre">ivy.vis.layers</span></code></p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">24</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.vis</span> <span class="kn">import</span> <span class="n">layers</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">25</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">readtree</span><span class="p">(</span><span class="n">treefile</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">26</span><span class="p">]:</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">treefig</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">27</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_layer</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">add_phylorate</span><span class="p">,</span> <span class="n">rates</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rates</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ov</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+       <span class="n">store</span><span class="o">=</span><span class="s">&quot;netdiv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/phylorate_plot.png"><img alt="_images/phylorate_plot.png" src="_images/phylorate_plot.png" style="width: 700px;" /></a>
+</div>
+<div class="section" id="mk-models">
+<h2>5.4. Mk models<a class="headerlink" href="#mk-models" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> has functions to fit an Mk model given a tree and a list of character
+states. There are functions to fit the Mk model using both maximum likelihood
+and Bayesian MCMC methods.</p>
+<p>To fit an Mk model, you need a tree and a list of character states. This list
+should only contain integers 0,1,2,...,N, with each integer corresponding to
+a state. The list of characters should be provided in preorder sequence.</p>
+<p>Let&#8217;s read in some example data: plant habit in tobacco. We can load in a
+csv containing binomials and character states using the <code class="docutils literal"><span class="pre">loadChars</span></code> function.
+This gives us a dictionary mapping binomials to character states.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">28</span><span class="p">]:</span> <span class="n">tree</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;examples/nicotiana.newick&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">29</span><span class="p">]:</span> <span class="n">chars</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">load_chars</span><span class="p">(</span><span class="s">&quot;examples/nicotianaHabit.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Let&#8217;s get our data into the correct format: we need to convert <cite>chars</cite> into
+a list of 0&#8217;s and 1&#8217;s matching the character states in preorder sequence</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">30</span><span class="p">]:</span> <span class="n">charsPreorder</span> <span class="o">=</span> <span class="p">[</span> <span class="n">chars</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="p">][</span><span class="s">&quot;Habit&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()</span> <span class="p">]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">31</span><span class="p">]:</span> <span class="n">charList</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="s">&quot;Herb&quot;</span> <span class="k">else</span> <span class="mi">1</span><span class="p">,</span> <span class="n">charsPreorder</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can take a look at how the states are distributed on the tree using the
+<code class="docutils literal"><span class="pre">tip_chars</span></code> method on a tree figure object. In this case &#8220;Herb&#8221; will be
+represented by green and &#8220;Shrub&#8221; will be represented by brown.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">32</span><span class="p">]:</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">treevis</span><span class="o">.</span><span class="n">TreeFigure</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">33</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">tip_chars</span><span class="p">(</span><span class="n">charList</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;green&quot;</span><span class="p">,</span> <span class="s">&quot;brown&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/nicotiana_1.png"><img alt="_images/nicotiana_1.png" src="_images/nicotiana_1.png" style="width: 700px;" /></a>
+<p>Now we are ready to fit the model. We will go over the maximum likelihood
+approach first.</p>
+<div class="section" id="maximum-likelihood">
+<h3>5.4.1. Maximum Likelihood<a class="headerlink" href="#maximum-likelihood" title="Permalink to this headline">¶</a></h3>
+<p>Perhaps the simplest way to fit an Mk model is with the maximum likelihood
+approach. We will make use of the <code class="docutils literal"><span class="pre">optimize</span></code> module of <code class="docutils literal"><span class="pre">scipy</span></code> to find
+the maximum likelihood values of this model.</p>
+<p>First, we must consider what type of model to fit. <cite>ivy</cite> allows you to
+specify what kind of instantaneous rate matrix (Q matrix) to use.
+The options are:</p>
+<ul class="simple">
+<li><strong>&#8220;ER&#8221;</strong>: An equal-rates Q matrix has only one parameter: the forward and
+backswards rates for all characters are all equal.</li>
+<li><strong>&#8220;Sym&#8221;</strong>: A symmetrical rates Q matrix forces forward and reverse rates
+to be equal, but allows rates for different characters to differ. It has
+a number of parameters equal to (N^2 - N)/2, where N is the number of
+character states.</li>
+<li><strong>&#8220;ARD&#8221;</strong>: An all-rates different Q matrix allows all rates to vary freely.
+It has a number of parameters equal to (N^2 - N).</li>
+</ul>
+<p>In this case, we will fit an ARD Q matrix.</p>
+<p>We also need to specify how the prior at the root is handled. There are a
+few ways to handle weighting the likelihood at the root:</p>
+<ul class="simple">
+<li><strong>&#8220;Equal&#8221;</strong>: When the likelihood at the root is set to equal, no weighting
+is given to the root being in any particular state. All likelihoods
+for all states are given equal weighting</li>
+<li><strong>&#8220;Equilibrium&#8221;</strong>: This setting causes the likelihoods at the root to be
+weighted by the stationary distribution of the Q matrix, as is described
+in Maddison et al 2007.</li>
+<li><strong>&#8220;Fitzjohn&#8221;</strong>: This setting causes the likelihoods at the root to be
+weighted by how well each root state would explain the data at the tips,
+as is described in Fitzjohn 2009.</li>
+</ul>
+<p>In this case we will use the &#8220;Fitzjohn&#8221; method.</p>
+<p>We can use the <code class="docutils literal"><span class="pre">fitMk</span></code> method with these settings to fit the model. This
+function returns a <code class="docutils literal"><span class="pre">dict</span></code> containing the fitted Q matrix, the log-likelihood,
+and the weighting at the root node.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">34</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="kn">import</span> <span class="n">mk</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">35</span><span class="p">]:</span> <span class="n">mk_results</span> <span class="o">=</span> <span class="n">mk</span><span class="o">.</span><span class="n">fit_Mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">charList</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="s">&quot;ARD&quot;</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Fitzjohn&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">36</span><span class="p">]:</span> <span class="k">print</span> <span class="n">mk_results</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">]</span>
+<span class="p">[[</span><span class="o">-</span><span class="mf">0.01246449</span>  <span class="mf">0.01246449</span><span class="p">]</span>
+ <span class="p">[</span> <span class="mf">0.09898439</span> <span class="o">-</span><span class="mf">0.09898439</span><span class="p">]]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">37</span><span class="p">]:</span> <span class="k">print</span> <span class="n">mk_results</span><span class="p">[</span><span class="s">&quot;Log-likelihood&quot;</span><span class="p">]</span>
+<span class="o">-</span><span class="mf">11.3009106093</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">38</span><span class="p">]:</span> <span class="k">print</span> <span class="n">mk_results</span><span class="p">[</span><span class="s">&quot;pi&quot;</span><span class="p">]</span>
+<span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mf">0.088591248260230959</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mf">0.9114087517397691</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bayesian">
+<h3>5.4.2. Bayesian<a class="headerlink" href="#bayesian" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> has a framework in place for using <code class="docutils literal"><span class="pre">pymc</span></code> to sample from a Bayesian
+Mk model. The process of fitting a Bayesian Mk model is very similar to fitting
+a maximum likelihood model.</p>
+<p>The module <code class="docutils literal"><span class="pre">bayesian_models</span></code> has a function <code class="docutils literal"><span class="pre">create_mk_model</span></code> that takes
+the same input as <code class="docutils literal"><span class="pre">fitMk</span></code> and creates a <code class="docutils literal"><span class="pre">pymc</span></code> model that can  be sampled
+with an MCMC chain</p>
+<p>First we create the model.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">39</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="kn">import</span> <span class="n">bayesian_models</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">40</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.chars.bayesian_models</span> <span class="kn">import</span> <span class="n">create_mk_model</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">41</span><span class="p">]:</span> <span class="n">mk_mod</span> <span class="o">=</span> <span class="n">create_mk_model</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">charList</span><span class="p">,</span> <span class="n">Qtype</span><span class="o">=</span><span class="s">&quot;ARD&quot;</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Fitzjohn&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now that we have the model, we can use <code class="docutils literal"><span class="pre">pymc</span></code> syntax to set up an MCMC chain.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">42</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">pymc</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">43</span><span class="p">]:</span> <span class="n">mk_mcmc</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">MCMC</span><span class="p">(</span><span class="n">mk_mod</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">44</span><span class="p">]:</span> <span class="n">mk_mcmc</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="n">burn</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">thin</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">[</span><span class="o">-----------------</span><span class="mi">100</span><span class="o">%-----------------</span><span class="p">]</span> <span class="mi">2000</span> <span class="n">of</span> <span class="mi">2000</span> <span class="n">complete</span> <span class="ow">in</span> <span class="mf">4.7</span> <span class="n">sec</span>
+</pre></div>
+</div>
+<p>We can access the results using the <code class="docutils literal"><span class="pre">trace</span></code> method of the mcmc object and
+giving it the name of the parameter we want. In this case, we want &#8220;Qparams&#8221;</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">45</span><span class="p">]:</span> <span class="n">mk_mcmc</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s">&quot;Qparams&quot;</span><span class="p">)[:]</span>
+<span class="n">array</span><span class="p">([[</span> <span class="mf">0.01756608</span><span class="p">,</span>  <span class="mf">0.07222648</span><span class="p">],</span>
+   <span class="p">[</span> <span class="mf">0.03266443</span><span class="p">,</span>  <span class="mf">0.05712813</span><span class="p">],</span>
+   <span class="p">[</span> <span class="mf">0.03266443</span><span class="p">,</span>  <span class="mf">0.05712813</span><span class="p">],</span>
+   <span class="o">...</span><span class="p">,</span>
+   <span class="p">[</span> <span class="mf">0.01170189</span><span class="p">,</span>  <span class="mf">0.03909211</span><span class="p">],</span>
+   <span class="p">[</span> <span class="mf">0.01170189</span><span class="p">,</span>  <span class="mf">0.03909211</span><span class="p">],</span>
+   <span class="p">[</span> <span class="mf">0.00989616</span><span class="p">,</span>  <span class="mf">0.03305975</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>Each element of the trace is an array containing the two fitted Q parameters.
+Let&#8217;s get the 5%, 50%, and 95% percentiles for both parameters</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">46</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">47</span><span class="p">]:</span> <span class="n">Q01</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mk_mcmc</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s">&quot;Qparams&quot;</span><span class="p">)[:]</span> <span class="p">]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">48</span><span class="p">]:</span> <span class="n">Q10</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mk_mcmc</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s">&quot;Qparams&quot;</span><span class="p">)[:]</span> <span class="p">]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">49</span><span class="p">]:</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">Q01</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">95</span><span class="p">])</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">49</span><span class="p">]:</span> <span class="n">array</span><span class="p">([</span> <span class="mf">0.00308076</span><span class="p">,</span>  <span class="mf">0.01844342</span><span class="p">,</span>  <span class="mf">0.06290078</span><span class="p">])</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">50</span><span class="p">]:</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">Q10</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">95</span><span class="p">])</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">50</span><span class="p">]:</span> <span class="n">array</span><span class="p">([</span> <span class="mf">0.03294584</span><span class="p">,</span>  <span class="mf">0.09525662</span><span class="p">,</span>  <span class="mf">0.21803742</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Unsurprisingly, the results are similar to the ones we got from the maximum
+likelihood analysis</p>
+</div>
+</div>
+<div class="section" id="hidden-rates-models">
+<h2>5.5. Hidden-Rates Models<a class="headerlink" href="#hidden-rates-models" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> has functions for fitting hidden-rates Markov models (HRM) (see Beaulieu et
+al. 2013), as well as for performing ancestor-state reconstructions and
+visualizations of hidden-rates models.</p>
+<p>We will demonstrate these functions using an example dataset, fitting a
+two-state character with two different hidden rates or &#8220;regimes&#8221;. Let&#8217;s
+set up our data.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">51</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">ivy</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">52</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="kn">import</span> <span class="n">hrm</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">53</span><span class="p">]:</span> <span class="n">tree</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;hrm_600tips.newick&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">54</span><span class="p">]:</span> <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h3>5.5.1. Maximum Likelihood<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> can fit a maximum likelihood HRM model using the <code class="docutils literal"><span class="pre">fit_hrm</span></code> function.
+Here we will explain the options and uses of this function.</p>
+<p>Like the Mk functions, <code class="docutils literal"><span class="pre">ivy</span></code>&#8216;s HRM functions take as input a tree and a list
+of the characters in preorder sequence. These character states are already in
+order.</p>
+<p>The simplest way to fit an HRM model is to use the <code class="docutils literal"><span class="pre">fit_hrm</span></code> function. Like
+the <code class="docutils literal"><span class="pre">fitMk</span></code> function, there are a few possible models we can fit:</p>
+<ul class="simple">
+<li><strong>&#8220;Simple&#8221;</strong>: Under the simple model, each regime is equivalent to an
+equal-rates Mk model. Transitions between regimes are all constrained to
+be equal. This model fits M+1 parameters where M is the number of regimes.</li>
+<li><strong>&#8220;ARD&#8221;</strong>: Under this model, all rates are allowed to vary freely. This
+model fits (N^2 - N)/(2/M) + (M^2-M)*N parameters, where N is the
+number of character states and M is the number of regimes.</li>
+</ul>
+<p>Here we will fit a <code class="docutils literal"><span class="pre">Simple</span></code> model.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">55</span><span class="p">]:</span> <span class="n">fit</span> <span class="o">=</span> <span class="n">hrm</span><span class="o">.</span><span class="n">fit_hrm</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">Qtype</span><span class="o">=</span><span class="s">&quot;Simple&quot;</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">56</span><span class="p">]:</span> <span class="n">fit</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">56</span><span class="p">]:</span>
+<span class="p">{</span><span class="s">&#39;Log-likelihood&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">204.52351825389133</span><span class="p">,</span>
+<span class="s">&#39;Q&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.04596664</span><span class="p">,</span>  <span class="mf">0.03291299</span><span class="p">,</span>  <span class="mf">0.01305365</span><span class="p">,</span>  <span class="mf">0.</span>        <span class="p">],</span>
+        <span class="p">[</span> <span class="mf">0.03291299</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.04596664</span><span class="p">,</span>  <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">0.01305365</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mf">0.01305365</span><span class="p">,</span>  <span class="mf">0.</span>        <span class="p">,</span> <span class="o">-</span><span class="mf">0.44655655</span><span class="p">,</span>  <span class="mf">0.4335029</span> <span class="p">],</span>
+        <span class="p">[</span> <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">0.01305365</span><span class="p">,</span>  <span class="mf">0.4335029</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.44655655</span><span class="p">]]),</span>
+<span class="s">&#39;rootLiks&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>The output of the <code class="docutils literal"><span class="pre">fit_hrm</span></code> function is a dictionary containing the
+fitted Q matrix, the log-likelihood, and the prior weighting at the root (all
+values are equal in this case because we set pi to be &#8220;Equal&#8221;)</p>
+<p>Now that we have our reconstructed Q matrix, we can perform ancestral state
+reconstruction. We will use the <code class="docutils literal"><span class="pre">anc_recon_discrete</span></code> function. This
+function can handle both single-regime Mk models and multi-regime
+HRM models. This functions takes a tree, the character states at the
+tips, and the Q matrix to be used in the reconstruction. We will use
+our fitted Q matrix as input. We also provide the prior at the root (in
+this case, &#8220;Equal&#8221;). Because this is a hidden-rates model, we also provide
+the number of regimes (in this case, 2)</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">57</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="kn">import</span> <span class="n">anc_recon</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">58</span><span class="p">]:</span> <span class="n">recon</span> <span class="o">=</span> <span class="n">anc_recon</span><span class="o">.</span><span class="n">anc_recon_discrete</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">fit</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                             <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output of this function is an array containing the likelihoods of each
+node being in each state. We can use the output of this function to
+visualize the reconstructed states on the tree.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">59</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.interactive</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">60</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.vis.layers</span> <span class="kn">import</span> <span class="n">add_ancrecon_hrm</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">61</span><span class="p">]:</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">treefig</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">62</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_layer</span><span class="p">(</span><span class="n">add_ancrecon_hrm</span><span class="p">,</span> <span class="n">recon</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/hrm_1.png"><img alt="_images/hrm_1.png" src="_images/hrm_1.png" style="width: 700px;" /></a>
+<p>Green corresponds to state 0 and blue to state 1. The more saturated colors
+correspond to the faster regime and the duller colors to the slower regime.</p>
+</div>
+<div class="section" id="id2">
+<h3>5.5.2. Bayesian<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> can also perform Bayesian analyses on HRM models. There are a number
+of different ways of fitting a Bayesian HRM model in <code class="docutils literal"><span class="pre">ivy</span></code>.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">5. Performing analyses</a><ul>
+<li><a class="reference internal" href="#phylogenetically-independent-contrasts">5.1. Phylogenetically Independent Contrasts</a></li>
+<li><a class="reference internal" href="#lineages-through-time">5.2. Lineages Through Time</a></li>
+<li><a class="reference internal" href="#phylorate-plot">5.3. Phylorate plot</a></li>
+<li><a class="reference internal" href="#mk-models">5.4. Mk models</a><ul>
+<li><a class="reference internal" href="#maximum-likelihood">5.4.1. Maximum Likelihood</a></li>
+<li><a class="reference internal" href="#bayesian">5.4.2. Bayesian</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hidden-rates-models">5.5. Hidden-Rates Models</a><ul>
+<li><a class="reference internal" href="#id1">5.5.1. Maximum Likelihood</a></li>
+<li><a class="reference internal" href="#id2">5.5.2. Bayesian</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="introduction.html"
+                        title="previous chapter">2. Trees in Ivy</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="modules.html"
+                        title="next chapter">ivy</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/analyses.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="ivy"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="2. Trees in Ivy"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="using.html" >User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

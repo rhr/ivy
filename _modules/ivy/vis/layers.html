@@ -1,0 +1,971 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.vis.layers &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for ivy.vis.layers</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Layer functions to add to a tree plot with the addlayer method</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">bisect</span><span class="o">,</span> <span class="nn">math</span><span class="o">,</span> <span class="nn">types</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">operator</span><span class="o">,</span> <span class="nn">functools</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">from</span> <span class="nn">ivy</span> <span class="kn">import</span> <span class="n">tree</span><span class="p">,</span> <span class="n">bipart</span>
+<span class="kn">from</span> <span class="nn">ivy.layout</span> <span class="kn">import</span> <span class="n">cartesian</span>
+<span class="kn">from</span> <span class="nn">ivy.storage</span> <span class="kn">import</span> <span class="n">Storage</span>
+<span class="kn">from</span> <span class="nn">ivy</span> <span class="kn">import</span> <span class="n">pyperclip</span> <span class="k">as</span> <span class="n">clipboard</span>
+<span class="c">#from ..nodecache import NodeCache</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">pyplot</span>
+<span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">SubplotParams</span><span class="p">,</span> <span class="n">Figure</span>
+<span class="kn">from</span> <span class="nn">matplotlib.axes</span> <span class="kn">import</span> <span class="n">Axes</span><span class="p">,</span> <span class="n">subplot_class_factory</span>
+<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">PathPatch</span><span class="p">,</span> <span class="n">Rectangle</span><span class="p">,</span> <span class="n">Arc</span><span class="p">,</span> <span class="n">Wedge</span><span class="p">,</span> <span class="n">Circle</span>
+<span class="kn">from</span> <span class="nn">matplotlib.path</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="kn">import</span> <span class="n">RectangleSelector</span>
+<span class="kn">from</span> <span class="nn">matplotlib.transforms</span> <span class="kn">import</span> <span class="n">Bbox</span><span class="p">,</span> <span class="n">offset_copy</span><span class="p">,</span> <span class="n">IdentityTransform</span><span class="p">,</span> \
+     <span class="n">Affine2D</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span> <span class="k">as</span> <span class="n">mpl_colormap</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">colors</span> <span class="k">as</span> <span class="n">mpl_colors</span>
+<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">LinearSegmentedColormap</span>
+<span class="kn">from</span> <span class="nn">matplotlib.colorbar</span> <span class="kn">import</span> <span class="n">Colorbar</span>
+<span class="kn">from</span> <span class="nn">matplotlib.collections</span> <span class="kn">import</span> <span class="n">RegularPolyCollection</span><span class="p">,</span> <span class="n">LineCollection</span><span class="p">,</span> \
+     <span class="n">PatchCollection</span><span class="p">,</span> <span class="n">CircleCollection</span>
+<span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="kn">import</span> <span class="n">Line2D</span>
+<span class="kn">from</span> <span class="nn">matplotlib.cm</span> <span class="kn">import</span> <span class="n">coolwarm</span><span class="p">,</span> <span class="n">afmhot</span>
+<span class="kn">from</span> <span class="nn">matplotlib.cm</span> <span class="kn">import</span> <span class="n">RdYlBu_r</span> <span class="k">as</span> <span class="n">RdYlBu</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">matplotlib.offsetbox</span> <span class="kn">import</span> <span class="n">OffsetImage</span><span class="p">,</span> <span class="n">AnnotationBbox</span><span class="p">,</span> <span class="n">DrawingArea</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">pass</span>
+<span class="kn">from</span> <span class="nn">matplotlib._png</span> <span class="kn">import</span> <span class="n">read_png</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">MaxNLocator</span><span class="p">,</span> <span class="n">FuncFormatter</span><span class="p">,</span> <span class="n">NullLocator</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid.anchored_artists</span> <span class="kn">import</span> <span class="n">AnchoredText</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1.inset_locator</span> <span class="kn">import</span> <span class="n">inset_axes</span>
+<span class="kn">from</span> <span class="nn">ivy.vis</span> <span class="kn">import</span> <span class="n">colors</span>
+<span class="kn">from</span> <span class="nn">ivy.vis</span> <span class="kn">import</span> <span class="n">events</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">array</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">Image</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">colour</span> <span class="kn">import</span> <span class="n">Color</span>
+
+
+<span class="n">_tango</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">tango</span><span class="p">()</span>
+<span class="n">StringTypes</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span>
+<span class="k">try</span><span class="p">:</span> <span class="c"># Python 2</span>
+    <span class="nb">iter</span><span class="p">(</span><span class="n">StringTypes</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span> <span class="c"># Python 3</span>
+    <span class="n">StringTypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">StringTypes</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="xy"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.xy">[docs]</a><span class="k">def</span> <span class="nf">xy</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get xy coordinates of a node</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        plot (TreeSubplot): treeplot</span>
+<span class="sd">        p: node or node label</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">plot</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">[</span> <span class="n">xy</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">p</span> <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Could not coerce </span><span class="si">%s</span><span class="s"> to node&quot;</span> <span class="o">%</span> <span class="p">[</span><span class="n">p</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">p</span>
+</div>
+<div class="viewcode-block" id="add_label"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_label">[docs]</a><span class="k">def</span> <span class="nf">add_label</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">labeltype</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">leaf_offset</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+             <span class="n">leaf_valign</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">,</span>
+             <span class="n">leaf_halign</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">,</span> <span class="n">leaf_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">branch_offset</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span>
+             <span class="n">branch_valign</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">,</span> <span class="n">branch_halign</span><span class="o">=</span><span class="s">&quot;right&quot;</span><span class="p">,</span>
+             <span class="n">fontsize</span><span class="o">=</span><span class="s">&quot;10&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add text labels to tree</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        treeplot: treeplot (fig.tree)</span>
+<span class="sd">        labeltype (str): &quot;leaf&quot; or &quot;branch&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">labeltype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;leaf&quot;</span><span class="p">,</span> <span class="s">&quot;branch&quot;</span><span class="p">],</span> <span class="s">&quot;invalid label type: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">labeltype</span>
+    <span class="n">n2c</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span>
+    <span class="k">if</span> <span class="n">leaf_halign</span> <span class="o">==</span> <span class="s">&quot;right&quot;</span><span class="p">:</span> <span class="n">leaf_offset</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span> <span class="c"># Padding in correct direction</span>
+    <span class="k">if</span> <span class="n">branch_halign</span> <span class="o">==</span> <span class="s">&quot;right&quot;</span><span class="p">:</span> <span class="n">branch_offset</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">n2c</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">x</span><span class="p">;</span> <span class="n">y</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">y</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">isleaf</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">label</span> <span class="ow">and</span> <span class="n">labeltype</span> <span class="o">==</span> <span class="s">&quot;leaf&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">plottype</span> <span class="o">==</span> <span class="s">&quot;phylogram&quot;</span><span class="p">:</span>
+                <span class="n">txt</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span>
+                    <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">leaf_offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="n">textcoords</span><span class="o">=</span><span class="s">&quot;offset points&quot;</span><span class="p">,</span>
+                    <span class="n">verticalalignment</span><span class="o">=</span><span class="n">leaf_valign</span><span class="p">,</span>
+                    <span class="n">horizontalalignment</span><span class="o">=</span><span class="n">leaf_halign</span><span class="p">,</span>
+                    <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
+                    <span class="n">clip_on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                    <span class="n">picker</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                    <span class="n">visible</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                    <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span>
+                <span class="p">)</span>
+                <span class="n">txt</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+                <span class="c">#print &quot;Setting node label to&quot;, str(txt), str(id(txt))</span>
+                <span class="n">treeplot</span><span class="o">.</span><span class="n">node2label</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">=</span><span class="n">txt</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">angle</span> <span class="o">&lt;</span> <span class="mi">90</span> <span class="ow">or</span> <span class="n">coords</span><span class="o">.</span><span class="n">angle</span> <span class="o">&gt;</span> <span class="mi">270</span><span class="p">:</span>
+                    <span class="n">ha</span> <span class="o">=</span> <span class="s">&quot;left&quot;</span>
+                    <span class="n">va</span> <span class="o">=</span> <span class="s">&quot;center&quot;</span>
+                    <span class="n">rotate</span> <span class="o">=</span> <span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">angle</span><span class="o">-</span><span class="mi">360</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ha</span> <span class="o">=</span> <span class="s">&quot;right&quot;</span>
+                    <span class="n">va</span> <span class="o">=</span> <span class="s">&quot;center&quot;</span>
+                    <span class="n">rotate</span> <span class="o">=</span> <span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">angle</span><span class="o">-</span><span class="mi">180</span><span class="p">)</span>
+
+                <span class="n">txt</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span>
+                    <span class="n">verticalalignment</span><span class="o">=</span><span class="n">va</span><span class="p">,</span>
+                    <span class="n">fontsize</span><span class="o">=</span><span class="n">leaf_fontsize</span><span class="p">,</span>
+                    <span class="n">clip_on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                    <span class="n">picker</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                    <span class="n">visible</span><span class="o">=</span><span class="n">vis</span><span class="p">,</span>
+                    <span class="n">horizontalalignment</span><span class="o">=</span><span class="n">ha</span><span class="p">,</span>
+                    <span class="n">rotation</span><span class="o">=</span><span class="n">rotate</span><span class="p">,</span>
+                    <span class="n">rotation_mode</span><span class="o">=</span><span class="s">&quot;anchor&quot;</span><span class="p">,</span>
+                    <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">txt</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+                <span class="n">treeplot</span><span class="o">.</span><span class="n">node2label</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">=</span><span class="n">txt</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isleaf</span><span class="p">)</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">label</span> <span class="ow">and</span> <span class="n">labeltype</span> <span class="o">==</span> <span class="s">&quot;branch&quot;</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span>
+                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">branch_offset</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+                <span class="n">textcoords</span><span class="o">=</span><span class="s">&quot;offset points&quot;</span><span class="p">,</span>
+                <span class="n">verticalalignment</span><span class="o">=</span><span class="n">branch_valign</span><span class="p">,</span>
+                <span class="n">horizontalalignment</span><span class="o">=</span><span class="n">branch_halign</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
+                <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">fc</span><span class="o">=</span><span class="s">&quot;lightyellow&quot;</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="s">&quot;none&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">),</span>
+                <span class="n">clip_on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                <span class="n">picker</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                <span class="n">visible</span><span class="o">=</span><span class="n">vis</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+            <span class="n">txt</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+            <span class="n">treeplot</span><span class="o">.</span><span class="n">node2label</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">=</span><span class="n">txt</span>
+
+    <span class="c"># Drawing the leaves so that only as many labels as will fit get rendered</span>
+
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+    <span class="n">matplotlib</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+</div>
+<div class="viewcode-block" id="add_highlight"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_highlight">[docs]</a><span class="k">def</span> <span class="nf">add_highlight</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;red&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Highlight nodes</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Str or list of Strs or Node or list of Nodes</span>
+<span class="sd">        width (float): Width of highlighted lines. Defaults to 5</span>
+<span class="sd">        color (str): Color of highlighted lines. Defaults to red</span>
+<span class="sd">        vis (bool): Whether or not the object is visible. Defaults to true</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span><span class="p">:</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+                        <span class="n">nodes</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+                    <span class="n">nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="n">highlighted</span> <span class="o">=</span> <span class="n">nodes</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">highlighted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">highlighted</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">mrca</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">mrca</span><span class="p">(</span><span class="n">highlighted</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mrca</span><span class="p">:</span>
+            <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mrca</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nodes</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">M</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">MOVETO</span><span class="p">;</span> <span class="n">L</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">LINETO</span>
+    <span class="n">verts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">codes</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="p">[</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">nodes</span> <span class="p">]:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">x</span><span class="p">;</span> <span class="n">y</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span>
+        <span class="k">while</span> <span class="n">p</span><span class="p">:</span>
+            <span class="n">pcoords</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+            <span class="n">px</span> <span class="o">=</span> <span class="n">pcoords</span><span class="o">.</span><span class="n">x</span><span class="p">;</span> <span class="n">py</span> <span class="o">=</span> <span class="n">pcoords</span><span class="o">.</span><span class="n">y</span>
+            <span class="k">if</span> <span class="n">node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">plottype</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;phylogram&quot;</span><span class="p">,</span> <span class="s">&quot;overview&quot;</span><span class="p">):</span>
+                    <span class="n">verts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">));</span> <span class="n">codes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+                    <span class="n">verts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">px</span><span class="p">,</span> <span class="n">y</span><span class="p">));</span> <span class="n">codes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+                    <span class="n">verts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">));</span> <span class="n">codes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">plottype</span> <span class="o">==</span> <span class="s">&quot;radial&quot;</span><span class="p">:</span>
+                    <span class="n">v</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">_path_to_parent</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                    <span class="n">verts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                    <span class="n">codes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="n">mrca</span> <span class="ow">or</span> <span class="n">node</span> <span class="o">==</span> <span class="n">mrca</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">p</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">x</span><span class="p">;</span> <span class="n">y</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span>
+    <span class="k">if</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">plottype</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;phylogram&quot;</span><span class="p">,</span> <span class="s">&quot;overview&quot;</span><span class="p">):</span>
+        <span class="n">px</span><span class="p">,</span> <span class="n">py</span> <span class="o">=</span> <span class="n">verts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">verts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">));</span> <span class="n">codes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+
+    <span class="n">highlightpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">codes</span><span class="p">)</span>
+    <span class="n">highlightpatch</span> <span class="o">=</span> <span class="n">PathPatch</span><span class="p">(</span>
+        <span class="n">highlightpath</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+        <span class="n">visible</span><span class="o">=</span><span class="n">vis</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">highlightpatch</span><span class="p">)</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="add_cbar"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_cbar">[docs]</a><span class="k">def</span> <span class="nf">add_cbar</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+         <span class="n">xoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">showlabel</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">mrca</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">leaf_valign</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">,</span>
+         <span class="n">leaf_halign</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">,</span> <span class="n">leaf_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">leaf_offset</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw a &#39;clade&#39; bar (i.e., along the y-axis) indicating a</span>
+<span class="sd">        clade.  *nodes* are assumed to be one or more nodes in the</span>
+<span class="sd">        tree.  If just one, it should be the internal node</span>
+<span class="sd">        representing the clade of interest; otherwise, the clade of</span>
+<span class="sd">        interest is the most recent common ancestor of the specified</span>
+<span class="sd">        nodes.  *label* is an optional string to be drawn next to the</span>
+<span class="sd">        bar, *offset* by the specified number of display units.  If</span>
+<span class="sd">        *label* is ``None`` then the clade&#39;s label is used instead.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            nodes: Node or list of nodes or string or list of strings.</span>
+<span class="sd">            color (str): Color of the bar. Optional, defaults to None.</span>
+<span class="sd">              If None, will cycle through a color palette</span>
+<span class="sd">            label (str): Optional label for bar. If None, the clade&#39;s</span>
+<span class="sd">              label is used instead. Defaults to None.</span>
+<span class="sd">            width (float): Width of bar</span>
+<span class="sd">            x (float): Distance from tip of tree to bar. Optional,</span>
+<span class="sd">              if None, calculated based on leaf labels.</span>
+<span class="sd">            xoff (float): Offset from label to bar</span>
+<span class="sd">            showlabel (bool): Whether or not to draw the label</span>
+<span class="sd">            mrca (bool): Whether to draw the bar encompassing all descendants</span>
+<span class="sd">              of the MRCA of ``nodes``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#assert treeplot.plottype != &quot;radial&quot;, &quot;No cbar for radial trees&quot;</span>
+        <span class="n">xlim</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">();</span> <span class="n">ylim</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">color</span> <span class="o">=</span> <span class="n">_tango</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+        <span class="n">transform</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">transData</span><span class="o">.</span><span class="n">inverted</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span>
+
+        <span class="k">if</span> <span class="n">mrca</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+                <span class="n">spec</span> <span class="o">=</span> <span class="n">nodes</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
+                <span class="n">spec</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">spec</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">mrca</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">label</span> <span class="ow">or</span> <span class="n">spec</span><span class="o">.</span><span class="n">label</span>
+            <span class="n">leaves</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">leaves</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">leaves</span> <span class="o">=</span> <span class="n">nodes</span>
+
+        <span class="n">n2c</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span> <span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">y</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">leaves</span> <span class="p">])</span>
+        <span class="n">ymin</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span> <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">ymax</span><span class="o">+</span><span class="n">ymin</span><span class="p">)</span><span class="o">*</span><span class="mf">0.5</span>
+        <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># Determining how far bar should be from tips</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span> <span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">x</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">leaves</span> <span class="p">])</span>
+            <span class="n">_x</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">lf</span> <span class="ow">in</span> <span class="n">leaves</span><span class="p">:</span>
+                <span class="n">txt</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">node2label</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lf</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">txt</span> <span class="ow">and</span> <span class="n">txt</span><span class="o">.</span><span class="n">get_visible</span><span class="p">():</span>
+                    <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+                    <span class="n">pyplot</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span> <span class="c"># Pause necessary for getting window extent</span>
+                    <span class="n">_x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">_x</span><span class="p">,</span> <span class="n">transform</span><span class="p">(</span><span class="n">txt</span><span class="o">.</span><span class="n">get_window_extent</span><span class="p">())[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">_x</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">=</span> <span class="n">_x</span>
+
+        <span class="n">v</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">transform</span><span class="p">(((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),(</span><span class="n">xoff</span><span class="p">,</span><span class="mi">0</span><span class="p">)))[:,</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">xoff</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">+=</span> <span class="n">xoff</span>
+
+        <span class="k">if</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">plottype</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;phylogram&quot;</span><span class="p">,</span> <span class="s">&quot;overview&quot;</span><span class="p">):</span>
+            <span class="n">Axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">],</span> <span class="s">&#39;-&#39;</span><span class="p">,</span>
+                      <span class="n">linewidth</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="n">vis</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">arc_center</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">diam</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">x</span>
+            <span class="n">theta1</span> <span class="o">=</span> <span class="n">n2c</span><span class="p">[</span><span class="n">leaves</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">angle</span>
+            <span class="n">theta2</span> <span class="o">=</span> <span class="n">n2c</span><span class="p">[</span><span class="n">leaves</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">angle</span>
+
+            <span class="n">p</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">patches</span><span class="o">.</span><span class="n">Arc</span><span class="p">(</span><span class="n">arc_center</span><span class="p">,</span> <span class="n">diam</span><span class="p">,</span><span class="n">diam</span><span class="p">,</span> <span class="n">theta1</span><span class="o">=</span><span class="n">theta1</span><span class="p">,</span> <span class="n">theta2</span><span class="o">=</span><span class="n">theta2</span><span class="p">,</span>
+                                       <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="n">vis</span><span class="p">,</span><span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+            <span class="n">treeplot</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">showlabel</span> <span class="ow">and</span> <span class="n">label</span><span class="p">:</span>
+            <span class="n">xo</span> <span class="o">=</span> <span class="n">leaf_offset</span>
+            <span class="k">if</span> <span class="n">xo</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">xo</span> <span class="o">+=</span> <span class="n">width</span><span class="o">*</span><span class="mf">0.5</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">xo</span> <span class="o">-=</span> <span class="n">width</span><span class="o">*</span><span class="mf">0.5</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                <span class="n">label</span><span class="p">,</span>
+                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span>
+                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">xo</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">textcoords</span><span class="o">=</span><span class="s">&quot;offset points&quot;</span><span class="p">,</span>
+                <span class="n">verticalalignment</span><span class="o">=</span><span class="n">leaf_valign</span><span class="p">,</span>
+                <span class="n">horizontalalignment</span><span class="o">=</span><span class="n">leaf_halign</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="n">leaf_fontsize</span><span class="p">,</span>
+                <span class="n">clip_on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                <span class="n">picker</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span>
+                <span class="p">)</span>
+
+        <span class="n">treeplot</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">);</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="add_image"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_image">[docs]</a><span class="k">def</span> <span class="nf">add_image</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">imgfiles</span><span class="p">,</span> <span class="n">maxdim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xoff</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+              <span class="n">yoff</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">halign</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">xycoords</span><span class="o">=</span><span class="s">&#39;data&#39;</span><span class="p">,</span>
+              <span class="n">boxcoords</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;offset points&#39;</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add images to a plot at the given nodes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Node/label or list of nodes/labels.</span>
+<span class="sd">        imgfiles: String or list of strings of image files</span>
+<span class="sd">    Note:</span>
+<span class="sd">        x and imgfiles must be the same length</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span><span class="p">:</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
+                <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+                <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">imgfiles</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">imgfiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">imgfiles</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">imgfiles</span><span class="p">),</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> nodes, </span><span class="si">%s</span><span class="s"> images&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+                                                                 <span class="nb">len</span><span class="p">(</span><span class="n">imgfiles</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">imgfile</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">imgfiles</span><span class="p">):</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">imgfile</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">maxdim</span><span class="p">:</span>
+            <span class="n">img</span><span class="o">.</span><span class="n">thumbnail</span><span class="p">((</span><span class="n">maxdim</span><span class="p">,</span> <span class="n">maxdim</span><span class="p">))</span>
+        <span class="n">imgbox</span> <span class="o">=</span> <span class="n">OffsetImage</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">abox</span> <span class="o">=</span> <span class="n">AnnotationBbox</span><span class="p">(</span><span class="n">imgbox</span><span class="p">,</span> <span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+                              <span class="n">xybox</span><span class="o">=</span> <span class="p">(</span><span class="n">xoff</span><span class="p">,</span> <span class="n">yoff</span><span class="p">),</span> <span class="n">xycoords</span><span class="o">=</span><span class="n">xycoords</span><span class="p">,</span>
+                              <span class="n">box_alignment</span><span class="o">=</span><span class="p">(</span><span class="n">halign</span><span class="p">,</span> <span class="n">valign</span><span class="p">),</span>
+                              <span class="n">pad</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                              <span class="n">boxcoords</span><span class="o">=</span><span class="n">boxcoords</span><span class="p">,</span>
+                              <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">treeplot</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">abox</span><span class="p">)</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="add_squares"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_squares">[docs]</a><span class="k">def</span> <span class="nf">add_squares</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">xoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw a square at given node</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: A node or list of nodes or string or list of strings</span>
+<span class="sd">        colors: Str or list of strs. Colors of squares to be drawn.</span>
+<span class="sd">          Optional, defaults to &#39;r&#39; (red)</span>
+<span class="sd">        size (float): Size of the squares. Optional, defaults to 15</span>
+<span class="sd">        xoff, yoff (float): Offset for x and y dimensions. Optional,</span>
+<span class="sd">          defaults to 0.</span>
+<span class="sd">        alpha (float): between 0 and 1. Alpha transparency of squares.</span>
+<span class="sd">          Optional, defaults to 1 (fully opaque)</span>
+<span class="sd">        zorder (int): The drawing order. Higher numbers appear on top</span>
+<span class="sd">          of lower numbers. Optional, defaults to 1000.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">xy</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+    <span class="n">trans</span> <span class="o">=</span> <span class="n">offset_copy</span><span class="p">(</span>
+        <span class="n">treeplot</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">xoff</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">yoff</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;points&#39;</span><span class="p">)</span>
+
+    <span class="n">col</span> <span class="o">=</span> <span class="n">RegularPolyCollection</span><span class="p">(</span>
+        <span class="n">numsides</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="n">pi</span><span class="o">*</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="p">(</span><span class="n">size</span><span class="o">*</span><span class="n">size</span><span class="p">,),</span>
+        <span class="n">offsets</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">facecolors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">transOffset</span><span class="o">=</span><span class="n">trans</span><span class="p">,</span>
+        <span class="n">edgecolors</span><span class="o">=</span><span class="s">&#39;none&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span>
+
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="add_circles"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_circles">[docs]</a><span class="k">def</span> <span class="nf">add_circles</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s">&quot;g&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">xoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw circles on plot</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nodes: A node object or list of Node objects or label or list of labels</span>
+<span class="sd">        colors: Str or list of strs. Colors of the circles. Optional,</span>
+<span class="sd">          defaults to &#39;g&#39; (green)</span>
+<span class="sd">        size (float): Size of the circles. Optional, defaults to 15</span>
+<span class="sd">        xoff, yoff (float): X and Y offset. Optional, defaults to 0.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">xy</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+    <span class="n">trans</span> <span class="o">=</span> <span class="n">offset_copy</span><span class="p">(</span>
+        <span class="n">treeplot</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">xoff</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">yoff</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&#39;points&#39;</span>
+        <span class="p">)</span>
+
+    <span class="n">col</span> <span class="o">=</span> <span class="n">CircleCollection</span><span class="p">(</span>
+        <span class="n">sizes</span><span class="o">=</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="n">size</span><span class="o">*</span><span class="n">size</span><span class="o">*</span><span class="mf">0.25</span><span class="p">,),</span>
+        <span class="n">offsets</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">facecolors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">transOffset</span><span class="o">=</span><span class="n">trans</span><span class="p">,</span>
+        <span class="n">edgecolors</span><span class="o">=</span><span class="s">&#39;none&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span>
+
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="add_pie"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_pie">[docs]</a><span class="k">def</span> <span class="nf">add_pie</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">xoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">halign</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">xycoords</span><span class="o">=</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="n">boxcoords</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;offset points&#39;</span><span class="p">),</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw a pie chart</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">    node (Node): A single Node object or node label</span>
+<span class="sd">    values (list): A list of floats.</span>
+<span class="sd">    colors (list): A list of strings to pull colors from. Optional.</span>
+<span class="sd">    size (float): Diameter of the pie chart</span>
+<span class="sd">    norm (bool): Whether or not to normalize the values so they</span>
+<span class="sd">      add up to 360</span>
+<span class="sd">    xoff, yoff (float): X and Y offset. Optional, defaults to 0</span>
+<span class="sd">    halign, valign (float): Horizontal and vertical alignment within</span>
+<span class="sd">      box. Optional, defaults to 0.5</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">xy</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">DrawingArea</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span> <span class="n">r</span> <span class="o">=</span> <span class="n">size</span><span class="o">*</span><span class="mf">0.5</span><span class="p">;</span> <span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">r</span><span class="p">)</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="mf">360.0</span>
+    <span class="k">if</span> <span class="n">norm</span><span class="p">:</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">360.0</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">colors</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">_tango</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span> <span class="n">c</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span> <span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">v</span><span class="o">*</span><span class="n">S</span>
+        <span class="k">if</span> <span class="n">v</span><span class="p">:</span> <span class="n">da</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">Wedge</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x0</span><span class="o">+</span><span class="n">theta</span><span class="p">,</span>
+                                  <span class="n">fc</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ec</span><span class="o">=</span><span class="s">&#39;none&#39;</span><span class="p">))</span>
+        <span class="n">x0</span> <span class="o">+=</span> <span class="n">theta</span>
+    <span class="n">box</span> <span class="o">=</span> <span class="n">AnnotationBbox</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span> <span class="n">pad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                         <span class="n">xybox</span><span class="o">=</span><span class="p">(</span><span class="n">xoff</span><span class="p">,</span> <span class="n">yoff</span><span class="p">),</span>
+                         <span class="n">xycoords</span><span class="o">=</span><span class="n">xycoords</span><span class="p">,</span>
+                         <span class="n">box_alignment</span><span class="o">=</span><span class="p">(</span><span class="n">halign</span><span class="p">,</span><span class="n">valign</span><span class="p">),</span>
+                         <span class="n">boxcoords</span><span class="o">=</span><span class="n">boxcoords</span><span class="p">)</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+    <span class="n">box</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">box</span>
+</div>
+<div class="viewcode-block" id="add_text"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_text">[docs]</a><span class="k">def</span> <span class="nf">add_text</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;black&#39;</span><span class="p">,</span> <span class="n">xoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">valign</span><span class="o">=</span><span class="s">&#39;center&#39;</span><span class="p">,</span>
+         <span class="n">halign</span><span class="o">=</span><span class="s">&#39;left&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add text to the plot.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x, y (float): x and y coordinates to place the text</span>
+<span class="sd">        s (str): The text to write</span>
+<span class="sd">        color (str): The color of the text. Optional, defaults to &quot;black&quot;</span>
+<span class="sd">        xoff, yoff (float): x and y offset</span>
+<span class="sd">        valign (str): Vertical alignment. Can be: &#39;center&#39;, &#39;top&#39;,</span>
+<span class="sd">          &#39;bottom&#39;, or &#39;baseline&#39;. Defaults to &#39;center&#39;.</span>
+<span class="sd">        halign (str): Horizontal alignment. Can be: &#39;center&#39;, &#39;right&#39;,</span>
+<span class="sd">          or &#39;left&#39;. Defaults to &#39;left&#39;</span>
+<span class="sd">        fontsize (float): Font size. Optional, defaults to 10</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span>
+        <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">xoff</span><span class="p">,</span> <span class="n">yoff</span><span class="p">),</span>
+        <span class="n">textcoords</span><span class="o">=</span><span class="s">&quot;offset points&quot;</span><span class="p">,</span>
+        <span class="n">verticalalignment</span><span class="o">=</span><span class="n">valign</span><span class="p">,</span>
+        <span class="n">horizontalalignment</span><span class="o">=</span><span class="n">halign</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
+        <span class="n">clip_on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">picker</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">txt</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">txt</span>
+</div>
+<div class="viewcode-block" id="add_legend"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_legend">[docs]</a><span class="k">def</span> <span class="nf">add_legend</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s">&#39;rectangle&#39;</span><span class="p">,</span>
+               <span class="n">loc</span><span class="o">=</span><span class="s">&#39;upper left&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add legend mapping colors/shapes to labels</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        colors (list): List of colors</span>
+<span class="sd">        labels (list): List of labels</span>
+<span class="sd">        shape (str): Shape of label icon. Either rectangle or circle</span>
+<span class="sd">        loc (str): Location of label. Defaults to upper left</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">handles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s">&#39;rectangle&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">lab</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">colors</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+            <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">lab</span><span class="p">))</span>
+            <span class="c">#shapes = [ CircleCollection([10],facecolors=[c]) for c in colors ]</span>
+    <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="s">&quot;circle&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">lab</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">colors</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+            <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">Line2D</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+                           <span class="n">color</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">,</span>
+                           <span class="n">label</span><span class="o">=</span><span class="n">lab</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s">&quot;o&quot;</span><span class="p">,</span> <span class="n">markersize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                           <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">col</span><span class="p">))</span>
+
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">,</span> <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="add_phylorate"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_phylorate">[docs]</a><span class="k">def</span> <span class="nf">add_phylorate</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">rates</span><span class="p">,</span> <span class="n">nodeidx</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add phylorate plot generated from data analyzed with BAMM</span>
+<span class="sd">    (http://bamm-project.org/introduction.html)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rates (array): Array of rates along branches</span>
+<span class="sd">          created by r_funcs.phylorate</span>
+<span class="sd">        nodeidx (array): Array of node indices matching rates (also created</span>
+<span class="sd">          by r_funcs.phylorate)</span>
+
+<span class="sd">    WARNING:</span>
+<span class="sd">        Ladderizing the tree can cause incorrect assignment of Ape node index</span>
+<span class="sd">        numbers. To prevent this, call this function or root.ape_node_idx()</span>
+<span class="sd">        before ladderizing the tree to assign correct Ape node index numbers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">apeidx</span><span class="p">:</span>
+        <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">ape_node_idx</span><span class="p">()</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">plottype</span> <span class="o">==</span> <span class="s">&quot;radial&quot;</span><span class="p">:</span>
+        <span class="n">radpatches</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># For use in drawing arcs for radial plots</span>
+
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">rates</span> <span class="o">=</span> <span class="n">rates</span><span class="p">[</span><span class="n">nodeidx</span><span class="o">==</span><span class="n">n</span><span class="o">.</span><span class="n">apeidx</span><span class="p">]</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+            <span class="n">pc</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">_path_to_parent</span><span class="p">(</span><span class="n">n</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">xd</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">yd</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">pc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">xseg</span> <span class="o">=</span> <span class="n">xd</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span>
+            <span class="n">yseg</span> <span class="o">=</span> <span class="n">yd</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rate</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">rates</span><span class="p">):</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="n">pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">xseg</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="n">pc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">yseg</span>
+                <span class="n">x1</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">xseg</span>
+                <span class="n">y1</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">yseg</span>
+
+                <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)))</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span>
+
+            <span class="n">curverts</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">_path_to_parent</span><span class="p">(</span><span class="n">n</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="n">curcodes</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">_path_to_parent</span><span class="p">(</span><span class="n">n</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="n">curcol</span> <span class="o">=</span> <span class="n">RdYlBu</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">rates</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">radpatches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PathPatch</span><span class="p">(</span>
+                       <span class="n">Path</span><span class="p">(</span><span class="n">curverts</span><span class="p">,</span> <span class="n">curcodes</span><span class="p">),</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">edgecolor</span> <span class="o">=</span> <span class="n">curcol</span><span class="p">,</span>
+                            <span class="n">fill</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">rates</span> <span class="o">=</span> <span class="n">rates</span><span class="p">[</span><span class="n">nodeidx</span><span class="o">==</span><span class="n">n</span><span class="o">.</span><span class="n">apeidx</span><span class="p">]</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+            <span class="n">pc</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span>
+            <span class="n">seglen</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="n">pc</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rate</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">rates</span><span class="p">):</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="n">pc</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">seglen</span>
+                <span class="n">x1</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">seglen</span>
+                <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">x0</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">)))</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span>
+            <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">pc</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">pc</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">)))</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">rates</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">lc</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">RdYlBu</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">lc</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+    <span class="n">lc</span><span class="o">.</span><span class="n">set_zorder</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">plottype</span> <span class="o">==</span> <span class="s">&quot;radial&quot;</span><span class="p">:</span>
+        <span class="n">arccol</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">collections</span><span class="o">.</span><span class="n">PatchCollection</span><span class="p">(</span><span class="n">radpatches</span><span class="p">,</span>
+                                                        <span class="n">match_original</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">treeplot</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">arccol</span><span class="p">)</span>
+        <span class="n">arccol</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span>
+        <span class="n">arccol</span><span class="o">.</span><span class="n">set_zorder</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">lc</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span>
+    <span class="n">colorbar_legend</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">RdYlBu</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="n">vis</span><span class="p">)</span>
+
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+
+
+</div>
+<div class="viewcode-block" id="colorbar_legend"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.colorbar_legend">[docs]</a><span class="k">def</span> <span class="nf">colorbar_legend</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a vertical colorbar legend to a plot</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_range</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">y_range</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">x_range</span><span class="o">*</span><span class="mf">0.05</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="n">y_range</span> <span class="o">*</span> <span class="mf">0.25</span><span class="p">),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="n">y_range</span><span class="o">*</span><span class="mf">0.05</span><span class="p">)]</span>
+
+    <span class="n">segs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">vals</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="p">((</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mf">256.0</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">257</span><span class="p">):</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="p">((</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mf">256.0</span><span class="p">)</span><span class="o">*</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">segs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">segs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">+</span><span class="p">((</span><span class="nb">max</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="n">values</span><span class="p">))</span><span class="o">/</span><span class="mf">256.0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">lcbar</span> <span class="o">=</span>  <span class="n">LineCollection</span><span class="p">(</span><span class="n">segs</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">lcbar</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span>
+    <span class="n">lcbar</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vals</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lcbar</span><span class="p">)</span>
+    <span class="n">lcbar</span><span class="o">.</span><span class="n">set_zorder</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+    <span class="n">minlab</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">values</span><span class="p">))[:</span><span class="mi">6</span><span class="p">]</span>
+    <span class="n">maxlab</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">values</span><span class="p">))[:</span><span class="mi">6</span><span class="p">]</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">x_range</span><span class="o">*.</span><span class="mo">02</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">minlab</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="n">vis</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">x_range</span><span class="o">*.</span><span class="mo">02</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">maxlab</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s">&quot;top&quot;</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="n">vis</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="add_node_heatmap"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_node_heatmap">[docs]</a><span class="k">def</span> <span class="nf">add_node_heatmap</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">nodelist</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot circles on nodes with colors indicating how frequently each node</span>
+<span class="sd">    appears in nodelist. For use with plotting potential regime</span>
+<span class="sd">    shift locations</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nodelist (list): list of node objects. Repeats allowed (and expected)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nodeset</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nodelist</span><span class="p">))</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodelist</span><span class="p">)</span>
+
+    <span class="c"># Don&#39;t plot any values that appear so infrequently as to be less than</span>
+    <span class="c"># what the minimum color would be</span>
+    <span class="n">cutoff</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">255</span><span class="p">))</span>
+
+    <span class="n">nodeset</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nodeset</span> <span class="k">if</span> <span class="n">nodelist</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">cutoff</span><span class="p">]</span>
+
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span> <span class="n">afmhot</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">nodelist</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nodeset</span><span class="p">]</span> <span class="p">]</span>
+
+
+
+    <span class="n">add_circles</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="n">nodeset</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="n">vis</span><span class="p">)</span></div>
+<div class="viewcode-block" id="add_ancestor_noderecon"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_ancestor_noderecon">[docs]</a><span class="k">def</span> <span class="nf">add_ancestor_noderecon</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">internal_vals</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add piecharts at each node based on probability vector</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        internal_vals: Array of dimensions [nchar+2, nnodes]. Identical to the</span>
+<span class="sd">          format returned by anc_recon_cat</span>
+<span class="sd">         colors: List of length = nchar. The colors for each character. Optional.</span>
+<span class="sd">         nregime: Number of regimes. If given and colors = None, function will</span>
+<span class="sd">         automatically color-code characters by regime. (NOT IMPLEMENTED)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">preiter</span><span class="p">())</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="n">internal_vals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
+        <span class="n">add_pie</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">internal_vals</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="o">-</span><span class="mi">2</span><span class="p">]),</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="add_branchstates"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_branchstates">[docs]</a><span class="k">def</span> <span class="nf">add_branchstates</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span><span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add simulated branch states.</span>
+
+<span class="sd">    Treeplot must have simulated states as attributes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span> <span class="n">s</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_state&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span> <span class="p">]))</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span>
+        <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">pc</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">),(</span><span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">)))</span>
+        <span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_state&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">n</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_hist&quot;</span><span class="p">]:</span>
+            <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">)))</span>
+            <span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">pc</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">pc</span><span class="o">.</span><span class="n">y</span><span class="p">),(</span><span class="n">pc</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">)))</span>
+        <span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_state&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">colors</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">_tango</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)]</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+    <span class="n">lc</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">cols</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">antialiaseds</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+
+    <span class="n">leg_handles</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nchar</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">char</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)):</span>
+        <span class="n">leg_handles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">patches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                       <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">leg_handles</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="add_ancrecon"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_ancrecon">[docs]</a><span class="k">def</span> <span class="nf">add_ancrecon</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">liks</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot ancestor reconstruction for a binary mk model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span>
+    <span class="n">horz_seg_collections</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">horz_seg_colors</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">vert_seg_collections</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">vert_seg_colors</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">nchar</span> <span class="o">=</span> <span class="n">liks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">descendants</span><span class="p">()):</span>
+        <span class="n">n_lik</span> <span class="o">=</span> <span class="n">liks</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">par_lik</span> <span class="o">=</span> <span class="n">liks</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">ni</span><span class="p">]</span>
+        <span class="n">n_col</span> <span class="o">=</span> <span class="n">twoS_colormaker</span><span class="p">(</span><span class="n">n_lik</span><span class="p">[:</span><span class="n">nchar</span><span class="p">])</span>
+        <span class="n">par_col</span> <span class="o">=</span> <span class="n">twoS_colormaker</span><span class="p">(</span><span class="n">par_lik</span><span class="p">[:</span><span class="n">nchar</span><span class="p">])</span>
+
+        <span class="n">n_coords</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">par_coords</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span>
+
+        <span class="n">p1</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_coords</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n_coords</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="p">(</span><span class="n">par_coords</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n_coords</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="n">hsegs</span><span class="p">,</span><span class="n">hcols</span> <span class="o">=</span> <span class="n">gradient_segment_horz</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">,</span><span class="n">n_col</span><span class="o">.</span><span class="n">rgb</span><span class="p">,</span><span class="n">par_col</span><span class="o">.</span><span class="n">rgb</span><span class="p">)</span>
+
+        <span class="n">horz_seg_collections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">hsegs</span>
+        <span class="n">horz_seg_colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">hcols</span>
+
+        <span class="n">vert_seg_collections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">([(</span><span class="n">par_coords</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">par_coords</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+                                     <span class="p">(</span><span class="n">par_coords</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n_coords</span><span class="o">.</span><span class="n">y</span><span class="p">)])</span>
+        <span class="n">vert_seg_colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">par_col</span><span class="o">.</span><span class="n">rgb</span><span class="p">)</span>
+    <span class="n">horz_seg_collections</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">horz_seg_collections</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+    <span class="n">horz_seg_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">horz_seg_colors</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+    <span class="n">lc</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">horz_seg_collections</span> <span class="o">+</span> <span class="n">vert_seg_collections</span><span class="p">,</span>
+                        <span class="n">colors</span> <span class="o">=</span> <span class="n">horz_seg_colors</span> <span class="o">+</span> <span class="n">vert_seg_colors</span><span class="p">,</span>
+                        <span class="n">lw</span> <span class="o">=</span> <span class="n">width</span><span class="p">)</span>
+    <span class="n">lc</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="add_ancrecon_hrm"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.add_ancrecon_hrm">[docs]</a><span class="k">def</span> <span class="nf">add_ancrecon_hrm</span><span class="p">(</span><span class="n">treeplot</span><span class="p">,</span> <span class="n">liks</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Color branches on tree based on likelihood of being in a state</span>
+<span class="sd">    based on ancestral state reconstruction of a two-character, two-regime</span>
+<span class="sd">    hrm model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">root</span>
+    <span class="n">horz_seg_collections</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">horz_seg_colors</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">vert_seg_collections</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">vert_seg_colors</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">nchar</span> <span class="o">=</span> <span class="n">liks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">descendants</span><span class="p">()):</span>
+        <span class="n">n_lik</span> <span class="o">=</span> <span class="n">liks</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">par_lik</span> <span class="o">=</span> <span class="n">liks</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">ni</span><span class="p">]</span>
+        <span class="n">n_col</span> <span class="o">=</span> <span class="n">twoS_twoR_colormaker</span><span class="p">(</span><span class="n">n_lik</span><span class="p">[:</span><span class="n">nchar</span><span class="p">])</span>
+        <span class="n">par_col</span> <span class="o">=</span> <span class="n">twoS_twoR_colormaker</span><span class="p">(</span><span class="n">par_lik</span><span class="p">[:</span><span class="n">nchar</span><span class="p">])</span>
+
+        <span class="n">n_coords</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">par_coords</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">n2c</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span>
+
+        <span class="n">p1</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_coords</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n_coords</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="p">(</span><span class="n">par_coords</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n_coords</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="n">hsegs</span><span class="p">,</span><span class="n">hcols</span> <span class="o">=</span> <span class="n">gradient_segment_horz</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">,</span><span class="n">n_col</span><span class="o">.</span><span class="n">rgb</span><span class="p">,</span><span class="n">par_col</span><span class="o">.</span><span class="n">rgb</span><span class="p">)</span>
+
+        <span class="n">horz_seg_collections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">hsegs</span>
+        <span class="n">horz_seg_colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">hcols</span>
+
+        <span class="n">vert_seg_collections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">([(</span><span class="n">par_coords</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">par_coords</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+                                     <span class="p">(</span><span class="n">par_coords</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n_coords</span><span class="o">.</span><span class="n">y</span><span class="p">)])</span>
+        <span class="n">vert_seg_colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">par_col</span><span class="o">.</span><span class="n">rgb</span><span class="p">)</span>
+    <span class="n">horz_seg_collections</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">horz_seg_collections</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+    <span class="n">horz_seg_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">horz_seg_colors</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+    <span class="n">lc</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">horz_seg_collections</span> <span class="o">+</span> <span class="n">vert_seg_collections</span><span class="p">,</span>
+                        <span class="n">colors</span> <span class="o">=</span> <span class="n">horz_seg_colors</span> <span class="o">+</span> <span class="n">vert_seg_colors</span><span class="p">,</span>
+                        <span class="n">lw</span> <span class="o">=</span> <span class="n">width</span><span class="p">)</span>
+    <span class="n">lc</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+
+    <span class="n">leg_ax</span> <span class="o">=</span> <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+    <span class="n">leg_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">which</span> <span class="o">=</span> <span class="s">&quot;both&quot;</span><span class="p">,</span>
+                       <span class="n">bottom</span> <span class="o">=</span> <span class="s">&quot;off&quot;</span><span class="p">,</span>
+                       <span class="n">labelbottom</span><span class="o">=</span><span class="s">&quot;off&quot;</span><span class="p">,</span>
+                       <span class="n">top</span> <span class="o">=</span> <span class="s">&quot;off&quot;</span><span class="p">,</span>
+                       <span class="n">left</span> <span class="o">=</span> <span class="s">&quot;off&quot;</span><span class="p">,</span>
+                       <span class="n">labelleft</span> <span class="o">=</span> <span class="s">&quot;off&quot;</span><span class="p">,</span>
+                       <span class="n">right</span> <span class="o">=</span> <span class="s">&quot;off&quot;</span><span class="p">)</span>
+
+    <span class="n">c1</span> <span class="o">=</span> <span class="n">twoS_twoR_colormaker</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">c2</span> <span class="o">=</span> <span class="n">twoS_twoR_colormaker</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">c3</span> <span class="o">=</span> <span class="n">twoS_twoR_colormaker</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">c4</span> <span class="o">=</span> <span class="n">twoS_twoR_colormaker</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c1</span><span class="o">.</span><span class="n">rgb</span><span class="p">,</span><span class="n">c2</span><span class="o">.</span><span class="n">rgb</span><span class="p">],[</span><span class="n">c3</span><span class="o">.</span><span class="n">rgb</span><span class="p">,</span><span class="n">c4</span><span class="o">.</span><span class="n">rgb</span><span class="p">]])</span>
+    <span class="n">leg_ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s">&quot;bicubic&quot;</span><span class="p">)</span>
+    <span class="n">treeplot</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="twoS_twoR_colormaker"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.twoS_twoR_colormaker">[docs]</a><span class="k">def</span> <span class="nf">twoS_twoR_colormaker</span><span class="p">(</span><span class="n">lik</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given node likelihood, return appropriate color</span>
+
+<span class="sd">    State 0 corresponds to red, state 1 corresponds to blue</span>
+<span class="sd">    Regime 1 corresponds to grey, regime 2 corresponds to highly saturated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s0</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">lik</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lik</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="n">s1</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">lik</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lik</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
+
+    <span class="n">r0</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">lik</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lik</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="n">r1</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">lik</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">lik</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
+
+    <span class="n">lum</span> <span class="o">=</span> <span class="mf">0.30</span> <span class="o">+</span> <span class="p">(</span><span class="n">r0</span><span class="o">*</span><span class="mf">0.45</span><span class="p">)</span>
+
+    <span class="n">col</span> <span class="o">=</span> <span class="n">Color</span><span class="p">(</span><span class="n">rgb</span><span class="o">=</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span><span class="n">s0</span><span class="p">,</span><span class="n">s1</span><span class="p">))</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">luminance</span> <span class="o">=</span> <span class="n">lum</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">saturation</span> <span class="o">=</span> <span class="mf">0.35</span> <span class="o">+</span> <span class="p">(</span><span class="n">r1</span><span class="o">*</span><span class="mf">0.35</span><span class="p">)</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">hue</span> <span class="o">*=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.2</span><span class="o">*</span><span class="n">r0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">col</span></div>
+<div class="viewcode-block" id="twoS_colormaker"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.twoS_colormaker">[docs]</a><span class="k">def</span> <span class="nf">twoS_colormaker</span><span class="p">(</span><span class="n">lik</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given node likelihood, return approrpiate color</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s0</span> <span class="o">=</span> <span class="n">lik</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">s1</span> <span class="o">=</span> <span class="n">lik</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">Color</span><span class="p">(</span><span class="n">rgb</span><span class="o">=</span><span class="p">(</span><span class="n">s0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="n">s1</span><span class="p">))</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">luminance</span> <span class="o">=</span> <span class="mf">0.75</span>
+    <span class="k">return</span> <span class="n">col</span></div>
+<div class="viewcode-block" id="gradient_segment_horz"><a class="viewcode-back" href="../../../ivy.vis.layers.html#ivy.vis.layers.gradient_segment_horz">[docs]</a><span class="k">def</span> <span class="nf">gradient_segment_horz</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a horizontal segment that is filled with a gradient</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p1 (tuple): XY coordinates of first point</span>
+<span class="sd">        p2 (tuple): XY coordinates of second point *Y coord must be same as p1*</span>
+<span class="sd">        c1 (tuple): RGB of color at point 1</span>
+<span class="sd">        c2 (tuple): RGB of color at point 2</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        list: list of segs and colors to be added to a LineCollection</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nsegs</span> <span class="o">=</span> <span class="mi">255</span> <span class="c"># Number of sub-segments per segment (each segment gets its own color)</span>
+    <span class="n">seglen</span> <span class="o">=</span> <span class="p">(</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">nsegs</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">seglen</span><span class="p">),</span> <span class="p">[</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">*</span><span class="n">nsegs</span><span class="p">)</span>
+    <span class="n">pos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span>
+    <span class="n">segs</span> <span class="o">=</span> <span class="p">[[</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsegs</span><span class="p">)]</span>
+
+    <span class="n">cust_cm</span> <span class="o">=</span> <span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s">&quot;cust_cm&quot;</span><span class="p">,[</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">])</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">cust_cm</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">256</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">segs</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

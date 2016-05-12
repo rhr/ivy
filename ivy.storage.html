@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.storage module &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy package" href="ivy.html" />
+    <link rel="next" title="ivy.tree module" href="ivy.tree.html" />
+    <link rel="prev" title="ivy.sequtil module" href="ivy.sequtil.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.tree.html" title="ivy.tree module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.sequtil.html" title="ivy.sequtil module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" accesskey="U">ivy package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ivy.storage">
+<span id="ivy-storage-module"></span><h1>ivy.storage module<a class="headerlink" href="#module-ivy.storage" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ivy.storage.Counter">
+<em class="property">class </em><code class="descclassname">ivy.storage.</code><code class="descname">Counter</code><span class="sig-paren">(</span><em>iterable=None</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">dict</span></code></a></p>
+<p>Dict subclass for counting hashable objects.  Sometimes called a bag
+or multiset.  Elements are stored as dictionary keys and their counts
+are stored as dictionary values.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Counter</span><span class="p">(</span><span class="s">&#39;zyzygy&#39;</span><span class="p">)</span>
+<span class="go">Counter({&#39;y&#39;: 3, &#39;z&#39;: 2, &#39;g&#39;: 1})</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="ivy.storage.Counter.__add__">
+<code class="descname">__add__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter.__add__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter.__add__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add counts from two counters.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Counter</span><span class="p">(</span><span class="s">&#39;abbb&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Counter</span><span class="p">(</span><span class="s">&#39;bcc&#39;</span><span class="p">)</span>
+<span class="go">Counter({&#39;b&#39;: 4, &#39;c&#39;: 2, &#39;a&#39;: 1})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.storage.Counter.__and__">
+<code class="descname">__and__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter.__and__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter.__and__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intersection is the minimum of corresponding counts.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Counter</span><span class="p">(</span><span class="s">&#39;abbb&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">Counter</span><span class="p">(</span><span class="s">&#39;bcc&#39;</span><span class="p">)</span>
+<span class="go">Counter({&#39;b&#39;: 1})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.storage.Counter.__delitem__">
+<code class="descname">__delitem__</code><span class="sig-paren">(</span><em>elem</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter.__delitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter.__delitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like dict.__delitem__() but does not raise KeyError for missing values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.storage.Counter.__or__">
+<code class="descname">__or__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter.__or__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter.__or__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Union is the maximum of value in either of the input counters.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Counter</span><span class="p">(</span><span class="s">&#39;abbb&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="n">Counter</span><span class="p">(</span><span class="s">&#39;bcc&#39;</span><span class="p">)</span>
+<span class="go">Counter({&#39;b&#39;: 3, &#39;c&#39;: 2, &#39;a&#39;: 1})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.storage.Counter.__sub__">
+<code class="descname">__sub__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter.__sub__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter.__sub__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subtract count, but keep only results with positive counts.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Counter</span><span class="p">(</span><span class="s">&#39;abbbc&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">Counter</span><span class="p">(</span><span class="s">&#39;bccd&#39;</span><span class="p">)</span>
+<span class="go">Counter({&#39;b&#39;: 2, &#39;a&#39;: 1})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.storage.Counter.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like dict.copy() but returns a Counter instance instead of a dict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.storage.Counter.elements">
+<code class="descname">elements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter.elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterator over elements repeating each as many times as its count.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s">&#39;ABCABC&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">elements</span><span class="p">())</span>
+<span class="go">[&#39;A&#39;, &#39;A&#39;, &#39;B&#39;, &#39;B&#39;, &#39;C&#39;, &#39;C&#39;]</span>
+</pre></div>
+</div>
+<p>If an element&#8217;s count has been set to zero or is a negative number,
+elements() will ignore it.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ivy.storage.Counter.fromkeys">
+<em class="property">classmethod </em><code class="descname">fromkeys</code><span class="sig-paren">(</span><em>iterable</em>, <em>v=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter.fromkeys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter.fromkeys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.storage.Counter.most_common">
+<code class="descname">most_common</code><span class="sig-paren">(</span><em>n=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter.most_common"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter.most_common" title="Permalink to this definition">¶</a></dt>
+<dd><p>List the n most common elements and their counts from the most
+common to the least.  If n is None, then list all element counts.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Counter</span><span class="p">(</span><span class="s">&#39;abracadabra&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[(&#39;a&#39;, 5), (&#39;r&#39;, 2), (&#39;b&#39;, 2)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.storage.Counter.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>iterable=None</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#Counter.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Counter.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like dict.update() but add counts instead of replacing them.</p>
+<p>Source can be an iterable, a dictionary, or another Counter instance.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s">&#39;which&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;witch&#39;</span><span class="p">)</span>           <span class="c"># add elements from another iterable</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s">&#39;watch&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>                 <span class="c"># add elements from another counter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="p">[</span><span class="s">&#39;h&#39;</span><span class="p">]</span>                      <span class="c"># four &#39;h&#39; in which, witch, and watch</span>
+<span class="go">4</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.storage.MaxDict">
+<em class="property">class </em><code class="descclassname">ivy.storage.</code><code class="descname">MaxDict</code><a class="reference internal" href="_modules/ivy/storage.html#MaxDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.MaxDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">dict</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.storage.Storage">
+<em class="property">class </em><code class="descclassname">ivy.storage.</code><code class="descname">Storage</code><a class="reference internal" href="_modules/ivy/storage.html#Storage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">dict</span></code></a></p>
+<p>A Storage object is like a dictionary except <cite>obj.foo</cite> can be used
+in addition to <cite>obj[&#8216;foo&#8217;]</cite>.</p>
+<p>From web2py/gluon/storage.py by Massimo Di Pierro (www.web2py.com)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.storage.convert">
+<code class="descclassname">ivy.storage.</code><code class="descname">convert</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/storage.html#convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.storage.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert a (potentially nested) dict to Storage</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.sequtil.html"
+                        title="previous chapter">ivy.sequtil module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.tree.html"
+                        title="next chapter">ivy.tree module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.storage.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.tree.html" title="ivy.tree module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.sequtil.html" title="ivy.sequtil module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
