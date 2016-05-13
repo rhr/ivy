@@ -15,7 +15,7 @@ cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
     """
     Compute exp(q*t) for one branch on a tree and place result in pre-
     allocated array p
-
+ 
     Args:
         q (np.array): Q matrix
         t (np.array): Double indicating branch length
@@ -106,7 +106,7 @@ def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t,
 
     for i, blen in enumerate(t):
         dexpm_slice(q, blen, p, i)
-def dexpm_treeMulti_preallocated_p_log(np.ndarray[dtype=DTYPE_t, ndim=3] q,
+def dexpm_treeMulti_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=3] q,
                      np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p,
                      np.ndarray ind):
     assert q.shape[1]==q.shape[2], 'qs must be square'

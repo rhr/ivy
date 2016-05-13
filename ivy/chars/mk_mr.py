@@ -57,7 +57,7 @@ def mk_multi_regime(tree, chars, Qs, locs, p=None, pi="Fitzjohn", returnPi=False
 
     # Creating probability matrices from Q matrices and branch lengths
     # inds indicates which Q matrix to use for which branch
-    cyexpokit.dexpm_treeMulti_preallocated_p(Qs, preallocated_arrays["t"], p, np.array(inds)) # This changes p in place
+    cyexpokit.dexpm_treeMulti_preallocated_p_log(Qs, preallocated_arrays["t"], p, np.array(inds)) # This changes p in place
 
     if len(preallocated_arrays.keys())==2:
         # Creating more arrays
@@ -83,7 +83,7 @@ def mk_multi_regime(tree, chars, Qs, locs, p=None, pi="Fitzjohn", returnPi=False
         preallocated_arrays["root_priors"] = np.empty([nchar], dtype=np.double)
 
     # Calculating the likelihoods for each node in post-order sequence
-    cyexpokit.cy_mk(preallocated_arrays["nodelist"], p, preallocated_arrays["charlist"])
+    cyexpokit.cy_mk(preallocated_arrays["nodelist"], p, nchar)
     # The last row of nodelist contains the likelihood values at the root
 
     # Applying the correct root prior
@@ -123,86 +123,9 @@ def mk_multi_regime(tree, chars, Qs, locs, p=None, pi="Fitzjohn", returnPi=False
         return logli
 
 
-def create_likelihood_function_multimk(tree, chars, Qtype, locs, pi="Equal",
-                                  min = True):
-    if min:
-        nullval = np.inf
-    else:
-        nullval = -np.inf
-
-    nchar = len(set(chars))
-    nt =  len(tree.descendants())
-    charlist = range(nchar)
-
-    # Empty Q matrix
-    Q = np.zeros([len(locs),nchar,nchar], dtype=np.double)
-    # Empty p matrix
-    p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
-    # Empty likelihood array
-    nodelist,t = _create_nodelist(tree, chars)
-    nodelistOrig = nodelist.copy() # Second copy to refer back to
-    # Empty root prior array
-    rootpriors = np.empty([nchar], dtype=np.double)
-
-    # Upper bounds
-    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
-                   tree.leaves()[0].length])
-    upperbound = len(tree.leaves())/treelen
-
-    # Giving internal function access to these arrays.
-       # Warning: can be tricky
-       # Need to make sure old values
-       # Aren't accidentally re-used
-    var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
-           "nodelistOrig":nodelistOrig, "upperbound":upperbound,
-           "root_priors":rootpriors, "nullval":nullval, "locs":locs}
-
-    def likelihood_function(Qparams):
-        # Enforcing upper bound on parameters
-
-        # TODO: replace with sum of each Q
-        if (sum(Qparams)/len(locs) > var["upperbound"]) or any(Qparams <= 0):
-            return var["nullval"]
-
-        # Filling Q matrices:
-        if Qtype == "ER":
-            for i,qmat in enumerate(var["Q"]):
-                qmat.fill(Qparams[i])
-                qmat[np.diag_indices(nchar)] = -Qparams[i] * (nchar-1)
-        # elif Qtype == "Sym":
-        #     var["Q"].fill(0.0) # Re-filling with zeroes
-        #     xs,ys = np.triu_indices(nchar,k=1)
-        #     var["Q"][xs,ys] = Qparams
-        #     var["Q"][ys,xs] = Qparams
-        #     var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
-        # elif Qtype == "ARD":
-        #     var["Q"].fill(0.0) # Re-filling with zeroes
-        #     var["Q"][np.triu_indices(nchar, k=1)] = Qparams[:len(Qparams)/2]
-        #     var["Q"][np.tril_indices(nchar, k=-1)] = Qparams[len(Qparams)/2:]
-        #     var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
-        else:
-            raise ValueError, "Qtype must be one of: ER, Sym, ARD"
-
-        # Resetting the values in these arrays
-        np.copyto(var["nodelist"], var["nodelistOrig"])
-        var["root_priors"].fill(1.0)
-
-        if min:
-            x = -1
-        else:
-            x = 1
-
-        try:
-            return x * mk_multi_regime(tree, chars, var["Q"], var["locs"], p=var["p"], pi = pi, preallocated_arrays=var) # Minimizing negative log-likelihood
-        except ValueError: # If likelihood returned is 0
-            return var["nullval"]
-
-    return likelihood_function
-
-
-def create_likelihood_function_multimk_b(tree, chars, Qtype, nregime, pi="Equal",
-                                  min = True):
-    if min:
+def create_likelihood_function_multimk(tree, chars, Qtype, nregime, pi="Equal",
+                                  findmin = True):
+    if findmin:
         nullval = np.inf
     else:
         nullval = -np.inf
@@ -216,7 +139,8 @@ def create_likelihood_function_multimk_b(tree, chars, Qtype, nregime, pi="Equal"
     # Empty p matrix
     p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
     # Empty likelihood array
-    nodelist,t = _create_nodelist(tree, chars)
+    ar = create_mk_ar(tree, chars)
+    nodelist,t = (ar["nodelist"], ar["t"])
     nodelistOrig = nodelist.copy() # Second copy to refer back to
     # Empty root prior array
     rootpriors = np.empty([nchar], dtype=np.double)
@@ -265,7 +189,7 @@ def create_likelihood_function_multimk_b(tree, chars, Qtype, nregime, pi="Equal"
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
 
-        if min:
+        if findmin:
             x = -1
         else:
             x = 1
@@ -300,3 +224,156 @@ def locs_from_switchpoint(tree, switch, locs=None):
     locs[0]=r1
     locs[1]=r2
     return locs
+
+
+class SwitchpointMetropolis(pymc.Metropolis):
+    """
+    Custom step algorithm for selecting a new switchpoint
+    """
+    def __init__(self, stochastic, tree):
+        pymc.Metropolis.__init__(self, stochastic, scale=1.)
+        self.tree = tree
+    def propose(self):
+        cur_node = self.stochastic.value
+        adjacent_nodes = cur_node.children+[cur_node.parent]
+        valid_nodes = [n for n in adjacent_nodes if not (n.isleaf or n.isroot)]
+        new = random.choice(valid_nodes)
+        self.stochastic.value = new
+
+    def reject(self):
+        self.rejected += 1
+        self.stochastic.value = self.stochastic.last_value
+
+def make_switchpoint_stoch(tree, name="switchpoint_stoch"):
+    startingval = random.choice(tree.internals()[1:])
+    @pymc.stochastic(dtype=ivy.tree.Node, name=name)
+    def switchpoint_stoch(value = startingval):
+        # Flat prior on switchpoint location
+        return 0
+    return switchpoint_stoch
+def create_mk_ar(tree, chars, findmin = True):
+    """
+    Create preallocated arrays. For use in mk function
+
+    Nodelist = edgelist of nodes in postorder sequence
+    """
+    t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
+    nt = len(tree.descendants())
+    nchar = len(set(chars))
+    preleaves = [ n for n in tree.preiter() if n.isleaf ]
+    postleaves = [n for n in tree.postiter() if n.isleaf ]
+    postnodes = list(tree.postiter())
+    postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
+    nnode = len(t)+1
+    nodelist = np.zeros((nnode, nchar+1))
+    nodelist.fill(-np.inf) # the log of 0 is negative infinity
+    leafind = [ n.isleaf for n in tree.postiter()]
+
+    for k,ch in enumerate(postChars):
+        [ n for i,n in enumerate(nodelist) if leafind[i] ][k][ch] = np.log(1.0)
+    for i,n in enumerate(nodelist[:-1]):
+        n[nchar] = postnodes.index(postnodes[i].parent)
+
+    # Setting initial node likelihoods to log one for calculations
+    nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = np.log(1.0)
+
+    # Empty Q matrix
+    Q = np.zeros([nchar, nchar], dtype=np.double)
+    # Empty p matrix
+    p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
+    nodelistOrig = nodelist.copy()
+    rootpriors = np.empty([nchar], dtype=np.double)
+    if findmin:
+        nullval = np.inf
+    else:
+        nullval = -np.inf
+    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
+                   tree.leaves()[0].length])
+    upperbound = len(tree.leaves())/treelen
+    charlist = range(nchar)
+    tmp_ar = np.zeros(nchar)
+    # Giving internal function access to these arrays.
+       # Warning: can be tricky
+       # Need to make sure old values
+       # Aren't accidentally re-used
+    var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
+           "nodelistOrig":nodelistOrig, "upperbound":upperbound,
+           "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar}
+    return var
+
+def mk_multi_bayes(tree, chars, mods=None, pi="Equal"):
+    """
+    Create a Bayesian multi-mk model. User specifies which regime models
+    to use and the Bayesian model finds the switchpoints.
+    """
+    # Preparations
+    # TODO: generalize
+    nregime = 2
+    nchar = len(set(chars))
+
+    N = int((nchar ** 2 - nchar))
+    # This model has 2 components: Q parameters and a switchpoint
+    # They are combined in a custom likelihood function
+
+    ###########################################################################
+    # Switchpoint:
+    ###########################################################################
+    # Modeling the movement of the regime shift(s) is the tricky part
+    # Regime shifts will only be allowed to happen at a node
+    # Regime shift: Uniform categorical distribution
+    # TODO: multiple switchpoints
+    switch = make_switchpoint_stoch(tree)
+    ###########################################################################
+    # Qparams:
+    ###########################################################################
+    # Unscaled Q param: Dirichlet distribution
+    # Setting a Dirichlet prior with Jeffrey's hyperprior of 1/2
+    theta = [1.0/2.0]*N
+
+    # One set of Q-parameters per regime
+    allQparams_init = np.empty(nregime, dtype=object)
+    allQparams_init_full = np.empty(nregime, dtype=object)
+    allScaling_factors = np.empty(nregime, dtype=object)
+    for i in range(nregime):
+        if N != 1:
+            allQparams_init[i] = pymc.Dirichlet("allQparams_init"+str(i), theta)
+            allQparams_init_full[i] = pymc.CompletedDirichlet("allQparams_init_full"+str(i), allQparams_init[i])
+        else: # Dirichlet function does not like creating a distribution
+              # with only 1 state. Set it to 1 by hand
+            allQparams_init_full[i] = [[1.0]]
+        # Exponential scaling factor for Qparams
+        allScaling_factors[i] = pymc.Exponential(name="allScaling_factors"+str(i), beta=1.0)
+        # Scaled Qparams; we would not expect them to necessarily add
+        # to 1 as would be the case in a Dirichlet distribution
+
+    # Regimes are grouped by rows. Each row is a regime.
+    @pymc.deterministic(plot=False)
+    def Qparams(q=allQparams_init_full, s=allScaling_factors):
+        Qs = np.empty([nregime,N])
+        for n in range(N):
+            for i in range(nregime):
+                Qs[i][n] = q[i][0][n]*s[i]
+        return Qs
+    ###########################################################################
+    # Likelihood
+    ###########################################################################
+    # The likelihood function
+
+    # Pre-allocating arrays
+    qarray = np.zeros([nregime,N])
+    locsarray = np.empty([2], dtype=object)
+    l = create_likelihood_function_multimk(tree=tree, chars=chars,
+        Qtype="ARD", #TODO: generalize
+        pi="Equal", findmin=False, nregime=2)
+
+    @pymc.potential
+    def multi_mklik(q = Qparams, switch=switch, name="multi_mklik"):
+
+        locs = locs_from_switchpoint(tree,switch,locsarray)
+
+        # l = discrete.create_likelihood_function_multimk(tree=tree, chars=chars,
+        #     Qtype=Qtype, locs = locs,
+        #     pi="Equal", findmin=False)
+        np.copyto(qarray, q)
+        return l(qarray, locs=locs)
+    return locals()
