@@ -11,7 +11,7 @@ import pymc
 import matplotlib.pyplot as plt
 
 from ivy.chars.expokit import cyexpokit
-from ivy.chars import discrete
+from ivy.chars import mk, hrm, mk_mr
 
 np.seterr(invalid="warn")
 
@@ -52,7 +52,7 @@ def create_mk_model(tree, chars, Qtype, pi):
             Qs[i] = q[0][i]*s
         return Qs
 
-    l = discrete.create_likelihood_function_mk(tree=tree, chars=chars, Qtype=Qtype,
+    l = mk.create_likelihood_function_mk(tree=tree, chars=chars, Qtype=Qtype,
                                   pi="Equal", findmin=False)
     @pymc.potential
     def mklik(q = Qparams, name="mklik"):
@@ -181,18 +181,15 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
     # Pre-allocating arrays
     qarray = np.zeros([nregime,N])
     locsarray = np.empty([2], dtype=object)
-    l = discrete.create_likelihood_function_multimk_b(tree=tree, chars=chars,
+    l = mk_mr.create_likelihood_function_multimk(tree=tree, chars=chars,
         Qtype=Qtype,
         pi="Equal", findmin=False, nregime=2)
 
     @pymc.potential
     def multi_mklik(q = Qparams, switch=switch, name="multi_mklik"):
 
-        locs = discrete.locs_from_switchpoint(tree,tree[int(switch)],locsarray)
+        locs = mk_mr.locs_from_switchpoint(tree,tree[int(switch)],locsarray)
 
-        # l = discrete.create_likelihood_function_multimk(tree=tree, chars=chars,
-        #     Qtype=Qtype, locs = locs,
-        #     pi="Equal", findmin=False)
         np.copyto(qarray, q)
         return l(qarray, locs=locs)
     return locals()
@@ -382,7 +379,7 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
     ###########################################################################
     # Likelihood
     ###########################################################################
-    l = discrete.create_likelihood_function_hrm_mk(tree=tree, chars=chars,
+    l = hrm.create_likelihood_function_hrm_mk(tree=tree, chars=chars,
         nregime=nregime, Qtype="ARD", pi=pi, findmin=False)
     @pymc.potential
     def mklik(wr = WR_Qparams, br=BR_Qparams, name="mklik"):
