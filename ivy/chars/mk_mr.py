@@ -1,6 +1,7 @@
 # Mk multi regime models
 import math
 import random
+import itertools
 
 import numpy as np
 import scipy
@@ -118,7 +119,7 @@ def create_mkmr_ar(tree, chars,nregime,findmin = True):
     nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = np.log(1.0)
 
     # Empty Q matrix
-    Q = np.zeros([nchar, nchar, nregime], dtype=np.double)
+    Q = np.zeros([nregime,nchar, nchar], dtype=np.double)
     # Empty p matrix
     p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
     nodelistOrig = nodelist.copy()
@@ -212,7 +213,7 @@ def create_likelihood_function_multimk_mods(tree, chars, mods, pi="Equal",
     else:
         nullval = -np.inf
 
-    nregime = len(set(mods))
+    nregime = len(mods)
 
     nchar = len(set(chars))
     nt =  len(tree.descendants())
@@ -260,7 +261,7 @@ def fill_model_mr_Q(Qparams, mods, Q):
     """
     # Filling Q matrix row-wise (skipping diagonals)
     nregime = len(mods)
-    nchar=Q.shape[0]
+    nchar=Q.shape[1]
     for regime in range(nregime):
         modcount = 0 # Which mod index are we on
         for r,c in itertools.product(range(nchar),repeat=2):
@@ -272,28 +273,42 @@ def fill_model_mr_Q(Qparams, mods, Q):
         np.fill_diagonal(Q[regime], -np.sum(Q[regime], axis=1)) # Filling diagonals
 
 
-def locs_from_switchpoint(tree, switch, locs=None):
+def locs_from_switchpoint(tree, switches, locs=None):
     """
     Given a tree and a single node to be the switchpoint, return an
     array of all node indices in one regime vs the other
 
     Args:
         tree (Node): Root node of tree
-        switch (Node): Internal node to be the switchpoint. This node
-          is included in its own regime.
+        switches (list): List of internal nodes to act as switchpoints.
+          Switchpoint nodes are part of their own regimes.
+        locs (np.array): Optional pre-allocated array to store output.
     Returns:
-        array: Array of all nodes descended from switch, and all other nodes
+        np.array: Array of indices of all nodes associated with each switchpoint, plus
+          all nodes "outside" the switches in the last list
     """
-    # Note: may need to exclude leaves and root
-    r1 = [ n.ni for n in switch.preiter()]
-    r2 = [ n.ni for n in tree.descendants()if not n.ni in r1 ]
+    # Include the root
+    switches = switches + [tree]
+    # Sort switches by clade size
+    switches_c = switches[:]
+    switches_c.sort(key=len)
 
     if locs is None:
-        locs = np.empty([2], dtype=object)
+        locs = np.zeros(len(switches_c), dtype=object)
+    else:
+        locs.fill(0) # Clear locs array
+    for i,s in enumerate(switches_c):
+        # Add descendants of node to location array if they are not
+        # already recorded. This approach works because the clade sizes
+        # were sorted beforehand
+        locs[i] = [n.ni for n in tree[s] if not n.ni in [x for l in locs[:i] for x in l]]
+    # Remove the root
+    locs[-1] = locs[-1][1:]
 
-    locs[0]=r1
-    locs[1]=r2
-    return locs
+    # Return locs in proper order (locations descended from each switch in order,
+    # with locations descended from the root last)
+    return locs[[switches_c.index(i) for i in switches]]
+
 
 
 class SwitchpointMetropolis(pymc.Metropolis):
@@ -304,24 +319,11 @@ class SwitchpointMetropolis(pymc.Metropolis):
         pymc.Metropolis.__init__(self, stochastic, scale=1., proposal_distribution="prior")
         self.tree = tree
     def propose(self):
-        cur_node = tree[int(self.stochastic.value)]
+        cur_node = self.tree[int(self.stochastic.value)]
         adjacent_nodes = cur_node.children+[cur_node.parent]
         valid_nodes = [n for n in adjacent_nodes if not (n.isleaf or n.isroot)]
         new = random.choice(valid_nodes)
         self.stochastic.value = new.ni
-
-    def reject(self):
-        self.rejected += 1
-        self.stochastic.value = self.stochastic.last_value
-class SwitchpointRandomMetropolis(pymc.Metropolis):
-    """
-    Custom step algorithm for selecting a new switchpoint
-    """
-    def __init__(self, stochastic, tree):
-        pymc.Metropolis.__init__(self, stochastic, scale=1., proposal_distribution="prior")
-        self.tree = tree
-    def propose(self):
-        self.stochastic.value = random.choice([n.ni for n in tree.internals()])
 
     def reject(self):
         self.rejected += 1
@@ -336,19 +338,17 @@ def make_switchpoint_stoch(tree, name="switch"):
     return switchpoint_stoch
 
 
-def mk_multi_bayes(tree, chars, mods=None, pi="Equal", switch_step="adj"):
+def mk_multi_bayes(tree, chars, mods=None, pi="Equal"):
     """
     Create a Bayesian multi-mk model. User specifies which regime models
     to use and the Bayesian model finds the switchpoints.
     """
     # Preparations
-    # TODO: generalize
+
     nregime = len(mods)
     nchar = len(set(chars))
     nparam = len(set([i for s in mods for i in s]))
-
-    N = int((nchar ** 2 - nchar))
-    # This model has 2 components: Q parameters and a switchpoint
+    # This model has 2 components: Q parameters and switchpoints
     # They are combined in a custom likelihood function
 
     ###########################################################################
@@ -356,8 +356,9 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", switch_step="adj"):
     ###########################################################################
     # Modeling the movement of the regime shift(s) is the tricky part
     # Regime shifts will only be allowed to happen at a node
-    # TODO: multiple switchpoints
-    switch = make_switchpoint_stoch(tree, name="switch")
+    switch = [None]*(nregime-1)
+    for regime in range(nregime-1):
+        switch[regime]= make_switchpoint_stoch(tree, name="switch_{}".format(regime))
     ###########################################################################
     # Qparams:
     ###########################################################################
@@ -372,19 +373,19 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", switch_step="adj"):
     # The likelihood function
 
     # Pre-allocating arrays
-    locsarray = np.empty([2], dtype=object)
+    locsarray = np.empty([nregime], dtype=object)
     l = create_likelihood_function_multimk_mods(tree=tree, chars=chars,
         mods=mods, pi=pi, findmin=False)
 
     @pymc.potential
     def multi_mklik(q = Qparams, switch=switch, name="multi_mklik"):
 
-        locs = locs_from_switchpoint(tree,tree[int(switch)],locsarray)
+        locs = locs_from_switchpoint(tree,[tree[int(i)] for i in switch],locsarray)
         return l(q, locs=locs)
 
     mod = pymc.MCMC(locals())
-    if switch_step == "adj":
-        mod.use_step_method(SwitchpointMetropolis, switch, tree)
-    elif switch_step=="rand":
-        mod.use_step_method(SwitchpointRandomMetropolis, switch, tree)
+
+    for s in switch:
+        mod.use_step_method(SwitchpointMetropolis, s, tree)
+
     return mod
