@@ -877,3 +877,10 @@ def gradient_segment_horz(p1, p2, c1, c2, width=4):
     cust_cm = LinearSegmentedColormap.from_list("cust_cm",[c1, c2])
     cols = [cust_cm(i) for i in range(1,256)]
     return [segs, cols]
+def add_tipstates(treeplot, chars, nodes=None,colors=None, *args, **kwargs):
+    if nodes is None:
+        nodes = treeplot.root.leaves()
+    if colors is None:
+        colors = [ _tango.next() for char in set(chars) ]
+    col_list = [ colors[i] for i in chars ]
+    add_circles(treeplot, nodes, colors=col_list, size=6, *args, **kwargs)

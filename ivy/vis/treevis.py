@@ -505,7 +505,7 @@ class TreeFigure(object):
               of the MRCA of ``nodes``
         """
         self.add_layer(layers.add_cbar, nodes, *args, **kwargs)
-    def tip_chars(self, chars, nodes=None, *args, **kwargs):
+    def tipstates(self, chars, nodes=None,colors=None, *args, **kwargs):
         """
         Convenience function for drawing color-coded circles at tips indicating
         character states.
@@ -519,13 +519,7 @@ class TreeFigure(object):
               of unique characters. Optional, defaults to tango colorscheme
 
         """
-        if nodes is None:
-            nodes = self.root.leaves()
-        cols = kwargs.pop("colors", None)
-        if not cols:
-            cols = [ _tango.next() for char in set(chars) ]
-        col_list = [ cols[i] for i in chars ]
-        self.add_layer(layers.add_circles, nodes, colors=col_list, size=6, *args, **kwargs)
+        self.add_layer(layers.add_tipstates,chars, nodes, colors=colors, *args, **kwargs)
 
 class Tree(Axes):
     """

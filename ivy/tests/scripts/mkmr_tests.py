@@ -131,6 +131,15 @@ fig.tip_chars(chars)
 #############################################################
 # Three-regime chars
 #############################################################
+import ivy
+from ivy.chars import mk_mr
+import numpy as np
+from ivy.chars import bayesian_models
+import pymc
+import matplotlib.pyplot as plt
+
+from ivy.interactive import *
+
 tree = ivy.tree.read("support/hrm_600tips.newick")
 
 chars_r3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -159,7 +168,7 @@ chars_r3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 
 fig = treefig(tree)
-fig.tip_chars(chars_r3)
+fig.tipstates(chars_r3)
 
 true_locs = mk_mr.locs_from_switchpoint(tree, [tree[579], tree[329]])
 
@@ -179,4 +188,14 @@ mods = [(3, 3), (2, 2), (1, 1)]
 
 mod_r3 = mk_mr.mk_multi_bayes(tree, chars_r3, mods=mods)
 
-mod_r3.sample(5000, burn=1000)
+mod_r3.sample(50000, burn=5000, thin=3)
+
+plt.plot(mod_r3.trace("switch_1")[:])
+plt.plot(mod_r3.trace("switch_0")[:])
+
+
+mods = [(2, 2), (3, 3), (1, 1)]
+
+mod_r3 = mk_mr.mk_multi_bayes(tree, chars_r3, mods=mods)
+
+mod_r3.sample(20000, burn=2000, thin=3)
