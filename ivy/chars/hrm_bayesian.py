@@ -238,8 +238,10 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam,modseed, pi="Equal",
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be in the form of 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         nregime (int): Number of regimes
         nparam (int): Number of unique parameters to allow in a model
         modseed (tuple): Starting model for the MCMC chain. A tuple of ints.
@@ -250,6 +252,8 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam,modseed, pi="Equal",
         mod_graph (Graph): Nx graph of all possible models. Optional, if not
           provided will generate graph, which may be time-consuming
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     assert nparam > 1, "nparam must be at least two"
 
     nobschar = len(set(chars))
@@ -315,6 +319,8 @@ def mk_allmodels_bayes(tree, chars, nparam, pi="Equal", dbname=None):
     """
     Fit an mk model with nparam parameters distributed about the Q matrix.
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]    
     nchar = len(set(chars))
     ncell = nchar**2 - nchar
     assert nparam <= ncell

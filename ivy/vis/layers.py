@@ -878,6 +878,8 @@ def gradient_segment_horz(p1, p2, c1, c2, width=4):
     cols = [cust_cm(i) for i in range(1,256)]
     return [segs, cols]
 def add_tipstates(treeplot, chars, nodes=None,colors=None, *args, **kwargs):
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in treeplot.root.leaves()]]    
     if nodes is None:
         nodes = treeplot.root.leaves()
     if colors is None:

@@ -40,6 +40,8 @@ def tip_age_rank_sum(tree, chars):
 
     See: Bromham et al. 2016
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     tip_ages = [(n.length, chars[i]) for i,n in enumerate(tree.leaves())]
     tip_ages.sort(key = lambda x: x[0])
     lens0 = [ i[0] for i in tip_ages if i[1]==0]
@@ -56,6 +58,8 @@ def NoTO(tree, chars):
 
     See: Bromham et al. 2016
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     parsimonyStates = ivy.chars.recon.parsimony_recon(tree, chars)
     rootState = int(parsimonyStates[tree][0])
 
@@ -72,6 +76,8 @@ def monotypic_clade_size(tree, chars):
     Count diversity contained within subclades having the same character
     state.
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]    
     if len(set(chars)) == 1:
         return [len(chars)]
     chardict = {t:chars[i] for i,t in enumerate(tree.leaves())}

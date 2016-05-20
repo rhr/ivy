@@ -23,8 +23,10 @@ def anc_recon_cat(tree, chars, Q, p=None, pi="Equal", ars=None, nregime=1):
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         Q (np.array): Instantaneous rate matrix
         p (np.array): 3-D array of dimensions branch_number * nchar * nchar.
             Optional. Pre-allocated space for efficient calculations
@@ -47,6 +49,8 @@ def anc_recon_cat(tree, chars, Q, p=None, pi="Equal", ars=None, nregime=1):
         np.array: Array of nodes in preorder sequence containing marginal
           likelihoods.
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = Q.shape[0]
     if ars is None:
         # Creating arrays to be used later
@@ -75,6 +79,8 @@ def create_ancrecon_ars(tree, chars, nregime = 1):
     Returns edgelist of nodes in postorder sequence, edgelist of nodes in preorder sequence,
     partial likelihood vector for each node's children, childlist, and branch lengths.
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
     nobschar = len(set(chars))
     nchar = nobschar * nregime
@@ -147,13 +153,15 @@ def parsimony_recon(tree, chars):
 
     Args:
         tree (Node): Root node of tree
-        chars (list): List of characters in preorder sequence
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
     Returns:
         np.array: Array of assigned states of interior nodes
     """
-    chardata = {tree.leaves()[i].label:chars[i] for i in range(len(chars))}
-    stepmatrix = catpars.default_costmatrix(len(set(chars)))
-    rec = catpars.ancstates(tree, chardata, stepmatrix)
+    stepmatrix = catpars.default_costmatrix(len(set(chars.values())))
+    rec = catpars.ancstates(tree, chars, stepmatrix)
     for k in rec.keys():
         rec[k] = rec[k][0]
     return rec
@@ -163,11 +171,17 @@ def pscore(tree, chars):
     """
     Return the minimum number of changes needed by parsimony to observe
     given data on the tree
+
+    Args:
+        tree (Node): Root node of the tree
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
     """
     if len(set(chars)) == 1:
         return 0
     precon =  parsimony_recon(tree, chars)
     minp = 0.0
+    chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     for node in tree:
         if not node.isleaf:
             ch = get_childstates(node, precon, chars)

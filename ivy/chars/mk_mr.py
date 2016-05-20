@@ -22,8 +22,10 @@ def mk_multi_regime(tree, chars, Qs, locs, pi="Equal", returnPi=False,
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         Qs (np.array): Array of instantaneous rate matrices
         locs (np.array): Array of the same length as Qs containing the
           node indices that correspond to each Q matrix
@@ -40,6 +42,8 @@ def mk_multi_regime(tree, chars, Qs, locs, pi="Equal", returnPi=False,
            Fitzjohn: Root states weighted by how well they
              explain the data at the tips.
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = Qs[0].shape[0]
     if ar is None:
         # Creating arrays to be used later
@@ -98,6 +102,8 @@ def create_mkmr_ar(tree, chars,nregime,findmin = True):
 
     Nodelist = edgelist of nodes in postorder sequence
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
     nt = len(tree.descendants())
     nchar = len(set(chars))
@@ -141,6 +147,8 @@ def create_mkmr_ar(tree, chars,nregime,findmin = True):
 
 def create_likelihood_function_multimk(tree, chars, Qtype, nregime, pi="Equal",
                                   findmin = True):
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     if findmin:
         nullval = np.inf
     else:
@@ -208,6 +216,8 @@ def create_likelihood_function_multimk_mods(tree, chars, mods, pi="Equal",
     Create a likelihood function for testing the parameter values of user-
     specified models
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     if findmin:
         nullval = np.inf
     else:
@@ -343,6 +353,8 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal"):
     Create a Bayesian multi-mk model. User specifies which regime models
     to use and the Bayesian model finds the switchpoints.
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     # Preparations
 
     nregime = len(mods)

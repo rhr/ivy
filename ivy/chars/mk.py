@@ -24,8 +24,10 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         Q (np.array): Instantaneous rate matrix
         p (np.array): Optional pre-allocated p matrix
         pi (str or np.array): Option to weight the root node by given values.
@@ -44,6 +46,8 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
         ar (dict): Dict of pre-allocated arrays to improve
           speed by avoiding creating and destroying new arrays
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = Q.shape[0]
     if ar is None:
         # Creating arrays to be used later
@@ -87,6 +91,8 @@ def create_mk_ar(tree, chars, findmin = True):
 
     Nodelist = edgelist of nodes in postorder sequence
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
     nt = len(tree.descendants())
     nchar = len(set(chars))
@@ -144,8 +150,10 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         Qtype (str): What type of Q matrix to use. Either ER (equal rates),
           Sym (symmetric rates), or ARD (All rates different).
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
@@ -156,6 +164,8 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
         function: Function accepting a list of parameters and returning
           log-likelihood. To be optmimized with NLOPT
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     if findmin:
         nullval = np.inf
     else:
@@ -219,8 +229,10 @@ def fitMkER(tree, chars, pi="Equal"):
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         pi (str): Either "Equal" or "Fitzjohn". How to weight values at root
           node. Defaults to "Equal"
 
@@ -229,6 +241,8 @@ def fitMkER(tree, chars, pi="Equal"):
           at the root.
 
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars))
     # Initial value arbitrary
     x0 = [.5] # Starting value for our equal rates model
@@ -259,8 +273,10 @@ def fitMkSym(tree, chars, pi="Equal"):
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         pi (str): Either "Equal" or "Fitzjohn". How to weight values at root
           node. Defaults to "Equal"
           Method "Fitzjohn" is currently untested
@@ -271,7 +287,8 @@ def fitMkSym(tree, chars, pi="Equal"):
 
 
     """
-
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars))
     # Number of params equal to binom(nchar, 2)
     # Initial values arbitrary
@@ -306,8 +323,10 @@ def fitMkARD(tree, chars, pi="Equal"):
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         pi (str): Either "Equal" or "Fitzjohn". How to weight values at root
           node. Defaults to "Equal"
           Method "Fitzjohn" is currently untested
@@ -317,6 +336,8 @@ def fitMkARD(tree, chars, pi="Equal"):
           at the root.
 
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     # Number of parameters equal to k^2 - k
     nchar = len(set(chars))
     x0 = [.5] * (nchar ** 2 - nchar)
@@ -348,8 +369,10 @@ def fit_Mk(tree, chars, Q = "Equal", pi = "Equal"):
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be in the form of 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root node. Defaults to "Equal"
           Method "Fitzjohn" is not thouroughly tested, use with caution
@@ -365,6 +388,8 @@ def fit_Mk(tree, chars, Q = "Equal", pi = "Equal"):
     Returns:
         tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     assert pi in ["Equal", "Fitzjohn", "Equilibrium"], "Pi must be one of: 'Equal', 'Fitzjohn', 'Equilibrium'"
 
     if type(Q) == str:

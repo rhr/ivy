@@ -511,8 +511,10 @@ class TreeFigure(object):
         character states.
 
         Args:
-            chars (list): Character states in the form of [0,1, etc.]. should
-              be in the same order as nodes.
+            chars (dict): Dict mapping character states to tip labels.
+              Character states should be coded 0,1,2...
+
+              Can also be a list with tip states in preorder sequence
             nodes (list): List of nodes or node labels. Optional, defaults
               to all tip labels in preorder sequence
             colors (list): List of strs of the same length as the number

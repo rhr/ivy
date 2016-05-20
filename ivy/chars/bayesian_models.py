@@ -22,6 +22,8 @@ def create_mk_model(tree, chars, Qtype, pi):
 
     Creates Qparams and likelihood function
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars))
     if Qtype=="ER":
         N = 1
@@ -89,6 +91,8 @@ def fit_mk_bayes(tree, chars, Qtype, pi, *kwargs):
     Returns:
         tuple: The pymc MCMC object and the pymc MAP object
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars))
     mod = create_mk_model(tree, chars, Qtype, pi)
 
@@ -117,6 +121,8 @@ def create_multi_mk_model(tree, chars, Qtype, pi, nregime=2):
     Regime number is fixed and the location of the regime shift is allowed
     to change
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     # Preparations
     nchar = len(set(chars))
     if Qtype=="ER":
@@ -278,8 +284,10 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be in the form of 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root node. Defaults to "Equal"
           Method "Fitzjohn" is not thouroughly tested, use with caution
@@ -299,6 +307,8 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
               have different symmetry (a>b in regime 1, b>a in regime 2)
             "None": No contraints
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nobschar = len(set(chars))
     nchar = nobschar * nregime
     assert Qtype in ["Simple", "STD", "RTD", "ARD"], "Q type must be one of: simple, STD, RTD, ARD"

@@ -35,8 +35,10 @@ def hrm_mk(tree, chars, Q, nregime, pi="Equal",returnPi=False,
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         Q (np.array): Instantaneous rate matrix
         p (np.array): Optional pre-allocated p matrix
         pi (str or np.array): Option to weight the root node by given values.
@@ -53,6 +55,8 @@ def hrm_mk(tree, chars, Q, nregime, pi="Equal",returnPi=False,
         ar (dict): Dict of pre-allocated arrays to improve
           speed by avoiding creating and destroying new arrays
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = Q.shape[0]
     nobschar = nchar/nregime
     if ar is None:
@@ -208,6 +212,8 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
     """
     Create arrays to be used in hrm likelihood function
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars)) * nregime
     nt =  len(tree.descendants())
     charlist = range(nchar)
@@ -274,8 +280,10 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Equal
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         Qtype (str): ARD only
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root  node.
@@ -293,6 +301,9 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Equal
         function: Function accepting a list of parameters and returning
           log-likelihood. To be optmimized with scipy.optimize.minimize
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
+
     nchar = len(set(chars)) * nregime
     nt =  len(tree.descendants())
     charlist = range(nchar)
@@ -390,8 +401,10 @@ def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be in the form of 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         nregime (int): Number of hidden rates per character
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root node. Defaults to "Equal"
@@ -402,6 +415,8 @@ def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
     Returns:
         tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     if Qtype == "Simple":
         Q, logli, rootLiks, f, par = fit_hrm_mkSimple(tree, chars, nregime, pi,
                                                     orderedRegimes,startingvals)
@@ -422,9 +437,10 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Equal", constraints="Rate",
 
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
-          greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be in the form of 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         nregime (int): Number of hidden rates per character
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root node. Defaults to "Equal"
@@ -434,6 +450,8 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Equal", constraints="Rate",
     Returns:
         tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars))*nregime
     nobschar = len(set(chars))
     mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
@@ -466,8 +484,10 @@ def fit_hrm_mkSimple(tree, chars, nregime, pi="Equal", orderedRegimes=True,
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be in the form of 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         nregime (int): Number of hidden rates per character
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root node. Defaults to "Equal"
@@ -475,6 +495,8 @@ def fit_hrm_mkSimple(tree, chars, nregime, pi="Equal", orderedRegimes=True,
     Returns:
         tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars))*nregime
     nobschar = len(set(chars))
     mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,
@@ -565,7 +587,10 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_varia
 
     Args:
         tree (Node): Root node of tree
-        chars (list): Character states in preorder sequence
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         nregime (int): Number of regimes to test in model
         nparams (int): Number of unique parameters available for regimes
         pi (str): Root prior
@@ -577,6 +602,8 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_varia
           the first part of the filename
 
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars))
     if nchar != 2:
         raise ValueError,"Binary characters only. Number of states given:{}".format(nchar)
@@ -629,6 +656,8 @@ def fill_Q_layout(regimetype, Qparams):
 
 
 def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal", findmin=True, br_variable=False, ar=None):
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nregime = len(regimetypes)
     nchar = len(set(chars)) * nregime
     nt =  len(tree.descendants())
@@ -711,6 +740,8 @@ def fit_hrm_model(tree, chars, nregime, mod, pi="Equal", findmin=True, initialva
     """
     Fit parameters for a single model specified by the user
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nobschar = len(set(chars))
     if nobschar != 2:
         raise ValueError,"Binary characters only. Number of states given:{}".format(nchar)
@@ -778,6 +809,8 @@ def fit_hrm_model_likelihood(tree, chars, nregime, mod, pi="Equal", findmin=True
     """
     Likelihood function for fitting user-specified model
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nobschar = len(set(chars))
     nchar = nobschar*nregime
     nt =  len(tree.descendants())
@@ -827,6 +860,8 @@ def cluster_models(tree, chars, Q, nregime, pi="Equal", findmin=True):
     Given an MLE Q, return candidate models with more parsimonious
     parameter set by merging similar parameters
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     Qparams = extract_Qparams(Q, nregime)
 
     ts = np.linspace(-10, 0, 11)
@@ -858,8 +893,10 @@ def pairwise_merge(tree, chars, Q, nregime, pi="Equal"):
     Args:
         tree (Node): Root node of a tree. All branch lengths must be
           greater than 0 (except root)
-        chars (list): List of character states corresponding to leaf nodes in
-          preoder sequence. Character states must be numbered 0,1,2,...
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
         Q (np.array): Instantaneous rate matrix
         nregime (int): Number of regimes in the model
         pi (str or np.array): Option to weight the root node by given values.
@@ -872,6 +909,8 @@ def pairwise_merge(tree, chars, Q, nregime, pi="Equal"):
              Fitzjohn: Root states weighted by how well they
                explain the data at the tips.
     """
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     Qparams = extract_Qparams(Q, nregime)
     prev_mod = Qparams.argsort().argsort() + 1
     nobschar = len(set(chars))
