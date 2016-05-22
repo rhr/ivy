@@ -78,6 +78,18 @@ QB =  [x for x in mod.trace("Qparam1")[:]]
 ####################################
 # Tests
 ####################################
+###################
+# Two regime
+###################
+import ivy
+from ivy.chars import mk_mr
+import numpy as np
+from ivy.chars import bayesian_models
+import pymc
+import matplotlib.pyplot as plt
+
+from ivy.interactive import *
+%pylab
 tree = ivy.tree.read("support/Mk_two_regime_tree.newick")
 
 
@@ -103,8 +115,10 @@ trueSlowQ = np.array([[-.1,.1], [.1,-.1]])
 trueQs = np.array([trueFastQ,trueSlowQ])
 
 
-mod = mk_multi_bayes(tree, mr_chars, mods=[(1,1),(2,2)],switch_step="rand")
-mod.sample(5000,burn=500,thin=3)
+mod_mr = mk_mr.mk_multi_bayes(tree, mr_chars, mods=None,nregime=2)
+mod_mr.sample(50000,burn=5000,thin=3)
+
+plt.plot(mod.trace("switch_0")[:])
 
 switch = [int(i) for i in mod.trace("switch")[:]]
 
@@ -116,7 +130,7 @@ fig.add_layer(ivy.vis.layers.add_node_heatmap,nds, store="hm")
 fig.tip_chars(chars)
 
 
-mod = mk_multi_bayes(tree, mr_chars, mods=[(1,1),(2,2)],switch_step="adj")
+mod = mk_multi_bayes(tree, mr_chars, mods=[(1,1),(2,2)])
 mod.sample(10000,burn=1000,thin=3)
 
 switch = [int(i) for i in mod.trace("switch")[:]]
@@ -188,7 +202,7 @@ mods = [(3, 3), (2, 2), (1, 1)]
 
 mod_r3 = mk_mr.mk_multi_bayes(tree, chars_r3, mods=mods)
 
-mod_r3.sample(50000, burn=5000, thin=3)
+mod_r3.sample(200000)
 
 plt.plot(mod_r3.trace("switch_1")[:])
 plt.plot(mod_r3.trace("switch_0")[:])

@@ -158,6 +158,9 @@ def create_likelihood_function_multimk(tree, chars, Qtype, nregime, pi="Equal",
     nt =  len(tree.descendants())
     charlist = range(nchar)
 
+    # Number of parameters per Q matrix
+    n_qp = nchar**2-nchar
+
     # Empty Q matrix
     Q = np.zeros([nregime,nchar,nchar], dtype=np.double)
     # Empty p matrix
@@ -166,25 +169,19 @@ def create_likelihood_function_multimk(tree, chars, Qtype, nregime, pi="Equal",
     var = create_mkmr_ar(tree, chars,nregime,findmin)
     def likelihood_function(Qparams, locs):
         # Enforcing upper bound on parameters
-
+        Qparams = [float(qp) for qp in Qparams]
         # # TODO: replace with sum of each Q
-        if (np.sum(Qparams)/len(locs) > var["upperbound"]) or (Qparams <= 0).any():
+        if (np.sum(Qparams)/len(locs) > var["upperbound"]) or any([x<=0 for x in Qparams]):
             return var["nullval"]
-        if not (Qparams == sorted(Qparams)).all():
-            return var["nullval"]
-
+        # if not (Qparams == sorted(Qparams)):
+        #     return var["nullval"]
         # Filling Q matrices:
+        Qparams = [Qparams[i:i+n_qp] for i in range(nregime)]
+
         if Qtype == "ER":
             for i,qmat in enumerate(var["Q"]):
                 qmat.fill(float(Qparams[i]))
                 qmat[np.diag_indices(nchar)] = -Qparams[i] * (nchar-1)
-
-        # elif Qtype == "Sym":
-        #     var["Q"].fill(0.0) # Re-filling with zeroes
-        #     xs,ys = np.triu_indices(nchar,k=1)
-        #     var["Q"][xs,ys] = Qparams
-        #     var["Q"][ys,xs] = Qparams
-        #     var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
         elif Qtype == "ARD":
             for i,qmat in enumerate(var["Q"]):
                 qmat.fill(0.0) # Re-filling with zeroes
@@ -237,8 +234,10 @@ def create_likelihood_function_multimk_mods(tree, chars, mods, pi="Equal",
         # Enforcing upper bound on parameters
         Qparams = np.insert(Qparams, 0, 1e-15)
         # # TODO: replace with sum of each Q
-        if (np.sum(Qparams)/len(locs) > var["upperbound"]) or (Qparams <= 0).any():
+
+        if (np.sum(Qparams)/len(locs) > var["upperbound"]) or any([x<=0 for x in Qparams]):
             return var["nullval"]
+
 
         # Clearing Q matrices
         var["Q"].fill(0.0)
@@ -329,8 +328,9 @@ class SwitchpointMetropolis(pymc.Metropolis):
         pymc.Metropolis.__init__(self, stochastic, scale=1., proposal_distribution="prior")
         self.tree = tree
     def propose(self):
+        # Jumps can happen to children, parent, or siblings.
         cur_node = self.tree[int(self.stochastic.value)]
-        adjacent_nodes = cur_node.children+[cur_node.parent]
+        adjacent_nodes = cur_node.children+[cur_node.parent]+cur_node.parent.children
         valid_nodes = [n for n in adjacent_nodes if not (n.isleaf or n.isroot)]
         new = random.choice(valid_nodes)
         self.stochastic.value = new.ni
@@ -348,7 +348,7 @@ def make_switchpoint_stoch(tree, name="switch"):
     return switchpoint_stoch
 
 
-def mk_multi_bayes(tree, chars, mods=None, pi="Equal"):
+def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None):
     """
     Create a Bayesian multi-mk model. User specifies which regime models
     to use and the Bayesian model finds the switchpoints.
@@ -357,9 +357,14 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal"):
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     # Preparations
 
-    nregime = len(mods)
+    if nregime is None:
+        nregime = len(mods)
     nchar = len(set(chars))
-    nparam = len(set([i for s in mods for i in s]))
+    if mods is not None:
+        nparam = len(set([i for s in mods for i in s]))
+    else: # Default to ARD model
+        nparam = ((nchar**2)-nchar) * nregime
+
     # This model has 2 components: Q parameters and switchpoints
     # They are combined in a custom likelihood function
 
@@ -386,8 +391,13 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal"):
 
     # Pre-allocating arrays
     locsarray = np.empty([nregime], dtype=object)
-    l = create_likelihood_function_multimk_mods(tree=tree, chars=chars,
-        mods=mods, pi=pi, findmin=False)
+    if mods is not None:
+        l = create_likelihood_function_multimk_mods(tree=tree, chars=chars,
+            mods=mods, pi=pi, findmin=False)
+    else:
+        l = create_likelihood_function_multimk(tree, chars=chars, Qtype="ARD",
+                                               nregime=nregime, pi=pi,
+                                               findmin=False)
 
     @pymc.potential
     def multi_mklik(q = Qparams, switch=switch, name="multi_mklik"):
