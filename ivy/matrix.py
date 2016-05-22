@@ -1,6 +1,8 @@
 """
 Functions for dealing with trees as matrices.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import ivy
 from collections import defaultdict
 import numpy as np
@@ -22,7 +24,7 @@ def vcv(root):
         c = node.length + sum([ x.length for x in node.rootpath(root)
                                 if x.parent ])
         dists = leafdists[node]
-        leaves = dists.keys()
+        leaves = list(dists.keys())
         for lf1 in leaves:
             for lf2 in leaves:
                 if lf1 is not lf2:
@@ -92,14 +94,14 @@ def readEL(el):
 
 
 if __name__ == "__main__":
-    import tree, ascii
+    from . import tree, ascii
     from pprint import pprint
     n = tree.read("(((a:1,b:2):3,(c:3,d:1):1,(e:0.5,f:3):2.5):1,g:4);")
     var, covar = vcv(n)
     for x in n:
         if not x.label: x.label = str(x.length or "")
         else: x.label = "%s %s" % (x.length, x.label)
-    print ascii.render(n, scaled=1)
+    print(ascii.render(n, scaled=1))
 
-    for k, v in var.items():
-        print [ x.label.split()[-1] for x in k ], v, covar[k]
+    for k, v in list(var.items()):
+        print([ x.label.split()[-1] for x in k ], v, covar[k])

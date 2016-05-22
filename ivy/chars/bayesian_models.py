@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, division, print_function, unicode_literals
 import math
 import itertools
 
@@ -382,7 +383,7 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
             WR_Qparams[i] = d_scaled
         BR_Qparams = np.ndarray((nregime-1)*2*nobschar, dtype="object")
         br_i = 0
-        for i in range(nregime-1)*2:
+        for i in list(range(nregime-1))*2:
             for n in range(nobschar):
                 BR_Qparams[br_i] = pymc.Exponential(name="br-par"+str(br_i), beta=1.0, value=1e-2)
                 br_i += 1
@@ -403,18 +404,18 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
             qinds = {}
             for i,q in enumerate(wr):
                 qinds[i]=valid_indices(nobschar, nregime, i,i)
-            rshift_pairs = zip(range(nregime)[1:], range(nregime)[:-1])
+            rshift_pairs = list(zip(list(range(nregime))[1:], list(range(nregime))[:-1]))
             qinds[i+1] = [] # Between-regime shifts(all share 1 rate)
             for p in rshift_pairs:
                 qinds[i+1].extend(valid_indices(nobschar, nregime, p[0],p[1]))
                 qinds[i+1].extend(valid_indices(nobschar, nregime, p[1],p[0]))
             # These are the indices of the values we will give to
             # the likelihood function, in order
-            param_indices = sorted([ i for v in qinds.values() for i in v])
+            param_indices = sorted([ i for v in list(qinds.values()) for i in v])
             qparam_list = list(wr)+[br] # Making a single list to get parameters from
             Qparams = [] # Empty list for values to feed to lik function
             for pi in param_indices:
-                qi = [ k for k,v in qinds.iteritems() if pi in v ][0]
+                qi = [ k for k,v in qinds.items() if pi in v ][0]
                 Qparams.append(qparam_list[qi]) # Pulling out the correct param
             # Qparams now contains the parameters needed in the
             # correct order for the likelihood function.
@@ -432,16 +433,16 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
                 for k in range(nregime):
                     qinds[n] = [valid_indices(nobschar, nregime, i, i)[k]]
                     n+=1
-            rshift_pairs = zip(range(nregime)[1:], range(nregime)[:-1])
+            rshift_pairs = list(zip(list(range(nregime))[1:], list(range(nregime))[:-1]))
             qinds[n] = [] # Between-regime shifts(all share 1 rate)
             for p in rshift_pairs:
                 qinds[n].extend(valid_indices(nobschar, nregime, p[0],p[1]))
                 qinds[n].extend(valid_indices(nobschar, nregime, p[1],p[0]))
-            param_indices = sorted([ i for v in qinds.values() for i in v])
+            param_indices = sorted([ i for v in list(qinds.values()) for i in v])
             qparam_list = [i for s in [q for q in wr] for i in s]+[br] # Making a single list to get parameters from
             Qparams = [] # Empty list for values to feed to lik function
             for pi in param_indices:
-                qi = [ k for k,v in qinds.iteritems() if pi in v ][0]
+                qi = [ k for k,v in qinds.items() if pi in v ][0]
                 Qparams.append(qparam_list[qi]) # Pulling out the correct param
             # Potential constraints are "Rate" and "Symmetry"
             if constraint == "Rate":
@@ -470,7 +471,7 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
                 for k in range(nregime):
                     qinds[n] = [valid_indices(nobschar, nregime, i, i)[k]]
                     n+=1
-            rshift_pairs = zip(range(nregime)[1:], range(nregime)[:-1])
+            rshift_pairs = list(zip(list(range(nregime))[1:], list(range(nregime))[:-1]))
             for p in rshift_pairs:
                 for i in  valid_indices(nobschar, nregime, p[0],p[1]):
                     qinds[n] = [i]
@@ -478,11 +479,11 @@ def hrm_bayesian(tree, chars, Qtype, nregime, pi="Fitzjohn", constraint="Rate"):
                 for i in  valid_indices(nobschar, nregime, p[1],p[0]):
                     qinds[n] = [i]
                     n+=1
-            param_indices = sorted([ i for v in qinds.values() for i in v])
+            param_indices = sorted([ i for v in list(qinds.values()) for i in v])
             qparam_list = [i for s in [q for q in wr] for i in s]+[b for b in br] # Making a single list to get parameters from
             Qparams = [] # Empty list for values to feed to lik function
             for pi in param_indices:
-                qi = [ k for k,v in qinds.iteritems() if pi in v ][0]
+                qi = [ k for k,v in qinds.items() if pi in v ][0]
                 Qparams.append(qparam_list[qi]) # Pulling out the correct param
             for i in range(nregime):
                 n = [q[i] for q in wr]
@@ -510,21 +511,21 @@ def _subarray_indices(nobschar, nregime, x, y):
 def _invalid_indices(nobschar, nregime):
     # Diagonals have no parameters
     diags = [ n + nobschar*nregime*n for n in range(nobschar*nregime)]
-    consecs = zip(range(nregime)[1:], range(nregime)[:-1])
+    consecs = list(zip(list(range(nregime))[1:], list(range(nregime))[:-1]))
     revconsecs = [ i[::-1] for i in consecs ]
 
-    subarrays = list(itertools.permutations(range(nregime), 2))
+    subarrays = list(itertools.permutations(list(range(nregime)), 2))
     # "corner" subarrays have no parameters (no shifts directly from
     # slow to fast regimes, eg.)
     corner_subarrays = [ i for i in subarrays if not i in consecs+revconsecs ]
-    corner_indices = range(len(corner_subarrays))
+    corner_indices = list(range(len(corner_subarrays)))
     for i,s in enumerate(corner_subarrays):
         corner_indices[i] = _subarray_indices(nobschar, nregime, s[0], s[1])
 
     # For regime-shift subarrays (non-diagonal and non-corner subarrays)
     # Only diagonals are allowed. All non-diagonals have no parameters.
     rshift_subarrays = [ i for i in subarrays if i in consecs+revconsecs]
-    rshift_indices = range(len(rshift_subarrays))
+    rshift_indices = list(range(len(rshift_subarrays)))
     for i,s in enumerate(rshift_subarrays):
         inds = _subarray_indices(nobschar, nregime, s[0], s[1])
         # Remove the diagonals (they are valid)

@@ -1,5 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import math
-from storage import Storage
+from .storage import Storage
 
 CLOCKWISE = -1
 COUNTERCLOCKWISE = 1
@@ -45,7 +47,7 @@ def depth_length_preorder_traversal(node, n2coords=None):
             coords.depth = p.depth + 1
             coords.length_to_root = p.length_to_root + (node.length or 0.0)
         except KeyError:
-            print node.label, node.parent.label
+            print(node.label, node.parent.label)
         except AttributeError:
             coords.depth = 0
             coords.length_to_root = 0
@@ -143,7 +145,7 @@ def calc_node_positions(node, radius=1.0, pole=None,
     return n2coords
 
 def test():
-    import newick
+    from . import newick
     node = newick.parse("(a:3,(b:2,(c:4,d:5):1,(e:3,(f:1,g:1):2):2):2);")
     for i, n in enumerate(node.iternodes()):
         if not n.isleaf:

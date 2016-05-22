@@ -42,7 +42,7 @@
 # Change Log:
 # 1.2 Use the platform module to help determine OS.
 # 1.3 Changed ctypes.windll.user32.OpenClipboard(None) to ctypes.windll.user32.OpenClipboard(0), after some people ran into some TypeError
-
+from __future__ import absolute_import, division, print_function, unicode_literals
 import platform, os
 from subprocess import call, Popen, PIPE
 

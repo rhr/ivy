@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os, types, numpy, csv
 from collections import defaultdict
 
@@ -57,10 +59,10 @@ class Rows(object):
         try: v = self.index[item]
         except KeyError:
             try: v = self.index[item.label]
-            except KeyError, AttributeError:
+            except KeyError as AttributeError:
                 try: v = self.index[item.id]
-                except KeyError, AttributeError:
+                except KeyError as AttributeError:
                     try: v = self.index[item.id]
-                    except KeyError, AttributeError:
+                    except KeyError as AttributeError:
                         v = None
         return v

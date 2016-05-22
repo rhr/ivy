@@ -4,11 +4,15 @@ Parse newick strings.
 The function of interest is `parse`, which returns the root node of
 the parsed tree.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import string, sys, re, shlex, types, itertools
 import numpy
 import ivy.nexus
-from cStringIO import StringIO
+from io import StringIO
 from pprint import pprint
+
+
 
 ## def read(s):
 ##     try:
@@ -68,13 +72,12 @@ def parse(data, ttable=None, treename=None):
     Returns:
         Node: The root node.
     """
-    from tree import Node
-    try: # Python 2
-        iter(types.StringTypes)
-        StringTypes = types.StringTypes
-    except TypeError: # Python 3
-        StringTypes = [types.StringTypes]
+    from .tree import Node
 
+    try:
+        StringTypes = types.StringTypes # Python 2
+    except AttributeError: # Python 3
+        StringTypes = [str]
 
     if type(data) in StringTypes:
         data = StringIO(data)
@@ -260,7 +263,7 @@ def parse_ampersand_comment(s):
             try: v = float(v)
             except ValueError: pass
         else:
-            try: v = map(float, v.asList())
+            try: v = list(map(float, v.asList()))
             except ValueError: pass
         d.append((x.key, v))
     return d
@@ -312,7 +315,7 @@ def nexus_iter(infile):
     f = itertools.takewhile(not_end, itertools.dropwhile(not_begin, infile))
     s = f.next().strip().lower()
     if s != "begin trees;":
-        print sys.stderr, "Expecting 'begin trees;', got %s" % s
+        print(sys.stderr, "Expecting 'begin trees;', got %s" % s)
         raise StopIteration
     ttable = {}
     while True:
@@ -321,7 +324,7 @@ def nexus_iter(infile):
         if not s: continue
         if s.lower() == "translate":
             ttable = parse_ttable(f)
-            print "ttable: %s" % len(ttable)
+            print("ttable: %s" % len(ttable))
         elif s.split()[0].lower()=='tree':
             match = tree.parseString(s)
             yield nexus.Newick(match, ttable)
@@ -340,5 +343,5 @@ def test_parse_comment():
          "R", "lnP=-154.27154502342688,lnP=-24657.14341301901",
          'states="T-lateral"')
     for s in v:
-        print "input:", s
-        print dict(parse_ampersand_comment(s))
+        print("input:", s)
+        print(dict(parse_ampersand_comment(s)))

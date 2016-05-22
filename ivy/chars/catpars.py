@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, division, print_function, unicode_literals
 import scipy
 import numpy
 
@@ -93,7 +94,7 @@ def ancstates(tree, chardata, stepmatrix):
     Returns:
         dict: Internal nodes mapping to reconstructed states.
     """
-    states = range(len(stepmatrix))
+    states = list(range(len(stepmatrix)))
     return uppass(tree, states, stepmatrix,
                   downpass(tree, states, stepmatrix, chardata))
 
@@ -117,7 +118,7 @@ def _bindeltran(node, stepmatrix, node2dpv, node2deltr=None, ancstate=None):
 
 
 def binary_deltran(tree, chardata, stepmatrix):
-    states = range(len(stepmatrix))
+    states = list(range(len(stepmatrix)))
     node2dpv = downpass(tree, states, stepmatrix, chardata)
     node2deltr = _bindeltran(tree, stepmatrix, node2dpv)
     return node2deltr
@@ -129,9 +130,9 @@ if __name__ == "__main__":
     root = tree.read("(a,((b,c),(d,(e,f))));")
 
     nstates = 4
-    states = range(nstates)
+    states = list(range(nstates))
     cm = default_costmatrix(nstates)
-    chardata = dict(zip("abcdef", map(int, "000233")))
+    chardata = dict(list(zip("abcdef", list(map(int, "000233")))))
     dp = downpass(root, states, cm, chardata)
 
     for i, node in enumerate(root):
@@ -140,7 +141,7 @@ if __name__ == "__main__":
         else:
             node.label = "%s (%s)" % (node.label, chardata[node.label])
 
-    print ascii.render(root)
+    print(ascii.render(root))
 
 
 ##     nstates = 2

@@ -3,6 +3,8 @@ interactive viewers for trees, etc. using matplotlib
 
 Re-written to have a layer-based API
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import sys, time, bisect, math, types, os, operator, functools
 from collections import defaultdict, OrderedDict
 from itertools import chain
@@ -114,7 +116,7 @@ class TreeFigure(object):
             root = tree.read(data)
         self.root = root
         if not self.root:
-            raise IOError, "cannot coerce data into tree.Node"
+            raise IOError("cannot coerce data into tree.Node")
         self.name = self.name or root.treename
         pars = SubplotParams(
             left=0, right=1, bottom=0.05, top=1, wspace=0.01
@@ -229,7 +231,7 @@ class TreeFigure(object):
             if e.mouseevent.button==1:
                 s = e.artist.get_text()
                 clipboard.copy(s)
-                print s
+                print(s)
                 sys.stdout.flush()
         except:
             pass
@@ -276,7 +278,7 @@ class TreeFigure(object):
         if not keeptemp:
             self.layers.pop("temp", None)
 
-        for lay in self.layers.keys():
+        for lay in list(self.layers.keys()):
             if self.layers[lay].keywords["vis"]:
                 self.layers[lay]()
             matplotlib.pyplot.draw()
@@ -285,7 +287,7 @@ class TreeFigure(object):
             self.overview.redraw()
             if not keeptemp:
                 self.ovlayers.pop("temp", None)
-            for lay in self.ovlayers.keys():
+            for lay in list(self.ovlayers.keys()):
                 self.ovlayers[lay]()
                 matplotlib.pyplot.draw()
         try: self.tree.draw_labels()
@@ -593,7 +595,7 @@ class Tree(Axes):
         x0, x1 = sorted((e0.xdata, e1.xdata))
         y0, y1 = sorted((e0.ydata, e1.ydata))
         add = e0.key == 'shift'
-        for n, c in self.n2c.items():
+        for n, c in list(self.n2c.items()):
             if (x0 < c.x < x1) and (y0 < c.y < y1):
                 s.add(n)
         self.select_nodes(nodes = s, add = add)
@@ -617,7 +619,7 @@ class Tree(Axes):
         xlim = self.get_xlim()
         ylim = self.get_ylim()
         get = self.n2c.get
-        coords = filter(None, [ get(n) for n in self.selected_nodes ])
+        coords = [_f for _f in [ get(n) for n in self.selected_nodes ] if _f]
         x = [ c.x for c in coords ]
         y = [ c.y for c in coords ]
         if x and y:
@@ -655,7 +657,7 @@ class Tree(Axes):
         x0, x1 = sorted((e0.xdata, e1.xdata))
         y0, y1 = sorted((e0.ydata, e1.ydata))
         add = e0.key == 'shift'
-        for n, c in self.n2c.items():
+        for n, c in list(self.n2c.items()):
             if (x0 < c.x < x1) and (y0 < c.y < y1):
                 s.add(n)
         self.select_nodes(nodes = s, add = add)
@@ -867,10 +869,10 @@ class Tree(Axes):
         self.n2c = cartesian(self.root, scaled=self.scaled, yunit=1.0,
                              smooth=self.smooth_xpos)
         self.labels = [ x.label for x in self.root ]
-        for c in self.n2c.values():
+        for c in list(self.n2c.values()):
             c.x += self.xoff; c.y += self.yoff
         sv = sorted([
-            [c.y, c.x, n] for n, c in self.n2c.items()
+            [c.y, c.x, n] for n, c in list(self.n2c.items())
             ])
         self.coords = sv#numpy.array(sv)
 
@@ -937,7 +939,7 @@ class Tree(Axes):
         ypp = self.ypp()
         d = self.clade_dimensions()
         h = {}
-        for n, (x0, x1, y0, y1) in d.items():
+        for n, (x0, x1, y0, y1) in list(d.items()):
             h[n] = (y1-y0)/ypp
         return h
 
@@ -959,7 +961,7 @@ class Tree(Axes):
         self.add_patch(self.branchpatch)
 
     def adjust_xspine(self):
-        v = sorted([ c.x for c in self.n2c.values() ])
+        v = sorted([ c.x for c in list(self.n2c.values()) ])
         try:
             self.spines["bottom"].set_bounds(v[0],v[-1])
         except AttributeError:
@@ -971,7 +973,7 @@ class Tree(Axes):
     def mark_named(self):
         if self._mark_named:
             n2c = self.n2c
-            cv = [ c for n, c in n2c.items() if n.label and (not n.isleaf) ]
+            cv = [ c for n, c in list(n2c.items()) if n.label and (not n.isleaf) ]
             x = [ c.x for c in cv ]
             y = [ c.y for c in cv ]
             if x and y:
@@ -982,7 +984,7 @@ class Tree(Axes):
         trans = td.inverted().transform
         xmax = xmin = ymax = ymin = 0
 
-        v = self.n2c.values()
+        v = list(self.n2c.values())
         ymin = min([ c.y for c in v ])
         ymax = max([ c.y for c in v ])
 
@@ -1022,10 +1024,9 @@ class Tree(Axes):
         return pixelsep
     def draw_labels(self, *args):
         if self.tf.layers["leaflabels"].keywords["vis"]:
-            [ l.set_visible(False) for l in self.node2label.values() ]
+            [ l.set_visible(False) for l in list(self.node2label.values()) ]
             fs = 10
-            leaves = list(filter(lambda x:x[0].isleaf,
-                                 self.get_visible_nodes(labeled_only=True)))
+            leaves = list([x for x in self.get_visible_nodes(labeled_only=True) if x[0].isleaf])
             psep = self.leaf_pixelsep()
             fontsize = min(self.leaf_fontsize, max(psep, 8))
             n2l = self.node2label
@@ -1079,7 +1080,7 @@ class Tree(Axes):
         ## print [ x[0].id for x in nodes ]
             if self.tf.layers["branchlabels"].keywords["vis"]:
                 nodes = self.get_visible_nodes(labeled_only=True)
-                branches = list(filter(lambda x:(not x[0].isleaf), nodes))
+                branches = list([x for x in nodes if (not x[0].isleaf)])
                 n2l = self.node2label
                 for n, x, y in branches:
                     t = n2l[n]
@@ -1115,7 +1116,7 @@ class RadialTree(Tree):
                                        start=start, end=end)
         # Sort by angle for polar coordinates
         sv = sorted([
-            [c.angle,c.y,c.x, n] for n, c in self.n2c.items()
+            [c.angle,c.y,c.x, n] for n, c in list(self.n2c.items())
             ])
         self.coords = [ i[1:] for i in sv ] # We only want coords, not angle
 
@@ -1170,7 +1171,7 @@ class OverviewTree(Tree):
         trans = td.inverted().transform
         xmax = xmin = ymax = ymin = 0
 
-        v = self.n2c.values()
+        v = list(self.n2c.values())
         ymin = min([ c.y for c in v ])
         ymax = max([ c.y for c in v ])
 
@@ -1269,7 +1270,7 @@ class MultiTreeFigure(TreeFigure):
         else:
             root = tree.read(data)
         if not root:
-            raise IOError, "cannot coerce data into tree.Node"
+            raise IOError("cannot coerce data into tree.Node")
 
         name = name or root.treename
         self.root.append(root)
@@ -1333,7 +1334,7 @@ class MultiTreeFigure(TreeFigure):
     def picked(self, e):
         try:
             if e.mouseevent.button==1:
-                print e.artist.get_text()
+                print(e.artist.get_text())
                 sys.stdout.flush()
         except:
             pass

@@ -1,4 +1,4 @@
-from itertools import izip, imap
+from __future__ import absolute_import, division, print_function, unicode_literals
 import numpy
 
 def finditer(seq, substr, start=0):
@@ -48,7 +48,7 @@ def find_stop_codons(seq, pos=0):
     """
     s = seq[pos:]
     it = iter(s)
-    g = imap(lambda x:"".join(x), izip(it, it, it))
+    g = map(lambda x:"".join(x), zip(it, it, it))
     for i, x in enumerate(g):
         if x in ("TAG", "TAA", "TGA"):
             yield pos+(i*3), x

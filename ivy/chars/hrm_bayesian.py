@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import math
 import itertools
@@ -41,7 +42,7 @@ def unique_models(nchar, nregime, nparam):
         list: List of all unique models. Each item contains a tuple of the
           within-regime parameters and a tuple of the between-regime parameters.
     """
-    param_ranks = range(nparam+1)
+    param_ranks = list(range(nparam+1))
     n_wr = nchar**2 - nchar
 
     # Within-regime parameters
@@ -97,7 +98,7 @@ def new_hrm_model(mod, nparam, nchar, nregime, mod_order):
     Return new, valid model by changing one parameter of current model
     """
     while 1:
-        i = random.choice(range(len(mod)))
+        i = random.choice(list(range(len(mod))))
         v = random.choice([n for n in range(nparam+1) if not n==mod[i]])
 
         newmod = mod[:i] + (v,) + mod[i+1:]
@@ -109,10 +110,10 @@ def is_valid_model(mod, nparam, nchar, nregime, mod_order):
     """
     Check if a given model is valid
     """
-    nobschar = nchar/nregime
+    nobschar = nchar//nregime
     n_wr = nobschar**2-nobschar
     n_br = (nregime**2-nregime)*nobschar
-    all_params_zero = range(nparam+1)
+    all_params_zero = list(range(nparam+1))
     all_params = all_params_zero[1:]
     # Test if all params are present. If not, return false
     if not (list(set(mod)) == all_params_zero or list(set(mod)) == all_params):
@@ -134,10 +135,10 @@ def number_connected(mod, nchar, nregime, n_wr, n_br):
     """
     Test how many regimes are connected in some way
     """
-    br_mod = mod[n_wr*nregime:]
-    n_pairs = (nregime**2-nregime)/2
+    br_mod = mod[int(n_wr*nregime):]
+    n_pairs = int((nregime**2-nregime)/2)
     connections = [False]*n_pairs
-    nobschar = nchar/nregime
+    nobschar = nchar//nregime
 
     for c in range(n_pairs):
         connections[c] = set(br_mod[c*nobschar*2:c*nobschar*2+nobschar*2]) != {0}
@@ -166,8 +167,8 @@ class QmatMetropolis(pymc.Metropolis):
         self.nparam = nparam
         self.nchar = nchar
         self.nregime = nregime
-        nobschar = nchar/nregime
-        order = itertools.product(range(nparam+1), repeat = nobschar**2-nobschar)
+        nobschar = nchar//nregime
+        order = itertools.product(list(range(nparam+1)), repeat = nobschar**2-nobschar)
         self.mod_order = {m:i for i,m in enumerate(order)}
     def propose(self):
         cur_mod = self.stochastic.value
@@ -208,15 +209,15 @@ def fill_model_Q(mod, Qparams, Q):
         Q (np.array): Pre-allocated Q matrix
     """
     nregime = len(mod)-1
-    nobschar = Q.shape[0]/nregime
+    nobschar = Q.shape[0]//nregime
     nchar = Q.shape[0]
     Q.fill(0.0)
     for i in range(nregime):
         subQ = slice(i*nobschar,(i+1)*nobschar)
         subQvals = [Qparams[x] for s in [(0,)+mod[i][k:k+nobschar] for k in range(0,len(mod[i])+1,nobschar)] for x in s]
-        np.copyto(Q[subQ, subQ], [subQvals[x:x+nobschar] for x in xrange(0, len(subQvals), nobschar)])
+        np.copyto(Q[subQ, subQ], [subQvals[x:x+nobschar] for x in range(0, len(subQvals), nobschar)])
 
-    combs = list(itertools.combinations(range(nregime),2))
+    combs = list(itertools.combinations(list(range(nregime)),2))
     revcombs = [tuple(reversed(i)) for i in combs]
     submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
     for i,submatrix_index in enumerate(submatrix_indices):
@@ -273,7 +274,7 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam,modseed, pi="Equal",
         paramscales[p] =  ShiftedGamma(name = "paramscale_{}".format(str(p)), shape = GAMMASHAPE, shift=1)
 
     mod = make_qmat_stoch(nobschar = nobschar,nregime=nregime,
-                          nparam=nparam, mod_order_list = list(itertools.product(range(nparam+1), repeat = nobschar**2-nobschar)),
+                          nparam=nparam, mod_order_list = list(itertools.product(list(range(nparam+1)), repeat = nobschar**2-nobschar)),
                           modseed=modseed,
                           name="mod")
 
@@ -320,7 +321,7 @@ def mk_allmodels_bayes(tree, chars, nparam, pi="Equal", dbname=None):
     Fit an mk model with nparam parameters distributed about the Q matrix.
     """
     if type(chars) == dict:
-        chars = [chars[l] for l in [n.label for n in tree.leaves()]]    
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars))
     ncell = nchar**2 - nchar
     assert nparam <= ncell
@@ -336,7 +337,7 @@ def mk_allmodels_bayes(tree, chars, nparam, pi="Equal", dbname=None):
     for p in range(nparam-1):
         paramscales[p] =  pymc.Uniform(name = "paramscale_{}".format(str(p)), lower = 2, upper=20)
     ### Model
-    paramset = range(nparam+1)
+    paramset = list(range(nparam+1))
     nonzeros = paramset[1:]
     all_mods = list(itertools.product(paramset, repeat = ncell))
     all_mods = [tuple(m) for m in all_mods if all([i in set(m) for i in nonzeros])]

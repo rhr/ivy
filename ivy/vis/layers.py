@@ -1,6 +1,8 @@
 """
 Layer functions to add to a tree plot with the addlayer method
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import sys, time, bisect, math, types, os, operator, functools
 from collections import defaultdict
 from itertools import chain
@@ -48,12 +50,11 @@ from colour import Color
 
 
 _tango = colors.tango()
-StringTypes = types.StringTypes
-try: # Python 2
-    iter(StringTypes)
-except TypeError: # Python 3
-    StringTypes = [StringTypes]
 
+try:
+    StringTypes = types.StringTypes # Python 2
+except AttributeError: # Python 3
+    StringTypes = [str]
 
 def xy(plot, p):
     """
@@ -92,7 +93,7 @@ def add_label(treeplot, labeltype, vis=True, leaf_offset=4,
     n2c = treeplot.n2c
     if leaf_halign == "right": leaf_offset *= -1 # Padding in correct direction
     if branch_halign == "right": branch_offset *= -1
-    for node, coords in n2c.items():
+    for node, coords in list(n2c.items()):
         x = coords.x; y = coords.y
         if node.isleaf and node.label and labeltype == "leaf":
             if treeplot.plottype == "phylogram":
@@ -204,7 +205,7 @@ def add_highlight(treeplot, x=None, vis=True, width=5, color="red"):
     codes = []
 
     seen = set()
-    for node, coords in [ x for x in treeplot.n2c.items() if x[0] in nodes ]:
+    for node, coords in [ x for x in list(treeplot.n2c.items()) if x[0] in nodes ]:
         x = coords.x; y = coords.y
         p = node.parent
         while p:
@@ -269,7 +270,7 @@ def add_cbar(treeplot, nodes, vis=True, color=None, label=None, x=None, width=8,
         """
         #assert treeplot.plottype != "radial", "No cbar for radial trees"
         xlim = treeplot.get_xlim(); ylim = treeplot.get_ylim()
-        if color is None: color = _tango.next()
+        if color is None: color = next(_tango)
         transform = treeplot.transData.inverted().transform
 
         if mrca:
@@ -467,7 +468,7 @@ def add_pie(treeplot, node, values, colors=None, size=16, norm=True,
     if norm: S = 360.0/sum(values)
     if not colors:
         c = _tango
-        colors = [ c.next() for v in values ]
+        colors = [ next(c) for v in values ]
     for i, v in enumerate(values):
         theta = v*S
         if v: da.add_artist(Wedge(center, r, x0, x0+theta,
@@ -532,7 +533,7 @@ def add_legend(treeplot, colors, labels, shape='rectangle',
             #shapes = [ CircleCollection([10],facecolors=[c]) for c in colors ]
     elif shape == "circle":
         for col, lab in zip(colors, labels):
-            handles.append(matplotlib.pyplot.Line2D(range(1), range(1),
+            handles.append(matplotlib.pyplot.Line2D(list(range(1)), list(range(1)),
                            color="white",
                            label=lab, marker="o", markersize = 10,
                            markerfacecolor=col))
@@ -713,7 +714,7 @@ def add_branchstates(treeplot,vis=True, colors=None):
         cols.append(n.parent.sim_char["sim_state"])
     if not colors:
         c = _tango
-        colors = [c.next() for v in range(nchar)]
+        colors = [next(c) for v in range(nchar)]
     colors = np.array(colors)
     lc = LineCollection(segments, colors=colors[cols], lw=2, antialiaseds=[0])
     treeplot.add_collection(lc)
@@ -870,7 +871,7 @@ def gradient_segment_horz(p1, p2, c1, c2, width=4):
     """
     nsegs = 255 # Number of sub-segments per segment (each segment gets its own color)
     seglen = (p2[0] - p1[0])/nsegs
-    pos = zip(np.arange(p1[0], p2[0], seglen), [p1[1]]*nsegs)
+    pos = list(zip(np.arange(p1[0], p2[0], seglen), [p1[1]]*nsegs))
     pos.append(p2)
     segs = [[pos[i],pos[i+1]] for i in range(nsegs)]
 
@@ -879,10 +880,10 @@ def gradient_segment_horz(p1, p2, c1, c2, width=4):
     return [segs, cols]
 def add_tipstates(treeplot, chars, nodes=None,colors=None, *args, **kwargs):
     if type(chars) == dict:
-        chars = [chars[l] for l in [n.label for n in treeplot.root.leaves()]]    
+        chars = [chars[l] for l in [n.label for n in treeplot.root.leaves()]]
     if nodes is None:
         nodes = treeplot.root.leaves()
     if colors is None:
-        colors = [ _tango.next() for char in set(chars) ]
+        colors = [ next(_tango) for char in set(chars) ]
     col_list = [ colors[i] for i in chars ]
     add_circles(treeplot, nodes, colors=col_list, size=6, *args, **kwargs)

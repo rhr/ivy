@@ -1,6 +1,7 @@
 """
 Unittests for marginal ancestor reconstruction
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 import unittest
 import ivy
 from ivy.chars.expokit import cyexpokit
@@ -20,7 +21,7 @@ class NodelikelihoodMethods(unittest.TestCase):
 
         self.fourchars = [1,1,0,0]
 
-        self.fourtiptree = ivy.tree.read("(((A:1,B:1)E:1,C:2)F:1,D:3)R;")
+        self.fourtiptree = ivy.tree.read(u"(((A:1,B:1)E:1,C:2)F:1,D:3)R;")
     def tearDown(self):
         del(self.fourtiptree)
 

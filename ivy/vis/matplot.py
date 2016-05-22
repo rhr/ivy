@@ -1,6 +1,8 @@
 """
 interactive viewers for trees, etc. using matplotlib
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import sys, time, bisect, math, types, os, operator
 from collections import defaultdict
 from itertools import chain
@@ -30,8 +32,8 @@ except ImportError:
     pass
 from matplotlib._png import read_png
 from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
-import symbols, colors
-import hardcopy as HC
+from . import symbols, colors
+from . import hardcopy as HC
 import Image
 
 matplotlib.rcParams['path.simplify'] = False
@@ -91,7 +93,7 @@ class TreeFigure:
             root = tree.read(data)
         self.root = root
         if not self.root:
-            raise IOError, "cannot coerce data into tree.Node"
+            raise IOError("cannot coerce data into tree.Node")
         self.name = self.name or root.treename
         pars = SubplotParams(
             left=0, right=1, bottom=0.05, top=1, wspace=0.01
@@ -187,7 +189,7 @@ class TreeFigure:
     def picked(self, e):
         try:
             if e.mouseevent.button==1:
-                print e.artist.get_text()
+                print(e.artist.get_text())
                 sys.stdout.flush()
         except:
             pass
@@ -234,13 +236,13 @@ class TreeFigure:
     def highlight(self, x=None, width=5, color="red"):
         if x:
             nodes = set()
-            if type(x) in types.StringTypes:
+            if type(x) in str:
                 nodes = self.root.findall(x)
             elif isinstance(x, tree.Node):
                 nodes = set(x)
             else:
                 for n in x:
-                    if type(n) in types.StringTypes:
+                    if type(n) in str:
                         found = self.root.findall(n)
                         if found:
                             nodes |= set(found)
@@ -362,7 +364,7 @@ class MultiTreeFigure:
     def picked(self, e):
         try:
             if e.mouseevent.button==1:
-                print e.artist.get_text()
+                print(e.artist.get_text())
                 sys.stdout.flush()
         except:
             pass
@@ -383,7 +385,7 @@ class MultiTreeFigure:
         else:
             root = tree.read(data)
         if not root:
-            raise IOError, "cannot coerce data into tree.Node"
+            raise IOError("cannot coerce data into tree.Node")
         
         name = name or root.treename
         self.root.append(root)
@@ -561,7 +563,7 @@ class Tree(Axes):
     
     def save_newick(self, filename):
         if os.path.exists(filename):
-            s = raw_input("File %s exists, enter 'y' to overwrite ").strip()
+            s = input("File %s exists, enter 'y' to overwrite ").strip()
             if (s and s.lower() != 'y') or (not s):
                 return
         import newick
@@ -587,13 +589,13 @@ class Tree(Axes):
         *label* is ``None`` then the clade's label is used instead.
         """
         xlim = self.get_xlim(); ylim = self.get_ylim()
-        if color is None: color = _tango.next()
+        if color is None: color = next(_tango)
         transform = self.transData.inverted().transform
 
         if mrca:
             if isinstance(nodes, tree.Node):
                 spec = nodes
-            elif type(nodes) in types.StringTypes:
+            elif type(nodes) in str:
                 spec = self.root.get(nodes)
             else:
                 spec = self.root.mrca(nodes)
@@ -685,7 +687,7 @@ class Tree(Axes):
         xlim = self.get_xlim()
         ylim = self.get_ylim()
         get = self.n2c.get
-        coords = filter(None, [ get(n) for n in self.selected_nodes ])
+        coords = [_f for _f in [ get(n) for n in self.selected_nodes ] if _f]
         x = [ c.x for c in coords ]
         y = [ c.y for c in coords ]
         if x and y:
@@ -706,16 +708,16 @@ class Tree(Axes):
         s = set()
         x0, x1 = sorted((e0.xdata, e1.xdata))
         y0, y1 = sorted((e0.ydata, e1.ydata))
-        for n, c in self.n2c.items():
+        for n, c in list(self.n2c.items()):
             if (x0 < c.x < x1) and (y0 < c.y < y1):
                 s.add(n)
         self.select_nodes(s)
         self.set_xlim(xlim)
         self.set_ylim(ylim)
         if s:
-            print "Selected:"
+            print("Selected:")
             for n in s:
-                print " ", n
+                print(" ", n)
 
     def picked(self, e):
         if hasattr(self, "app") and self.app:
@@ -822,7 +824,7 @@ class Tree(Axes):
                 except: pass
             return False
 
-        for node, coords in [ x for x in self.n2c.items() if f(x[0]) ]:
+        for node, coords in [ x for x in list(self.n2c.items()) if f(x[0]) ]:
             x = coords.x; y = coords.y
             p = node.parent
             pcoords = self.n2c[p]
@@ -841,7 +843,7 @@ class Tree(Axes):
     def hlines(self, nodes, width=5, color="red", xoff=0, yoff=0):
         offset = IdentityTransform()
         segs = []; w = []; o = []
-        for n in filter(lambda x:x.parent, nodes):
+        for n in [x for x in nodes if x.parent]:
             c = self.n2c[n]; p = self.n2c[n.parent]
             segs.append(((p.x,c.y),(c.x,c.y)))
             w.append(width); o.append((xoff,yoff))
@@ -882,7 +884,7 @@ class Tree(Axes):
         verts = []
         codes = []
         seen = set()
-        for node, coords in [ x for x in self.n2c.items() if x[0] in nodes ]:
+        for node, coords in [ x for x in list(self.n2c.items()) if x[0] in nodes ]:
             x = coords.x; y = coords.y
             p = node.parent
             while p:
@@ -951,9 +953,8 @@ class Tree(Axes):
             self.zoom_nodes(list(anc), border)
 
     def draw_leaf_labels(self, *args):
-        leaves = list(filter(lambda x:x[0].isleaf,
-                             self.get_visible_nodes(labeled_only=True)))
-        print [ x[0].label for x in leaves ]
+        leaves = list([x for x in self.get_visible_nodes(labeled_only=True) if x[0].isleaf])
+        print([ x[0].label for x in leaves ])
         psep = self.leaf_pixelsep()
         fontsize = min(self.leaf_fontsize, max(psep, 8))
         n2l = self.node2label
@@ -991,7 +992,7 @@ class Tree(Axes):
         fs = max(10, self.draw_leaf_labels())
         nodes = self.get_visible_nodes(labeled_only=True)
         ## print [ x[0].id for x in nodes ]
-        branches = list(filter(lambda x:(not x[0].isleaf), nodes))
+        branches = list([x for x in nodes if (not x[0].isleaf)])
         n2l = self.node2label
         for n, x, y in branches:
             t = n2l[n]
@@ -1000,7 +1001,7 @@ class Tree(Axes):
 
     def unclutter(self, *args):
         nodes = self.get_visible_nodes(labeled_only=True)
-        branches = list(filter(lambda x:(not x[0].isleaf), nodes))
+        branches = list([x for x in nodes if (not x[0].isleaf)])
         psep = self.leaf_pixelsep()
         n2l = self.node2label
         fontsize = min(self.leaf_fontsize*1.2, max(psep, self.leaf_fontsize))
@@ -1056,7 +1057,7 @@ class Tree(Axes):
             fontsize = min(max(pixelsep-2, 8), 12)
 
             if pixelsep >= 8:
-                for node, txt in self.node2label.items():
+                for node, txt in list(self.node2label.items()):
                     if node.isleaf:
                         if self.leaflabels:
                             c = self.n2c[node]
@@ -1072,7 +1073,7 @@ class Tree(Axes):
                                 txt.set_size(fontsize)
                                 txt.set_visible(True)
             elif pixelsep >= 4:
-                for node, txt in self.node2label.items():
+                for node, txt in list(self.node2label.items()):
                     if node.isleaf:
                         txt.set_visible(False)
                     else:
@@ -1083,7 +1084,7 @@ class Tree(Axes):
                                 txt.set_size(fontsize)
                                 txt.set_visible(True)
             else:
-                for node, txt in self.node2label.items():
+                for node, txt in list(self.node2label.items()):
                     txt.set_visible(False)
             self.figure.canvas.draw_idle()
 
@@ -1096,7 +1097,7 @@ class Tree(Axes):
         if self.interactive:
             self.callbacks.connect("ylim_changed", self.draw_labels)
 
-        for k, v in self.decorators.items():
+        for k, v in list(self.decorators.items()):
             func, args, kwargs = v
             func(self, *args, **kwargs)
 
@@ -1133,7 +1134,7 @@ class Tree(Axes):
     def layout(self):
         self.n2c = cartesian(self.root, scaled=self.scaled)
         sv = sorted([
-            [c.y, c.x, n] for n, c in self.n2c.items()
+            [c.y, c.x, n] for n, c in list(self.n2c.items())
             ])
         self.coords = sv#numpy.array(sv)
         ## n2c = self.n2c
@@ -1203,7 +1204,7 @@ class Tree(Axes):
         ypp = self.ypp()
         d = self.clade_dimensions()
         h = {}
-        for n, (x0, x1, y0, y1) in d.items():
+        for n, (x0, x1, y0, y1) in list(d.items()):
             h[n] = (y1-y0)/ypp
         return h
         
@@ -1278,7 +1279,7 @@ class Tree(Axes):
         ## print "enter: create_label_artists"
         self.node2label = {}
         n2c = self.n2c
-        for node, coords in n2c.items():
+        for node, coords in list(n2c.items()):
             x = coords.x; y = coords.y
             if node.isleaf and node.label and self.leaflabels:
                 txt = self.annotate(
@@ -1313,7 +1314,7 @@ class Tree(Axes):
         ## print "leave: create_label_artists"
 
     def adjust_xspine(self):
-        v = sorted([ c.x for c in self.n2c.values() ])
+        v = sorted([ c.x for c in list(self.n2c.values()) ])
         try:
             self.spines["bottom"].set_bounds(v[0],v[-1])
         except AttributeError:
@@ -1325,7 +1326,7 @@ class Tree(Axes):
     def mark_named(self):
         if self._mark_named:
             n2c = self.n2c
-            cv = [ c for n, c in n2c.items() if n.label and (not n.isleaf) ]
+            cv = [ c for n, c in list(n2c.items()) if n.label and (not n.isleaf) ]
             x = [ c.x for c in cv ]
             y = [ c.y for c in cv ]
             if x and y:
@@ -1337,7 +1338,7 @@ class Tree(Axes):
         xmax = xmin = ymax = ymin = 0
         if self.node2label:
             try:
-                v = [ x.get_window_extent() for x in self.node2label.values()
+                v = [ x.get_window_extent() for x in list(self.node2label.values())
                       if x.get_visible() ]
                 if v:
                     xmax = trans((max([ x.xmax for x in v ]),0))[0]
@@ -1345,7 +1346,7 @@ class Tree(Axes):
             except RuntimeError:
                 pass
             
-        v = self.n2c.values()
+        v = list(self.n2c.values())
         ymin = min([ c.y for c in v ])
         ymax = max([ c.y for c in v ])
         xmin = min(xmin, min([ c.x for c in v ]))
@@ -1369,9 +1370,9 @@ class Tree(Axes):
         if state2color is None:
             c = colors.tango()
             states = sorted(set(nodemap.values()))
-            state2color = dict(zip(states, c))
+            state2color = dict(list(zip(states, c)))
 
-        for node, txt in self.node2label.items():
+        for node, txt in list(self.node2label.items()):
             s = nodemap.get(node)
             if s is not None:
                 c = state2color[s]
@@ -1403,11 +1404,11 @@ class Tree(Axes):
             import ivy
             c = colors.tango()
             states = sorted(set(data.values()))
-            cmap = dict(zip(states, c))
+            cmap = dict(list(zip(states, c)))
         n2c = self.n2c
         points = []; c = []
         d = dict([ (n, data.get(n)) for n in root if data.get(n) is not None ])
-        for n, v in d.items():
+        for n, v in list(d.items()):
             coord = n2c[n]
             points.append((coord.x, coord.y)); c.append(cmap[v])
 
@@ -1426,7 +1427,7 @@ class Tree(Axes):
     def plot_continuous(self, data, mid=None, name=None, cmap=None,
                         size=15, colorbar=None):
         area = (size*0.5)*(size*0.5)*numpy.pi
-        values = data.values()
+        values = list(data.values())
         vmin = min(values); vmax = max(values)
         if mid is None:
             mid = (vmin+vmax)*0.5
@@ -1437,7 +1438,7 @@ class Tree(Axes):
         if cmap is None: cmap = mpl_colormap.binary
         n2c = self.n2c
         X = numpy.array(
-            [ (n2c[n].x, n2c[n].y, v) for n, v in data.items() if n in n2c ]
+            [ (n2c[n].x, n2c[n].y, v) for n, v in list(data.items()) if n in n2c ]
             )
         circles = self.scatter(
             X[:,0], X[:,1], s=area, c=X[:,2], cmap=cmap, norm=norm,
@@ -1617,14 +1618,14 @@ def onclick(e):
 def test_decorate(treeplot):
     import evolve
     data = evolve.brownian(treeplot.root)
-    values = data.values()
+    values = list(data.values())
     vmin = min(values); vmax = max(values)
     norm = mpl_colors.Normalize(vmin, vmax)
     cmap = mpl_colormap.binary
     n2c = treeplot.n2c
     X = numpy.array(
         [ (n2c[n].x, n2c[n].y, v)
-          for n, v in data.items() if n in n2c ]
+          for n, v in list(data.items()) if n in n2c ]
         )
     circles = treeplot.scatter(
         X[:,0], X[:,1], s=200, c=X[:,2], cmap=cmap, norm=norm,
@@ -1680,7 +1681,7 @@ class VisToggle(object):
         self.plot = treeplot
         self.value = value
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.value
 
     def __repr__(self):

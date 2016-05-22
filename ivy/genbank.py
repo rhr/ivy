@@ -1,9 +1,16 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import re, sys, logging
 from collections import defaultdict
-from itertools import izip_longest, ifilter
+import itertools
+try:
+    from itertools import zip_longest
+except ImportError:
+    zip_longest = itertools.izip_longest
 from Bio import Entrez, SeqIO
 from Bio.Blast import NCBIWWW, NCBIXML
 from ivy.storage import Storage
+from functools import reduce
 
 email = ""
 
@@ -18,8 +25,8 @@ def batch(iterable, size):
         Chunks of size `size`
     """
     args = [ iter(iterable) ]*size
-    for x in izip_longest(fillvalue=None, *args):
-        yield ifilter(None, x)
+    for x in zip_longest(fillvalue=None, *args):
+        yield filter(None, x)
 
 def extract_gbac(s):
     """
@@ -120,7 +127,7 @@ def fetch_gilist(gilist, batchsize=1000):
     Entrez.email = email
     results = {}
     for v in batch(gilist, batchsize):
-        v = map(str, v)
+        v = list(map(str, v))
         h = Entrez.epost(db="nucleotide", id=",".join(v), usehistory="y")
         d = Entrez.read(h)
         h.close()
@@ -153,7 +160,7 @@ def fetchseq(gi):
 
 def create_fastas(data, genes):
     fastas = dict([ (g, file(g+".fasta", "w")) for g in genes ])
-    for label, seqs in data.items():
+    for label, seqs in list(data.items()):
         for gene, s in zip(genes, seqs):
             if s and type(s) != str:
                 tag = None
@@ -167,7 +174,7 @@ def create_fastas(data, genes):
                 sys.stderr.write(("error: not an accession number? "
                                   "%s (%s %s)\n" % (s, label, gene)))
 
-    for f in fastas.values(): f.close()
+    for f in list(fastas.values()): f.close()
 
 def merge_fastas(fnames, name="merged"):
     outfile = file(name+".phy", "w")

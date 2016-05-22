@@ -1,5 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import math
 import random
+import types
 
 import numpy as np
 from ivy.chars.expokit import cyexpokit
@@ -8,8 +11,10 @@ from scipy import special
 from scipy.optimize import minimize
 from scipy.special import binom
 import nlopt
-
-# TODO: rehaul character format
+try:
+    StringTypes = types.StringTypes # Python 2
+except AttributeError: # Python 3
+    StringTypes = [str]
 
 def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
     """
@@ -58,7 +63,7 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
     # The last row of nodelist contains the likelihood values at the root
 
     # Applying the correct root prior
-    if type(pi) != str:
+    if not type(pi) in StringTypes:
         assert len(pi) == nchar, "length of given pi does not match Q dimensions"
         assert str(type(pi)) in ["<type 'numpy.ndarray'>","<class 'numpy.ndarray'>"], "pi must be str or numpy array"
         assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
@@ -126,7 +131,7 @@ def create_mk_ar(tree, chars, findmin = True):
     treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
                    tree.leaves()[0].length])
     upperbound = len(tree.leaves())/treelen
-    charlist = range(nchar)
+    charlist = list(range(nchar))
     tmp_ar = np.zeros(nchar)
     # Giving internal function access to these arrays.
        # Warning: can be tricky
@@ -172,7 +177,7 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
         nullval = -np.inf
     nchar = len(set(chars))
     nt =  len(tree.descendants())
-    charlist = range(nchar)
+    charlist = list(range(nchar))
     # Giving internal function access to these arrays.
        # Warning: can be tricky
        # Need to make sure old values
@@ -203,7 +208,7 @@ def create_likelihood_function_mk(tree, chars, Qtype, pi="Equal",
             var["Q"][np.tril_indices(nchar, k=-1)] = Qparams[int(len(Qparams)/2):]
             var["Q"][np.diag_indices(nchar)] = 0-np.sum(var["Q"], 1)
         else:
-            raise ValueError, "Qtype must be one of: ER, Sym, ARD"
+            raise ValueError("Qtype must be one of: ER, Sym, ARD")
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
@@ -392,7 +397,7 @@ def fit_Mk(tree, chars, Q = "Equal", pi = "Equal"):
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     assert pi in ["Equal", "Fitzjohn", "Equilibrium"], "Pi must be one of: 'Equal', 'Fitzjohn', 'Equilibrium'"
 
-    if type(Q) == str:
+    if type(Q) in StringTypes:
         if Q == "Equal":
             q,l,piRates,rootLiks = fitMkER(tree, chars, pi=pi)
 

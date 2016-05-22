@@ -1,5 +1,6 @@
 ## from matplotlib import cm as mpl_colormap
 ## from matplotlib import colors as mpl_colors
+from __future__ import absolute_import, division, print_function, unicode_literals
 from itertools import cycle
 
 tango_colors = {
@@ -33,9 +34,9 @@ tango_colors = {
     }
 
 def tango():
-    c = cycle(map(tango_colors.get,
+    c = cycle(list(map(tango_colors.get,
                   ("ScarletRed3", "SkyBlue3", "Chameleon3", "Plum3",
                    "Orange3", "Butter3", "Chocolate3", "Aluminium6",
                    "ScarletRed1", "SkyBlue1", "Chameleon1", "Plum1",
-                   "Orange1", "Butter1", "Chocolate1", "Aluminium4")))
+                   "Orange1", "Butter1", "Chocolate1", "Aluminium4"))))
     return c

@@ -1,10 +1,18 @@
-import os
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import os, types
 
 from subprocess import Popen, PIPE
 from Bio import AlignIO
 from Bio.Alphabet import IUPAC
-from cStringIO import StringIO
+from io import StringIO
 from tempfile import NamedTemporaryFile
+
+try:
+    StringTypes = types.StringTypes # Python 2
+except AttributeError: # Python 3
+    StringTypes = [str]
+
 
 MUSCLE = "/usr/bin/muscle"
 
@@ -34,7 +42,6 @@ def musclep(seqs1, seqs2, cmd="/usr/bin/muscle"):
     return aln
 
 def read(data, format=None, name=None):
-    from types import StringTypes
 
     def strip(s):
         fname = os.path.split(s)[-1]
@@ -71,7 +78,7 @@ def read(data, format=None, name=None):
         treename = strip(getattr(data, "name", None))
         return AlignIO.read(data, format, alphabet=IUPAC.ambiguous_dna)
 
-    raise IOError, "unable to read alignment from '%s'" % data
+    raise IOError("unable to read alignment from '%s'" % data)
 
 def write(data, f, format='fasta'):
     AlignIO.write(data, f, format)
@@ -81,7 +88,7 @@ def find(aln, substr):
     generator that yields (seqnum, pos) tuples for every position of
     ``subseq`` in `aln`
     """
-    from sequtil import finditer
+    from .sequtil import finditer
     N = len(substr)
     for i, rec in enumerate(aln):
         for j in finditer(rec.seq, substr):

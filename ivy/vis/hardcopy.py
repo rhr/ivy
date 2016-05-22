@@ -1,11 +1,13 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import matplotlib
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import ivy.vis
-from axes_utils import adjust_limits
+from .axes_utils import adjust_limits
 from PyPDF2 import PdfFileWriter, PdfFileReader
-from StringIO import StringIO
+from io import StringIO
 import functools
 
 ## class TreeFigure:

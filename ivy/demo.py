@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import sys
 from IPython.lib.demo import IPythonDemo, ClearIPDemo
 ## from IPython.genutils import Term
@@ -20,11 +22,11 @@ class Demo(ClearIPDemo):
                 sleep(random()*0.1*r)
                 sys.stdout.flush()
         else:
-            print >> cout, self.src_blocks_colored[index]
+            print(self.src_blocks_colored[index], file=cout)
             sys.stdout.flush()
 
         s = "Hit <Enter>, then type %next to proceed or %back to go back one step."
-        print >> cout, s
+        print(s, file=cout)
         cout.flush()
     
 

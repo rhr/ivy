@@ -3,6 +3,8 @@ layout nodes in 2d space
 
 The function of interest is `calc_node_positions` (aka nodepos)
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import numpy
 
 class Coordinates:
@@ -57,7 +59,7 @@ def depth_length_preorder_traversal(node, n2coords=None, isroot=False):
             coords.depth = p.depth + 1
             coords.length_to_root = p.length_to_root + (node.length or 0.0)
         except KeyError:
-            print node.label, node.parent.label
+            print(node.label, node.parent.label)
         except AttributeError:
             coords.depth = 0
             coords.length_to_root = 0
@@ -132,11 +134,11 @@ def calc_node_positions(node, width, height,
         for i in range(10):
             smooth_xpos(node, n2coords)
 
-    for coords in n2coords.values():
+    for coords in list(n2coords.values()):
         coords.x += lpad
         coords.y += tpad
 
-    for n, coords in n2coords.items():
+    for n, coords in list(n2coords.items()):
         if n.parent:
             p = n2coords[n.parent]
             coords.px = p.x; coords.py = p.y
@@ -208,7 +210,7 @@ def cartesian(node, xscale=1.0, leafspace=None, scaled=True, n2coords=None,
     return n2coords
 
 if __name__ == "__main__":
-    import tree
+    from . import tree
     node = tree.read("(a:3,(b:2,(c:4,d:5):1,(e:3,(f:1,g:1):2):2):2);")
     for i, n in enumerate(node.iternodes()):
         if not n.isleaf:

@@ -1,6 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 from operator import itemgetter
 from heapq import nlargest
-from itertools import repeat, ifilter
+from itertools import repeat
 
 class Storage(dict):
     """
@@ -21,8 +22,8 @@ class Storage(dict):
     def __delattr__(self, key):
         try:
             del self[key]
-        except KeyError, k:
-            raise AttributeError, k
+        except KeyError as k:
+            raise AttributeError(k)
 
     def __repr__(self):
         return '<Storage ' + dict.__repr__(self) + '>'
@@ -31,7 +32,7 @@ class Storage(dict):
         return dict(self)
 
     def __setstate__(self, value):
-        for (k, v) in value.items():
+        for (k, v) in list(value.items()):
             self[k] = v
 
 class MaxDict(dict):
@@ -76,8 +77,8 @@ class Counter(dict):
 
         """        
         if n is None:
-            return sorted(self.iteritems(), key=itemgetter(1), reverse=True)
-        return nlargest(n, self.iteritems(), key=itemgetter(1))
+            return sorted(iter(self.items()), key=itemgetter(1), reverse=True)
+        return nlargest(n, iter(self.items()), key=itemgetter(1))
 
     def elements(self):
         """Iterator over elements repeating each as many times as its count.
@@ -90,7 +91,7 @@ class Counter(dict):
         elements() will ignore it.
 
         """
-        for elem, count in self.iteritems():
+        for elem, count in self.items():
             for _ in repeat(None, count):
                 yield elem
 
@@ -118,7 +119,7 @@ class Counter(dict):
             if hasattr(iterable, 'iteritems'):
                 if self:
                     self_get = self.get
-                    for elem, count in iterable.iteritems():
+                    for elem, count in iterable.items():
                         self[elem] = self_get(elem, 0) + count
                 else:
                     dict.update(self, iterable) # fast path when counter is empty
@@ -216,7 +217,7 @@ class Counter(dict):
         result = Counter()
         if len(self) < len(other):
             self, other = other, self
-        for elem in ifilter(self.__contains__, other):
+        for elem in filter(self.__contains__, other):
             newcount = _min(self[elem], other[elem])
             if newcount > 0:
                 result[elem] = newcount
@@ -227,11 +228,11 @@ def convert(d):
     from types import DictType
     t = type(d)
     if t == DictType:
-        for k,v in d.items():
+        for k,v in list(d.items()):
             d[k] = convert(v)
         return Storage(d)
     return d
 
 if __name__ == '__main__':
     import doctest
-    print doctest.testmod()
+    print(doctest.testmod())

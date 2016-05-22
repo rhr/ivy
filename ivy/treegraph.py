@@ -1,7 +1,8 @@
-import os, requests, math, cPickle, logging
+from __future__ import absolute_import, division, print_function, unicode_literals
+import os, requests, math, pickle, logging
 from collections import defaultdict, Counter, namedtuple
 from functools import cmp_to_key
-from itertools import ifilter
+
 import graph_tool.all as gt
 from . import newick
 from . import tree
@@ -105,7 +106,7 @@ def index_graph(g, reindex=False):
             lr = (left, left+1)
         hindex[p] = lr
         ## print g.vertex_name[p], lr
-        print n[0], '\r',
+        print(n[0], '\r', end=' ')
         n[0] -= 1
         return lr
     g.hindex = hindex
@@ -143,7 +144,7 @@ def create_generic_taxonomy_graph(r):
             e = G.add_edge(G.vertex(n.parent.vid), G.vertex(n.vid))
             G.edge_in_taxonomy[e] = 1
         i += 1
-        print '%s           \r' % (nnodes-i),
+        print('%s           \r' % (nnodes-i), end=' ')
 
     G.edge_strees = get_or_create_ep(G, 'stree', 'vector<int>')
     G.vertex_snode = get_or_create_vp(G, 'snode', 'int')
@@ -179,8 +180,8 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
         i = 0
         for line in f:
             v = [ x.strip() or None for x in line.split("|") ]
-            s = dict(zip(node_fields, v[:-1]))
-            for k, v in s.items():
+            s = dict(list(zip(node_fields, v[:-1])))
+            for k, v in list(s.items()):
                 if k.endswith('_flag'):
                     s[k] = bool(int(v))
                 else:
@@ -190,8 +191,8 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
             n[tid] = s
             if tid > 1: c[s['parent_taxid']].append(tid)
             i += 1
-            print '%s           \r' % i,
-        print
+            print('%s           \r' % i, end=' ')
+        print()
         return n, c
 
     def process_names(f):
@@ -203,7 +204,7 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
         for line in f:
             v = [ x.strip() or None for x in line.split("|") ]
             v[0] = int(v[0])
-            s = dict(zip(name_fields, v[:-1]))
+            s = dict(list(zip(name_fields, v[:-1])))
             name = s['name']; uname = s['unique_name']; taxid = s['taxid']
             s['type'] = 'taxonomic_name'
             s['source'] = 'ncbi'
@@ -216,8 +217,8 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
                 synonyms[taxid].append(s)
             seen.add(uname or name)
             i += 1
-            print '%s           \r' % i,
-        print
+            print('%s           \r' % i, end=' ')
+        print()
         return accepted, synonyms
 
     with open(os.path.join(basepath, 'nodes.dmp')) as f:
@@ -242,7 +243,7 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
     logging.info('...creating graph vertices')
 
     i = 0
-    for tid, d in nodes.iteritems():
+    for tid, d in nodes.items():
         v = G.vertex(i)
         G.vertex_in_taxonomy[v] = 1
         G.taxid_vertex[tid] = v
@@ -252,22 +253,22 @@ def create_ncbi_taxonomy_graph(basepath='ncbi'):
             name = accepted[tid]['name'] # !! should deal with unique_name
             G.vertex_name[v] = name
         except KeyError:
-            print tid
+            print(tid)
         i += 1
-        print '%s           \r' % (nnodes-i),
-    print
+        print('%s           \r' % (nnodes-i), end=' ')
+    print()
 
     logging.info('...creating graph vertices')
     i = 0; n = len(ptid2ctid)
-    for tid, child_tids in ptid2ctid.iteritems():
+    for tid, child_tids in ptid2ctid.items():
         pv = G.taxid_vertex[tid]
         for ctid in child_tids:
             cv = G.taxid_vertex[ctid]
             e = G.add_edge(pv, cv)
             G.edge_in_taxonomy[e] = 1
         i += 1
-        print '%s           \r' % (n-i),
-    print
+        print('%s           \r' % (n-i), end=' ')
+    print()
 
     G.edge_strees = get_or_create_ep(G, 'stree', 'vector<int>')
     G.vertex_snode = get_or_create_vp(G, 'snode', 'int')
@@ -311,9 +312,9 @@ def create_opentree_taxonomy_graph(basepath='ott'):
             taxid = v[0]
             taxid2vid[taxid] = n
             data.append(v)
-            if n % 1000 == 0: print 'reading taxonomy:', n, '\r',
+            if n % 1000 == 0: print('reading taxonomy:', n, '\r', end=' ')
             n += 1
-        print '\ndone'
+        print('\ndone')
 
     g.add_vertex(n)
     for i, row in enumerate(data):
@@ -348,8 +349,8 @@ def create_opentree_taxonomy_graph(basepath='ott'):
             pv = g.vertex(taxid2vid[parent])
             e = g.add_edge(pv, v)
             g.edge_in_taxonomy[e] = 1
-        if i % 1000 == 0: print 'creating graph:', i, '\r',
-    print '\ndone'
+        if i % 1000 == 0: print('creating graph:', i, '\r', end=' ')
+    print('\ndone')
 
     g.edge_strees = get_or_create_ep(g, 'stree', 'vector<int>')
     g.vertex_snode = get_or_create_vp(g, 'snode', 'int')
@@ -428,9 +429,9 @@ def graph_view(g, vfilt=None, efilt=None):
     ## assert len(r)==1
     ## assert r
     if not r:
-        print '!!! no root?'
+        print('!!! no root?')
     if len(r) > 1:
-        print '!!! disconnected view'
+        print('!!! disconnected view')
     view.root = r[0]
     view.rootv = r
     return view
@@ -456,7 +457,7 @@ def _attach_funcs(g):
     def taxid_hindex(taxid):
         v = g.taxid_vertex.get(taxid)
         if v: return g.hindex[v]
-        else: print 'no hindex:', taxid
+        else: print('no hindex:', taxid)
     g.taxid_hindex = taxid_hindex
 
 
@@ -514,7 +515,7 @@ def taxid_subgraph(g, taxids):
     r = [ x for x in sg.vertices() if x.in_degree()==0 ]
     if len(r)>1:
         for x in r:
-            print '!!! root? vertex', int(x), g.vertex_name[x]
+            print('!!! root? vertex', int(x), g.vertex_name[x])
     assert len(r)==1
     sg.root = r[0]
 
@@ -540,10 +541,10 @@ def taxid_subgraph(g, taxids):
 
 def taxid_new_subgraph_old(g, taxids):
     newg = gt.Graph()
-    for pname, p in g.vp.items():
+    for pname, p in list(g.vp.items()):
         newp = newg.new_vertex_property(p.value_type())
         newg.vp[pname] = newp
-    for pname, p in g.ep.items():
+    for pname, p in list(g.ep.items()):
         newp = newg.new_edge_property(p.value_type())
         newg.ep[pname] = newp
     newg.vertex_name = newg.vp['name']
@@ -565,7 +566,7 @@ def taxid_new_subgraph_old(g, taxids):
         v = g.taxid_vertex[x]
         newv = newg.add_vertex()
         ovi2nvi[int(v)] = int(newv)
-        for pname, p in g.vp.items():
+        for pname, p in list(g.vp.items()):
             newg.vp[pname][newv] = p[v]
         newg.taxid_vertex[x] = newv
     for x in taxids:
@@ -581,7 +582,7 @@ def taxid_new_subgraph_old(g, taxids):
     if len(r)>1:
         for x in r:
             tid = newg.vertex_taxid[x]
-            print '!!! root? vertex', int(x), tid, newg.vertex_name[x]
+            print('!!! root? vertex', int(x), tid, newg.vertex_name[x])
     #assert len(r)==1, r
     newg.root = r[0]
     newg.set_vertex_filter(newg.collapsed, inverted=True)
@@ -614,7 +615,7 @@ def taxid_new_subgraph(g, taxids):
     if len(r)>1:
         for x in r:
             tid = newg.vertex_taxid[x]
-            print '!!! root? vertex', int(x), tid, newg.vertex_name[x]
+            print('!!! root? vertex', int(x), tid, newg.vertex_name[x])
     #assert len(r)==1, r
     newg.root = r[0]
     ## newg.set_vertex_filter(newg.collapsed, inverted=True)
@@ -631,7 +632,7 @@ def taxonomy_subtree(G, v):
     g.incertae_sedis = get_or_create_vp(g, 'incertae_sedis','bool')
     g.taxid_vertex = {}
 
-    GP = [ x for x in G.vp.items() if x[0] in g.vp ]
+    GP = [ x for x in list(G.vp.items()) if x[0] in g.vp ]
     def copy_vertex_properties(Gv, gv):
         for pname, pmap in GP:
             g.vp[pname][gv] = pmap[Gv]
@@ -683,7 +684,7 @@ def graph2sqlite(g, fname):
     for v in g.vertices():
         taxid = vertex_taxid[v]
         if int(v)>0:
-            parent_taxid = vertex_taxid[v.in_neighbours().next()]
+            parent_taxid = vertex_taxid[next(v.in_neighbours())]
         else:
             parent_taxid = None
         name = vertex_name[v].decode('utf8')
@@ -694,8 +695,8 @@ def graph2sqlite(g, fname):
         cur.execute('insert into name '
                     '(uid, parent_uid, name, depth, rank, next, back) '
                     'values (?, ?, ?, ?, ?, ?, ?);', data)
-        print int(v), '\r',
-    print 'done'
+        print(int(v), '\r', end=' ')
+    print('done')
     
     if create:
         cur.execute('create index nextback on name (next, back)')
@@ -710,7 +711,7 @@ def taxid_rootpath(G, taxid, stop=None):
     v = G.taxid_vertex[taxid]
     x = [taxid]
     while v.in_degree():
-        p = v.in_neighbours().next()
+        p = next(v.in_neighbours())
         tid = G.vertex_taxid[p]
         x.append(tid)
         v = p
@@ -751,12 +752,12 @@ def map_stree(G, root):
     leafcounts = Counter()
     for lf in lvs:
         if not lf.taxid:
-            print '!!! [%s] no taxid:' % treename, lf.snode_id, lf.label
+            print('!!! [%s] no taxid:' % treename, lf.snode_id, lf.label)
             lf.incertae_sedis = True
             lf.taxid_rootpath = []
         elif lf.taxid not in G.taxid_vertex:
-            print '!!! [{}] taxid {} not in taxonomy (node {})'.format(
-                  treename, lf.taxid, lf.label)
+            print('!!! [{}] taxid {} not in taxonomy (node {})'.format(
+                  treename, lf.taxid, lf.label))
             lf.incertae_sedis = True
             lf.taxid_rootpath = []
         else:
@@ -767,11 +768,11 @@ def map_stree(G, root):
 
         for n in lf.rootpath(): n.nleaves += 1
 
-    multileaves = [ taxid for taxid, count in leafcounts.items() if count > 1 ]
+    multileaves = [ taxid for taxid, count in list(leafcounts.items()) if count > 1 ]
     root_mrca = rootpath_mrca([ x.taxid_rootpath for x in lvs
                                 if x.taxid_rootpath ])
     root.taxid = root_mrca
-    print 'root is', G.taxid_name(root_mrca)
+    print('root is', G.taxid_name(root_mrca))
     
     for lf in lvs:
         rp = lf.taxid_rootpath
@@ -782,7 +783,7 @@ def map_stree(G, root):
         if lf.taxid_rootpath:
             if i: lf.taxid_rootpath = lf.taxid_rootpath[:i]
             if lf.taxid in multileaves:
-                print '!!! multiple taxid: %s at lf %s' % (lf.taxid, lf)
+                print('!!! multiple taxid: %s at lf %s' % (lf.taxid, lf))
                 lf.incertae_sedis = True
                 
     all_taxids = set()
@@ -795,7 +796,7 @@ def map_stree(G, root):
             vtx = subgraph.vertex(int(G.taxid_vertex[lf.taxid]))
             if vtx.out_degree()>0:
                 # higher taxon at leaf
-                print '!!! higher taxon %s at lf %s' % (lf.taxid, lf.label)
+                print('!!! higher taxon %s at lf %s' % (lf.taxid, lf.label))
                 if lf.taxid == root.taxid:
                     lf.incertae_sedis = True
                 lf.leaf_is_higher_taxon = True
@@ -851,7 +852,7 @@ def map_stree(G, root):
                     else:
                         # is the parent taxon of lf.taxid an ancestor of taxid?
                         try:
-                            p = lf.v.in_neighbours().next()
+                            p = next(lf.v.in_neighbours())
                         except StopIteration: # lf is mapped to root!
                             continue
                         ptax = G.vertex_taxid[p]
@@ -937,7 +938,7 @@ def merge_stree(G, root, stree, verts=None, edges=None):
     for node in root:
         if node.taxids and not node.incertae_sedis: # node represents 1+ taxa
             it = iter(node.taxids)
-            t = it.next()
+            t = next(it)
             v = G.taxid_vertex[t]
             node.v = v
             verts[v] = 1
@@ -945,7 +946,7 @@ def merge_stree(G, root, stree, verts=None, edges=None):
             if stree not in strees: strees.append(stree)
             p = v
             while 1:
-                try: t = it.next()
+                try: t = next(it)
                 except StopIteration: break
                 v = G.taxid_vertex[t]
                 verts[v] = 1
@@ -993,7 +994,7 @@ def merge_stree(G, root, stree, verts=None, edges=None):
             assert p.v, node
             e = G.edge(p.v, v) or G.add_edge(p.v, v)
             if p.v == v:
-                print '!! LOOP:', node.snode_id, v
+                print('!! LOOP:', node.snode_id, v)
                 ## loops.append((node, e))
             edges[e] = 1
             strees = G.edge_strees[e]
@@ -1030,18 +1031,18 @@ def _filter(g):
     rm = g.collapsed
     def f(x): rm[x] = 1
     T = Traverser(post=f)
-    for v in ifilter(lambda x:x.out_degree(), g.vertices()):
+    for v in filter(lambda x:x.out_degree(), g.vertices()):
         name = g.vertex_name[v].lower()
         s = name.split()
         for kw in remove_keywords:
             if kw in s:
-                print 'remove:', name
+                print('remove:', name)
                 gt.dfs_search(g, v, T)
                 break
 
         for kw in incertae_keywords:
             if kw in s:
-                print 'incertae sedis:', name
+                print('incertae sedis:', name)
                 rm[v] = 1
                 for c in v.out_neighbours():
                     g.incertae_sedis[c] = 1
@@ -1050,7 +1051,7 @@ def _filter(g):
         s = name.replace('-', ' ')
         for w in collapse_keywords:
             if s.startswith(w):
-                print 'collapse:', name
+                print('collapse:', name)
                 rm[v] = 1
                 break
 
@@ -1065,17 +1066,17 @@ def _filter(g):
               if int(v) and v.in_degree()==0 ]
     g.set_vertex_filter(None)
 
-    print 'connecting nodes orphaned from collapsing'
+    print('connecting nodes orphaned from collapsing')
     while outer:
         v = outer.pop()
-        print len(outer), '\r',
-        p = v.in_neighbours().next()
+        print(len(outer), '\r', end=' ')
+        p = next(v.in_neighbours())
         while rm[p]:
-            q = p.in_neighbours().next()
+            q = next(p.in_neighbours())
             assert int(q) != int(p)
             p = q
         g.edge_in_taxonomy[g.add_edge(p, v)] = 1
-    print 'done'
+    print('done')
 
     g.set_vertex_filter(rm, inverted=True)
     g.purge_vertices()
@@ -1177,7 +1178,7 @@ def bicomp_tree(g, rootv, arts, traversed):
     r.v = rootv
     r.leaf_verts = leaf_verts
     if not leaf_verts: r.isleaf = True
-    print map(int, leaf_verts)
+    print(list(map(int, leaf_verts)))
     for v in verts:
         r.add_child(bicomp_tree2(g, v, arts, traversed))
     return r
@@ -1187,5 +1188,5 @@ def lineage(g, v):
     name = g.vp['name']
     yield v, taxid[v], name[v]
     while v:
-        v = v.in_neighbours().next()
+        v = next(v.in_neighbours())
         yield v, taxid[v], name[v]

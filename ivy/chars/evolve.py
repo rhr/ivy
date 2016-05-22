@@ -2,6 +2,7 @@
 """
 Functions for evolving traits and trees.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 def brownian(root, sigma=1.0, init=0.0, values={}):
     """
     Recursively evolve a trait by Brownian motion up from the node
@@ -36,10 +37,10 @@ def test_brownian():
         "((((Homo:0.21,Pongo:0.21)N1:0.28,Macaca:0.49)N2:0.13,"\
         "Ateles:0.62)N3:0.38,Galago:1.00)root;"
         )
-    print root.ascii(scaled=True) 
+    print(root.ascii(scaled=True)) 
     evolved = brownian(root)
     for node in root.iternodes():
-        print node.label, evolved[node]
+        print(node.label, evolved[node])
     return root, evolved
 
 if __name__ == "__main__":

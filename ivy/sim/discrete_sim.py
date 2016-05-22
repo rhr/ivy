@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import ivy
 from ivy.chars import mk
 import numpy as np
@@ -30,7 +32,7 @@ def sim_discrete(tree, Q, anc=None, charname=None, rseed=None):
     ####################################
     if anc is None:
         # Randomly pick ancestral state from stationary distribution
-        anc = rv_discrete(values=(range(nchar),mk.qsd(Q))).rvs()
+        anc = rv_discrete(values=(list(range(nchar)),mk.qsd(Q))).rvs()
     simtree.sim_char = {}
     simtree.sim_char["sim_state"] = anc
     simtree.sim_char["sim_hist"] = []
@@ -53,7 +55,7 @@ def sim_discrete(tree, Q, anc=None, charname=None, rseed=None):
                 if dt > node.length:
                     break
                 vals  = np.concatenate((Q[prevstate][:prevstate],Q[prevstate][prevstate+1:]))
-                newstate = rv_discrete(values=(range(nchar)[:prevstate] + range(nchar)[prevstate+1:],
+                newstate = rv_discrete(values=(list(range(nchar))[:prevstate] + list(range(nchar))[prevstate+1:],
                                     vals/sum(vals))).rvs()
                 node.sim_char["sim_hist"].append((newstate,dt))
                 node.sim_char["sim_state"] = newstate

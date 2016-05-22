@@ -1,12 +1,7 @@
 from distutils.core import setup, Extension
 import datetime
-try:
-    from distutils.command.build_py import build_py_2to3 as build_py
-    from distutils.command.build_scripts import build_scripts_2to3 as build_scripts
-except ImportError:
-    # 2.x
-    from distutils.command.build_py import build_py
-    from distutils.command.build_scripts import build_scripts
+from distutils.command.build_py import build_py
+from distutils.command.build_scripts import build_scripts
 
 
 try:

@@ -1,8 +1,9 @@
 """
 Equations from Magallon and Sanderson 2001
 
-RR: Are my descriptions of these equations correct? -CZ
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from scipy import exp, sqrt, log
 from scipy.misc import comb
 

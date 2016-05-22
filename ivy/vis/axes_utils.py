@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from matplotlib import transforms, pyplot
 
 def iter_bboxes(axes):
@@ -21,7 +23,7 @@ def artist_data_extents(axes):
         return transforms.Bbox.unit()
 
 def adjust_limits(axes):
-    v = axes.n2c.values()
+    v = list(axes.n2c.values())
     vx = [ c.x for c in v ]; vy = [ c.y for c in v ]
     bd = artist_data_extents(axes)
     x0, x1 = axes.get_xlim()

@@ -1,7 +1,10 @@
 # Mk multi regime models
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import math
 import random
 import itertools
+import types
 
 import numpy as np
 import scipy
@@ -12,7 +15,10 @@ from scipy.special import binom
 
 from ivy.chars.expokit import cyexpokit
 
-
+try:
+    StringTypes = types.StringTypes # Python 2
+except AttributeError: # Python 3
+    StringTypes = [str]
 
 def mk_multi_regime(tree, chars, Qs, locs, pi="Equal", returnPi=False,
                      ar = None):
@@ -65,7 +71,7 @@ def mk_multi_regime(tree, chars, Qs, locs, pi="Equal", returnPi=False,
     # The last row of nodelist contains the likelihood values at the root
 
     # Applying the correct root prior
-    if type(pi) != str:
+    if not type(pi) in StringTypes:
         assert len(pi) == nchar, "length of given pi does not match Q dimensions"
         assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
         assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
@@ -137,7 +143,7 @@ def create_mkmr_ar(tree, chars,nregime,findmin = True):
     treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
                    tree.leaves()[0].length])
     upperbound = len(tree.leaves())/treelen
-    charlist = range(nchar)
+    charlist = list(range(nchar))
     tmp_ar = np.zeros(nchar) # Used for storing calculations
 
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
@@ -156,7 +162,7 @@ def create_likelihood_function_multimk(tree, chars, Qtype, nregime, pi="Equal",
 
     nchar = len(set(chars))
     nt =  len(tree.descendants())
-    charlist = range(nchar)
+    charlist = list(range(nchar))
 
     # Number of parameters per Q matrix
     n_qp = nchar**2-nchar
@@ -189,7 +195,7 @@ def create_likelihood_function_multimk(tree, chars, Qtype, nregime, pi="Equal",
                 qmat[np.tril_indices(nchar, k=-1)] = Qparams[i][len(Qparams[i])/2:]
                 qmat[np.diag_indices(nchar)] = 0-np.sum(qmat, 1)
         else:
-            raise ValueError, "Qtype must be one of: ER, Sym, ARD"
+            raise ValueError("Qtype must be one of: ER, Sym, ARD")
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
@@ -224,7 +230,7 @@ def create_likelihood_function_multimk_mods(tree, chars, mods, pi="Equal",
 
     nchar = len(set(chars))
     nt =  len(tree.descendants())
-    charlist = range(nchar)
+    charlist = list(range(nchar))
 
     nparam = len(set([i for s in mods for i in s]))
 
@@ -273,7 +279,7 @@ def fill_model_mr_Q(Qparams, mods, Q):
     nchar=Q.shape[1]
     for regime in range(nregime):
         modcount = 0 # Which mod index are we on
-        for r,c in itertools.product(range(nchar),repeat=2):
+        for r,c in itertools.product(list(range(nchar)),repeat=2):
             if r==c: # Skip diagonals
                 pass
             else:

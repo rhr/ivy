@@ -1,6 +1,8 @@
 """
 interactive viewers for trees, etc. using matplotlib
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from collections import defaultdict
 from ..storage import Storage
 from .. import align, sequtil
@@ -214,10 +216,10 @@ class AlignmentFigure:
                 if char not in '-?':
                     v = sequtil.gapidx(seq)
                     i = (v[1]==x).nonzero()[0][0]
-                    print ("%s: row %s, site %s: '%s', seqpos %s"
-                           % (seq.id, y, x, char, i))
+                    print(("%s: row %s, site %s: '%s', seqpos %s"
+                           % (seq.id, y, x, char, i)))
                 else:
-                    print "%s: row %s, site %s: '%s'" % (seq.id, y, x, char)
+                    print("%s: row %s, site %s: '%s'" % (seq.id, y, x, char))
 
     def zoom(self, factor=0.1):
         "Zoom both axes by *factor* (relative display size)."
@@ -272,7 +274,7 @@ class Alignment(Axes):
                           for x in self.aln ])
         self.array = a
         self.imshow(a, interpolation='nearest', aspect='auto', origin='lower')
-        y = [ i+0.5 for i in xrange(self.ntax) ]
+        y = [ i+0.5 for i in range(self.ntax) ]
         labels = [ x.id for x in self.aln ]
         ## locator.bin_boundaries(1,ntax)
         ## locator.view_limits(1,ntax)
@@ -291,8 +293,8 @@ class Alignment(Axes):
         return self
 
     def select_rectangle(self, e0, e1):
-        x0, x1 = map(int, sorted((e0.xdata+0.5, e1.xdata+0.5)))
-        y0, y1 = map(int, sorted((e0.ydata+0.5, e1.ydata+0.5)))
+        x0, x1 = list(map(int, sorted((e0.xdata+0.5, e1.xdata+0.5))))
+        y0, y1 = list(map(int, sorted((e0.ydata+0.5, e1.ydata+0.5))))
         self.selected_chars = (x0, x1)
         self.selected_taxa = (y0, y1)
         self.selected_rectangle.set_bounds(x0-0.5,y0-0.5,x1-x0+1,y1-y0+1)

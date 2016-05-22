@@ -1,7 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 from lxml import etree, objectify
-from urllib2 import urlopen
-from urllib import urlencode
+from urllib.request import urlopen
+from urllib.parse import urlencode
 from base64 import b64decode
 from ivy.storage import Storage
 
@@ -28,7 +29,7 @@ def search_namebank(term, keycode=KEY):
                   searchName=term,
                   sci=1,
                   keyCode=keycode)
-    url = (WSURL + "?" + "&".join("%s=%s" % (k,v) for k, v in params.items()))
+    url = (WSURL + "?" + "&".join("%s=%s" % (k,v) for k, v in list(params.items())))
     
     e = etree.parse(url)
     v = []
@@ -47,7 +48,7 @@ def fetch_name(namebank_id, keycode=KEY):
     params = dict(function="namebank_object",
                   namebankID=namebank_id,
                   keyCode=keycode)
-    url = (WSURL + "?" + "&".join("%s=%s" % (k,v) for k, v in params.items()))
+    url = (WSURL + "?" + "&".join("%s=%s" % (k,v) for k, v in list(params.items())))
     e = etree.parse(url)
     return e
 
@@ -59,7 +60,7 @@ def search_classification(namebank_id, keycode=KEY, class_id=None):
     if class_id:
         params["classificationTitleID"] = class_id
         
-    url = (WSURL + "?" + "&".join("%s=%s" % (k,v) for k, v in params.items()))
+    url = (WSURL + "?" + "&".join("%s=%s" % (k,v) for k, v in list(params.items())))
     
     e = etree.parse(url)
     return e
@@ -69,6 +70,6 @@ def fetch_classification(classificationbank_id, keycode=KEY):
     params = dict(function="classificationbank_object",
                   hierarchiesID=classificationbank_id,
                   keyCode=keycode)
-    url = (WSURL + "?" + "&".join("%s=%s" % (k,v) for k, v in params.items()))
+    url = (WSURL + "?" + "&".join("%s=%s" % (k,v) for k, v in list(params.items())))
     e = etree.parse(url)
     return e

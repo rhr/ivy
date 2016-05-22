@@ -1,8 +1,10 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import ivy
 import numpy as np
 import math
+import types
 from ivy.chars.expokit import cyexpokit
 import scipy
 from scipy import special
@@ -20,6 +22,12 @@ from ivy.chars.hrm import *
 from scipy import cluster
 import nlopt
 np.seterr(invalid="warn")
+
+
+try:
+    StringTypes = types.StringTypes # Python 2
+except AttributeError: # Python 3
+    StringTypes = [str]
 
 """
 Functions for fitting an HRM model
@@ -68,7 +76,7 @@ def hrm_mk(tree, chars, Q, nregime, pi="Equal",returnPi=False,
     # The last row of nodelist contains the likelihood values at the root
 
     # Applying the correct root prior
-    if type(pi) != str:
+    if not type(pi) in StringTypes:
         assert len(pi) == nchar, "length of given pi does not match Q dimensions"
         assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
         assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
@@ -89,7 +97,7 @@ def hrm_mk(tree, chars, Q, nregime, pi="Equal",returnPi=False,
         np.copyto(ar["root_priors"],qsd(Q))
         rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
     else:
-        raise ValueError, "invalid value for pi: {}".format(pi)
+        raise ValueError("invalid value for pi: {}".format(pi))
     logli = scipy.misc.logsumexp(rootliks)
 
     if returnPi:
@@ -146,10 +154,10 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None, 
     assert Qtype in ["ARD", "Simple"]
     if orderedRegimes:
         grid = np.zeros([(nobschar*nregime)**2, 4], dtype=int)
-        grid[:,0] = np.tile(np.repeat(range(nregime), nobschar), nobschar*nregime)
-        grid[:,1] = np.repeat(range(nregime), nregime*nobschar**2)
-        grid[:,2] = np.tile(range(nobschar), nregime**2*nobschar)
-        grid[:,3] = np.tile(np.repeat(range(nobschar), nregime*nobschar), nregime)
+        grid[:,0] = np.tile(np.repeat(list(range(nregime)), nobschar), nobschar*nregime)
+        grid[:,1] = np.repeat(list(range(nregime)), nregime*nobschar**2)
+        grid[:,2] = np.tile(list(range(nobschar)), nregime**2*nobschar)
+        grid[:,3] = np.tile(np.repeat(list(range(nobschar)), nregime*nobschar), nregime)
         if Qtype == "ARD":
             wrcount = 0
             brcount = 0
@@ -172,12 +180,12 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None, 
         n_wr = nobschar**2-nobschar
         if Qtype == "ARD":
             # Within-regime
-            for i,wr in enumerate([wrparams[i:i+n_wr] for i in xrange(0, len(wrparams), n_wr)]):
+            for i,wr in enumerate([wrparams[i:i+n_wr] for i in range(0, len(wrparams), n_wr)]):
                 subQ = slice(i*nobschar,(i+1)*nobschar)
                 wrVals = [x for s in [[0]+wr[k:k+nobschar] for k in range(0, len(wr)+1, nobschar)] for x in s]
-                np.copyto(Q[subQ,subQ], [wrVals[x:x+nobschar] for x in xrange(0, len(wrVals), nobschar)])
+                np.copyto(Q[subQ,subQ], [wrVals[x:x+nobschar] for x in range(0, len(wrVals), nobschar)])
             # between regime
-            combs = list(itertools.combinations(range(nregime),2))
+            combs = list(itertools.combinations(list(range(nregime)),2))
             revcombs = [tuple(reversed(i)) for i in combs]
             submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
             for i,submatrix_index in enumerate(submatrix_indices):
@@ -191,9 +199,9 @@ def fill_Q_matrix(nobschar, nregime, wrparams, brparams, Qtype="ARD", out=None, 
                 wr = [wr_p] * n_wr
                 subQ = slice(i*nobschar,(i+1)*nobschar)
                 wrVals = [x for s in [[0]+wr[k:k+nobschar] for k in range(0, len(wr)+1, nobschar)] for x in s]
-                np.copyto(Q[subQ,subQ], [wrVals[x:x+nobschar] for x in xrange(0, len(wrVals), nobschar)])
+                np.copyto(Q[subQ,subQ], [wrVals[x:x+nobschar] for x in range(0, len(wrVals), nobschar)])
             # between-regime
-            combs = list(itertools.combinations(range(nregime),2))
+            combs = list(itertools.combinations(list(range(nregime)),2))
             revcombs = [tuple(reversed(i)) for i in combs]
             submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
             for i,submatrix_index in enumerate(submatrix_indices):
@@ -216,7 +224,7 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars)) * nregime
     nt =  len(tree.descendants())
-    charlist = range(nchar)
+    charlist = list(range(nchar))
     nobschar = len(set(chars))
     t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
     nchar = len(set(chars)) * nregime
@@ -306,7 +314,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Equal
 
     nchar = len(set(chars)) * nregime
     nt =  len(tree.descendants())
-    charlist = range(nchar)
+    charlist = list(range(nchar))
     nobschar = len(set(chars))
     var = create_hrm_ar(tree, chars, nregime,findmin)
     def likelihood_function(Qparams, grad=None):
@@ -326,7 +334,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Equal
             fill_Q_matrix(nobschar, nregime, Qparams[:wr], Qparams[wr:],Qtype="ARD", out=var["Q"], orderedRegimes=orderedRegimes)
 
             if constraints == "Rate":
-                qmax = [max(Qparams[i:i+nobschar]) for i in xrange(0, int(len(Qparams)/2), nobschar)]
+                qmax = [max(Qparams[i:i+nobschar]) for i in range(0, int(len(Qparams)/2), nobschar)]
                 if sorted(qmax) != qmax:
                     return var["nullval"]
             elif constraints == "Symmetry":
@@ -350,7 +358,7 @@ def create_likelihood_function_hrm_mk_MLE(tree, chars, nregime, Qtype, pi="Equal
                 return var["nullval"]
         # Filling Q matrices:
         else:
-            raise ValueError, "Qtype must be ARD or Simple"
+            raise ValueError("Qtype must be ARD or Simple")
         # Resetting the values in these arrays
         np.copyto(var["nodelist"], var["nodelistOrig"])
         var["root_priors"].fill(1.0)
@@ -372,7 +380,7 @@ def any_equal(ar):
     Given a 3-D matrix, test if any of the sub-matrices are equal.
     For use in evaluating symmetric constraint in hrm likelihood function
     """
-    combs = list(itertools.combinations(range(len(ar)),2))
+    combs = list(itertools.combinations(list(range(len(ar))),2))
     for c in combs:
         if (ar[c[0]]==ar[c[1]]).all():
             return True
@@ -424,7 +432,7 @@ def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
         Q, logli, rootLiks, f, par = fit_hrm_mkARD(tree, chars, nregime, pi, constraints,
                                            orderedRegimes,startingvals)
     else:
-        raise TypeError, "Qtype must be Simple or ARD"
+        raise TypeError("Qtype must be Simple or ARD")
 
     return {"Q":Q, "Log-likelihood":logli,"rootLiks":rootLiks}
 
@@ -519,7 +527,7 @@ def make_regime_type_combos(nregime, nparams):
     """
     Create regime combinations for a binary character
     """
-    paramRanks = range(nparams+1)
+    paramRanks = list(range(nparams+1))
     paramPairs = list(itertools.permutations(paramRanks,2))
     for p in paramRanks:
         paramPairs.append((p,p))
@@ -544,7 +552,7 @@ def make_identity_regime(regimePair):
     """
     params_present = list(set([i for s in regimePair for i in s]))
     if 0 in params_present:
-        identity_params = range(len(params_present))
+        identity_params = list(range(len(params_present)))
     else:
         identity_params = [i+1 for i in range(len(params_present))]
     identity_regime =  tuple([tuple([identity_params[params_present.index(i)]
@@ -606,7 +614,7 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_varia
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = len(set(chars))
     if nchar != 2:
-        raise ValueError,"Binary characters only. Number of states given:{}".format(nchar)
+        raise ValueError("Binary characters only. Number of states given:{}".format(nchar))
     regime_combinations = make_regime_type_combos(nregime, nparams)
     regime_combinations = remove_redundant_regimes(regime_combinations)
     pars = [None] * len(regime_combinations)
@@ -614,7 +622,7 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_varia
     liks = [None] * len(regime_combinations)
     ncomb = len(regime_combinations)
     ar = create_hrm_ar(tree, chars, nregime)
-    print "Testing {} regimes".format(ncomb)
+    print("Testing {} regimes".format(ncomb))
 
     if parallel:
         pool = mp.Pool(processes = ncores)
@@ -641,7 +649,7 @@ def fit_hrm_distinct_regimes(tree, chars, nregime, nparams, pi="Equal", br_varia
             if out_file is not None:
                 with open(out_file+str(comb)+".p", "wb") as f:
                     pickle.dump((comb, liks[i], Qs[i]), f)
-            print "{}/{} regimes tested".format(i+1,ncomb)
+            print("{}/{} regimes tested".format(i+1,ncomb))
         return {r:(liks[i], Qs[i]) for i,r in enumerate(regime_combinations)}
 
 
@@ -661,7 +669,7 @@ def hrm_disctinct_regimes_likelihoodfunc(tree, chars, regimetypes, pi="Equal", f
     nregime = len(regimetypes)
     nchar = len(set(chars)) * nregime
     nt =  len(tree.descendants())
-    charlist = range(nchar)
+    charlist = list(range(nchar))
     nobschar = len(set(chars))
     nregimeshift = (nregime**2 - nregime)*2
     if not br_variable:
@@ -724,7 +732,7 @@ def fill_distinct_regime_Q(regimetypes, Qparams,nregime, nobschar, Q = None, Q_l
         subQ = slice(i*nobschar,(i+1)*nobschar)
         Q[subQ, subQ] = regime
     # Filling in between-regime values
-    for i,submatrix_index in enumerate(itertools.permutations(range(nregime),2)):
+    for i,submatrix_index in enumerate(itertools.permutations(list(range(nregime)),2)):
         my_slice0 = slice(submatrix_index[0]*nobschar, (submatrix_index[0]+1)*nobschar)
         my_slice1 = slice(submatrix_index[1]*nobschar, (submatrix_index[1]+1)*nobschar)
         if not br_variable:
@@ -744,7 +752,7 @@ def fit_hrm_model(tree, chars, nregime, mod, pi="Equal", findmin=True, initialva
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nobschar = len(set(chars))
     if nobschar != 2:
-        raise ValueError,"Binary characters only. Number of states given:{}".format(nchar)
+        raise ValueError("Binary characters only. Number of states given:{}".format(nchar))
     nchar = nobschar * nregime
     ar = create_hrm_ar(tree, chars, nregime)
     nfreeparams = len(set([i for i in mod if i != 0]))
@@ -792,9 +800,9 @@ def fill_model_Q(mod, Qparams, Q):
     for i in range(nregime):
         subQ = slice(i*nobschar,(i+1)*nobschar)
         subQvals = [Qparams[x] for s in [(0,)+mod[i][k:k+nobschar] for k in range(0,len(mod[i])+1,nobschar)] for x in s]
-        np.copyto(Q[subQ, subQ], [subQvals[x:x+nobschar] for x in xrange(0, len(subQvals), nobschar)])
+        np.copyto(Q[subQ, subQ], [subQvals[x:x+nobschar] for x in range(0, len(subQvals), nobschar)])
 
-    combs = list(itertools.combinations(range(nregime),2))
+    combs = list(itertools.combinations(list(range(nregime)),2))
     revcombs = [tuple(reversed(i)) for i in combs]
     submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
     for i,submatrix_index in enumerate(submatrix_indices):
@@ -814,7 +822,7 @@ def fit_hrm_model_likelihood(tree, chars, nregime, mod, pi="Equal", findmin=True
     nobschar = len(set(chars))
     nchar = nobschar*nregime
     nt =  len(tree.descendants())
-    charlist = range(nchar)
+    charlist = list(range(nchar))
 
     var = create_hrm_ar(tree, chars, nregime, findmin)
     var["Q_layout"] = np.zeros([nregime,nobschar,nobschar])
@@ -865,14 +873,14 @@ def cluster_models(tree, chars, Q, nregime, pi="Equal", findmin=True):
     Qparams = extract_Qparams(Q, nregime)
 
     ts = np.linspace(-10, 0, 11)
-    Q_dist = np.array(zip(list(Qparams), [0]*len(Qparams)))
+    Q_dist = np.array(list(zip(list(Qparams), [0]*len(Qparams))))
     candidate_models = list(set([tuple(scipy.cluster.hierarchy.fclusterdata(Q_dist, i)) for i in ts]))
     if any(np.isclose(Qparams, 0.0)):
         for i,c in enumerate(candidate_models):
             candidate_models[i] = tuple([x-1 for x in c])
 
     nmod = len(candidate_models)
-    print("Testing {} models".format(nmod))
+    print(("Testing {} models".format(nmod)))
     alt_mods = {c:fit_hrm_model(tree,chars,nregime,c,pi=pi,findmin=findmin)
                 for c in candidate_models}
     return alt_mods
@@ -983,7 +991,7 @@ def extract_Qparams(Q, nregime):
         mask[np.diag_indices(nobschar)]=False
         np.copyto(Qparams[i*n_wr:(i+1)*n_wr], Q[subQ,subQ][mask])
 
-    combs = list(itertools.combinations(range(nregime),2))
+    combs = list(itertools.combinations(list(range(nregime)),2))
     revcombs = [tuple(reversed(i)) for i in combs]
     submatrix_indices = [x for s in [[combs[i]] + [revcombs[i]] for i in range(len(combs))] for x in s]
     for i,submatrix_index in enumerate(submatrix_indices):

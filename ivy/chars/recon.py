@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import math
 
 import numpy as np
@@ -126,7 +128,7 @@ def create_ancrecon_ars(tree, chars, nregime = 1):
     child_inds = np.zeros(partial_nl.shape[0], dtype=int)
 
     # ------- Character list
-    charlist = range(nchar)
+    charlist = list(range(nchar))
 
     # ------- Empty array to store root priors
     root_priors = np.empty([nchar], dtype=np.double)
@@ -162,7 +164,7 @@ def parsimony_recon(tree, chars):
     """
     stepmatrix = catpars.default_costmatrix(len(set(chars.values())))
     rec = catpars.ancstates(tree, chars, stepmatrix)
-    for k in rec.keys():
+    for k in list(rec.keys()):
         rec[k] = rec[k][0]
     return rec
 

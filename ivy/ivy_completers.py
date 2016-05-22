@@ -1,8 +1,10 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import re
 import IPython.ipapi
 
 def node_completer(self, event):
-    from tree import Node
+    from .tree import Node
     symbol = event.symbol
     s = event.line
     if symbol:

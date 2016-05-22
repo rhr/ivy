@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 import ivy
 from ivy.chars import mk_mr
 import numpy as np
@@ -116,7 +117,7 @@ trueQs = np.array([trueFastQ,trueSlowQ])
 
 
 mod_mr = mk_mr.mk_multi_bayes(tree, mr_chars, mods=None,nregime=2)
-mod_mr.sample(50000,burn=5000,thin=3)
+mod_mr.sample(100000,burn=5000,thin=3)
 
 plt.plot(mod.trace("switch_0")[:])
 

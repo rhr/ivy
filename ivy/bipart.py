@@ -1,8 +1,10 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import sys
 
 from pprint import pprint
 from glob import glob
-from storage import Storage
+from .storage import Storage
 from collections import defaultdict
 
 ## class BipartSet(object):
@@ -77,15 +79,15 @@ class TreeSet:
         self.elements = elements or self.node2labels.pop(root)
         self.biparts = [ Bipart(self.elements, v, node=k,
                                 support=int(k.label or 0))
-                         for k, v in self.node2labels.items() ]
+                         for k, v in list(self.node2labels.items()) ]
 
 def compare_trees(r1, r2, support=None):
     e = (set([ x.label for x in r1.leaves() ]) &
          set([ x.label for x in r2.leaves() ]))
     bp1 = [ Bipart(e, v, node=k, support=int(k.label or 0))
-            for k, v in r1.leafsets(labels=True).items() ]
+            for k, v in list(r1.leafsets(labels=True).items()) ]
     bp2 = [ Bipart(e, v, node=k, support=int(k.label or 0))
-            for k, v in r2.leafsets(labels=True).items() ]
+            for k, v in list(r2.leafsets(labels=True).items()) ]
     return compare(bp1, bp2, support)
 
 def compare(set1, set2, support=None):

@@ -1,11 +1,14 @@
 """
 Functions to get trees and character data from treebase
 """
-
-from urllib2 import urlopen
+from __future__ import absolute_import, division, print_function, unicode_literals
+try: # Python 3
+    from urllib.request import urlopen
+except ImportError: # Python 2
+    from urllib2 import urlopen
 from lxml import etree
 from collections import defaultdict
-from storage import Storage
+from .storage import Storage
 import sys, re
 
 # "http://purl.org/phylo/treebase/phylows/study/TB2:S11152"
@@ -99,7 +102,7 @@ def parse_trees(e, otus):
         list: A list of ivy Storage objects each
           containing every node of a tree.
     """
-    from tree import Node
+    from .tree import Node
     v = []
     for tb in e.findall(NEXML+"trees"):
         for te in tb.findall(NEXML+"tree"):
@@ -121,7 +124,7 @@ def parse_trees(e, otus):
                 if length:
                     n.length = float(length)
                 p.add_child(n)
-            r = [ n for n in t.nodes.values() if not n.parent ]
+            r = [ n for n in list(t.nodes.values()) if not n.parent ]
             assert len(r)==1
             r = r[0]
             r.isroot = True
@@ -226,14 +229,14 @@ def parse_states(e):
                    id2symb=id2symb)
 
 def parse_charsets(study_id):
-    from cStringIO import StringIO
+    from io import StringIO
     nx = StringIO(fetch_study(study_id, 'nexus'))
     d = {}
     for line in nx.readlines():
         if line.strip().startswith("CHARSET "):
             v = line.strip().split()
             label = v[1]
-            first, last = map(int, line.split()[-1][:-1].split("-"))
+            first, last = list(map(int, line.split()[-1][:-1].split("-")))
             d[label] = (first-1, last-1)
     return d
 

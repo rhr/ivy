@@ -6,22 +6,22 @@ ivy does not have a Tree class per se, as most functions operate
 directly on Node objects.
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os, types
 import csv
 import itertools
 
-from storage import Storage
+from .storage import Storage
 from copy import copy as _copy
-from matrix import vcv
+from .matrix import vcv
 import ivy.newick
-from itertools import izip_longest
 import numpy as np
 
-StringTypes = types.StringTypes
-try: # Python 2
-    iter(StringTypes)
-except TypeError: # Python 3
-    StringTypes = [StringTypes]
+
+try:
+    StringTypes = types.StringTypes # Python 2
+except AttributeError: # Python 3
+    StringTypes = [str]
 
 def traverse(node):
     "recursive preorder iterator based solely on .children attribute"
@@ -75,7 +75,7 @@ class Node(object):
         self.label_comment = ""
         self.apeidx = None
         if kwargs:
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 setattr(self, k, v)
         if self.id is None: self.id = id(self)
 
@@ -141,7 +141,7 @@ class Node(object):
             i += 1
         return i
 
-    def __nonzero__(self):
+    def __bool__(self):
         return True
 
     def __getitem__(self, x):
@@ -211,7 +211,7 @@ class Node(object):
         Returns:
             str: Ascii tree to be shown with print().
         """
-        from ascii import render
+        from .ascii import render
         return render(self, *args, **kwargs)
 
     def collapse(self, add=False):
@@ -248,7 +248,7 @@ class Node(object):
 
         """
         newnode = Node()
-        for attr, value in self.__dict__.items():
+        for attr, value in list(self.__dict__.items()):
             if (attr not in ("children", "parent") and
                 not isinstance(value, Node)):
                 setattr(newnode, attr, _copy(value))
@@ -597,7 +597,7 @@ class Node(object):
         """
         v = self.find(f, *args, **kwargs)
         try:
-            return v.next()
+            return next(v)
         except StopIteration:
             return None
 
@@ -1129,7 +1129,7 @@ def read(data, format=None, treename=None, ttable=None):
     Returns:
         Node: The root node.
     """
-    import newick
+    from . import newick
 
 
     def strip(s):
@@ -1193,19 +1193,19 @@ def read(data, format=None, treename=None, ttable=None):
         if type(data) in StringTypes:
             if os.path.isfile(data):
                 with open(data) as infile:
-                    rec = newick.nexus_iter(infile).next()
+                    rec = next(newick.nexus_iter(infile))
                     if rec: return rec.parse()
             else:
-                rec = newick.nexus_iter(StringIO(data)).next()
+                rec = next(newick.nexus_iter(StringIO(data)))
                 if rec: return rec.parse()
         else:
-            rec = newick.nexus_iter(data).next()
+            rec = next(newick.nexus_iter(data))
             if rec: return rec.parse()
     else:
         # implement other tree formats here (nexus, nexml etc.)
-        raise IOError, "format '%s' not implemented yet" % format
+        raise IOError("format '%s' not implemented yet" % format)
 
-    raise IOError, "unable to read tree from '%s'" % data
+    raise IOError("unable to read tree from '%s'" % data)
 
 def readmany(data, format="newick"):
     """Iterate over trees from a source."""
@@ -1222,7 +1222,7 @@ def readmany(data, format="newick"):
         for rec in newick.nexus_iter(data):
             yield rec.parse()
     else:
-        raise Exception, "format '%s' not recognized" % format
+        raise Exception("format '%s' not recognized" % format)
     data.close()
 
 ## def randomly_resolve(n):

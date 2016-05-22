@@ -1,3 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import sys
+
 from array import array
 from ivy.layout import depth_length_preorder_traversal
 
@@ -5,16 +9,16 @@ class AsciiBuffer:
     def __init__(self, width, height):
         self.width = int(width)
         self.height = int(height)
-        try:# Python 2
-            self._b = [ array('c', ' '*self.width) for line in range(self.height) ]
-        except TypeError: # Python 3
+        if sys.version_info[0] <=2: # Python 2
+            self._b = [ array(str('u'), ' '*self.width) for line in range(self.height) ]
+        else: # Python 3
             self._b = [ array('b', (' '*self.width).encode()) for line in range(self.height) ]
 
     def putstr(self, r, c, s):
         assert r < self.height
         assert c+len(s) <= self.width, "%s %s %s '%s'" % (self.width, r, c, s)
         try: # python 2
-            self._b[r][c:c+len(s)] = array('c', s)
+            self._b[r][c:c+len(s)] = array(str('u'), s)
         except TypeError:
             self._b[r][c:c+len(s)] = array('b', s.encode())
 
@@ -147,7 +151,7 @@ def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
             buf.putstr(int(nc.r), int(nc.c)+1, " "+node.label)
         else:
             if node.label and show_internal_labels:
-                buf.putstr(int(nc.r), int(nc.c-len(node.label)), node.label)
+                buf.putstr(int(nc.r), int(nc.c-len(node.label)), ""+node.label)
 
         buf.putstr(int(nc.r), int(nc.c), "+")
 
@@ -165,7 +169,7 @@ if __name__ == "__main__":
     #t = tree.read("(foo:4.6, (bar:6.5, baz:2.3)X:3.0)Y:3.0;")
 
     i = 1
-    print render(t, scaled=0, show_internal_labels=1)
+    print(render(t, scaled=0, show_internal_labels=1))
     r = t.get("cat").parent
     ivy.tree.reroot(t, r)
     tp = t.parent
@@ -173,4 +177,4 @@ if __name__ == "__main__":
     c = t.children[0]
     t.remove_child(c)
     tp.add_child(c)
-    print render(r, scaled=0, show_internal_labels=1)
+    print(render(r, scaled=0, show_internal_labels=1))
