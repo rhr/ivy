@@ -198,6 +198,29 @@ and the weighting at the root node.
     In [*]: print mk_results["pi"]
     {0: 0.088591248260230959, 1: 0.9114087517397691}
 
+Let's take a look at the results
+
+    In [*]: print mk_results["Q"]
+    [[-0.01246449  0.01246449]
+     [ 0.09898439 -0.09898439]]
+
+First is the Q matrix. The fitted Q matrix shows the transition rate from i->j,
+where i is the row and j is the column. Recall that in this dataset, character
+0 corresponds to herbacious and 1 to woody. We can see that the transition
+rate from woody to herbacious is higher than the transition from
+herbacious to woody.
+
+    In [*]: print mk_results["Log-likelihood"]
+    -11.3009106093
+
+Next is the log-likelihood. This is the log-likelihood of the data using
+the fitted model
+
+    In [*]: print mk_results["pi"]
+    {0: 0.088591248260230959, 1: 0.9114087517397691}
+
+Finally we have pi, the weighting at the root. We can see that there is
+higher weighting for the root being in state 1 (woody).
 
 .. TODO: plotting Mk
 
