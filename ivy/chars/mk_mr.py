@@ -243,7 +243,8 @@ def create_likelihood_function_multimk_mods(tree, chars, mods, pi="Equal",
 
         if (np.sum(Qparams)/len(locs) > var["upperbound"]) or any([x<=0 for x in Qparams]):
             return var["nullval"]
-
+        if any(Qparams != sorted(Qparams)):
+            return var["nullval"]
 
         # Clearing Q matrices
         var["Q"].fill(0.0)
@@ -324,6 +325,24 @@ def locs_from_switchpoint(tree, switches, locs=None):
     # with locations descended from the root last)
     return locs[[switches_c.index(i) for i in switches]]
 
+class ModelOrderMetropolis(pymc.Metropolis):
+    """
+    Custom step method for model order
+    """
+    def __init__(self, stochastic):
+        pymc.Metropolis.__init__(self, stochastic, scale=1., proposal_distribution="prior")
+    def propose(self):
+        cur_order = self.stochastic.value
+        indexes_to_swap = random.sample(range(len(cur_order)),2)
+
+        new_order = cur_order[:]
+        # Swap values
+        new_order[indexes_to_swap[0]], new_order[indexes_to_swap[1]] = new_order[indexes_to_swap[1]], new_order[indexes_to_swap[0]]
+
+        self.stochastic.value = new_order
+    def reject(self):
+        self.rejected += 1
+        self.stochastic.value = self.stochastic.last_value
 
 
 class SwitchpointMetropolis(pymc.Metropolis):
@@ -345,7 +364,8 @@ class SwitchpointMetropolis(pymc.Metropolis):
         self.rejected += 1
         self.stochastic.value = self.stochastic.last_value
 
-def make_switchpoint_stoch(tree, name="switch"):
+
+def make_switchpoint_stoch(tree, name=str("switch")):
     startingval = random.choice(tree.internals()[1:]).ni
     @pymc.stochastic(dtype=int, name=name)
     def switchpoint_stoch(value = startingval):
@@ -353,6 +373,12 @@ def make_switchpoint_stoch(tree, name="switch"):
         return 0
     return switchpoint_stoch
 
+def make_modelorder_stoch(mods, name=str("modorder")):
+    startingval = mods
+    @pymc.stochastic(dtype=tuple, name=name)
+    def modelorder_stoch(value=startingval):
+        return 0
+    return modelorder_stoch
 
 def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None):
     """
@@ -381,14 +407,33 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None):
     # Regime shifts will only be allowed to happen at a node
     switch = [None]*(nregime-1)
     for regime in range(nregime-1):
-        switch[regime]= make_switchpoint_stoch(tree, name="switch_{}".format(regime))
+        switch[regime]= make_switchpoint_stoch(tree, name=str("switch_{}".format(regime)))
     ###########################################################################
     # Qparams:
     ###########################################################################
     # Each Q parameter is an exponential
     Qparams = [None] * nparam
     for i in range(nparam):
-         Qparams[i] = pymc.Exponential(name="Qparam"+str(i), beta=1.0)
+         Qparams[i] = pymc.Exponential(name=str("Qparam_{}".format(i)), beta=1.0, value=0.1*(i+1))
+
+
+    ###########################################################################
+    # Model order
+    ###########################################################################
+    # Swap model order to have different models associated with
+    # different regimes.
+    model_order = make_modelorder_stoch(mods)
+
+
+    ###########################################################################
+    # Regime Mapping
+    ###########################################################################
+    # Which models are associated with which switchpoint (or the root)?
+    @pymc.deterministic
+    def regime_map(s = switch, m=mods):
+        model_locations = [tree[int(x)] for x in s]+[tree]
+
+        return {m[i]:model_locations[i] for i in range(nregime)}
 
     ###########################################################################
     # Likelihood
@@ -406,13 +451,16 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None):
                                                findmin=False)
 
     @pymc.potential
-    def multi_mklik(q = Qparams, switch=switch, name="multi_mklik"):
+    def multi_mklik(q = Qparams, switch=switch, rm=regime_map,
+                    mo=model_order, name="multi_mklik",):
+        switch_in_order = [rm[i] for i in mo if rm[i]!=tree]
 
-        locs = locs_from_switchpoint(tree,[tree[int(i)] for i in switch],locsarray)
+        locs = locs_from_switchpoint(tree,switch_in_order,locsarray)
         return l(q, locs=locs)
 
     mod = pymc.MCMC(locals())
 
+    mod.use_step_method(ModelOrderMetropolis, model_order)
     for s in switch:
         mod.use_step_method(SwitchpointMetropolis, s, tree)
 

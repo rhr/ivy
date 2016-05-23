@@ -201,12 +201,12 @@ true_l = mk_mr.mk_multi_regime(tree, chars_r3, true_Qs, true_locs)
 # Background process must be last
 mods = [(3, 3), (2, 2), (1, 1)]
 
-mod_r3 = mk_mr.mk_multi_bayes(tree, chars_r3, mods=mods)
+mod_r3 = mk_multi_bayes(tree, chars_r3, mods=mods)
 
-mod_r3.sample(200000)
+mod_r3.sample(100000)
 
-plt.plot(mod_r3.trace("switch_1")[:])
-plt.plot(mod_r3.trace("switch_0")[:])
+plt.plot(mod_r3.trace(str("switch_1"))[:])
+plt.plot(mod_r3.trace(str("switch_0"))[:])
 
 
 mods = [(2, 2), (3, 3), (1, 1)]

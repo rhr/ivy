@@ -23,6 +23,7 @@ def PIC(node, data, results=None):
 
     TODO: modify to accommodate polytomies.
     """
+    #TODO: add option to scale by variance
     if results is None:
         results = {}
     X = []; v = []
