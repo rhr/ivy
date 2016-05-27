@@ -214,7 +214,7 @@ def create_likelihood_function_multimk(tree, chars, Qtype, nregime, pi="Equal",
 
 
 def create_likelihood_function_multimk_mods(tree, chars, mods, pi="Equal",
-                                  findmin = True):
+                                  findmin = True, orderedparams=True):
     """
     Create a likelihood function for testing the parameter values of user-
     specified models
@@ -243,8 +243,10 @@ def create_likelihood_function_multimk_mods(tree, chars, mods, pi="Equal",
 
         if (np.sum(Qparams)/len(locs) > var["upperbound"]) or any([x<=0 for x in Qparams]):
             return var["nullval"]
-        if any(Qparams != sorted(Qparams)):
-            return var["nullval"]
+
+        if orderedparams:
+            if any(Qparams != sorted(Qparams)):
+                return var["nullval"]
 
         # Clearing Q matrices
         var["Q"].fill(0.0)
@@ -343,6 +345,8 @@ class ModelOrderMetropolis(pymc.Metropolis):
     def reject(self):
         self.rejected += 1
         self.stochastic.value = self.stochastic.last_value
+    def competence(self):
+        return 0
 
 
 class SwitchpointMetropolis(pymc.Metropolis):
@@ -363,7 +367,8 @@ class SwitchpointMetropolis(pymc.Metropolis):
     def reject(self):
         self.rejected += 1
         self.stochastic.value = self.stochastic.last_value
-
+    def competence(self):
+        return 0
 
 def make_switchpoint_stoch(tree, name=str("switch")):
     startingval = random.choice(tree.internals()[1:]).ni
@@ -380,7 +385,8 @@ def make_modelorder_stoch(mods, name=str("modorder")):
         return 0
     return modelorder_stoch
 
-def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None):
+def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
+                   dbname=None, orderedparams=True):
     """
     Create a Bayesian multi-mk model. User specifies which regime models
     to use and the Bayesian model finds the switchpoints.
@@ -444,7 +450,7 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None):
     locsarray = np.empty([nregime], dtype=object)
     if mods is not None:
         l = create_likelihood_function_multimk_mods(tree=tree, chars=chars,
-            mods=mods, pi=pi, findmin=False)
+            mods=mods, pi=pi, findmin=False, orderedparams=orderedparams)
     else:
         l = create_likelihood_function_multimk(tree, chars=chars, Qtype="ARD",
                                                nregime=nregime, pi=pi,
@@ -458,9 +464,13 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None):
         locs = locs_from_switchpoint(tree,switch_in_order,locsarray)
         return l(q, locs=locs)
 
-    mod = pymc.MCMC(locals())
+    if db is None:
+        mod = pymc.MCMC(locals())
+    else:
+        mod = pymc.MCMC(locals(), db=db, dbname=dbname)
 
     mod.use_step_method(ModelOrderMetropolis, model_order)
+
     for s in switch:
         mod.use_step_method(SwitchpointMetropolis, s, tree)
 

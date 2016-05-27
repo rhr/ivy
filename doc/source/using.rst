@@ -26,5 +26,7 @@ concepts:
     :numbered:
 
     Quickstart <quickstart>
-    Introduction <introduction>
+    Trees in ivy <trees_in_ivy>
+    Using Treebase <using_treebase>
+    Plotting <plotting>
     Analyses <analyses>

@@ -3,111 +3,50 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import pickle
+import pandas
 
 from ivy.interactive import *
 from ivy.vis import layers
 from ivy.sim import discrete_sim
 from colour import Color
 from matplotlib.colors import LinearSegmentedColormap
+np.set_printoptions(suppress=True, precision=5)
 
-fast = 1.0
-slow = 0.01
-br = 0.02
+tree = ivy.tree.read("/home/cziegler/Dropbox/multiregime-discrete/datasets/mammal_diet/MammalPhyloInDataset.newick")
+data = pandas.read_csv("/home/cziegler/Dropbox/multiregime-discrete/datasets/mammal_diet/MammalDietOnTree.csv")
 
-Q = ivy.chars.hrm.fill_Q_matrix(2,2,[slow,fast],[br], Qtype="Simple")
+Q = np.array([[ -0.00897,   0.0087 ,   0.00027,   0.     ,   0.     ,   0.     ],
+       [  0.11584,  -0.15307,   0.     ,   0.     ,   0.03723,   0.     ],
+       [  0.     ,   0.11584, -39.10997,   0.     ,   0.     ,  38.99413],
+       [  0.     ,   0.     ,   0.     ,  -2.64026,   2.64026,   0.     ],
+       [  0.     ,   0.01447,   0.     ,   0.1156 ,  -0.1377 ,   0.00763],
+       [  0.     ,   0.     ,   0.     ,   0.     ,   0.00696,  -0.00696]])
 
-tree = ivy.tree.read("support/hrm_300tips.newick")
-#random.seed(1)
-#simtree = discrete_sim.sim_discrete(tree, Q, anc=0)
-simtree = pickle.load(open("sim_tree.p","rb"))
-chars_unhidden = [ n.sim_char["sim_state"] for n in simtree.leaves()]
-chars = [ n % 2 for n in chars_unhidden]
-nchar = 4
-trueSimFig = treefig(simtree)
-trueSimFig.add_layer(layers.add_branchstates)
-
-
-hrm_MLE = ivy.chars.hrm.fit_hrm_mkSimple(tree, chars, 2, pi="Equal")
-
-
-#t = ivy.chars.recon.recon(tree, chars, np.array([[-0.5,0.5],[0.5,-0.5]]), pi="Equal")
-#pickle.dump(t, open("prev_ancrecon_results.p", "wb"))
-
-t = pickle.load(open("prev_ancrecon_results.p", "rb"))
-recon = ivy.chars.recon.recon_discrete(tree, chars,hrm_MLE[0], pi="Equal", nregime = 2)
+chars = dict(zip(data.Binomial, data.DietCode.astype(int)))
 
 
 fig = treefig(tree)
+treeplot = fig.tree
 
-cols = ["pink", "blue", "red", "darkblue"]
-
-fig.add_layer(layers.add_ancestor_noderecon, recon, colors = cols)
+liks = ivy.chars.recon.anc_recon_cat(tree, chars, Q=Q, nregime=2)
 
 
-########################
-# Visualizing likelihood
-########################
-
-def twoS_twoR_colormaker(lik):
+def color_blender_1(value, start, end):
     """
-    Given node likelihood, return appropriate color
+    Smooth transition between two values
 
-    State 0 corresponds to red, state 1 corresponds to blue
-    Regime 1 corresponds to grey, regime 2 corresponds to highly saturated
+    value (float): Percentage along color map
+    start: starting value of color map
+    end: ending value of color map
     """
-    s0 = sum([lik[0], lik[2]])
-    s1 = sum([lik[1], lik[3]])
+    return start + (end-start)*value
 
-    r0 = sum([lik[0], lik[1]])
-    r1 = sum([lik[2], lik[3]])
+def color_map(value, col1, col2):
+    """
+    Return RGB for value based on minimum and maximum colors
+    """
+    r = color_blender_1(value, col1[0], col2[0])
+    g = color_blender_1(value, col1[1], col2[1])
+    b = color_blender_1(value, col1[2], col2[2])
 
-    sat = r1 + (1-r1)*0.3
-
-    col = Color(rgb=(s0,0,s1))
-    col.saturation = sat
-    return col
-
-
-
-cols = [twoS_twoR_colormaker(i[:nchar]).rgb for i in recon]
-
-fig = treefig(tree)
-fig.add_layer(layers.add_circles, list(tree.preiter()),colors=cols)
-
-
-#################
-# Gradient bars
-#################
-c1 = (0,0,1)
-c2 = (1,0,0)
-
-fig=plt.figure()
-ax=fig.add_subplot(111)
-ax.axis([0,1,-50,200])
-
-p1 = (0.1,0)
-p2 = (0.9,0)
-
-cust_cm = LinearSegmentedColormap.from_list("cust_cm",[c1, c2])
-width = 10
-
-nsegs = 255
-seglen = abs(p1[0] - p2[0])/nsegs
-
-pos = zip(np.arange(p1[0], p2[0], seglen), [p1[1]]*nsegs)
-pos.append(p2)
-
-segs = [[pos[i],pos[i+1]] for i in range(nsegs)]
-
-vals = np.arange(0,1,seglen)
-lc = LineCollection(segs, cmap=cust_cm, linewidths=width)
-lc.set_array(vals)
-ax.add_collection(lc)
-
-c1 = twoS_twoR_colormaker([1,0,0,0])
-c2 = twoS_twoR_colormaker([0,1,0,0])
-c3 = twoS_twoR_colormaker([0,0,1,0])
-c4 = twoS_twoR_colormaker([0,0,0,1])
-
-
-fig,axes = plt.subplots()
+    return(r,g,b)

@@ -115,20 +115,22 @@ trueFastQ = np.array([[-.8,.8], [.8,-.8]])
 trueSlowQ = np.array([[-.1,.1], [.1,-.1]])
 trueQs = np.array([trueFastQ,trueSlowQ])
 
+mods = [(2,2),(1,1)]
 
-mod_mr = mk_mr.mk_multi_bayes(tree, mr_chars, mods=None,nregime=2)
-mod_mr.sample(100000,burn=5000,thin=3)
+mod_mr = mk_multi_bayes(tree, mr_chars, mods=mods,nregime=2, orderedparams=False)
+mod_mr.sample(10000,burn=1000,thin=3)
 
-plt.plot(mod.trace("switch_0")[:])
+plt.plot(mod_mr.trace("switch_0")[:])
 
-switch = [int(i) for i in mod.trace("switch")[:]]
+plt.plot(mod_mr.trace(str("Qparam_0"))[:])
+plt.plot(mod_mr.trace(str("Qparam_1"))[:])
 
 
-nds = [tree[int(i)] for i in mod.trace("switch")[:]]
+nds = [tree[int(i)] for i in mod_mr.trace(str("switch_0"))[:]]
 fig = treefig(tree)
 fig.toggle_branchlabels()
 fig.add_layer(ivy.vis.layers.add_node_heatmap,nds, store="hm")
-fig.tip_chars(chars)
+fig.tipstates(chars)
 
 
 mod = mk_multi_bayes(tree, mr_chars, mods=[(1,1),(2,2)])
@@ -157,7 +159,7 @@ from ivy.interactive import *
 
 tree = ivy.tree.read("support/hrm_600tips.newick")
 
-chars_r3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -182,28 +184,27 @@ chars_r3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
-fig = treefig(tree)
-fig.tipstates(chars_r3)
-
-true_locs = mk_mr.locs_from_switchpoint(tree, [tree[579], tree[329]])
-
-Q1 = np.array([[-1e-15,1e-15],
-                [1e-15,-1e-15]])
-Q2 = np.array([[-0.05,0.05],
-               [0.05,-0.05]])
-Q3 = np.array([[-1.,1.],
-               [1.,-1.]])
-
-true_Qs = np.array([Q2,Q3,Q1])
-
-true_l = mk_mr.mk_multi_regime(tree, chars_r3, true_Qs, true_locs)
+# fig = treefig(tree)
+# fig.tipstates(chars_r3)
+#
+# true_locs = mk_mr.locs_from_switchpoint(tree, [tree[579], tree[329]])
+#
+# Q1 = np.array([[-1e-15,1e-15],
+#                 [1e-15,-1e-15]])
+# Q2 = np.array([[-0.05,0.05],
+#                [0.05,-0.05]])
+# Q3 = np.array([[-1.,1.],
+#                [1.,-1.]])
+#
+# true_Qs = np.array([Q2,Q3,Q1])
+#
+# true_l = mk_mr.mk_multi_regime(tree, chars_r3, true_Qs, true_locs)
 #-212.46280532572879
-# Background process must be last
-mods = [(3, 3), (2, 2), (1, 1)]
+mods = [(3, 3), (1, 1), (2, 2)]
 
-mod_r3 = mk_multi_bayes(tree, chars_r3, mods=mods)
+mod_r3 = mk_multi_bayes(tree, chars, mods=mods,orderedparams=False)
 
-mod_r3.sample(100000)
+mod_r3.sample(20000)
 
 plt.plot(mod_r3.trace(str("switch_1"))[:])
 plt.plot(mod_r3.trace(str("switch_0"))[:])

@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import sys, time, bisect, math, types, os, operator, functools
 from collections import defaultdict
 from itertools import chain
+import copy
 from pprint import pprint
 from ivy import tree, bipart
 from ivy.layout import cartesian
@@ -766,7 +767,6 @@ def add_ancrecon(treeplot, liks, vis=True, width=2):
 
     treeplot.figure.canvas.draw_idle()
 
-
 def add_ancrecon_hrm(treeplot, liks, vis=True, width=2):
     """
     Color branches on tree based on likelihood of being in a state
@@ -825,6 +825,66 @@ def add_ancrecon_hrm(treeplot, liks, vis=True, width=2):
 
     grid = np.array([[c1.rgb,c2.rgb],[c3.rgb,c4.rgb]])
     leg_ax.imshow(grid, interpolation="bicubic")
+    treeplot.figure.canvas.draw_idle()
+
+def add_hrm_hiddenstate_recon(treeplot, liks, nregime,vis=True, width=2, colors=None):
+    """
+    Color branches based on likelihood of being in hidden states.
+
+    Args:
+        liks (np.array): The output of anc_recon run as a hidden-rates reconstruction.
+    """
+    root = treeplot.root
+    horz_seg_collections = [None] * (len(root)-1)
+    horz_seg_colors = [None]*(len(root)-1)
+    vert_seg_collections = [None] * (len(root)-1)
+    vert_seg_colors = [None] * (len(root)-1)
+
+    nchar = liks.shape[1]-2 # Liks has rows equal to nchar+2 (the last two rows are indices)
+    nobschar = nchar//nregime
+
+    if colors is None:
+        c = _tango
+        colors = [next(c) for v in range(nregime)]
+
+    for i,n in enumerate(root.descendants()):
+        n_lik = liks[i+1] # Add 1 to the index because the loop is skipping the root
+        par_lik = liks[n.parent.ni]
+        n_r1 = sum(n_lik[:nchar//2])# Likelihood of node being in regime 1
+        p_r1 = sum(par_lik[:nchar//2])# Likelihood of node being in regime 1
+        n_col = color_map(n_r1, colors[0], colors[1])
+        par_col = color_map(p_r1, colors[0], colors[1])
+
+        n_coords = treeplot.n2c[n]
+        par_coords = treeplot.n2c[n.parent]
+
+        p1 = (n_coords.x, n_coords.y)
+        p2 = (par_coords.x, n_coords.y)
+
+        hsegs,hcols = gradient_segment_horz(p1,p2,n_col,par_col)
+
+        horz_seg_collections[i] = hsegs
+        horz_seg_colors[i] = hcols
+
+        vert_seg_collections[i] = ([(par_coords.x,par_coords.y),
+                                     (par_coords.x, n_coords.y)])
+        vert_seg_colors[i] = (par_col)
+    horz_seg_collections = [i for s in horz_seg_collections for i in s]
+    horz_seg_colors = [i for s in horz_seg_colors for i in s]
+    lc = LineCollection(horz_seg_collections + vert_seg_collections,
+                        colors = horz_seg_colors + vert_seg_colors,
+                        lw = width)
+    lc.set_visible(vis)
+    treeplot.add_collection(lc)
+
+    # leg_ax = treeplot.figure.add_axes([0.3, 0.8, 0.1, 0.1])
+    # leg_ax.tick_params(which = "both",
+    #                    bottom = "off",
+    #                    labelbottom="off",
+    #                    top = "off",
+    #                    left = "off",
+    #                    labelleft = "off",
+    #                    right = "off")
     treeplot.figure.canvas.draw_idle()
 
 
@@ -887,3 +947,23 @@ def add_tipstates(treeplot, chars, nodes=None,colors=None, *args, **kwargs):
         colors = [ next(_tango) for char in set(chars) ]
     col_list = [ colors[i] for i in chars ]
     add_circles(treeplot, nodes, colors=col_list, size=6, *args, **kwargs)
+
+def color_blender_1(value, start, end):
+    """
+    Smooth transition between two values
+
+    value (float): Percentage along color map
+    start: starting value of color map
+    end: ending value of color map
+    """
+    return start + (end-start)*value
+
+def color_map(value, col1, col2):
+    """
+    Return RGB for value based on minimum and maximum colors
+    """
+    r = color_blender_1(value, col1[0], col2[0])
+    g = color_blender_1(value, col1[1], col2[1])
+    b = color_blender_1(value, col1[2], col2[2])
+
+    return(r,g,b)
