@@ -215,3 +215,10 @@ mods = [(2, 2), (3, 3), (1, 1)]
 mod_r3 = mk_mr.mk_multi_bayes(tree, chars_r3, mods=mods)
 
 mod_r3.sample(20000, burn=2000, thin=3)
+
+
+#############################################
+# Nodesteps on branches
+#############################################
+
+tree = ivy.tree.read(u"((A:1,B:1)C:1,D:2)root;")

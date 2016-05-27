@@ -353,16 +353,55 @@ class SwitchpointMetropolis(pymc.Metropolis):
     """
     Custom step algorithm for selecting a new switchpoint
     """
-    def __init__(self, stochastic, tree):
+    def __init__(self, stochastic, tree, seg_map, stepsize=0.05, seglen=0.02):
         pymc.Metropolis.__init__(self, stochastic, scale=1., proposal_distribution="prior")
+        root_to_tip_length = sum([n.length for n in list(tree.leaves()[0].rootpath())[:-1]+[tree.leaves()[0]]])
         self.tree = tree
+        self.seg_map = seg_map
+        self.stepsize = stepsize * root_to_tip_length
+        self.seg_size = seglen * root_to_tip_length
     def propose(self):
-        # Jumps can happen to children, parent, or siblings.
-        cur_node = self.tree[int(self.stochastic.value)]
-        adjacent_nodes = cur_node.children+[cur_node.parent]+cur_node.parent.children
-        valid_nodes = [n for n in adjacent_nodes if not (n.isleaf or n.isroot)]
-        new = random.choice(valid_nodes)
-        self.stochastic.value = new.ni
+        # Following BAMM, switchpoint movements can be either global or
+        # local, with global switch happening 1/10 times
+
+        if (random.choice(range(10))==0):
+            self.global_step()
+        else:
+            self.local_step()
+
+    def local_step(self):
+        prev_location = self.stochastic.value
+        cur_node = prev_location[0]
+        cur_len = prev_location[1]
+        direction = random.choice([-1,1])
+        step_size = np.random.uniform(high=self.stepsize)
+        step_size = round_step_size(step_size, seg_size)
+        while True:
+            if direction == 1: # Rootward
+                while True:
+                    if step_size > cur_len: # If step goes past the parent node
+                        if not cur_node.parent.isroot:
+                            step_size = step_size - cur_len
+                            cur_node = cur_node.parent
+                            cur_len = cur_node.length - (cur_node.length % step_size)
+                        else:
+                            valid_nodes = [n for n in cur_node.parent.children if n != cur_node]
+                            cur_node = random.choice(valid_nodes)
+                            step_size = step_size - cur_len
+                            direction = -1
+
+
+                    else:
+                        new_location = (cur_node, cur_len-step_size)
+                        break
+            else: # tipward
+                while True:
+                    if step_size < cur_node.length - cur_len
+
+
+
+    def global_step(self):
+        self.stochastic.value = random_tree_location(self.seg_map)
 
     def reject(self):
         self.rejected += 1
@@ -370,8 +409,45 @@ class SwitchpointMetropolis(pymc.Metropolis):
     def competence(self):
         return 0
 
-def make_switchpoint_stoch(tree, name=str("switch")):
-    startingval = random.choice(tree.internals()[1:]).ni
+def round_step_size(step_size, seg_size):
+    """
+    Round step_size to the nearest segment
+    """
+    if (step_size%seg_size) > (seg_size/2):
+        return step_size + (seg_size-(step_size%seg_size))
+    else:
+        return step_size - (step_size%seg_size)
+
+def tree_map(tree, seglen=0.02):
+    """
+    Make a map of the tree cut into segments of size (seglen*root_to_tip_length)
+    """
+    root_to_tip_length = sum([n.length for n in list(tree.leaves()[0].rootpath())[:-1]+[tree.leaves()[0]]])
+    seg_size = seglen * root_to_tip_length
+    seg_map = []
+    seen = [tree]
+    cur_node = tree.children[0]
+    for node in tree.descendants():
+        cur_len = node.length
+        nseg = int(ceil(cur_len/seg_size))
+        for n in range(nseg):
+            seg_map.append((cur_node, n*seg_size))
+    return seg_map
+
+
+def random_tree_location(seg_map):
+    """
+    Select random location on tree with uniform probability
+
+    Returns:
+        tuple: node and float, which represents the how far along the branch to
+          the parent node the switch occurs on
+    """
+    return random.choice(seg_map)
+
+
+def make_switchpoint_stoch(seg_map, name=str("switch")):
+    startingval = random_tree_location(seg_map)
     @pymc.stochastic(dtype=int, name=name)
     def switchpoint_stoch(value = startingval):
         # Flat prior on switchpoint location
@@ -386,7 +462,7 @@ def make_modelorder_stoch(mods, name=str("modorder")):
     return modelorder_stoch
 
 def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
-                   dbname=None, orderedparams=True):
+                   dbname=None, orderedparams=True,seglen=0.02):
     """
     Create a Bayesian multi-mk model. User specifies which regime models
     to use and the Bayesian model finds the switchpoints.
@@ -411,9 +487,10 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
     ###########################################################################
     # Modeling the movement of the regime shift(s) is the tricky part
     # Regime shifts will only be allowed to happen at a node
+    seg_map = tree_map(tree,seglen)
     switch = [None]*(nregime-1)
     for regime in range(nregime-1):
-        switch[regime]= make_switchpoint_stoch(tree, name=str("switch_{}".format(regime)))
+        switch[regime]= make_switchpoint_stoch(seg_map, name=str("switch_{}".format(regime)))
     ###########################################################################
     # Qparams:
     ###########################################################################
