@@ -5,6 +5,7 @@ import math
 import random
 import itertools
 import types
+from math impor ceil
 
 import numpy as np
 import scipy
@@ -378,25 +379,35 @@ class SwitchpointMetropolis(pymc.Metropolis):
         step_size = round_step_size(step_size, seg_size)
         while True:
             if direction == 1: # Rootward
-                while True:
-                    if step_size > cur_len: # If step goes past the parent node
-                        if not cur_node.parent.isroot:
-                            step_size = step_size - cur_len
-                            cur_node = cur_node.parent
-                            cur_len = cur_node.length - (cur_node.length % step_size)
-                        else:
-                            valid_nodes = [n for n in cur_node.parent.children if n != cur_node]
-                            cur_node = random.choice(valid_nodes)
-                            step_size = step_size - cur_len
-                            direction = -1
-
-
+                if step_size > cur_len: # If step goes past the parent node: jump to parent node
+                    if not cur_node.parent.isroot:
+                        cur_node = cur_node.parent
+                        step_size = step_size - cur_len
+                        cur_len = (cur_node.length//self.seg_size)*self.seg_size
                     else:
-                        new_location = (cur_node, cur_len-step_size)
-                        break
+                        valid_nodes = [n for n in cur_node.parent.children if n != cur_node]
+                        cur_node = random.choice(valid_nodes)
+                        cur_len = 0.0
+                        step_size = step_size - cur_len
+                        direction = -1
+                else: # Stay on same branch
+                    new_location = (cur_node, cur_len-step_size)
+                    break
             else: # tipward
-                while True:
-                    if step_size < cur_node.length - cur_len
+                # Stay on same branch
+                if step_size < (cur_node.length - cur_len):
+                    new_location = (cur_node, cur_len+step_size)
+                    break
+                else: # Move to new branch
+                    if not cur_node.isleaf: #Move to child
+                        valid_nodes = cur_node.children
+                        cur_node = random.choice(valid_nodes)
+                        cur_len = 0.0
+                        step_size = step_size - (cur_node.length//self.seg_size)*self.seg_size
+                    else: # Bounce up from tip
+                        step_size = step_size - ((cur_node.length//self.seg_size)*self.seg_size-cur_len)
+                        cur_len = (cur_node.length//self.seg_size)*self.seg_size
+                        direction = 1
 
 
 
