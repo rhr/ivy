@@ -418,7 +418,7 @@ def add_squares(treeplot, nodes, colors='r', size=15, xoff=0, yoff=0, alpha=1.0,
 
 def add_circles(treeplot, nodes, colors="g", size=15, xoff=0, yoff=0, vis=True):
     """
-    Draw circles on plot
+    Draw circles on plot at nodes
 
     Args:
         nodes: A node object or list of Node objects or label or list of labels
@@ -436,6 +436,39 @@ def add_circles(treeplot, nodes, colors="g", size=15, xoff=0, yoff=0, vis=True):
     col = CircleCollection(
         sizes=(pi*size*size*0.25,),
         offsets=points, facecolors=colors, transOffset=trans,
+        edgecolors='none', zorder=1
+        )
+    col.set_visible(vis)
+
+    treeplot.add_collection(col)
+    treeplot.figure.canvas.draw_idle()
+
+
+def add_circles_branches(treeplot, nodes, distances, colors="g", size=15,xoff=0,yoff=0,vis=True):
+    """
+    Draw circles on branches
+
+    Args:
+        nodes: A node object or list of Node objects or label or list of labels
+        distances: Float or list of floats indicating the distance from the
+          **parent** node the branch should be drawn on.
+        colors: Str or list of strs. Colors of the circles. Optional,
+          defaults to 'g' (green)
+        size (float): Size of the circles. Optional, defaults to 15
+        xoff, yoff (float): X and Y offset. Optional, defaults to 0.
+
+    """
+    points = xy(treeplot, nodes)
+    distances = [n.length - distances[i] for i,n in enumerate(nodes)]
+
+    coords = [(x[0]-distances[i],x[1]) for i,x in enumerate(points)]
+    trans = offset_copy(
+        treeplot.transData, fig=treeplot.figure, x=xoff, y=yoff, units='points'
+        )
+
+    col = CircleCollection(
+        sizes=(pi*size*size*0.25,),
+        offsets=coords, facecolors=colors, transOffset=trans,
         edgecolors='none', zorder=1
         )
     col.set_visible(vis)
@@ -947,6 +980,22 @@ def add_tipstates(treeplot, chars, nodes=None,colors=None, *args, **kwargs):
         colors = [ next(_tango) for char in set(chars) ]
     col_list = [ colors[i] for i in chars ]
     add_circles(treeplot, nodes, colors=col_list, size=6, *args, **kwargs)
+
+def add_tree_heatmap(treeplot, locations, vis=True):
+    """
+    Plot how often tree coordinates appear in locations
+
+    Args:
+         locations (list): List of tuples where first item is node, second
+           item is how far from the node's parent the location is.
+    """
+    color = (1,0,0,0.05)
+    nodes = zip(*locations)[0]
+    distances = zip(*locations)[1]
+
+    add_circles_branches(treeplot, nodes, distances, colors=color,vis=vis)
+
+
 
 def color_blender_1(value, start, end):
     """

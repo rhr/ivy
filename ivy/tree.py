@@ -174,12 +174,11 @@ class Node(object):
                          "right", "left"]
 
         for i,n in enumerate(self):
-            for var in vars(n):
-                if var in vars_to_index:
-                    try:
-                        setattr(n,var,getattr(newtree[i],var))
-                    except AttributeError:
-                        pass
+            for var in vars_to_index:
+                try:
+                    setattr(n,var,getattr(newtree[i],var))
+                except AttributeError:
+                    pass
 
     def ape_node_idx(self): # For use in phylorate plot
         i = 1

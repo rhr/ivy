@@ -5,7 +5,7 @@ import math
 import random
 import itertools
 import types
-from math impor ceil
+from math import ceil
 
 import numpy as np
 import scipy
@@ -60,7 +60,99 @@ def mk_multi_regime(tree, chars, Qs, locs, pi="Equal", returnPi=False,
 
     for l, a in enumerate(locs):
         for n in a:
-            inds[n-1] = l
+            posti = tree[n].pi
+            inds[posti] = l
+
+    # Creating probability matrices from Q matrices and branch lengths
+    # inds indicates which Q matrix to use for which branch
+    cyexpokit.dexpm_treeMulti_preallocated_p_log(Qs,ar["t"], ar["p"], np.array(inds)) # This changes p in place
+
+
+    # Calculating the likelihoods for each node in post-order sequence
+    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"])
+    # The last row of nodelist contains the likelihood values at the root
+
+    # Applying the correct root prior
+    if not type(pi) in StringTypes:
+        assert len(pi) == nchar, "length of given pi does not match Q dimensions"
+        assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
+        assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
+
+        np.copyto(ar["root_priors"], pi)
+
+        rootliks = ([ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ])
+
+    elif pi == "Equal":
+        ar["root_priors"].fill(1.0/nchar)
+        rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1])]
+
+    elif pi == "Fitzjohn":
+        np.copyto(ar["root_priors"],
+                  [ar["nodelist"][-1,:-1][charstate]-
+                   scipy.misc.logsumexp(ar["nodelist"][-1,:-1]) for
+                   charstate in set(chars) ])
+        rootliks = [ ar["nodelist"][-1,:-1][charstate] +
+                     ar["root_priors"][charstate] for charstate in set(chars) ]
+    elif pi == "Equilibrium":
+        # Equilibrium pi from the stationary distribution of Q
+        np.copyto(ar["root_priors"],qsd(Q))
+        rootliks = [ i + np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
+    logli = scipy.misc.logsumexp(rootliks)
+    if returnPi:
+        return (logli, {k:v for k,v in enumerate(ar["root_priors"])})
+    else:
+        return logli
+
+def mk_multi_regime_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
+                     ar = None):
+    """
+    Calculate likelhiood of mk model with BAMM-like multiple regimes
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
+        Qs (np.array): Array of instantaneous rate matrices
+        locs (np.array): Array of the same length as Qs containing the
+          node indices that correspond to each Q matrix
+        p (np.array): Optional pre-allocated p matrix
+        pi (str or np.array): Option to weight the root node by given values.
+           Either a string containing the method or an array
+           of weights. Weights should be given in order.
+
+           Accepted methods of weighting root:
+
+           Equal: flat prior
+           Equilibrium: Prior equal to stationary distribution
+             of Q matrix
+           Fitzjohn: Root states weighted by how well they
+             explain the data at the tips.
+    """
+    tree_copy = tree.copy()
+    tree_copy[switchpoint[0].id].bisect_branch(switchpoint[1])
+    tree_copy.reindex()
+
+    locs = locs_from_switchpoint(tree_copy, [tree_copy[switchpoint[0].id]])
+
+    if type(chars) == dict:
+        chars = [chars[l] for l in [n.label for n in tree_copy.leaves()]]
+    nchar = Qs[0].shape[0]
+
+    ar = create_mkmr_ar(tree_copy, chars,Qs.shape[2],findmin=True)
+
+    inds = [0]*len(ar["t"])
+
+    for l, a in enumerate(locs):
+        for n in a:
+            posti = tree_copy[n].pi
+            inds[posti] = l
+
+    # for l, a in enumerate(locs):
+    #     for n in a:
+    #         inds[n-1] = l
 
     # Creating probability matrices from Q matrices and branch lengths
     # inds indicates which Q matrix to use for which branch
@@ -355,7 +447,7 @@ class SwitchpointMetropolis(pymc.Metropolis):
     Custom step algorithm for selecting a new switchpoint
     """
     def __init__(self, stochastic, tree, seg_map, stepsize=0.05, seglen=0.02):
-        pymc.Metropolis.__init__(self, stochastic, scale=1., proposal_distribution="prior")
+        pymc.Metropolis.__init__(self, stochastic, scale=0, proposal_distribution="prior")
         root_to_tip_length = sum([n.length for n in list(tree.leaves()[0].rootpath())[:-1]+[tree.leaves()[0]]])
         self.tree = tree
         self.seg_map = seg_map
@@ -376,15 +468,15 @@ class SwitchpointMetropolis(pymc.Metropolis):
         cur_len = prev_location[1]
         direction = random.choice([-1,1])
         step_size = np.random.uniform(high=self.stepsize)
-        step_size = round_step_size(step_size, seg_size)
+        step_size = round_step_size(step_size, self.seg_size)
         while True:
             if direction == 1: # Rootward
                 if step_size > cur_len: # If step goes past the parent node: jump to parent node
-                    if not cur_node.parent.isroot:
+                    if not cur_node.parent.isroot: # Jump to parent node
                         cur_node = cur_node.parent
                         step_size = step_size - cur_len
                         cur_len = (cur_node.length//self.seg_size)*self.seg_size
-                    else:
+                    else: # If parent is root, jump to a child of the root
                         valid_nodes = [n for n in cur_node.parent.children if n != cur_node]
                         cur_node = random.choice(valid_nodes)
                         cur_len = 0.0
@@ -400,16 +492,17 @@ class SwitchpointMetropolis(pymc.Metropolis):
                     break
                 else: # Move to new branch
                     if not cur_node.isleaf: #Move to child
+
+                        step_size = step_size - ((cur_node.length//self.seg_size)*self.seg_size-cur_len)
                         valid_nodes = cur_node.children
-                        cur_node = random.choice(valid_nodes)
                         cur_len = 0.0
-                        step_size = step_size - (cur_node.length//self.seg_size)*self.seg_size
+                        cur_node = random.choice(valid_nodes)
+
                     else: # Bounce up from tip
                         step_size = step_size - ((cur_node.length//self.seg_size)*self.seg_size-cur_len)
                         cur_len = (cur_node.length//self.seg_size)*self.seg_size
                         direction = 1
-
-
+        self.stochastic.value = new_location
 
     def global_step(self):
         self.stochastic.value = random_tree_location(self.seg_map)
@@ -437,12 +530,11 @@ def tree_map(tree, seglen=0.02):
     seg_size = seglen * root_to_tip_length
     seg_map = []
     seen = [tree]
-    cur_node = tree.children[0]
     for node in tree.descendants():
         cur_len = node.length
         nseg = int(ceil(cur_len/seg_size))
         for n in range(nseg):
-            seg_map.append((cur_node, n*seg_size))
+            seg_map.append((node, n*seg_size))
     return seg_map
 
 
@@ -459,7 +551,7 @@ def random_tree_location(seg_map):
 
 def make_switchpoint_stoch(seg_map, name=str("switch")):
     startingval = random_tree_location(seg_map)
-    @pymc.stochastic(dtype=int, name=name)
+    @pymc.stochastic(dtype=object, name=name)
     def switchpoint_stoch(value = startingval):
         # Flat prior on switchpoint location
         return 0
