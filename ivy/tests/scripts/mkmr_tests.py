@@ -156,7 +156,7 @@ import pymc
 import matplotlib.pyplot as plt
 
 from ivy.interactive import *
-
+from ivy.vis import layers
 tree = ivy.tree.read("support/hrm_600tips.newick")
 
 chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -183,6 +183,21 @@ chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
+
+# plotting steps:
+
+seg_map = mk_mr.tree_map(tree)
+
+switch = mk_mr.make_switchpoint_stoch(seg_map)
+
+switch_step = mk_mr.SwitchpointMetropolis(switch, tree, seg_map, stepsize=0.15)
+
+trace = []
+for _ in range(10000):
+    trace.append(switch_step.stochastic.value)
+    switch_step.propose()
+fig = treefig(tree)
+fig.add_layer(layers.add_tree_heatmap,trace)
 
 # fig = treefig(tree)
 # fig.tipstates(chars_r3)

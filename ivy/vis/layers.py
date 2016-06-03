@@ -459,7 +459,6 @@ def add_circles_branches(treeplot, nodes, distances, colors="g", size=15,xoff=0,
 
     """
     points = xy(treeplot, nodes)
-    distances = [n.length - distances[i] for i,n in enumerate(nodes)]
 
     coords = [(x[0]-distances[i],x[1]) for i,x in enumerate(points)]
     trans = offset_copy(
@@ -993,7 +992,7 @@ def add_tree_heatmap(treeplot, locations, vis=True):
     nodes = zip(*locations)[0]
     distances = zip(*locations)[1]
 
-    add_circles_branches(treeplot, nodes, distances, colors=color,vis=vis)
+    add_circles_branches(treeplot, nodes, distances, colors=color,vis=vis, size=5)
 
 
 

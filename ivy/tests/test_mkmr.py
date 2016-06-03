@@ -36,14 +36,14 @@ class Mk_mr_tests(unittest.TestCase):
         self.assertTrue((locs==true_locs).all())
 
     def test_mkmr_matchesbyhand(self):
-        tree = ivy.tree.read(u"((A:1,B:1)C:1,D:2)root;")
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
         chars = [1,0,0]
         Q1 = np.array([[-0.10,0.10],
                        [0.05,-0.05]])
         Q2 = np.array([[-1.5,1.5],
                        [1.,-1.]])
-        Qs = np.array([Q1,Q2])
-        locs = np.array([[4],[2,3,1]])
+        Qs = np.array([Q2,Q1])
+        locs = mk_mr.locs_from_switchpoint(tree,tree["C"])
 
         PA = [[ 0.449251  ,  0.550749  ],
               [ 0.367166  ,  0.632834  ]]
@@ -67,6 +67,9 @@ class Mk_mr_tests(unittest.TestCase):
         L0r = (PC[0][0] * L0C + PC[0][1] * L1C) * (PD[0][0] * L0D + PD[0][1] * L1D)
         L1r = (PC[1][0] * L0C + PC[1][1] * L1C) * (PD[1][0] * L0D + PD[1][1] * L1D)
         predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
+        calculatedLikelihood = mk_mr.mk_multi_regime(tree, chars, Qs, locs)
+
+        self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
 
     def test_mkmr_middleofbranch_matchesbyhand(self):
         tree = ivy.tree.read(u"((A:1,B:1)C:1,D:2)root;")
@@ -94,6 +97,8 @@ class Mk_mr_tests(unittest.TestCase):
         PD = [[ 0.82721215,  0.17278785],
               [ 0.08639393,  0.91360607]]
 
+        PCT = [[ 0.48751229,  0.51248771],
+               [ 0.33980164,  0.66019836]]
 
         L0A = 0;L1A=1;L0B=1;L1B=0;L0D=1;L1D=0
 
@@ -103,9 +108,16 @@ class Mk_mr_tests(unittest.TestCase):
         L0CB = PCA[0][0] * L0CA + PCA[0][1] * L1CA
         L1CB = PCA[1][0] * L0CA + PCA[1][1] * L1CA
 
+
         L0r_m = (PCB[0][0] * L0CB + PCB[0][1] * L1CB) * (PD[0][0] * L0D + PD[0][1] * L1D)
         L1r_m = (PCB[1][0] * L0CB + PCB[1][1] * L1CB) * (PD[1][0] * L0D + PD[1][1] * L1D)
+
+        L0r_t = (PCT[0][0] * L0CA + PCT[0][1] * L1CA) * (PD[0][0] * L0D + PD[0][1] * L1D)
+        L1r_t = (PCT[1][0] * L0CA + PCT[1][1] * L1CA) * (PD[1][0] * L0D + PD[1][1] * L1D)
+
+
         predictedLikelihood = math.log(L0r_m * 0.5 + L1r_m * 0.5)
+
 
 if __name__ == "__main__":
     unittest.main()
