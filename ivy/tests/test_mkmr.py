@@ -37,7 +37,7 @@ class Mk_mr_tests(unittest.TestCase):
 
     def test_mkmr_matchesbyhand(self):
         tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
-        chars = [1,0,0]
+        chars = [1,0,0,0]
         Q1 = np.array([[-0.10,0.10],
                        [0.05,-0.05]])
         Q2 = np.array([[-1.5,1.5],
@@ -57,15 +57,25 @@ class Mk_mr_tests(unittest.TestCase):
         PD = [[ 0.82721215,  0.17278785],
               [ 0.08639393,  0.91360607]]
 
+        PE = [[ 0.90713865,  0.09286135],
+              [ 0.04643067,  0.95356933]]
 
-        L0A = 0;L1A=1;L0B=1;L1B=0;L0D=1;L1D=0
+        PF =[[ 0.75841877,  0.24158123],
+             [ 0.12079062,  0.87920938]]
+
+
+        L0A = 0;L1A=1;L0B=1;L1B=0;L0D=1;L1D=0;L0F=1;L1F=0
 
         L0C = (PA[0][0] * L0A + PA[0][1] * L1A) * (PB[0][0] * L0B + PB[0][1] * L1B)
         L1C = (PA[1][0] * L0A + PA[1][1] * L1A) * (PB[1][0] * L0B + PB[1][1] * L1B)
 
+        L0E = (PC[0][0] * L0C + PC[0][1] * L1C) * (PD[0][0] * L0D + PD[0][1] * L1D)
+        L1E = (PC[1][0] * L0C + PC[1][1] * L1C) * (PD[1][0] * L0D + PD[1][1] * L1D)
 
-        L0r = (PC[0][0] * L0C + PC[0][1] * L1C) * (PD[0][0] * L0D + PD[0][1] * L1D)
-        L1r = (PC[1][0] * L0C + PC[1][1] * L1C) * (PD[1][0] * L0D + PD[1][1] * L1D)
+        L0r = (PE[0][0] * L0E + PE[0][1] * L1E) * (PF[0][0] * L0F + PF[0][1] * L1F)
+        L1r = (PE[1][0] * L0E + PE[1][1] * L1E) * (PF[1][0] * L0F + PF[1][1] * L1F)
+
+
         predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
         calculatedLikelihood = mk_mr.mk_multi_regime(tree, chars, Qs, locs)
 
@@ -88,19 +98,23 @@ class Mk_mr_tests(unittest.TestCase):
         PB = [[ 0.449251  ,  0.550749  ],
                [ 0.367166  ,  0.632834  ]]#b
 
-        PCA = [[ 0.72115686,  0.27884314],
-               [ 0.18589543,  0.81410457]]# Closer to tip
+        PCA = [[ 0.49201298,  0.50798702], # Closer to tip, fast regime
+               [ 0.33865801,  0.66134199]]
 
-        PCB = [[ 0.9290649 ,  0.0709351 ],
-               [ 0.03546755,  0.96453245]] # Closer to root
+        PCB = [[ 0.97546295,  0.02453705], # Closer to root, slow regime
+               [ 0.01226853,  0.98773147]]
 
         PD = [[ 0.82721215,  0.17278785],
               [ 0.08639393,  0.91360607]]
 
-        PCT = [[ 0.48751229,  0.51248771],
-               [ 0.33980164,  0.66019836]]
+        PE = [[ 0.90713865,  0.09286135],
+              [ 0.04643067,  0.95356933]]
 
-        L0A = 0;L1A=1;L0B=1;L1B=0;L0D=1;L1D=0
+        PF =[[ 0.75841877,  0.24158123],
+             [ 0.12079062,  0.87920938]]
+
+        L0A = 0;L1A=1;L0B=1;L1B=0;L0D=1;L1D=0;L0F=1;L1F=0
+
 
         L0CA = (PA[0][0] * L0A + PA[0][1] * L1A) * (PB[0][0] * L0B + PB[0][1] * L1B)
         L1CA = (PA[1][0] * L0A + PA[1][1] * L1A) * (PB[1][0] * L0B + PB[1][1] * L1B)
@@ -109,14 +123,14 @@ class Mk_mr_tests(unittest.TestCase):
         L1CB = PCA[1][0] * L0CA + PCA[1][1] * L1CA
 
 
-        L0r_m = (PCB[0][0] * L0CB + PCB[0][1] * L1CB) * (PD[0][0] * L0D + PD[0][1] * L1D)
-        L1r_m = (PCB[1][0] * L0CB + PCB[1][1] * L1CB) * (PD[1][0] * L0D + PD[1][1] * L1D)
+        L0E = (PCB[0][0] * L0CB + PCB[0][1] * L1CB) * (PD[0][0] * L0D + PD[0][1] * L1D)
+        L1E = (PCB[1][0] * L0CB + PCB[1][1] * L1CB) * (PD[1][0] * L0D + PD[1][1] * L1D)
 
-        L0r_t = (PCT[0][0] * L0CA + PCT[0][1] * L1CA) * (PD[0][0] * L0D + PD[0][1] * L1D)
-        L1r_t = (PCT[1][0] * L0CA + PCT[1][1] * L1CA) * (PD[1][0] * L0D + PD[1][1] * L1D)
+        L0r = (PE[0][0] * L0E + PE[0][1] * L1E) * (PF[0][0] * L0F + PF[0][1] * L1F)
+        L1r = (PE[1][0] * L0E + PE[1][1] * L1E) * (PF[1][0] * L0F + PF[1][1] * L1F)
 
 
-        predictedLikelihood = math.log(L0r_m * 0.5 + L1r_m * 0.5)
+        predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
 
 
 if __name__ == "__main__":

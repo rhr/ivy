@@ -64,11 +64,6 @@ def mk_multi_regime(tree, chars, Qs, locs, pi="Equal", returnPi=False,
             posti = tree[n].pi
             inds[posti] = l
 
-
-    for l, a in enumerate(locs):
-        for n in a:
-            inds[n-1] = l
-
     # Creating probability matrices from Q matrices and branch lengths
     # inds indicates which Q matrix to use for which branch
     cyexpokit.dexpm_treeMulti_preallocated_p_log(Qs,ar["t"], ar["p"], np.array(inds)) # This changes p in place
@@ -137,26 +132,31 @@ def mk_multi_regime_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi
            Fitzjohn: Root states weighted by how well they
              explain the data at the tips.
     """
-    # tree_copy = tree.copy()
-    # tree_copy[switchpoint[0].id].bisect_branch(switchpoint[1])
-    # tree_copy.reindex()
-
-    locs = locs_from_switchpoint(tree, [tree[switchpoint[0].id]])
-
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
-    nchar = Qs[0].shape[0]
+    nchar = len(set(chars))
 
     if ar is None:
-        ar = create_mkmr_mb_ar(tree, chars,Qs.shape[2],switchpoint,findmin=True)
-    else:
-        pass
+        ar = create_mkmr_mb_ar(tree,chars,nregime=Qs.shape[2],findmin=True)
 
+    switchpoint_nodes = [ar["tree_copy"][switchpoint[i][0].id] for i in range(len(switchpoint))]
+    locs = locs_from_switchpoint(ar["tree_copy"], switchpoint_nodes)
+
+
+    # Adjust t to account for presence of switchpoint
+
+    for s in switchpoint:
+        sw = ar["tree_copy"][s[0].id].pi
+        sk = ar["tree_copy"][s[0].id].parent.pi
+        ar["t"][sw] = s[1]
+        ar["t"][sk] =  ar["tree_copy"][s[0].id].parent.length - s[1]
+
+    # inds corresponds to the tree in postorder sequence, with each value
+    # corresponding to the regime that node is in
     inds = [0]*len(ar["t"])
-
     for l, a in enumerate(locs):
         for n in a:
-            posti = tree[n].pi
+            posti = ar["tree_copy"][n].pi
             inds[posti] = l
 
     # Creating probability matrices from Q matrices and branch lengths
@@ -254,7 +254,7 @@ def split_value(l, i, v):
     l[i] = v
     l.insert(i+1,t-v)
 
-def create_mkmr_mb_ar(tree, chars,nregime,switchpoint,findmin = True):
+def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
     """
     Preallocated arrays for midbranch mk_mr
 
@@ -262,33 +262,35 @@ def create_mkmr_mb_ar(tree, chars,nregime,switchpoint,findmin = True):
 
     Nodelist = edgelist of nodes in postorder sequence
     """
+    tree_copy = tree.copy()
+    # Here we break up the tree so that each node has a "knee"
+    # for a parent. This knee starts with a length of 0, effectively
+    # making it nonexistant, but can have its length changed
+    # to act as a switchpoint.
+    for n in tree_copy.descendants():
+        n.bisect_branch(1e-15)
+    tree_copy.reindex()
 
-    nswitch = nregime-1
+
     if type(chars) == dict:
-        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
-    blens = [node.length for node in tree.postiter() if not node.isroot]
-    split_value(blens, switchpoint[0].pi, switchpoint[1]) # Insert knees
+        chars = [chars[l] for l in [n.label for n in tree_copy.leaves()]]
+    blens = [node.length for node in tree_copy.postiter() if not node.isroot]
     t = np.array(blens, dtype=np.double)
     nt = len(t)
     nchar = len(set(chars))
-    preleaves = [ n for n in tree.preiter() if n.isleaf ]
-    postleaves = [n for n in tree.postiter() if n.isleaf ]
-    postnodes = list(tree.postiter())
+    preleaves = [ n for n in tree_copy.preiter() if n.isleaf ]
+    postleaves = [n for n in tree_copy.postiter() if n.isleaf ]
+    postnodes = list(tree_copy.postiter())
 
-    edgelist = [-np.inf] * len(tree)
+    edgelist = [-np.inf] * len(tree_copy)
     for i in range(len(edgelist)-1):
         edgelist[i] = postnodes[i].parent.pi
-    edgelist.insert(switchpoint[0].pi, switchpoint[0].pi)
-    edgelist = np.array(edgelist)
-    edgelist[switchpoint[0].pi:-1] += 1
 
     postChars = [ chars[i] for i in [ preleaves.index(n) for n in postleaves ] ]
     nnode = len(t)+1
     nodelist = np.zeros((nnode, nchar+1))
     nodelist.fill(-np.inf) # the log of 0 is negative infinity
-    leafind = [ n.isleaf for n in tree.postiter()]
-
-    leafind.insert(switchpoint[0].pi, False) # Insert knees
+    leafind = [ n.isleaf for n in tree_copy.postiter()]
 
     for k,ch in enumerate(postChars):
         [ n for i,n in enumerate(nodelist) if leafind[i] ][k][ch] = np.log(1.0)
@@ -307,15 +309,16 @@ def create_mkmr_mb_ar(tree, chars,nregime,switchpoint,findmin = True):
         nullval = np.inf
     else:
         nullval = -np.inf
-    treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
-                   tree.leaves()[0].length])
-    upperbound = len(tree.leaves())/treelen
+    treelen = sum([ n.length for n in tree_copy.leaves()[0].rootpath() if n.length]+[
+                   tree_copy.leaves()[0].length])
+    upperbound = len(tree_copy.leaves())/treelen
     charlist = list(range(nchar))
     tmp_ar = np.zeros(nchar) # Used for storing calculations
 
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
-           "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar}
+           "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar,
+           "tree_copy":tree_copy}
     return var
 
 
