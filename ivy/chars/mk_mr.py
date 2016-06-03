@@ -133,11 +133,14 @@ def mk_multi_regime_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi
              explain the data at the tips.
     """
     if type(chars) == dict:
+        chardict = chars
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
+    else:
+        chardict = {tree.leaves()[i].label:v for i,v in enumerate(chars)}
     nchar = len(set(chars))
 
     if ar is None:
-        ar = create_mkmr_mb_ar(tree,chars,nregime=Qs.shape[2],findmin=True)
+        ar = create_mkmr_mb_ar(tree,chardict,nregime=Qs.shape[2],findmin=True)
 
     switchpoint_nodes = [ar["tree_copy"][switchpoint[i][0].id] for i in range(len(switchpoint))]
     locs = locs_from_switchpoint(ar["tree_copy"], switchpoint_nodes)
@@ -271,9 +274,7 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
         n.bisect_branch(1e-15)
     tree_copy.reindex()
 
-
-    if type(chars) == dict:
-        chars = [chars[l] for l in [n.label for n in tree_copy.leaves()]]
+    chars = [chars[l] for l in [n.label for n in tree_copy.leaves()]]
     blens = [node.length for node in tree_copy.postiter() if not node.isroot]
     t = np.array(blens, dtype=np.double)
     nt = len(t)

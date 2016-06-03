@@ -82,7 +82,7 @@ class Mk_mr_tests(unittest.TestCase):
         self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
 
     def test_mkmr_middleofbranch_matchesbyhand(self):
-        tree = ivy.tree.read(u"((A:1,B:1)C:1,D:2)root;")
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
         chars = [1,0,0]
         Q1 = np.array([[-0.10,0.10],
                        [0.05,-0.05]])
@@ -132,6 +132,63 @@ class Mk_mr_tests(unittest.TestCase):
 
         predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
 
+    def test_mkmr_middleofbranchtwoswitch_matchesbyhand(self):
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
+        chars = [1,0,0,0]
+        Q1 = np.array([[-0.10,0.10],
+                       [0.05,-0.05]])
+        Q2 = np.array([[-1.5,1.5],
+                       [1.,-1.]])
+        Q3 = np.array([[-.01,.01],
+                       [.015,-.015]])
+        Qs = np.array([Q2,Q3,Q1])
+        switchpoint = [(tree["C"], 0.75),(tree["E"],0.25)]
 
+
+        PA = [[ 0.449251  ,  0.550749  ],
+              [ 0.367166  ,  0.632834  ]]#a
+
+        PB = [[ 0.449251  ,  0.550749  ],
+               [ 0.367166  ,  0.632834  ]]#b
+
+        PCA = [[ 0.49201298,  0.50798702], # Closer to tip, fast regime
+               [ 0.33865801,  0.66134199]]
+
+        PCB = [[ 0.99749845,  0.0024922 ], # Closer to root, slow regime
+               [ 0.00373829,  0.99625235]]
+
+        PD =  [[ 0.98049177,  0.01950823],
+               [ 0.02926235,  0.97073765]]
+
+        PEA = [[ 0.99749845,  0.0024922 ],
+               [ 0.00373829,  0.99625235]]
+
+        PEB = [[ 0.9290649 ,  0.0709351 ],
+               [ 0.03546755,  0.96453245]]
+
+        PF = [[ 0.75841877,  0.24158123],
+              [ 0.12079062,  0.87920938]]
+
+        L0A = 0;L1A=1;L0B=1;L1B=0;L0D=1;L1D=0;L0F=1;L1F=0
+
+
+        L0CA = (PA[0][0] * L0A + PA[0][1] * L1A) * (PB[0][0] * L0B + PB[0][1] * L1B)
+        L1CA = (PA[1][0] * L0A + PA[1][1] * L1A) * (PB[1][0] * L0B + PB[1][1] * L1B)
+
+        L0CB = PCA[0][0] * L0CA + PCA[0][1] * L1CA
+        L1CB = PCA[1][0] * L0CA + PCA[1][1] * L1CA
+
+        L0EA = (PCB[0][0] * L0CB + PCB[0][1] * L1CB) * (PD[0][0] * L0D + PD[0][1] * L1D)
+        L1EA = (PCB[1][0] * L0CB + PCB[1][1] * L1CB) * (PD[1][0] * L0D + PD[1][1] * L1D)
+
+        L0EB = PEA[0][0] * L0EA + PEA[0][1] * L1EA
+        L1EB = PEA[1][0] * L0EA + PEA[1][1] * L1EA
+
+        L0r = (PEB[0][0] * L0EB + PEB[0][1] * L1EB) * (PF[0][0] * L0F + PF[0][1] * L1F)
+        L1r = (PEB[1][0] * L0EB + PEB[1][1] * L1EB) * (PF[1][0] * L0F + PF[1][1] * L1F)
+
+        predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
+
+        calculatedLikelihood = mk_mr.mk_multi_regime_midbranch(tree, chars, Qs, switchpoint)
 if __name__ == "__main__":
     unittest.main()
