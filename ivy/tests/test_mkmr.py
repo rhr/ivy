@@ -43,7 +43,7 @@ class Mk_mr_tests(unittest.TestCase):
         Q2 = np.array([[-1.5,1.5],
                        [1.,-1.]])
         Qs = np.array([Q2,Q1])
-        locs = mk_mr.locs_from_switchpoint(tree,tree["C"])
+        locs = mk_mr.locs_from_switchpoint(tree,[tree["C"]])
 
         PA = [[ 0.449251  ,  0.550749  ],
               [ 0.367166  ,  0.632834  ]]
@@ -77,13 +77,13 @@ class Mk_mr_tests(unittest.TestCase):
 
 
         predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
-        calculatedLikelihood = mk_mr.mk_multi_regime(tree, chars, Qs, locs)
+        calculatedLikelihood = mk_mr.mk_mr(tree, chars, Qs, locs)
 
         self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
 
     def test_mkmr_middleofbranch_matchesbyhand(self):
         tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
-        chars = [1,0,0]
+        chars = {"A":1,"B":0,"D":0,"F":0}
         Q1 = np.array([[-0.10,0.10],
                        [0.05,-0.05]])
         Q2 = np.array([[-1.5,1.5],
@@ -131,6 +131,10 @@ class Mk_mr_tests(unittest.TestCase):
 
 
         predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
+        calculatedLikelihood = mk_mr.mk_mr_midbranch(tree, chars, Qs, [switchpoint])
+
+        self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
+
 
     def test_mkmr_middleofbranchtwoswitch_matchesbyhand(self):
         tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
@@ -189,6 +193,42 @@ class Mk_mr_tests(unittest.TestCase):
 
         predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
 
-        calculatedLikelihood = mk_mr.mk_multi_regime_midbranch(tree, chars, Qs, switchpoint)
+        calculatedLikelihood = mk_mr.mk_mr_midbranch(tree, chars, Qs, switchpoint)
+        self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
+
+    def test_likelihoodfunctionmods_correctlikelihood(self):
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
+        chars = [1,0,0,0]
+        Q1 = np.array([[-0.10,0.10],
+                       [0.05,-0.05]])
+        Q2 = np.array([[-1.5,1.5],
+                       [1.,-1.]])
+        Qs = np.array([Q2,Q1])
+
+        lf = mk_mr.lf_mk_mr_midbranch_mods(tree, chars, mods=[(4,3),(2,1)], findmin=False)
+
+        switchpoint = (tree["C"], 0.75)
+        Qparams = np.array([0.05,0.1,1.0,1.5])
+        lf_likelihood = lf(Qparams,[switchpoint])
+        trueLikelihood =  mk_mr.mk_mr_midbranch(tree, chars, Qs, [switchpoint])
+        self.assertTrue(np.isclose(lf_likelihood, trueLikelihood))
+
+    def test_likelihoodfunction_correctlikelihood(self):
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
+        chars = [1,0,0,0]
+        Q1 = np.array([[-0.10,0.10],
+                       [0.05,-0.05]])
+        Q2 = np.array([[-1.5,1.5],
+                       [1.,-1.]])
+        Qs = np.array([Q2,Q1])
+
+        lf = mk_mr.lf_mk_mr_midbranch(tree, chars,Qtype="ARD", nregime=2, findmin=False)
+
+        switchpoint = (tree["C"], 0.75)
+        Qparams = np.array([1.5,1.0,.1,.05])
+        lf_likelihood = lf(Qparams,[switchpoint])
+        trueLikelihood =  mk_mr.mk_mr_midbranch(tree, chars, Qs, [switchpoint])
+        self.assertTrue(np.isclose(lf_likelihood, trueLikelihood))
+
 if __name__ == "__main__":
     unittest.main()

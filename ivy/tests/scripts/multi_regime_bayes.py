@@ -73,7 +73,7 @@ slowNodes = np.array([n.ni for n in mr_tree.descendants()if not n.ni in fastNode
 
 trueLocs = [fastNodes, slowNodes]
 
-l = discrete.mk_multi_regime(mr_tree, mr_chars, trueQs, trueLocs, pi="Equal")
+l = discrete.mk_mr(mr_tree, mr_chars, trueQs, trueLocs, pi="Equal")
 
 m = bayesian_models.create_multi_mk_model(mr_tree, mr_chars, Qtype="ER", pi="Equal", nregime=2)
 
@@ -150,7 +150,7 @@ multiregime_Q = np.array([[[-Q1avg,Q1avg],
                              [Q2avg,-Q2avg]]])
 multiregime_locs = discrete.locs_from_switchpoint(mr_tree, mr_tree[int(scipy.stats.mode(out["switch"])[0])])
 
-multiregime_likelihood = discrete.mk_multi_regime(mr_tree, mr_chars,
+multiregime_likelihood = discrete.mk_mr(mr_tree, mr_chars,
                          multiregime_Q, multiregime_locs,
                          pi="Equal")
 
@@ -243,7 +243,7 @@ sr_single_Q = np.array([[-srsm_q,srsm_q],[srsm_q,-srsm_q]])
 
 
 sr_multi_locs = discrete.locs_from_switchpoint(mr_tree, mr_tree[int(sr_switch[0])])
-sr_multi_like = discrete.mk_multi_regime(mr_tree, sr_chars, sr_multi_Qs, sr_multi_locs,
+sr_multi_like = discrete.mk_mr(mr_tree, sr_chars, sr_multi_Qs, sr_multi_locs,
                                          pi="Equal")
 sr_single_like = discrete.mk(mr_tree, sr_chars, sr_single_Q, pi="Equal")
 

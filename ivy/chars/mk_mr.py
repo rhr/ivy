@@ -7,6 +7,7 @@ import itertools
 import types
 from math import ceil
 
+import line_profiler
 import numpy as np
 import scipy
 import pymc
@@ -21,7 +22,7 @@ try:
 except AttributeError: # Python 3
     StringTypes = [str]
 
-def mk_multi_regime(tree, chars, Qs, locs, pi="Equal", returnPi=False,
+def mk_mr(tree, chars, Qs, locs, pi="Equal", returnPi=False,
                      ar = None):
     """
     Calculate likelhiood of mk model with BAMM-like multiple regimes
@@ -49,7 +50,6 @@ def mk_multi_regime(tree, chars, Qs, locs, pi="Equal", returnPi=False,
            Fitzjohn: Root states weighted by how well they
              explain the data at the tips.
     """
-
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     nchar = Qs[0].shape[0]
@@ -104,7 +104,7 @@ def mk_multi_regime(tree, chars, Qs, locs, pi="Equal", returnPi=False,
     else:
         return logli
 
-def mk_multi_regime_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
+def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
                      ar = None):
     """
     Calculate likelhiood of mk model with BAMM-like multiple regimes
@@ -132,25 +132,24 @@ def mk_multi_regime_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi
            Fitzjohn: Root states weighted by how well they
              explain the data at the tips.
     """
+    if type(switchpoint[0]) == pymc.PyMCObjects.Stochastic:
+        switchpoint = [i.value for i in switchpoint]
     if type(chars) == dict:
-        chardict = chars
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
-    else:
-        chardict = {tree.leaves()[i].label:v for i,v in enumerate(chars)}
+
     nchar = len(set(chars))
 
     if ar is None:
-        ar = create_mkmr_mb_ar(tree,chardict,nregime=Qs.shape[2],findmin=True)
-
+        ar = create_mkmr_mb_ar(tree,chars,nregime=Qs.shape[2],findmin=True)
+    chars = ar["chars"]
     switchpoint_nodes = [ar["tree_copy"][switchpoint[i][0].id] for i in range(len(switchpoint))]
     locs = locs_from_switchpoint(ar["tree_copy"], switchpoint_nodes)
 
 
     # Adjust t to account for presence of switchpoint
-
     for s in switchpoint:
-        sw = ar["tree_copy"][s[0].id].pi
-        sk = ar["tree_copy"][s[0].id].parent.pi
+        sw = ar["tree_copy"][s[0].id].pi #Switchpoint
+        sk = ar["tree_copy"][s[0].id].parent.pi #Switchpoint's parent
         ar["t"][sw] = s[1]
         ar["t"][sk] =  ar["tree_copy"][s[0].id].parent.length - s[1]
 
@@ -159,7 +158,7 @@ def mk_multi_regime_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi
     inds = [0]*len(ar["t"])
     for l, a in enumerate(locs):
         for n in a:
-            posti = ar["tree_copy"][n].pi
+            posti = ar["pre_post"][n]
             inds[posti] = l
 
     # Creating probability matrices from Q matrices and branch lengths
@@ -252,11 +251,6 @@ def create_mkmr_ar(tree, chars,nregime,findmin = True):
            "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar}
     return var
 
-def split_value(l, i, v):
-    t = l[i]
-    l[i] = v
-    l.insert(i+1,t-v)
-
 def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
     """
     Preallocated arrays for midbranch mk_mr
@@ -265,7 +259,11 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
 
     Nodelist = edgelist of nodes in postorder sequence
     """
+    if type(chars) != dict:
+        chars = {tree.leaves()[i].label:v for i,v in enumerate(chars)}
     tree_copy = tree.copy()
+    for n in tree_copy:
+        n.cladesize = len(n)
     # Here we break up the tree so that each node has a "knee"
     # for a parent. This knee starts with a length of 0, effectively
     # making it nonexistant, but can have its length changed
@@ -316,10 +314,12 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
     charlist = list(range(nchar))
     tmp_ar = np.zeros(nchar) # Used for storing calculations
 
+    pre_post = {n.ni:n.pi for n in tree_copy} # The postorder index that corresponds to each preorder index
+
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
            "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar,
-           "tree_copy":tree_copy}
+           "tree_copy":tree_copy,"chars":chars,"pre_post":pre_post}
     return var
 
 
@@ -378,12 +378,69 @@ def create_likelihood_function_multimk(tree, chars, Qtype, nregime, pi="Equal",
             x = 1
 
         try:
-            return x * mk_multi_regime(tree, chars, var["Q"], locs, pi = pi, ar=var) # Minimizing negative log-likelihood
+            return x * mk_mr(tree, chars, var["Q"], locs, pi = pi, ar=var) # Minimizing negative log-likelihood
         except ValueError: # If likelihood returned is 0
             return var["nullval"]
 
     return likelihood_function
 
+def lf_mk_mr_midbranch(tree, chars, Qtype, nregime, pi="Equal",
+                                  findmin = True):
+
+    if type(chars) == dict:
+        chardict = chars
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
+    else:
+        chardict = {tree.leaves()[i].label:v for i,v in enumerate(chars)}
+
+    nchar = len(set(chars))
+
+
+    # Empty likelihood array
+    var = create_mkmr_mb_ar(tree, chardict,nregime,findmin)
+
+    # Number of parameters per Q matrix
+    n_qp = nchar**2-nchar
+
+
+    def likelihood_function(Qparams, switchpoint):
+        # Enforcing upper bound on parameters
+        Qparams = [float(qp) for qp in Qparams]
+        # # TODO: replace with sum of each Q
+        if (np.sum(Qparams)/nregime > var["upperbound"]) or any([x<=0 for x in Qparams]):
+            return var["nullval"]
+        # if not (Qparams == sorted(Qparams)):
+        #     return var["nullval"]
+        # Filling Q matrices:
+        Qparams = [Qparams[i*n_qp:i*n_qp+n_qp] for i in range(nregime)]
+
+        if Qtype == "ER":
+            for i,qmat in enumerate(var["Q"]):
+                qmat.fill(float(Qparams[i]))
+                qmat[np.diag_indices(nchar)] = -Qparams[i] * (nchar-1)
+        elif Qtype == "ARD":
+            for i,qmat in enumerate(var["Q"]):
+                qmat.fill(0.0) # Re-filling with zeroes
+                qmat[np.triu_indices(nchar, k=1)] = Qparams[i][:len(Qparams[i])//2]
+                qmat[np.tril_indices(nchar, k=-1)] = Qparams[i][len(Qparams[i])//2:]
+                qmat[np.diag_indices(nchar)] = 0-np.sum(qmat, 1)
+        else:
+            raise ValueError("Qtype must be one of: ER, Sym, ARD")
+        # Resetting the values in these arrays
+        np.copyto(var["nodelist"], var["nodelistOrig"])
+        var["root_priors"].fill(1.0)
+
+        if findmin:
+            x = -1
+        else:
+            x = 1
+
+        try:
+            return x * mk_mr_midbranch(tree, chars, var["Q"], switchpoint, pi = pi, ar=var) # Minimizing negative log-likelihood
+        except ValueError: # If likelihood returned is 0
+            return var["nullval"]
+
+    return likelihood_function
 
 def create_likelihood_function_multimk_mods(tree, chars, mods, pi="Equal",
                                   findmin = True, orderedparams=True):
@@ -435,7 +492,60 @@ def create_likelihood_function_multimk_mods(tree, chars, mods, pi="Equal",
             x = 1
 
         try:
-            return x * mk_multi_regime(tree, chars, var["Q"], locs, pi = pi, ar=var) # Minimizing negative log-likelihood
+            return x * mk_mr(tree, chars, var["Q"], locs, pi = pi, ar=var) # Minimizing negative log-likelihood
+        except ValueError: # If likelihood returned is 0
+            return var["nullval"]
+
+    return likelihood_function
+
+def lf_mk_mr_midbranch_mods(tree, chars, mods, pi="Equal",
+                                  findmin = True, orderedparams=True):
+    """
+    Create a likelihood function for testing the parameter values of user-
+    specified models with switchpoints allowed in the middle of branches
+    """
+    if type(chars) == dict:
+        chardict = chars
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
+    else:
+        chardict = {tree.leaves()[i].label:v for i,v in enumerate(chars)}
+
+
+    nregime = len(mods)
+
+
+    nparam = len(set([i for s in mods for i in s]))
+
+    # Empty likelihood array
+    var = create_mkmr_mb_ar(tree, chardict,nregime,findmin)
+    def likelihood_function(Qparams, switchpoint):
+        # Enforcing upper bound on parameters
+        Qparams = np.insert(Qparams, 0, 1e-15)
+        # # TODO: replace with sum of each Q
+
+        if (np.sum(Qparams)/nregime > var["upperbound"]) or any([x<=0 for x in Qparams]):
+            return var["nullval"]
+
+        if orderedparams:
+            if any(Qparams != sorted(Qparams)):
+                return var["nullval"]
+
+        # Clearing Q matrices
+        var["Q"].fill(0.0)
+        # Filling Q matrices:
+        fill_model_mr_Q(Qparams, mods, var["Q"])
+
+        # Resetting the values in these arrays
+        np.copyto(var["nodelist"], var["nodelistOrig"])
+        var["root_priors"].fill(1.0)
+
+        if findmin:
+            x = -1
+        else:
+            x = 1
+
+        try:
+            return x * mk_mr_midbranch(tree, chars, var["Q"], switchpoint, pi = pi, ar=var) # Minimizing negative log-likelihood
         except ValueError: # If likelihood returned is 0
             return var["nullval"]
 
@@ -480,18 +590,27 @@ def locs_from_switchpoint(tree, switches, locs=None):
     # Include the root
     switches = switches + [tree]
     # Sort switches by clade size
+    # We need the "cladesize" attribute to sort the clades. If it does not
+    # exist on the tree, create it
+    if not hasattr(tree, "cladesize"):
+        for n in tree:
+            n.cladesize = len(n)
     switches_c = switches[:]
-    switches_c.sort(key=len)
-
+    switches_c.sort(key=lambda x: x.cladesize)
     if locs is None:
         locs = np.zeros(len(switches_c), dtype=object)
     else:
         locs.fill(0) # Clear locs array
     for i,s in enumerate(switches_c):
+        t_l = []
         # Add descendants of node to location array if they are not
         # already recorded. This approach works because the clade sizes
         # were sorted beforehand
-        locs[i] = [n.ni for n in tree[s] if not n.ni in [x for l in locs[:i] for x in l]]
+        viewed = set([x for l in locs[:i] for x in l])
+        for n in tree[s]:
+            if not n.ni in viewed:
+                t_l.append(n.ni)
+        locs[i] = t_l
     # Remove the root
     locs[-1] = locs[-1][1:]
 
@@ -499,43 +618,6 @@ def locs_from_switchpoint(tree, switches, locs=None):
     # with locations descended from the root last)
     return locs[[switches_c.index(i) for i in switches]]
 
-
-def locs_from_switchpoint_mb(tree, switches, locs=None):
-    """
-    Given a tree and nodes to be the switchpoint, return an
-    array of all node indices in each regime. Allow switches to
-    happen mid-branch
-
-    Args:
-        tree (Node): Root node of tree
-        switches (list): List of internal nodes to act as switchpoints.
-          Switchpoint nodes are part of their own regimes.
-        locs (np.array): Optional pre-allocated array to store output.
-    Returns:
-        np.array: Array of indices of all nodes associated with each switchpoint, plus
-          all nodes "outside" the switches in the last list
-    """
-    # Include the root
-    switches = switches + [tree]
-    # Sort switches by clade size
-    switches_c = switches[:]
-    switches_c.sort(key=len)
-
-    if locs is None:
-        locs = np.zeros(len(switches_c), dtype=object)
-    else:
-        locs.fill(0) # Clear locs array
-    for i,s in enumerate(switches_c):
-        # Add descendants of node to location array if they are not
-        # already recorded. This approach works because the clade sizes
-        # were sorted beforehand
-        locs[i] = [n.ni for n in tree[s] if not ((n.ni in [x for l in locs[:i] for x in l]) or n.isroot)]
-
-    locs = locs[[switches_c.index(i) for i in switches]]
-
-    # Return locs in proper order (locations descended from each switch in order,
-    # with locations descended from the root last)
-    return locs[[switches_c.index(i) for i in switches]]
 
 
 class ModelOrderMetropolis(pymc.Metropolis):
@@ -590,13 +672,13 @@ class SwitchpointMetropolis(pymc.Metropolis):
         while True:
             if direction == 1: # Rootward
                 if step_size < (cur_node.length - cur_len): # Stay on same branch
-                    new_location = (cur_node, cur_len+step_size)
+                    new_location = (cur_node, cur_len+step_size+1e-15)
                     break
                 else: # If step goes past the parent
                     if not cur_node.parent.isroot: # Jump to parent node
                         step_size = step_size - ((cur_node.length//self.seg_size)*self.seg_size-cur_len)
                         cur_node = cur_node.parent
-                        cur_len = 0
+                        cur_len = 1e-15
                     else: # If parent is root, jump to a child of the root
                         step_size = step_size - ((cur_node.length//self.seg_size)*self.seg_size-cur_len)
                         valid_nodes = [n for n in cur_node.parent.children if n != cur_node]
@@ -611,13 +693,13 @@ class SwitchpointMetropolis(pymc.Metropolis):
                     break
                 else: # Move to new branch
                     if not cur_node.isleaf: #Move to child
-                        step_size = step_size - cur_len
+                        step_size = step_size - cur_len + 1e-15
                         valid_nodes = cur_node.children
                         cur_node = random.choice(valid_nodes)
                         cur_len = (cur_node.length//self.seg_size)*self.seg_size
                     else: # Bounce up from tip
                         step_size = step_size - cur_len
-                        cur_len = 0
+                        cur_len = 1e-15
                         direction = 1
 
         self.stochastic.value = new_location
@@ -636,9 +718,9 @@ def round_step_size(step_size, seg_size):
     Round step_size to the nearest segment
     """
     if (step_size%seg_size) > (seg_size/2):
-        return step_size + (seg_size-(step_size%seg_size))
+        return step_size + (seg_size-(step_size%seg_size)) + 1e-15
     else:
-        return step_size - (step_size%seg_size)
+        return step_size - (step_size%seg_size) + 1e-15
 
 def tree_map(tree, seglen=0.02):
     """
@@ -652,7 +734,7 @@ def tree_map(tree, seglen=0.02):
         cur_len = node.length
         nseg = int(ceil(cur_len/seg_size))
         for n in range(nseg):
-            seg_map.append((node, n*seg_size))
+            seg_map.append((node, n*seg_size+1e-15))
     return seg_map
 
 
@@ -664,7 +746,8 @@ def random_tree_location(seg_map):
         tuple: node and float, which represents the how far along the branch to
           the parent node the switch occurs on
     """
-    return random.choice(seg_map)
+    i = random.choice(range(len(seg_map)))
+    return seg_map[i]
 
 
 def make_switchpoint_stoch(seg_map, name=str("switch")):
@@ -683,7 +766,7 @@ def make_modelorder_stoch(mods, name=str("modorder")):
     return modelorder_stoch
 
 def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
-                   dbname=None, orderedparams=True,seglen=0.02):
+                   dbname=None, orderedparams=True,seglen=0.02,stepsize=0.05):
     """
     Create a Bayesian multi-mk model. User specifies which regime models
     to use and the Bayesian model finds the switchpoints.
@@ -699,6 +782,7 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
         nparam = len(set([i for s in mods for i in s]))
     else: # Default to ARD model
         nparam = ((nchar**2)-nchar) * nregime
+    print("preparations complete")
 
     # This model has 2 components: Q parameters and switchpoints
     # They are combined in a custom likelihood function
@@ -709,9 +793,11 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
     # Modeling the movement of the regime shift(s) is the tricky part
     # Regime shifts will only be allowed to happen at a node
     seg_map = tree_map(tree,seglen)
+    print("segmap complete")
     switch = [None]*(nregime-1)
     for regime in range(nregime-1):
         switch[regime]= make_switchpoint_stoch(seg_map, name=str("switch_{}".format(regime)))
+    print("switchpoints complete")
     ###########################################################################
     # Qparams:
     ###########################################################################
@@ -719,7 +805,7 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
     Qparams = [None] * nparam
     for i in range(nparam):
          Qparams[i] = pymc.Exponential(name=str("Qparam_{}".format(i)), beta=1.0, value=0.1*(i+1))
-
+    print("Qparams complete")
 
     ###########################################################################
     # Model order
@@ -727,49 +813,45 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
     # Swap model order to have different models associated with
     # different regimes.
     model_order = make_modelorder_stoch(mods)
-
+    print("modorder complete")
 
     ###########################################################################
     # Regime Mapping
     ###########################################################################
     # Which models are associated with which switchpoint (or the root)?
-    @pymc.deterministic
+    @pymc.deterministic(dtype=object)
     def regime_map(s = switch, m=mods):
-        model_locations = [tree[int(x)] for x in s]+[tree]
-
+        model_locations = switch+[(tree,0)]
         return {m[i]:model_locations[i] for i in range(nregime)}
-
+    print("regimemap complete")
     ###########################################################################
     # Likelihood
     ###########################################################################
     # The likelihood function
-
-    # Pre-allocating arrays
-    locsarray = np.empty([nregime], dtype=object)
     if mods is not None:
-        l = create_likelihood_function_multimk_mods(tree=tree, chars=chars,
+        l = lf_mk_mr_midbranch_mods(tree=tree, chars=chars,
             mods=mods, pi=pi, findmin=False, orderedparams=orderedparams)
     else:
-        l = create_likelihood_function_multimk(tree, chars=chars, Qtype="ARD",
+        l = lf_mk_mr_midbranch(tree, chars=chars, Qtype="ARD",
                                                nregime=nregime, pi=pi,
                                                findmin=False)
-
+    print("likelihood function complete")
     @pymc.potential
-    def multi_mklik(q = Qparams, switch=switch, rm=regime_map,
+    def multi_mklik(q = Qparams, s=switch, rm=regime_map,
                     mo=model_order, name="multi_mklik",):
-        switch_in_order = [rm[i] for i in mo if rm[i]!=tree]
+        rm = {x[0]:(x[1].value if type(x[1])==pymc.PyMCObjects.Stochastic else x[1]) for x in rm.items()}
+        switch_in_order = [rm[i] for i in mo if rm[i][0]!=tree]
 
-        locs = locs_from_switchpoint(tree,switch_in_order,locsarray)
-        return l(q, locs=locs)
+        return l(q,switch_in_order)
 
     if db is None:
         mod = pymc.MCMC(locals())
     else:
         mod = pymc.MCMC(locals(), db=db, dbname=dbname)
-
+    print("model created")
     mod.use_step_method(ModelOrderMetropolis, model_order)
 
     for s in switch:
-        mod.use_step_method(SwitchpointMetropolis, s, tree)
-
+        mod.use_step_method(SwitchpointMetropolis, s, tree, seg_map,stepsize=stepsize,seglen=seglen)
+    print("step methods used")
     return mod

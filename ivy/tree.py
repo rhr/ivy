@@ -44,12 +44,12 @@ class Node(object):
         isleaf (bool): Is the node a leaf.
         label (str): Node label.
         length (float): Branch length from node to parent
-        support: RR: Are these bootstrap support values? -CZ
+        support: Bootstrap support values
         age (float): Age of the node in time units.
         parent (Node): Parent of the ndoe.
         children (list): List of node objects. Children of node
-        nchildren (int): No. of children
-        left: RR: Unsure what left and right mean -CZ
+        nchildren (int): Number of children
+        left: The "left" node
         treename: Name of tree
         comment: Comments for tree
 
@@ -450,7 +450,6 @@ class Node(object):
             list: A list of internal nodes descended from self.
         """
         return [ n for n in self if not n.isleaf ]
-
     def iternodes(self, f=None):
         """
         Return a generator of nodes descendant from self - including self
@@ -468,7 +467,23 @@ class Node(object):
         for child in self.children:
             for n in child.iternodes(f):
                 yield n
-
+    def iternodes_iterative(self):
+        """
+        List of nodes descendant from self - including self
+        Returns:
+            list: Nodes descended from self (including self) in
+              preorder sequence
+        """
+        l = []
+        s = []
+        s.append(self)
+        n = self
+        while len(s) != 0:
+            n = s.pop()
+            l.append(n)
+            for child in reversed(n.children):
+                s.append(child)
+        return l
     def iterleaves(self):
         """
         Yield leaves descendant from self

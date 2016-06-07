@@ -268,7 +268,7 @@ class mkMethods(unittest.TestCase):
     #     L1r = (P10C * L0C + P11C * L1C) * (P10D * L0D + P11D * L1D)
     #
     #     predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
-    #     calculatedLikelihood = mk.mk_multi_regime(tree, chars, Qs, locs = inds,
+    #     calculatedLikelihood = mk.mk_mr(tree, chars, Qs, locs = inds,
     #                                                     pi="Equal")
     #
     #     self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
@@ -323,7 +323,7 @@ class mkMethods(unittest.TestCase):
     #     L1r = (P10E * L0E + P11E * L1E) * (P10F * L0F + P11F * L1F)
     #
     #     predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
-    #     calculatedLikelihood = mk.mk_multi_regime(tree, chars, Qs, locs = inds,
+    #     calculatedLikelihood = mk.mk_mr(tree, chars, Qs, locs = inds,
     #                                                     pi="Equal")
     #
     #     self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
@@ -836,7 +836,7 @@ class estimateQMethods(unittest.TestCase):
     #              [i for i,n in enumerate(tree.postiter()) if not n.isroot][50:]]
     #
     #     single = mk.mk(tree, chars, Q)
-    #     multi = mk.mk_multi_regime(tree, chars, Qs, locs, pi="Equal")
+    #     multi = mk.mk_mr(tree, chars, Qs, locs, pi="Equal")
     #
     #     self.assertEqual(single, multi)
 

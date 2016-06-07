@@ -29,7 +29,7 @@ Qs = np.array([[[-0.1,0.1],
 locs = locs_from_switchpoint(tree, tree[29])
 pi = "Equal"
 
-t = mk_multi_regime(tree, chars, Qs, locs, pi=pi)
+t = mk_mr(tree, chars, Qs, locs, pi=pi)
 
 f = create_likelihood_function_multimk(tree, chars, "ARD", 2)
 Qparams = np.array([[ 0.1,  0.1],
@@ -117,8 +117,36 @@ trueQs = np.array([trueFastQ,trueSlowQ])
 
 mods = [(2,2),(1,1)]
 
-mod_mr = mk_multi_bayes(tree, mr_chars, mods=mods,nregime=2, orderedparams=False)
-mod_mr.sample(10000,burn=1000,thin=3)
+mod_mr = mk_mr.mk_multi_bayes(tree, mr_chars, mods=mods,nregime=2, orderedparams=False, stepsize=0.2)
+mod_mr.sample(100,burn=10,thin=1)
+
+
+chars = mr_chars
+pi = "Equal"
+nregime =2
+db = None
+dbname = None
+orderedparams = True
+seglen = 0.02
+stepsize = 0.2
+
+l = lf_mk_mr_midbranch_mods(tree=tree, chars=chars,
+    mods=mods, pi=pi, findmin=False, orderedparams=orderedparams)
+
+seg_map = tree_map(tree,seglen)
+
+switchpoint = [seg_map[500]]
+Qparams = [0.1, 1.0]
+
+chardict = {tree.leaves()[i].label:v for i,v in enumerate(chars)}
+ar = create_mkmr_mb_ar(tree, chardict, nregime, findmin=True)
+
+
+cProfile.run("mk_mr_midbranch(tree,chars,trueQs,switchpoint,ar=ar)")
+
+x = mod_mr.trace(str("switch_0")[:])
+fig = treefig(tree)
+fig.add_layer(ivy.vis.layers.add_tree_heatmap, x)
 
 plt.plot(mod_mr.trace("switch_0")[:])
 
@@ -134,7 +162,7 @@ fig.tipstates(chars)
 
 
 mod = mk_multi_bayes(tree, mr_chars, mods=[(1,1),(2,2)])
-mod.sample(10000,burn=1000,thin=3)
+mod.sample(1000,burn=1000,thin=3)
 
 switch = [int(i) for i in mod.trace("switch")[:]]
 
@@ -183,22 +211,6 @@ chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-
-# plotting steps:
-
-seg_map = mk_mr.tree_map(tree)
-
-switch = mk_mr.make_switchpoint_stoch(seg_map)
-
-switch_step = mk_mr.SwitchpointMetropolis(switch, tree, seg_map, stepsize=0.15)
-
-trace = []
-for _ in range(10000):
-    trace.append(switch_step.stochastic.value)
-    switch_step.propose()
-fig = treefig(tree)
-fig.add_layer(layers.add_tree_heatmap,trace)
-
 # fig = treefig(tree)
 # fig.tipstates(chars_r3)
 #
@@ -213,13 +225,25 @@ fig.add_layer(layers.add_tree_heatmap,trace)
 #
 # true_Qs = np.array([Q2,Q3,Q1])
 #
-# true_l = mk_mr.mk_multi_regime(tree, chars_r3, true_Qs, true_locs)
+# true_l = mk_mr.mk_mr(tree, chars_r3, true_Qs, true_locs)
 #-212.46280532572879
 mods = [(3, 3), (1, 1), (2, 2)]
 
-mod_r3 = mk_multi_bayes(tree, chars, mods=mods,orderedparams=False)
+mod_r3 = mk_mr.mk_multi_bayes(tree, chars, mods=mods,orderedparams=False)
 
-mod_r3.sample(20000)
+mod_r3.sample(3000)
+
+
+
+x0 = mod_r3.trace(str("switch_0")[:])
+fig = treefig(tree)
+fig.add_layer(ivy.vis.layers.add_tree_heatmap, x0, store="switch0")
+
+x1 = mod_r3.trace(str("switch_1")[:])
+fig.add_layer(ivy.vis.layers.add_tree_heatmap, x0, store="switch1")
+
+
+
 
 plt.plot(mod_r3.trace(str("switch_1"))[:])
 plt.plot(mod_r3.trace(str("switch_0"))[:])

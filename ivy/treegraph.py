@@ -3,7 +3,7 @@ import os, requests, math, pickle, logging
 from collections import defaultdict, Counter, namedtuple
 from functools import cmp_to_key
 
-import graph_tool.all as gt
+#import graph_tool.all as gt
 from . import newick
 from . import tree
 newick.add_label_chars('/#&-')
@@ -657,7 +657,7 @@ def taxonomy_subtree(G, v):
 
     g.root = g.vertex(0)
     return g
-    
+
 def graph2sqlite(g, fname):
     import sqlite3 as db
     from os import path
@@ -697,7 +697,7 @@ def graph2sqlite(g, fname):
                     'values (?, ?, ?, ?, ?, ?, ?);', data)
         print(int(v), '\r', end=' ')
     print('done')
-    
+
     if create:
         cur.execute('create index nextback on name (next, back)')
         cur.execute('create index parent on name (parent_uid)')
@@ -773,7 +773,7 @@ def map_stree(G, root):
                                 if x.taxid_rootpath ])
     root.taxid = root_mrca
     print('root is', G.taxid_name(root_mrca))
-    
+
     for lf in lvs:
         rp = lf.taxid_rootpath
         if rp: break
@@ -785,7 +785,7 @@ def map_stree(G, root):
             if lf.taxid in multileaves:
                 print('!!! multiple taxid: %s at lf %s' % (lf.taxid, lf))
                 lf.incertae_sedis = True
-                
+
     all_taxids = set()
     for x in lvs: all_taxids.update(x.taxid_rootpath)
     subgraph = taxid_subgraph(G, all_taxids)
@@ -815,7 +815,7 @@ def map_stree(G, root):
         else: return 0
 
     taxid_key = cmp_to_key(taxid_cmp)
-        
+
     conflicts = {}
     con2mrca = {}
     for taxid in all_taxids:
@@ -866,7 +866,7 @@ def map_stree(G, root):
                 else:
                     lf.taxid = None
                     lf.incertae_sedis = True
-                    
+
         if (ismono and n.children) or len(v)==1: n.taxids.add(taxid)
 
     for n in root:
@@ -1082,10 +1082,10 @@ def _filter(g):
     g.purge_vertices()
     g.purge_edges()
     g.clear_filters()
-    
+
     for v in g.vertices():
         if int(v): assert v.in_degree()==1
-    
+
 def layout(g, rootv, sfdp=True, deg0=-45.0, degspan=90.0, radius=100):
     isouter = lambda x: not bool([ v for v in x.out_neighbours() if v != x ])
     ## isouter = lambda x: x.out_degree()==0

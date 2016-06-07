@@ -67,7 +67,7 @@ slowNodes = np.array([n.ni for n in mr_tree.descendants()if not n.ni in fastNode
 
 trueLocs = [fastNodes, slowNodes]
 
-l = discrete.mk_multi_regime(mr_tree, mr_chars, trueQs, trueLocs, pi="Equal")
+l = discrete.mk_mr(mr_tree, mr_chars, trueQs, trueLocs, pi="Equal")
 
 m = bayesian_models.create_multi_mk_model(mr_tree, mr_chars, Qtype="ER", pi="Equal", nregime=2)
 
