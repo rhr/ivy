@@ -990,6 +990,7 @@ def add_tree_heatmap(treeplot, locations, vis=True):
     """
     color = (1,0,0,0.05)
     nodes = zip(*locations)[0]
+    nodes = [treeplot.root[n.ni] for n in nodes]
     distances = zip(*locations)[1]
 
     add_circles_branches(treeplot, nodes, distances, colors=color,vis=vis, size=5)
