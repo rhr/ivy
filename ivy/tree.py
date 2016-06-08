@@ -78,8 +78,9 @@ class Node(object):
         self.right = None
         self.treename = ""
         self.comment = ""
-        self.length_comment = ""
-        self.label_comment = ""
+        self.meta = {}
+        ## self.length_comment = ""
+        ## self.label_comment = ""
         if kwargs:
             for k, v in kwargs.items():
                 setattr(self, k, v)
