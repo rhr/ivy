@@ -147,7 +147,6 @@ def parse(data, ttable=None, treename=None):
                 # metadata
                 meta = META.findall(node.comment[1:])
                 if meta:
-                    node.meta = {}
                     for k, v in meta:
                         v = eval(v.replace('{','(').replace('}',')'))
                         node.meta[k] = v
