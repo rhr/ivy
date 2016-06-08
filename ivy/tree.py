@@ -71,9 +71,9 @@ class Node(object):
         self.right = None
         self.treename = ""
         self.comment = ""
-        self.length_comment = ""
-        self.label_comment = ""
-        self.apeidx = None
+        self.meta = {}
+        ## self.length_comment = ""
+        ## self.label_comment = ""
         if kwargs:
             for k, v in list(kwargs.items()):
                 setattr(self, k, v)
@@ -447,9 +447,10 @@ class Node(object):
         Get internal nodes descended from self
 
         Returns:
-            list: A list of internal nodes descended from self.
+            list: A list of internal nodes descended from (and not including) self.
         """
-        return [ n for n in self if not n.isleaf ]
+        return [ n for n in self if (n is not self) and not n.isleaf ]
+
     def iternodes(self, f=None):
         """
         Return a generator of nodes descendant from self - including self
