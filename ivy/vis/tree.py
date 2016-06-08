@@ -1204,6 +1204,7 @@ class Tree(Axes):
                           branchlabels=self.branchlabels,
                           decorators=self.decorators,
                           leaflabels=self.leaflabels,
+                          mark_named=self._mark_named,
                           xlim=self.get_xlim(),
                           ylim=self.get_ylim())
         return p
