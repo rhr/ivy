@@ -438,10 +438,10 @@ class Node(object):
         Get internal nodes descended from self
 
         Returns:
-            list: A list of internal nodes descended from self.
+            list: A list of internal nodes descended from (and not including) self.
 
         """
-        return [ n for n in self if not n.isleaf ]
+        return [ n for n in self if (n is not self) and not n.isleaf ]
 
     def iternodes(self, f=None):
         """
