@@ -1,8 +1,9 @@
-import matplotlib
+import os, matplotlib
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import tree
 from axes_utils import adjust_limits
+from cStringIO import StringIO
 
 ## class TreeFigure:
 ##     def __init__(self):
@@ -88,6 +89,11 @@ class TreeFigure:
         return self.axes
         
     def savefig(self, fname):
+        root, ext = os.path.splitext(fname)
+        buf = StringIO()
+        for i in range(3):
+            self.figure.savefig(buf, format=ext[1:].lower())
+            self.home()
         self.figure.savefig(fname)
 
     def set_relative_width(self, relwidth):
