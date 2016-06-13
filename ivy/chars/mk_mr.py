@@ -22,90 +22,90 @@ try:
 except AttributeError: # Python 3
     StringTypes = [str]
 
-def mk_mr(tree, chars, Qs, locs, pi="Equal", returnPi=False,
-                     ar = None):
-    """
-    Calculate likelhiood of mk model with BAMM-like multiple regimes
-
-    Args:
-        tree (Node): Root node of a tree. All branch lengths must be
-          greater than 0 (except root)
-        chars (dict): Dict mapping character states to tip labels.
-          Character states should be coded 0,1,2...
-
-          Can also be a list with tip states in preorder sequence
-        Qs (np.array): Array of instantaneous rate matrices
-        locs (np.array): Array of the same length as Qs containing the
-          node indices that correspond to each Q matrix
-        p (np.array): Optional pre-allocated p matrix
-        pi (str or np.array): Option to weight the root node by given values.
-           Either a string containing the method or an array
-           of weights. Weights should be given in order.
-
-           Accepted methods of weighting root:
-
-           Equal: flat prior
-           Equilibrium: Prior equal to stationary distribution
-             of Q matrix
-           Fitzjohn: Root states weighted by how well they
-             explain the data at the tips.
-    """
-    if type(chars) == dict:
-        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
-    nchar = Qs[0].shape[0]
-    if ar is None:
-        # Creating arrays to be used later
-        ar = create_mkmr_ar(tree, chars,Qs.shape[2],findmin=True)
-
-    inds = [0]*len(ar["t"])
-
-    for l, a in enumerate(locs):
-        for n in a:
-            posti = tree[n].pi
-            inds[posti] = l
-
-    # Creating probability matrices from Q matrices and branch lengths
-    # inds indicates which Q matrix to use for which branch
-    cyexpokit.dexpm_treeMulti_preallocated_p_log(Qs,ar["t"], ar["p"], np.array(inds)) # This changes p in place
-
-
-    # Calculating the likelihoods for each node in post-order sequence
-    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"])
-    # The last row of nodelist contains the likelihood values at the root
-
-    # Applying the correct root prior
-    if not type(pi) in StringTypes:
-        assert len(pi) == nchar, "length of given pi does not match Q dimensions"
-        assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
-        assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
-
-        np.copyto(ar["root_priors"], pi)
-
-        rootliks = ([ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ])
-
-    elif pi == "Equal":
-        ar["root_priors"].fill(1.0/nchar)
-        rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1])]
-
-    elif pi == "Fitzjohn":
-        np.copyto(ar["root_priors"],
-                  [ar["nodelist"][-1,:-1][charstate]-
-                   scipy.misc.logsumexp(ar["nodelist"][-1,:-1]) for
-                   charstate in set(chars) ])
-        rootliks = [ ar["nodelist"][-1,:-1][charstate] +
-                     ar["root_priors"][charstate] for charstate in set(chars) ]
-    elif pi == "Equilibrium":
-        # Equilibrium pi from the stationary distribution of Q
-        np.copyto(ar["root_priors"],qsd(Q))
-        rootliks = [ i + np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
-    logli = scipy.misc.logsumexp(rootliks)
-    if returnPi:
-        return (logli, {k:v for k,v in enumerate(ar["root_priors"])})
-    else:
-        return logli
+# def mk_mr(tree, chars, Qs, locs, pi="Equal", returnPi=False,
+#                      ar = None):
+#     """
+#     Calculate likelhiood of mk model with BAMM-like multiple regimes
+#
+#     Args:
+#         tree (Node): Root node of a tree. All branch lengths must be
+#           greater than 0 (except root)
+#         chars (dict): Dict mapping character states to tip labels.
+#           Character states should be coded 0,1,2...
+#
+#           Can also be a list with tip states in preorder sequence
+#         Qs (np.array): Array of instantaneous rate matrices
+#         locs (np.array): Array of the same length as Qs containing the
+#           node indices that correspond to each Q matrix
+#         p (np.array): Optional pre-allocated p matrix
+#         pi (str or np.array): Option to weight the root node by given values.
+#            Either a string containing the method or an array
+#            of weights. Weights should be given in order.
+#
+#            Accepted methods of weighting root:
+#
+#            Equal: flat prior
+#            Equilibrium: Prior equal to stationary distribution
+#              of Q matrix
+#            Fitzjohn: Root states weighted by how well they
+#              explain the data at the tips.
+#     """
+#     if type(chars) == dict:
+#         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
+#     nchar = Qs[0].shape[0]
+#     if ar is None:
+#         # Creating arrays to be used later
+#         ar = create_mkmr_ar(tree, chars,Qs.shape[2],findmin=True)
+#
+#     inds = [0]*len(ar["t"])
+#
+#     for l, a in enumerate(locs):
+#         for n in a:
+#             posti = tree[n].pi
+#             inds[posti] = l
+#
+#     # Creating probability matrices from Q matrices and branch lengths
+#     # inds indicates which Q matrix to use for which branch
+#     cyexpokit.dexpm_treeMulti_preallocated_p_log(Qs,ar["t"], ar["p"], np.array(inds)) # This changes p in place
+#
+#
+#     # Calculating the likelihoods for each node in post-order sequence
+#     cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"])
+#     # The last row of nodelist contains the likelihood values at the root
+#
+#     # Applying the correct root prior
+#     if not type(pi) in StringTypes:
+#         assert len(pi) == nchar, "length of given pi does not match Q dimensions"
+#         assert str(type(pi)) == "<type 'numpy.ndarray'>", "pi must be str or numpy array"
+#         assert np.isclose(sum(pi), 1), "values of given pi must sum to 1"
+#
+#         np.copyto(ar["root_priors"], pi)
+#
+#         rootliks = ([ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ])
+#
+#     elif pi == "Equal":
+#         ar["root_priors"].fill(1.0/nchar)
+#         rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1])]
+#
+#     elif pi == "Fitzjohn":
+#         np.copyto(ar["root_priors"],
+#                   [ar["nodelist"][-1,:-1][charstate]-
+#                    scipy.misc.logsumexp(ar["nodelist"][-1,:-1]) for
+#                    charstate in set(chars) ])
+#         rootliks = [ ar["nodelist"][-1,:-1][charstate] +
+#                      ar["root_priors"][charstate] for charstate in set(chars) ]
+#     elif pi == "Equilibrium":
+#         # Equilibrium pi from the stationary distribution of Q
+#         np.copyto(ar["root_priors"],qsd(Q))
+#         rootliks = [ i + np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
+#     logli = scipy.misc.logsumexp(rootliks)
+#     if returnPi:
+#         return (logli, {k:v for k,v in enumerate(ar["root_priors"])})
+#     else:
+#         return logli
 
 def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
-                     ar = None):
+                     ar = None, debug=False, pmask=True):
     """
     Calculate likelhiood of mk model with BAMM-like multiple regimes
 
@@ -132,19 +132,22 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
            Fitzjohn: Root states weighted by how well they
              explain the data at the tips.
     """
-    if type(switchpoint[0]) == pymc.PyMCObjects.Stochastic:
-        switchpoint = [i.value for i in switchpoint]
+    if len(switchpoint)>0:
+        if type(switchpoint[0]) == pymc.PyMCObjects.Stochastic:
+            switchpoint = [i.value for i in switchpoint]
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
 
     nchar = len(set(chars))
 
     if ar is None:
-        ar = create_mkmr_mb_ar(tree,chars,nregime=Qs.shape[2],findmin=True)
+        ar = create_mkmr_mb_ar(tree,chars,nregime=Qs.shape[0],findmin=True)
     chars = ar["chars"]
     switchpoint_nodes = [ar["tree_copy"][switchpoint[i][0].id] for i in range(len(switchpoint))]
-    locs = locs_from_switchpoint(ar["tree_copy"], switchpoint_nodes)
+    locs = locs_from_switchpoint(ar["tree_copy"], switchpoint_nodes,locs=ar["locs"])
 
+    # Reset t values
+    ar["t"] = ar["blens"][:]
 
     # Adjust t to account for presence of switchpoint
     for s in switchpoint:
@@ -160,16 +163,26 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
         for n in a:
             posti = ar["pre_post"][n]
             inds[posti] = l
+    (Qs != ar["prev_Q"]).any(axis=(1,2), out=ar["Qdif"])
+    indsmask = inds[:]
+
+    #Which Qs are different?
+
+    np.logical_or.reduce((ar["prev_inds"]!=inds, ar["t"]!=ar["prev_t"],ar["Qdif"][indsmask]),out=ar["pmask"]) # Which p-matrices do we need to recalcualte?
+    np.copyto(ar["prev_t"],ar["t"])
+    np.copyto(ar["prev_inds"], inds)
+    np.copyto(ar["prev_Q"], Qs)
 
     # Creating probability matrices from Q matrices and branch lengths
     # inds indicates which Q matrix to use for which branch
-    cyexpokit.dexpm_treeMulti_preallocated_p_log(Qs,ar["t"], ar["p"], np.array(inds)) # This changes p in place
-
-
+    if not pmask:
+        ar["pmask"].fill(True)
+    cyexpokit.dexpm_treeMulti_preallocated_p_log(Qs,ar["t"], ar["p"], np.array(inds), pmask=ar["pmask"]) # This changes p in place
     # Calculating the likelihoods for each node in post-order sequence
+
+    np.copyto(ar["nodelist"], ar["nodelistOrig"]) # clearing the nodelist
     cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"])
     # The last row of nodelist contains the likelihood values at the root
-
     # Applying the correct root prior
     if not type(pi) in StringTypes:
         assert len(pi) == nchar, "length of given pi does not match Q dimensions"
@@ -183,7 +196,6 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
     elif pi == "Equal":
         ar["root_priors"].fill(1.0/nchar)
         rootliks = [ i+np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1])]
-
     elif pi == "Fitzjohn":
         np.copyto(ar["root_priors"],
                   [ar["nodelist"][-1,:-1][charstate]-
@@ -196,6 +208,8 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
         np.copyto(ar["root_priors"],qsd(Q))
         rootliks = [ i + np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
     logli = scipy.misc.logsumexp(rootliks)
+    ar["lastQ"] = Qs
+    ar["lastswitch"] = switchpoint
     if returnPi:
         return (logli, {k:v for k,v in enumerate(ar["root_priors"])})
     else:
@@ -273,8 +287,10 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
     tree_copy.reindex()
 
     chars = [chars[l] for l in [n.label for n in tree_copy.leaves()]]
-    blens = [node.length for node in tree_copy.postiter() if not node.isroot]
+    blens = np.array([node.length for node in tree_copy.postiter() if not node.isroot])
     t = np.array(blens, dtype=np.double)
+    prev_t = t.copy()
+    prev_t.fill(np.inf)
     nt = len(t)
     nchar = len(set(chars))
     preleaves = [ n for n in tree_copy.preiter() if n.isleaf ]
@@ -300,8 +316,11 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
 
     # Empty Q matrix
     Q = np.zeros([nregime,nchar, nchar], dtype=np.double)
+    prev_Q = Q.copy()
+    prev_Q.fill(np.inf)
     # Empty p matrix
     p = np.empty([nt, nchar, nchar], dtype = np.double, order="C")
+    pmask = np.array([True]*len(t))
     nodelistOrig = nodelist.copy()
     rootpriors = np.empty([nchar], dtype=np.double)
     if findmin:
@@ -315,11 +334,18 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
     tmp_ar = np.zeros(nchar) # Used for storing calculations
 
     pre_post = {n.ni:n.pi for n in tree_copy} # The postorder index that corresponds to each preorder index
+    prev_inds = np.array([None]*len(t)) #Keeping track of locations from previous call
+    Qdif = np.ones([nregime], dtype=bool) # Array for keeping track of changes to Q
+    locs = np.zeros(nregime, dtype=object)
+
+    max_children = max(len(n.children) for n in tree_copy)
 
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
            "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar,
-           "tree_copy":tree_copy,"chars":chars,"pre_post":pre_post}
+           "tree_copy":tree_copy,"chars":chars,"pre_post":pre_post,"prev_Q":prev_Q,
+           "prev_t":prev_t, "blens":blens,"pmask":pmask,
+           "prev_inds":prev_inds, "Qdif":Qdif,"locs":locs}
     return var
 
 
@@ -510,9 +536,7 @@ def lf_mk_mr_midbranch_mods(tree, chars, mods, pi="Equal",
     else:
         chardict = {tree.leaves()[i].label:v for i,v in enumerate(chars)}
 
-
     nregime = len(mods)
-
 
     nparam = len(set([i for s in mods for i in s]))
 
@@ -766,7 +790,7 @@ def make_modelorder_stoch(mods, name=str("modorder")):
     return modelorder_stoch
 
 def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
-                   dbname=None, orderedparams=True,seglen=0.02,stepsize=0.05):
+                   dbname=None,seglen=0.02,stepsize=0.05):
     """
     Create a Bayesian multi-mk model. User specifies which regime models
     to use and the Bayesian model finds the switchpoints.
@@ -807,50 +831,33 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
          Qparams[i] = pymc.Exponential(name=str("Qparam_{}".format(i)), beta=1.0, value=0.1*(i+1))
     print("Qparams complete")
 
-    ###########################################################################
-    # Model order
-    ###########################################################################
-    # Swap model order to have different models associated with
-    # different regimes.
-    model_order = make_modelorder_stoch(mods)
-    print("modorder complete")
 
-    ###########################################################################
-    # Regime Mapping
-    ###########################################################################
-    # Which models are associated with which switchpoint (or the root)?
-    @pymc.deterministic(dtype=object)
-    def regime_map(s = switch, m=mods):
-        model_locations = switch+[(tree,0)]
-        return {m[i]:model_locations[i] for i in range(nregime)}
-    print("regimemap complete")
     ###########################################################################
     # Likelihood
     ###########################################################################
     # The likelihood function
     if mods is not None:
         l = lf_mk_mr_midbranch_mods(tree=tree, chars=chars,
-            mods=mods, pi=pi, findmin=False, orderedparams=orderedparams)
+            mods=mods, pi=pi, findmin=False, orderedparams=False)
     else:
         l = lf_mk_mr_midbranch(tree, chars=chars, Qtype="ARD",
                                                nregime=nregime, pi=pi,
                                                findmin=False)
     print("likelihood function complete")
-    @pymc.potential
-    def multi_mklik(q = Qparams, s=switch, rm=regime_map,
-                    mo=model_order, name="multi_mklik",):
-        rm = {x[0]:(x[1].value if type(x[1])==pymc.PyMCObjects.Stochastic else x[1]) for x in rm.items()}
-        switch_in_order = [rm[i] for i in mo if rm[i][0]!=tree]
 
-        return l(q,switch_in_order)
+    @pymc.deterministic
+    def likelihood(q = Qparams, s=switch,name="likelihood"):
+        return l(q,s)
+
+    @pymc.potential
+    def multi_mklik(l=likelihood):
+        return l
 
     if db is None:
         mod = pymc.MCMC(locals())
     else:
         mod = pymc.MCMC(locals(), db=db, dbname=dbname)
     print("model created")
-    mod.use_step_method(ModelOrderMetropolis, model_order)
-
     for s in switch:
         mod.use_step_method(SwitchpointMetropolis, s, tree, seg_map,stepsize=stepsize,seglen=seglen)
     print("step methods used")

@@ -10,7 +10,6 @@ import matplotlib
 import matplotlib.pylab as plt
 import numpy as np
 import pymc
-import networkx as nx
 import scipy
 
 from ivy.chars.recon import pscore
@@ -68,29 +67,6 @@ def unique_models(nchar, nregime, nparam):
     mods_flat = [ tuple([i for s in  x for i in s]) for x in mods ]
 
     return mods_flat
-
-
-def make_model_graph(unique_mods):
-    """
-    Create graph of models where each model is adjacent to all other models
-    that differ from it by one parameter
-
-    Args:
-        unique_mods (list): List of models (must be tuples). Identical to output
-          of unique_models
-    Returns:
-        Graph: Nx graph of all models
-    """
-    mod_graph = nx.Graph()
-    mod_graph.add_nodes_from(unique_mods)
-
-    # Adding edges
-    # Iterate over all pairs and determine if they form an edge
-    for i,mod in enumerate(unique_mods):
-        for n in unique_mods[i+1:]:
-            if sum([mod[i] != n[i] for i in range(len(mod))]) == 1:
-                mod_graph.add_edge(mod, n)
-    return mod_graph
 
 
 def new_hrm_model(mod, nparam, nchar, nregime, mod_order):
@@ -250,8 +226,6 @@ def hrm_allmodels_bayes(tree, chars, nregime, nparam,modseed, pi="Equal",
         pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
           values at root node. Defaults to "Equal"
           Method "Fitzjohn" is not thouroughly tested, use with caution
-        mod_graph (Graph): Nx graph of all possible models. Optional, if not
-          provided will generate graph, which may be time-consuming
     """
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]

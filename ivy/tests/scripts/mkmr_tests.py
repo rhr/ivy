@@ -229,9 +229,9 @@ chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 #-212.46280532572879
 mods = [(3, 3), (1, 1), (2, 2)]
 
-mod_r3 = mk_mr.mk_multi_bayes(tree, chars, mods=mods,orderedparams=False)
+mod_r3 = mk_mr.mk_multi_bayes(tree, chars, mods=mods)
 
-mod_r3.sample(100000, burn=10000,thin=3)
+mod_r3.sample(100)
 
 
 

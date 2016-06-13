@@ -9,7 +9,7 @@ from ivy.chars import mk, hrm, mk_mr
 import numpy as np
 import math
 import scipy
-
+np.set_printoptions(suppress=True, precision=5)
 
 class Mk_mr_tests(unittest.TestCase):
     def setUp(self):
@@ -35,51 +35,51 @@ class Mk_mr_tests(unittest.TestCase):
         true_locs = [[5,9],[6,7,8],[1,2,3,4,10,11,12,13,14,15,16,17,18]]
         self.assertTrue((locs==true_locs).all())
 
-    def test_mkmr_matchesbyhand(self):
-        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
-        chars = [1,0,0,0]
-        Q1 = np.array([[-0.10,0.10],
-                       [0.05,-0.05]])
-        Q2 = np.array([[-1.5,1.5],
-                       [1.,-1.]])
-        Qs = np.array([Q2,Q1])
-        locs = mk_mr.locs_from_switchpoint(tree,[tree["C"]])
-
-        PA = [[ 0.449251  ,  0.550749  ],
-              [ 0.367166  ,  0.632834  ]]
-
-        PB = [[ 0.449251  ,  0.550749  ],
-               [ 0.367166  ,  0.632834  ]]
-
-        PC = [[ 0.449251  ,  0.550749  ],
-               [ 0.367166  ,  0.632834  ]]
-
-        PD = [[ 0.82721215,  0.17278785],
-              [ 0.08639393,  0.91360607]]
-
-        PE = [[ 0.90713865,  0.09286135],
-              [ 0.04643067,  0.95356933]]
-
-        PF =[[ 0.75841877,  0.24158123],
-             [ 0.12079062,  0.87920938]]
-
-
-        L0A = 0;L1A=1;L0B=1;L1B=0;L0D=1;L1D=0;L0F=1;L1F=0
-
-        L0C = (PA[0][0] * L0A + PA[0][1] * L1A) * (PB[0][0] * L0B + PB[0][1] * L1B)
-        L1C = (PA[1][0] * L0A + PA[1][1] * L1A) * (PB[1][0] * L0B + PB[1][1] * L1B)
-
-        L0E = (PC[0][0] * L0C + PC[0][1] * L1C) * (PD[0][0] * L0D + PD[0][1] * L1D)
-        L1E = (PC[1][0] * L0C + PC[1][1] * L1C) * (PD[1][0] * L0D + PD[1][1] * L1D)
-
-        L0r = (PE[0][0] * L0E + PE[0][1] * L1E) * (PF[0][0] * L0F + PF[0][1] * L1F)
-        L1r = (PE[1][0] * L0E + PE[1][1] * L1E) * (PF[1][0] * L0F + PF[1][1] * L1F)
-
-
-        predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
-        calculatedLikelihood = mk_mr.mk_mr(tree, chars, Qs, locs)
-
-        self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
+    # def test_mkmr_matchesbyhand(self):
+    #     tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
+    #     chars = [1,0,0,0]
+    #     Q1 = np.array([[-0.10,0.10],
+    #                    [0.05,-0.05]])
+    #     Q2 = np.array([[-1.5,1.5],
+    #                    [1.,-1.]])
+    #     Qs = np.array([Q2,Q1])
+    #     locs = mk_mr.locs_from_switchpoint(tree,[tree["C"]])
+    #
+    #     PA = [[ 0.449251  ,  0.550749  ],
+    #           [ 0.367166  ,  0.632834  ]]
+    #
+    #     PB = [[ 0.449251  ,  0.550749  ],
+    #            [ 0.367166  ,  0.632834  ]]
+    #
+    #     PC = [[ 0.449251  ,  0.550749  ],
+    #            [ 0.367166  ,  0.632834  ]]
+    #
+    #     PD = [[ 0.82721215,  0.17278785],
+    #           [ 0.08639393,  0.91360607]]
+    #
+    #     PE = [[ 0.90713865,  0.09286135],
+    #           [ 0.04643067,  0.95356933]]
+    #
+    #     PF =[[ 0.75841877,  0.24158123],
+    #          [ 0.12079062,  0.87920938]]
+    #
+    #
+    #     L0A = 0;L1A=1;L0B=1;L1B=0;L0D=1;L1D=0;L0F=1;L1F=0
+    #
+    #     L0C = (PA[0][0] * L0A + PA[0][1] * L1A) * (PB[0][0] * L0B + PB[0][1] * L1B)
+    #     L1C = (PA[1][0] * L0A + PA[1][1] * L1A) * (PB[1][0] * L0B + PB[1][1] * L1B)
+    #
+    #     L0E = (PC[0][0] * L0C + PC[0][1] * L1C) * (PD[0][0] * L0D + PD[0][1] * L1D)
+    #     L1E = (PC[1][0] * L0C + PC[1][1] * L1C) * (PD[1][0] * L0D + PD[1][1] * L1D)
+    #
+    #     L0r = (PE[0][0] * L0E + PE[0][1] * L1E) * (PF[0][0] * L0F + PF[0][1] * L1F)
+    #     L1r = (PE[1][0] * L0E + PE[1][1] * L1E) * (PF[1][0] * L0F + PF[1][1] * L1F)
+    #
+    #
+    #     predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
+    #     calculatedLikelihood = mk_mr.mk_mr(tree, chars, Qs, locs)
+    #
+    #     self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
 
     def test_mkmr_middleofbranch_matchesbyhand(self):
         tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
@@ -230,5 +230,84 @@ class Mk_mr_tests(unittest.TestCase):
         trueLikelihood =  mk_mr.mk_mr_midbranch(tree, chars, Qs, [switchpoint])
         self.assertTrue(np.isclose(lf_likelihood, trueLikelihood))
 
+    def test_maskarrayp_changeswitchpoint_correctentriesmasked(self):
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
+        chars = [1,0,0,0]
+
+        Q1 = np.array([[-0.10,0.10],
+                       [0.05,-0.05]])
+        Q2 = np.array([[-1.5,1.5],
+                       [1.,-1.]])
+        Qs = np.array([Q2,Q1])
+
+        switchpoint_1 = [(tree["C"], 0.75)]
+        ar = mk_mr.create_mkmr_mb_ar(tree, chars, 2)
+
+        l1 = mk_mr.mk_mr_midbranch(tree, chars, Qs, switchpoint_1, ar=ar, debug=False)
+
+        self.assertTrue((ar["lastQ"]==Qs).all())
+        self.assertEqual(ar["lastswitch"],switchpoint_1)
+
+
+        switchpoint_2 = [(tree["D"], 0.5)]
+
+        l2 = mk_mr.mk_mr_midbranch(tree, chars, Qs, switchpoint_2, ar=ar, debug=True)
+
+
+        ar2 = mk_mr.create_mkmr_mb_ar(tree, chars, 2)
+
+        l2True = mk_mr.mk_mr_midbranch(tree, chars, Qs, switchpoint_2, ar=ar2, debug=True)
+
+        self.assertEqual(l2, l2True)
+    def test_maskarrayp_changeQ_correctentriesmasked(self):
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
+        chars = [1,0,0,0]
+
+        Q1 = np.array([[-0.10,0.10],
+                       [0.05,-0.05]])
+        Q2 = np.array([[-1.5,1.5],
+                       [1.,-1.]])
+        Q3 = np.array([[-0.15,0.15],
+                       [0.1,-0.1]])
+        Qs1 = np.array([Q2,Q1])
+        Qs2 = np.array([Q2,Q3])
+
+        switchpoint = [(tree["C"], 0.75)]
+        ar = mk_mr.create_mkmr_mb_ar(tree, chars, 2)
+
+        l1 = mk_mr.mk_mr_midbranch(tree, chars, Qs1, switchpoint, ar=ar, debug=False)
+
+        l2 = mk_mr.mk_mr_midbranch(tree, chars, Qs2, switchpoint, ar=ar, debug=False)
+
+        ar2 = mk_mr.create_mkmr_mb_ar(tree, chars, 2)
+        l2True = mk_mr.mk_mr_midbranch(tree, chars, Qs2, switchpoint, ar=ar2)
+
+        self.assertEqual(l2, l2True)
+    def test_maskarrayp_changeQswitch_correctentriesmasked(self):
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
+        chars = [1,0,0,0]
+
+        Q1 = np.array([[-0.10,0.10],
+                       [0.05,-0.05]])
+        Q2 = np.array([[-1.5,1.5],
+                       [1.,-1.]])
+        Q3 = np.array([[-0.15,0.15],
+                       [0.1,-0.1]])
+        Qs1 = np.array([Q2,Q1])
+        Qs2 = np.array([Q2,Q3])
+
+        switchpoint_1 = [(tree["C"], 0.75)]
+        switchpoint_2 = [(tree["D"], 0.5)]
+
+        ar = mk_mr.create_mkmr_mb_ar(tree, chars, 2)
+
+        l1 = mk_mr.mk_mr_midbranch(tree, chars, Qs1, switchpoint_1, ar=ar, debug=False)
+
+        l2 = mk_mr.mk_mr_midbranch(tree, chars, Qs2, switchpoint_2, ar=ar, debug=False)
+
+        ar2 = mk_mr.create_mkmr_mb_ar(tree, chars, 2)
+        l2True = mk_mr.mk_mr_midbranch(tree, chars, Qs2, switchpoint_2, ar=ar2,debug=False)
+
+        self.assertEqual(l2, l2True)
 if __name__ == "__main__":
     unittest.main()
