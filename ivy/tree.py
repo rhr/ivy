@@ -71,6 +71,7 @@ class Node(object):
         self.right = None
         self.treename = ""
         self.comment = ""
+        self.apeidx = None
         self.meta = {}
         ## self.length_comment = ""
         ## self.label_comment = ""
@@ -185,7 +186,7 @@ class Node(object):
         for lf in self.leaves():
             lf.apeidx = i
             i += 1
-        for n in self.clades():
+        for n in [self]+self.clades():
             n.apeidx = i
             i += 1
 
@@ -471,20 +472,18 @@ class Node(object):
     def iternodes_iterative(self):
         """
         List of nodes descendant from self - including self
-        Returns:
-            list: Nodes descended from self (including self) in
+        Yields:
+            Node: Nodes descended from self (including self) in
               preorder sequence
         """
-        l = []
         s = []
         s.append(self)
         n = self
         while len(s) != 0:
             n = s.pop()
-            l.append(n)
+            yield n
             for child in reversed(n.children):
                 s.append(child)
-        return l
     def iterleaves(self):
         """
         Yield leaves descendant from self
