@@ -980,7 +980,7 @@ def add_tipstates(treeplot, chars, nodes=None,colors=None, *args, **kwargs):
     col_list = [ colors[i] for i in chars ]
     add_circles(treeplot, nodes, colors=col_list, size=6, *args, **kwargs)
 
-def add_tree_heatmap(treeplot, locations, vis=True):
+def add_tree_heatmap(treeplot, locations, vis=True, color=(1,0,0)):
     """
     Plot how often tree coordinates appear in locations
 
@@ -988,7 +988,8 @@ def add_tree_heatmap(treeplot, locations, vis=True):
          locations (list): List of tuples where first item is node, second
            item is how far from the node's parent the location is.
     """
-    color = (1,0,0,0.05)
+    color = matplotlib.colors.colorConverter.to_rgb(color)
+    color = color + (.02,)
     nodes = zip(*locations)[0]
     nodes = [treeplot.root[n.ni] for n in nodes]
     distances = zip(*locations)[1]
