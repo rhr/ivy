@@ -3,6 +3,7 @@ Unittests for multiregime mk model
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 import unittest
+import timeit
 import ivy
 from ivy.chars.expokit import cyexpokit
 from ivy.chars import mk, hrm, mk_mr
@@ -309,5 +310,36 @@ class Mk_mr_tests(unittest.TestCase):
         l2True = mk_mr.mk_mr_midbranch(tree, chars, Qs2, switchpoint_2, ar=ar2,debug=False)
 
         self.assertEqual(l2, l2True)
+    def test_mkmr_benchmark(self):
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
+        chars = [1,0,0,0]
+
+        Q1 = np.array([[-0.10,0.10],
+                       [0.05,-0.05]])
+        Q2 = np.array([[-1.5,1.5],
+                       [1.,-1.]])
+        Q3 = np.array([[-0.15,0.15],
+                       [0.1,-0.1]])
+        Qs1 = np.array([Q2,Q1])
+        Qs2 = np.array([Q2,Q3])
+
+        switchpoint_1 = [(tree["C"], 0.75)]
+        switchpoint_2 = [(tree["D"], 0.5)]
+
+        ar = mk_mr.create_mkmr_mb_ar(tree, chars, 2)
+        def foo(tree=tree,chars=chars,Qs1=Qs1,switchpoint_1=switchpoint_1,ar=ar):
+            mk_mr.mk_mr_midbranch(tree, chars, Qs1, switchpoint_1, ar=ar, debug=False)
+
+        def dotime():
+            t = timeit.Timer("foo()")
+            time = t.timeit(1000)
+            print("1000 loops took %fs\n" % (time,))
+
+        import __builtin__
+        __builtin__.__dict__.update(locals())
+
+        dotime()
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,7 @@
 # Mk multi regime models
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import ivy
 import math
 import random
 import itertools
@@ -177,11 +178,12 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
     # inds indicates which Q matrix to use for which branch
     if not pmask:
         ar["pmask"].fill(True)
+    ar["t"]+=1e-40
     cyexpokit.dexpm_treeMulti_preallocated_p_log(Qs,ar["t"], ar["p"], np.array(inds), pmask=ar["pmask"]) # This changes p in place
     # Calculating the likelihoods for each node in post-order sequence
 
     np.copyto(ar["nodelist"], ar["nodelistOrig"]) # clearing the nodelist
-    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"])
+    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],ar["child_ar"])
     # The last row of nodelist contains the likelihood values at the root
     # Applying the correct root prior
     if not type(pi) in StringTypes:
@@ -275,17 +277,21 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
     """
     if type(chars) != dict:
         chars = {tree.leaves()[i].label:v for i,v in enumerate(chars)}
-    tree_copy = tree.copy()
-    for n in tree_copy:
-        n.cladesize = len(n)
+    tree_copy_ = tree.copy()
+    for n in tree_copy_.descendants():
+        n.bisect_branch(1e-15)
     # Here we break up the tree so that each node has a "knee"
     # for a parent. This knee starts with a length of 0, effectively
     # making it nonexistant, but can have its length changed
     # to act as a switchpoint.
-    for n in tree_copy.descendants():
-        n.bisect_branch(1e-15)
-    tree_copy.reindex()
+    tree_copy_str = tree_copy_.write()
+    tree_copy = ivy.tree.read(tree_copy_str)
+    for n1,n2 in zip(tree_copy_.preiter(), tree_copy.preiter()):
+        n2.id = n1.id
 
+
+    for n in tree_copy:
+        n.cladesize = len(n)
     chars = [chars[l] for l in [n.label for n in tree_copy.leaves()]]
     blens = np.array([node.length for node in tree_copy.postiter() if not node.isroot])
     t = np.array(blens, dtype=np.double)
@@ -339,13 +345,21 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
     locs = np.zeros(nregime, dtype=object)
 
     max_children = max(len(n.children) for n in tree_copy)
+    child_ar = np.empty([tree_copy.cladesize,max_children], dtype=np.int64)
+    child_ar.fill(-1)
+
+    intnode_list = np.array(sorted(set(nodelist[:-1,nchar])))
+    for intnode in intnode_list:
+        children = np.where(nodelist[:,nchar]==intnode)[0]
+        child_ar[int(intnode)][:len(children)] = children
 
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
            "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar,
            "tree_copy":tree_copy,"chars":chars,"pre_post":pre_post,"prev_Q":prev_Q,
            "prev_t":prev_t, "blens":blens,"pmask":pmask,
-           "prev_inds":prev_inds, "Qdif":Qdif,"locs":locs}
+           "prev_inds":prev_inds, "Qdif":Qdif,"locs":locs,
+           "intnode_list":intnode_list,"child_ar":child_ar}
     return var
 
 
@@ -789,18 +803,96 @@ def make_modelorder_stoch(mods, name=str("modorder")):
         return 0
     return modelorder_stoch
 
-def mk_multi_bayes(tree, chars, mods=None, pi="Equal", nregime=None, db=None,
+def mk_multi_bayes(tree, chars, mods=None, pi="Equal", db=None,
                    dbname=None,seglen=0.02,stepsize=0.05):
     """
     Create a Bayesian multi-mk model. User specifies which regime models
     to use and the Bayesian model finds the switchpoints.
+
+    Args:
+        tree (Node): Root node of tree.
+        chars (dict): Dict mapping tip labels to discrete character
+          states. Character states must be in the form of [0,1,2...]
+        mods (list): List of tuples. List length is equal to the number
+          of regimes to be modeled.
+
+          Mods have the following rules:
+            * Each tuple is length nchar**2 - nchar, where nchar
+              is the number of distinct states.
+            * Each tuple consists of ints that correspond to unique
+              parameter values for a Q matrix. The ints are in row-wise
+              order.
+            * Different ints correspond to different parameters, but they
+              are *not* necessarily in order. That is, the parameter fitted
+              for int 1 is not necesarily less than the parameter fitted for
+              int 2.
+            * The model for the state at the root MUST be the last tuple.
+              The order of the other models does not matter
+
+          To fit a model where there are two character states and you
+          hypothesize that the root state has an equal-rates regime
+          and there is a regime shift where transitions from 0->1 become
+          faster, mods would look like this:
+
+            [(2,1),(1,1)]
+
+          And would correspond to Q matrices that look like this:
+
+            [[-,2] # Regime 1
+             [1,-]
+
+             [-,1] # Root regime
+             [1,-]]
+
+        To fit a model where there are three character states and you hypothesize
+        that the root state is equal-rates and makes two transitions; one regime
+        that is equal rates but slower and one that is symmetric with all different
+        rates, mods would look like this:
+
+          [(2,2,2,2,2,2),(3,4,3,5,4,5),(1,1,1,1,1,1)]
+
+        And would correspond to Q matrices that look like this:
+
+          [[-,2,2] # Regime 1
+           [2,-,2]
+           [2,2,-]
+
+           [-,3,4] # Regime 2
+           [3,-,5]
+           [4,5,-]
+
+           [-,1,1] # Root regime
+           [1,-,1]
+           [1,1,-]]
+        pi (str or np.array): Option to weight the root node by given values.
+           Either a string containing the method or an array
+           of weights. Weights should be given in order.
+
+           Accepted methods of weighting root:
+
+           Equal: flat prior
+           Equilibrium: Prior equal to stationary distribution
+             of Q matrix
+           Fitzjohn: Root states weighted by how well they
+             explain the data at the tips.
+
+        db (str): Database backend to be passed to PYMC. See PYMC documentation
+          for details. https://pymc-devs.github.io/pymc/database.html. Optional.
+        dbname (str): Name of database file if db is provided. Optional.
+        seglen (float): Size of segments to break tree into. The smaller this
+          value, the more "fine-grained" the analysis will be. Optional,
+          defaults to 2% of the root-to-tip length.
+        stepsize (float): Maximum size of steps for switchpoints to take.
+          Optional, defaults to 5% of root-to-tip length.
+
+
     """
+# TODO: root-to-tip length for non-ultrametric trees?
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     # Preparations
 
-    if nregime is None:
-        nregime = len(mods)
+    nregime = len(mods)
     nchar = len(set(chars))
     if mods is not None:
         nparam = len(set([i for s in mods for i in s]))

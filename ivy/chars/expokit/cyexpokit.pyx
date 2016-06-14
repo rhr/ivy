@@ -161,24 +161,25 @@ def cy_mk(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
 def cy_mk_log(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
           np.ndarray[dtype=DTYPE_t, ndim=3] p,
           int nchar,
-          np.ndarray[dtype=DTYPE_t, ndim=1] tmp_ar):
+          np.ndarray[dtype=DTYPE_t, ndim=1] tmp_ar,
+          np.ndarray[dtype=DTYPE_t, ndim=1] intnode_list,
+          np.ndarray[dtype=np.int64_t, ndim=2] child_ar):
 
-    cdef int intnode
-    cdef int ind
-    cdef int ch
-    cdef int st
+    cdef int intnode # "internal node"
+    cdef int ind # index
+    cdef int ch # parent character state
+    cdef int st # child character state
 
-    for intnode in sorted(set(nodelist[:-1,nchar])): # For each node (in postorder sequence)...
 
+    for intnode in intnode_list: # For each internal node (in postorder sequence)...
         nextli = nodelist[intnode]
-
-        for ind in np.where(nodelist[:,nchar]==intnode)[0]: # For each child of this node...
-            li = nodelist[ind]
-            for ch in range(nchar):
-                for st in range(nchar):
-                    tmp_ar[st] = p[ind,ch,st]+li[st] # The sum of log-likelihoods
-
-                nextli[ch] += lse_cython(tmp_ar)
+        for ind in child_ar[intnode]: # For each child of this node...
+            if not ind == -1: # -1 is the empty value for this array
+                li = nodelist[ind]
+                for ch in range(nchar):
+                    for st in range(nchar):
+                        tmp_ar[st] = p[ind,ch,st]+li[st] # Multiply child's likelihood by p-matrix
+                    nextli[ch] += lse_cython(tmp_ar) # Sum of log-likelihoods of children
 
 def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                  np.ndarray[dtype=DTYPE_t, ndim=2] d_nl,
