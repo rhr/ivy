@@ -7,9 +7,11 @@ directly on Node objects.
 
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
+from collections import defaultdict
 import os, types
 import csv
 import itertools
+
 
 from .storage import Storage
 from copy import copy as _copy
@@ -72,7 +74,7 @@ class Node(object):
         self.treename = ""
         self.comment = ""
         self.apeidx = None
-        self.meta = {}
+        self.meta = defaultdict(lambda:None)
         ## self.length_comment = ""
         ## self.label_comment = ""
         if kwargs:
@@ -452,24 +454,24 @@ class Node(object):
         """
         return [ n for n in self if (n is not self) and not n.isleaf ]
 
-    def iternodes(self, f=None):
-        """
-        Return a generator of nodes descendant from self - including self
-
-        Args:
-            f (function): A function that evaluates to true if called with
-            desired node as the first input. Optional
-
-        Yields:
-            Node: Nodes descended from self (including self) in
-              preorder sequence
-        """
-        if (f and f(self)) or (not f):
-            yield self
-        for child in self.children:
-            for n in child.iternodes(f):
-                yield n
-    def iternodes_iterative(self):
+    # def iternodes(self, f=None):
+    #     """
+    #     Return a generator of nodes descendant from self - including self
+    #
+    #     Args:
+    #         f (function): A function that evaluates to true if called with
+    #         desired node as the first input. Optional
+    #
+    #     Yields:
+    #         Node: Nodes descended from self (including self) in
+    #           preorder sequence
+    #     """
+    #     if (f and f(self)) or (not f):
+    #         yield self
+    #     for child in self.children:
+    #         for n in child.iternodes(f):
+    #             yield n
+    def iternodes(self,f=None):
         """
         List of nodes descendant from self - including self
         Yields:
@@ -479,11 +481,21 @@ class Node(object):
         s = []
         s.append(self)
         n = self
+        if f is None:
+            f = lambda x: True
         while len(s) != 0:
             n = s.pop()
-            yield n
+            if f(n):
+                yield n
             for child in reversed(n.children):
                 s.append(child)
+    # def iternodes(self, f=lambda x:True):
+    #     """
+    #     Cached version of iternodes
+    #     """
+    #     if self.meta["iterlist"] is None:
+    #         self.meta["iterlist"]=list(self.iternodes_iterative(f))
+    #     return self.meta["iterlist"]
     def iterleaves(self):
         """
         Yield leaves descendant from self
@@ -1173,30 +1185,30 @@ def read(data, format=None, treename=None, ttable=None):
                 with open(data, "r") as f:
                     parsed = newick.parse(f, treename=treename,
                                         ttable=ttable)
-                return parsed
+                out = parsed
             else:
-                return newick.parse(data, ttable=ttable)
+                out = newick.parse(data, ttable=ttable)
 
         elif (hasattr(data, "tell") and hasattr(data, "read")):
             treename = strip(getattr(data, "name", None))
-            return newick.parse(data, treename=treename, ttable=ttable)
+            out = newick.parse(data, treename=treename, ttable=ttable)
     elif format == "nexus-dendropy":
         import dendropy
         if type(data) in StringTypes:
             if os.path.isfile(data):
                 treename = strip(data)
-                return newick.parse(
+                out = newick.parse(
                     str(dendropy.Tree.get_from_path(data, "nexus")),
                     treename=treename
                     )
             else:
-                return newick.parse(
+                out = newick.parse(
                     str(dendropy.Tree.get_from_string(data, "nexus"))
                     )
 
         elif (hasattr(data, "tell") and hasattr(data, "read")):
             treename = strip(getattr(data, "name", None))
-            return newick.parse(
+            out = newick.parse(
                 str(dendropy.Tree.get_from_stream(data, "nexus")),
                 treename=treename
                 )
@@ -1208,16 +1220,23 @@ def read(data, format=None, treename=None, ttable=None):
             if os.path.isfile(data):
                 with open(data) as infile:
                     rec = next(newick.nexus_iter(infile))
-                    if rec: return rec.parse()
+                    if rec:
+                        out = rec.parse()
             else:
                 rec = next(newick.nexus_iter(StringIO(data)))
-                if rec: return rec.parse()
+                if rec:
+                    out = rec.parse()
         else:
             rec = next(newick.nexus_iter(data))
-            if rec: return rec.parse()
+            if rec:
+                out = rec.parse()
     else:
         # implement other tree formats here (nexus, nexml etc.)
         raise IOError("format '%s' not implemented yet" % format)
+    # out.meta["iterlist"] = list(out.iternodes_iterative())
+    # for n in out:
+    #     n.meta["iterlist"] = list(n.iternodes_iterative())
+    return out
 
     raise IOError("unable to read tree from '%s'" % data)
 
