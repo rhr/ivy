@@ -168,27 +168,26 @@ class Node(object):
                 return n
         raise IndexError(str(x))
 
-    def reindex(self):
+    def reindex(node, n=0, d=0, ni=0, li=0, ii=0,pi=0):
         """
-        Re-assign the following attributes to all nodes in the tree:
-        "pi", "ni", "ii", "li", "back", "next", "right", "left"
-
-        Warning: somewhat slow
+        Iteratively attach 'ni',
+        'ii', 'pi', and 'li' attributes to nodes
         """
-        assert self.isroot, "Must give root to re-index tree"
-
-        newickstr = self.write()
-        newtree = read(newickstr)
-
-        vars_to_index = ["pi", "ni", "ii", "li", "back", "next",
-                         "right", "left"]
-
-        for i,n in enumerate(self):
-            for var in vars_to_index:
-                try:
-                    setattr(n,var,getattr(newtree[i],var))
-                except AttributeError:
-                    pass
+        ni = 0
+        ii = 0
+        li = 0
+        for n in node.iternodes():
+            n.ni = ni
+            ni += 1
+            if n.isleaf:
+                n.li = li
+                li += 1
+            else:
+                n.ii = ii
+                ii += 1
+        for n in node.postiter():
+            n.pi = pi
+            n.pi += 1
 
     def ape_node_idx(self): # For use in phylorate plot
         i = 1
@@ -246,6 +245,7 @@ class Node(object):
         self.children = []
         if reindex:
             p.get_root().set_iternode_cache()
+            p.reindex()
         return p
 
     def copy(self, recurse=True, _par=None):
@@ -388,6 +388,7 @@ class Node(object):
         self.nchildren += 1
         if reindex:
             self.get_root().set_iternode_cache()
+            self.reindex()
 
     def bisect_branch(self, distance = 0.5, reindex=True):
         """
@@ -411,9 +412,10 @@ class Node(object):
             n.length = self.length * (1-distance)
             self.length *= distance
         parent.add_child(n, reindex=reindex)
-        n.add_child(self)
+        n.add_child(self, reindex=reindex)
         if reindex:
             self.get_root().set_iternode_cache()
+            self.reindex()
 
         return n
 
@@ -433,6 +435,7 @@ class Node(object):
             self.isleaf = True
         if reindex:
             self.get_root().set_iternode_cache()
+            self.reindex()
 
     def labeled(self):
         """
@@ -810,6 +813,7 @@ class Node(object):
             p.remove_child(self, reindex=reindex)
         if reindex:
             p.get_root().set_iternode_cache()
+            p.reindex()
         return p
 
     def excise(self, reindex=True):
@@ -828,6 +832,7 @@ class Node(object):
         p.add_child(c,reindex=reindex)
         if reindex:
             p.get_root().set_iternode_cache()
+            p.reindex()
         return p
 
     def graft(self, node, reindex=True):
@@ -843,6 +848,7 @@ class Node(object):
         parent.add_child(n, reindex=reindex)
         if reindex:
             self.get_root().set_iternode_cache()
+            self.reindex()
 
     def leaf_distances(self, measure="length"):
         """
@@ -1086,33 +1092,7 @@ class Node(object):
 
 
 
-
-
 reroot = Node.reroot
-
-def index(node, n=0, d=0, ni=0, li=0, ii=0,pi=0):
-    """
-    recursively attach 'next', 'back', (and 'left', 'right'), 'ni',
-    'ii', 'pi', and 'node_depth' attributes to nodes
-    """
-    node.next = node.left = n
-    if not node.parent:
-        node.node_depth = d
-    else:
-        node.node_depth = node.parent.node_depth + 1
-    n += 1
-    # node.ni = ni; ni+=1
-    # node.ii = ii; ii +=1
-    for i, c in enumerate(node.children):
-        if i > 0:
-            n = node.children[i-1].back + 1
-        index(c, n)
-
-    if node.children:
-        node.back = node.right = node.children[-1].back + 1
-    else:
-        node.back = node.right = n
-#    return node.back
 
 def remove_singletons(root, add=True):
     "Remove descendant nodes that are the sole child of their parent"
@@ -1285,15 +1265,14 @@ def read(data, format=None, treename=None, ttable=None):
     else:
         # implement other tree formats here (nexus, nexml etc.)
         raise IOError("format '%s' not implemented yet" % format)
-    # out.meta["iterlist"] = list(out.iternodes_iterative())
-    # for n in out:
-    #     n.meta["iterlist"] = list(n.iternodes_iterative())
-    out.set_iternode_cache()
+    try:
+        out.set_iternode_cache()
+    except UnboundLocalError:
+        raise IOError("unable to read tree from '%s'" % data)
+
     for n in out:
         n.meta["cached"] = True
     return out
-
-    raise IOError("unable to read tree from '%s'" % data)
 
 def readmany(data, format="newick"):
     """Iterate over trees from a source."""

@@ -112,11 +112,13 @@ def parse(data, ttable=None, treename=None):
             newnode.ii = ii; ii += 1
             newnode.treename = treename
             if node:
-                if node.children: newnode.left = node.children[-1].right+1
-                else: newnode.left = node.left+1
+                if node.children:
+                    newnode.left = node.children[-1].right+1
+                else:
+                    newnode.left = node.left+1
                 node.add_child(newnode, reindex=False)
             else:
-                newnode.left = 1; newnode.right = 2
+                newnode.left = 1
             newnode.right = newnode.left+1
             node = newnode
 
@@ -176,8 +178,10 @@ def parse(data, ttable=None, treename=None):
                 newnode.label = "_".join(token.split()).replace("'", "")
                 newnode.isleaf = True
                 newnode.li = li; li += 1
-                if node.children: newnode.left = node.children[-1].right+1
-                else: newnode.left = node.left+1
+                if node.children:
+                    newnode.left = node.children[-1].right+1
+                else:
+                    newnode.left = node.left+1
                 newnode.right = newnode.left+1
                 newnode.treename = treename
                 node.add_child(newnode, reindex=False)
