@@ -687,7 +687,7 @@ class SwitchpointMetropolis(pymc.Metropolis):
     """
     def __init__(self, stochastic, tree, seg_map, stepsize=0.05, seglen=0.02):
         pymc.Metropolis.__init__(self, stochastic, scale=0,proposal_sd=1, proposal_distribution="prior")
-        root_to_tip_length = sum([n.length for n in list(tree.leaves()[0].rootpath())[:-1]+[tree.leaves()[0]]])
+        root_to_tip_length = tree.max_tippath()
         self.tree = tree
         self.seg_map = seg_map
         self.stepsize = stepsize * root_to_tip_length
@@ -765,7 +765,7 @@ def tree_map(tree, seglen=0.02):
     """
     Make a map of the tree cut into segments of size (seglen*root_to_tip_length)
     """
-    root_to_tip_length = sum([n.length for n in list(tree.leaves()[0].rootpath())[:-1]+[tree.leaves()[0]]])
+    root_to_tip_length = tree.max_tippath()
     seg_size = seglen * root_to_tip_length
     seg_map = []
     seen = [tree]
@@ -888,7 +888,6 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", db=None,
 
 
     """
-# TODO: root-to-tip length for non-ultrametric trees?
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     # Preparations

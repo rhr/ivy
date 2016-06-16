@@ -28,7 +28,7 @@ cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
     cdef DTYPE_t[:,::1] qview = q
     cdef DTYPE_t[:,::1] pview = p[i]
     f_dexpm(q.shape[0], &qview[0,0], t, &pview[0,0])
-    p[i] = np.log(p[i])
+    np.log(p[i], out=p[i])
 
 cdef dexpm_slice(np.ndarray q, double t, np.ndarray p, int i):
     """
@@ -64,7 +64,6 @@ def dexpm_tree_log(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
     for i, blen in enumerate(t):
         dexpm_slice_log(q, blen, p, i)
 
-    return np.log(p)
 
 def dexpm_tree(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
     """
@@ -94,7 +93,8 @@ def dexpm_tree_preallocated_p_log(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarra
     cdef double blen
 
     for i, blen in enumerate(t):
-        dexpm_slice_log(q, blen, p, i)
+        dexpm_slice(q, blen, p, i)
+    np.log(p, out=p)
 def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
     assert q.shape[0]==q.shape[1], 'q must be square'
     assert np.allclose(q.sum(1), 0, atol= 1e-6), 'rows of q must sum to zero'
