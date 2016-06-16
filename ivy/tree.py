@@ -75,6 +75,7 @@ class Node(object):
         self.comment = ""
         self.apeidx = None
         self.meta = defaultdict(lambda:None)
+        self.meta["cached"]=False
         ## self.length_comment = ""
         ## self.label_comment = ""
         if kwargs:
@@ -129,8 +130,14 @@ class Node(object):
         return False
 
     def __iter__(self):
-        for node in self.iternodes():
-            yield node
+        if not self.meta["cached"]:
+            for node in self.iternodes():
+                yield node
+        else:
+            for node in self.iternodes_cached():
+                yield node
+        # for node in self.iternodes():
+        #     yield node
 
     def __len__(self):
         """
@@ -216,8 +223,10 @@ class Node(object):
         from .ascii import render
         return render(self, *args, **kwargs)
 
-    def collapse(self, add=False):
+    def collapse(self, add=False, reindex=True):
         """
+        Mutate function
+
         Remove self and collapse children to polytomy
 
         Args:
@@ -229,12 +238,14 @@ class Node(object):
 
         """
         assert self.parent
-        p = self.prune()
+        p = self.prune(reindex=reindex)
         for c in self.children:
-            p.add_child(c)
+            p.add_child(c, reindex=reindex)
             if add and (c.length is not None):
                 c.length += self.length
         self.children = []
+        if reindex:
+            p.get_root().set_iternode_cache()
         return p
 
     def copy(self, recurse=True, _par=None):
@@ -249,6 +260,8 @@ class Node(object):
             Node: A copy of self.
 
         """
+        for n in self:
+            self.cached = False
         newnode = Node()
         for attr, value in list(self.__dict__.items()):
             if (attr not in ("children", "parent") and
@@ -260,6 +273,8 @@ class Node(object):
                 ]
             if _par:
                 newnode.parent = _par
+        for n in self:
+            self.cached = True
         return newnode
 
     def leafsets(self, d=None, labels=False):
@@ -346,8 +361,9 @@ class Node(object):
                 for c in self.children:
                     c.order_subtrees_by_size(n2s, recurse=True, reverse=reverse)
 
-    def ladderize(self, reverse=False):
+    def ladderize(self, reverse=False, reindex=True):
         """
+        Mutate function
         Rotate nodes so tree is ordered by clade size.
 
         WARNING: May cause strange results with functions that rely on
@@ -357,8 +373,9 @@ class Node(object):
         self.order_subtrees_by_size(recurse=True, reverse=reverse)
         return self
 
-    def add_child(self, child):
+    def add_child(self, child, reindex=True):
         """
+        Mutate function
         Add child as child of self
 
         Args:
@@ -369,9 +386,12 @@ class Node(object):
         child.parent = self
         child.isroot = False
         self.nchildren += 1
+        if reindex:
+            self.get_root().set_iternode_cache()
 
-    def bisect_branch(self, distance = 0.5):
+    def bisect_branch(self, distance = 0.5, reindex=True):
         """
+        Mutate function.
         Add new node as parent to self in the middle of branch to parent.
 
         Args:
@@ -385,17 +405,21 @@ class Node(object):
         """
         assert self.parent
         assert 0 < distance < 1
-        parent = self.prune()
+        parent = self.prune(reindex=reindex)
         n = Node()
         if self.length:
             n.length = self.length * (1-distance)
             self.length *= distance
-        parent.add_child(n)
+        parent.add_child(n, reindex=reindex)
         n.add_child(self)
+        if reindex:
+            self.get_root().set_iternode_cache()
+
         return n
 
-    def remove_child(self, child):
+    def remove_child(self, child, reindex=True):
         """
+        Mutate function.
         Remove child.
 
         Args:
@@ -407,6 +431,8 @@ class Node(object):
         self.nchildren -= 1
         if not self.children:
             self.isleaf = True
+        if reindex:
+            self.get_root().set_iternode_cache()
 
     def labeled(self):
         """
@@ -453,7 +479,7 @@ class Node(object):
             list: A list of internal nodes descended from (and not including) self.
         """
         return [ n for n in self if (n is not self) and not n.isleaf ]
-
+    #
     # def iternodes(self, f=None):
     #     """
     #     Return a generator of nodes descendant from self - including self
@@ -489,13 +515,19 @@ class Node(object):
                 yield n
             for child in reversed(n.children):
                 s.append(child)
-    # def iternodes(self, f=lambda x:True):
-    #     """
-    #     Cached version of iternodes
-    #     """
-    #     if self.meta["iterlist"] is None:
-    #         self.meta["iterlist"]=list(self.iternodes_iterative(f))
-    #     return self.meta["iterlist"]
+    def set_iternode_cache(self):
+        for n in self.iternodes():
+            n.meta["iterlist"] = list(n.iternodes())
+
+    def iternodes_cached(self, f=None, force=False):
+        """
+        Cached version of iternodes
+        """
+        if f is None:
+            f = lambda x: True
+        if (self.meta["iterlist"] is None) or force:
+            self.set_iternode_cache()
+        return [n for n in self.meta["iterlist"] if f(n)]
     def iterleaves(self):
         """
         Yield leaves descendant from self
@@ -548,6 +580,7 @@ class Node(object):
 
     def drop_tip(self, nodes):
         """
+        (semi) Mutate function
         Return a NEW TREE with the given tips dropped from it. Does not
         affect old tree.
 
@@ -557,6 +590,10 @@ class Node(object):
             Node (Node): New root node with tips dropped
         """
         t = self.copy()
+
+        for n in t.iternodes():
+            n.meta["cached"]=False
+
         nodes = [ t[self[x].id] for x in nodes ]
         nodes = sorted(nodes, key=lambda x: x.ni)
         assert all([ x.isleaf for x in nodes ]), "All nodes given must be tips"
@@ -564,19 +601,19 @@ class Node(object):
 
         for node in nodes:
             cp = node.parent # current parent
-            cp.remove_child(node)
+            cp.remove_child(node, reindex=False)
             if cp.length:
                 node.length += cp.length
             if len(cp.children) == 1: # If parent is now a "knee"...
                 try:
-                    cp.excise() # Remove parent
+                    cp.excise(reindex=False) # Remove parent
                 except AssertionError: # If parent was the root, assign new root
                     t.isroot = False
                     root = cp.children[0]
                     root.parent = None
             elif len(cp.children) == 0:
                 cpp = cp.parent # current parent's parent
-                cp.parent.remove_child(cp)
+                cp.parent.remove_child(cp, reindex=False)
                 if cpp.nchildren == 1:
                     try:
                         cpp.excise()
@@ -590,12 +627,16 @@ class Node(object):
             # drop.tip function does. Unsure what the behavior for ivy
             # should be.
             if n.nchildren == 1:
-                n.excise()
+                n.excise(reindex=False)
         root.isroot = True
+        root.set_iternode_cache()
+        for n in root:
+            n.meta["cached"] = True
         return root
 
     def keep_tip(self, nodes):
         """
+        (semi) Mutate function
         Return a NEW TREE containing only the given tips.
 
         Args:
@@ -606,7 +647,6 @@ class Node(object):
         nodes = [ self[x] for x in nodes ]
         assert all([ x.isleaf for x in nodes ]), "All nodes given must be tips"
         to_drop = [ l for l in self.leaves() if not l in nodes ]
-
         return self.drop_tip(to_drop)
 
     def get(self, f, *args, **kwargs):
@@ -753,8 +793,9 @@ class Node(object):
 
         return False
 
-    def prune(self):
+    def prune(self, reindex=True):
         """
+        Mutate function
         Remove self if self is not root.
 
         All descendants of self are also removed
@@ -766,11 +807,14 @@ class Node(object):
         """
         p = self.parent
         if p:
-            p.remove_child(self)
+            p.remove_child(self, reindex=reindex)
+        if reindex:
+            p.get_root().set_iternode_cache()
         return p
 
-    def excise(self):
+    def excise(self, reindex=True):
         """
+        Mutate function
         For 'knees': remove self from between parent and single child
         """
         assert self.parent
@@ -779,21 +823,26 @@ class Node(object):
         c = self.children[0]
         if c.length is not None and self.length is not None:
             c.length += self.length
-        c.prune()
-        self.prune()
-        p.add_child(c)
+        c.prune(reindex=reindex)
+        self.prune(reindex=reindex)
+        p.add_child(c,reindex=reindex)
+        if reindex:
+            p.get_root().set_iternode_cache()
         return p
 
-    def graft(self, node):
+    def graft(self, node, reindex=True):
         """
+        Mutate function
         Add node as sister to self.
         """
         parent = self.parent
-        parent.remove_child(self)
+        parent.remove_child(self, reindex=reindex)
         n = Node()
-        n.add_child(self)
-        n.add_child(node)
-        parent.add_child(n)
+        n.add_child(self, reindex=reindex)
+        n.add_child(node, reindex=reindex)
+        parent.add_child(n, reindex=reindex)
+        if reindex:
+            self.get_root().set_iternode_cache()
 
     def leaf_distances(self, measure="length"):
         """
@@ -863,6 +912,7 @@ class Node(object):
         """
         Get the maximum length from self to a leaf node
         """
+        # TODO: optimize
         v = 0
         if self.children:
             v = max([ c.max_tippath(False) for c in self.children ])
@@ -941,6 +991,7 @@ class Node(object):
 
     def reroot(self, newroot, distance = 0.5):
         """
+        (semi)mutate function
         Reroot the tree between newroot and its parent.
         By default, the new node is halfway in between
         newroot and its current parent. Works by unrooting the tree, then
@@ -987,6 +1038,7 @@ class Node(object):
             pass
 
         newtree.isroot = True
+        newtree.set_iternode_cache()
         return newtree
     def makeroot(self, shift_labels=False):
         """
@@ -1236,6 +1288,9 @@ def read(data, format=None, treename=None, ttable=None):
     # out.meta["iterlist"] = list(out.iternodes_iterative())
     # for n in out:
     #     n.meta["iterlist"] = list(n.iternodes_iterative())
+    out.set_iternode_cache()
+    for n in out:
+        n.meta["cached"] = True
     return out
 
     raise IOError("unable to read tree from '%s'" % data)

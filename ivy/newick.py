@@ -114,7 +114,7 @@ def parse(data, ttable=None, treename=None):
             if node:
                 if node.children: newnode.left = node.children[-1].right+1
                 else: newnode.left = node.left+1
-                node.add_child(newnode)
+                node.add_child(newnode, reindex=False)
             else:
                 newnode.left = 1; newnode.right = 2
             newnode.right = newnode.left+1
@@ -180,7 +180,7 @@ def parse(data, ttable=None, treename=None):
                 else: newnode.left = node.left+1
                 newnode.right = newnode.left+1
                 newnode.treename = treename
-                node.add_child(newnode)
+                node.add_child(newnode, reindex=False)
                 node = newnode
             else: # label
                 if ttable:
