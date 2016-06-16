@@ -90,7 +90,6 @@ import pymc
 import matplotlib.pyplot as plt
 
 from ivy.interactive import *
-%pylab
 tree = ivy.tree.read("support/Mk_two_regime_tree.newick")
 
 
@@ -114,6 +113,11 @@ mr_chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 trueFastQ = np.array([[-.8,.8], [.8,-.8]])
 trueSlowQ = np.array([[-.1,.1], [.1,-.1]])
 trueQs = np.array([trueFastQ,trueSlowQ])
+ar = mk_mr.create_mkmr_mb_ar(tree, mr_chars, 2)
+
+switchpoint =[(tree[350],0.0)]
+
+%timeit mk_mr.mk_mr_midbranch(tree, mr_chars, trueQs, switchpoint,ar=ar)
 
 mods = [(2,2),(1,1)]
 
@@ -191,7 +195,7 @@ chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0z 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0,
 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
@@ -216,15 +220,21 @@ chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 #
 # true_locs = mk_mr.locs_from_switchpoint(tree, [tree[579], tree[329]])
 #
-# Q1 = np.array([[-1e-15,1e-15],
-#                 [1e-15,-1e-15]])
-# Q2 = np.array([[-0.05,0.05],
-#                [0.05,-0.05]])
-# Q3 = np.array([[-1.,1.],
-#                [1.,-1.]])
-#
-# true_Qs = np.array([Q2,Q3,Q1])
-#
+Q1 = np.array([[-1e-15,1e-15],
+                [1e-15,-1e-15]])
+Q2 = np.array([[-0.05,0.05],
+               [0.05,-0.05]])
+Q3 = np.array([[-1.,1.],
+               [1.,-1.]])
+
+true_Qs = np.array([Q2,Q3,Q1])
+
+switchpoints = [(tree[579],0.0),(tree[329],0.0)]
+
+ar = mk_mr.create_mkmr_mb_ar(tree, chars, 3)
+
+%timeit mk_mr.mk_mr_midbranch(tree, chars, true_Qs, switchpoints,ar=ar)
+
 # true_l = mk_mr.mk_mr(tree, chars_r3, true_Qs, true_locs)
 #-212.46280532572879
 mods = [(3, 3), (1, 1), (2, 2)]
