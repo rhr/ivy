@@ -72,7 +72,8 @@ def hrm_mk(tree, chars, Q, nregime, pi="Equal",returnPi=False,
         ar = create_hrm_ar(tree, chars, nregime)
     # Calculating the likelihoods for each node in post-order sequence
     cyexpokit.dexpm_tree_preallocated_p_log(Q, ar["t"], ar["p"])
-    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"])
+    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],
+                        ar["intnode_list"],ar["child_ar"])
     # The last row of nodelist contains the likelihood values at the root
 
     # Applying the correct root prior
@@ -222,6 +223,8 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
     """
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
+    for n in tree:
+        n.cladesize = len(n)
     nchar = len(set(chars)) * nregime
     nt =  len(tree.descendants())
     charlist = list(range(nchar))
@@ -265,13 +268,24 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
     treelen = sum([ n.length for n in tree.leaves()[0].rootpath() if n.length]+[
                    tree.leaves()[0].length])
     upperbound = len(tree.leaves())/treelen
+
+    max_children = max(len(n.children) for n in tree)
+    child_ar = np.empty([tree.cladesize,max_children], dtype=np.int64)
+    child_ar.fill(-1)
+
+    intnode_list = np.array(sorted(set(nodelist[:-1,nchar])))
+    for intnode in intnode_list:
+        children = np.where(nodelist[:,nchar]==intnode)[0]
+        child_ar[int(intnode)][:len(children)] = children
+
     # Giving internal function access to these arrays.
        # Warning: can be tricky
        # Need to make sure old values
        # Aren't accidentally re-used
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
-           "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar}
+           "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar,
+           "intnode_list":intnode_list,"child_ar":child_ar}
     return var
 
 

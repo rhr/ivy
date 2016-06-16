@@ -279,7 +279,8 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
         chars = {tree.leaves()[i].label:v for i,v in enumerate(chars)}
     tree_copy_ = tree.copy()
     for n in tree_copy_.descendants():
-        n.bisect_branch(1e-15)
+        n.meta["cached"]=False
+        n.bisect_branch(1e-15, reindex=False)
     # Here we break up the tree so that each node has a "knee"
     # for a parent. This knee starts with a length of 0, effectively
     # making it nonexistant, but can have its length changed

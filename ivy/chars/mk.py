@@ -59,7 +59,8 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
         ar = create_mk_ar(tree, chars)
     cyexpokit.dexpm_tree_preallocated_p_log(Q, ar["t"], ar["p"]) # This changes p in place
     # Calculating the likelihoods for each node in post-order sequence
-    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"])
+    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],
+                        ar["child_ar"])
     # The last row of nodelist contains the likelihood values at the root
 
     # Applying the correct root prior
@@ -96,6 +97,8 @@ def create_mk_ar(tree, chars, findmin = True):
 
     Nodelist = edgelist of nodes in postorder sequence
     """
+    for n in tree:
+        n.cladesize = len(n)
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     t = np.array([node.length for node in tree.postiter() if not node.isroot], dtype=np.double)
@@ -133,13 +136,24 @@ def create_mk_ar(tree, chars, findmin = True):
     upperbound = len(tree.leaves())/treelen
     charlist = list(range(nchar))
     tmp_ar = np.zeros(nchar)
+
+    max_children = max(len(n.children) for n in tree)
+    child_ar = np.empty([tree.cladesize,max_children], dtype=np.int64) # List of children per node for cython function
+    child_ar.fill(-1)
+
+    intnode_list = np.array(sorted(set(nodelist[:-1,nchar]))) # Internal node list for cython function
+    for intnode in intnode_list:
+        children = np.where(nodelist[:,nchar]==intnode)[0]
+        child_ar[int(intnode)][:len(children)] = children
+
     # Giving internal function access to these arrays.
        # Warning: can be tricky
        # Need to make sure old values
        # Aren't accidentally re-used
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
-           "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar}
+           "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar,
+           "intnode_list":intnode_list, "child_ar":child_ar}
     return var
 
 
