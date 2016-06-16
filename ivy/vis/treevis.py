@@ -14,7 +14,7 @@ from ivy.layout import cartesian
 from ivy.storage import Storage
 from ivy import pyperclip as clipboard
 #from ..nodecache import NodeCache
-import matplotlib, numpy
+import matplotlib, numpy 
 import matplotlib.pyplot as pyplot
 from matplotlib.figure import SubplotParams, Figure
 from matplotlib.axes import Axes, subplot_class_factory

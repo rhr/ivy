@@ -4,7 +4,7 @@ Layer functions to add to a tree plot with the addlayer method
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys, time, bisect, math, types, os, operator, functools
-from collections import defaultdict
+from collections import defaultdict, Counter
 from itertools import chain
 import copy
 from pprint import pprint
@@ -48,7 +48,7 @@ try:
 except ImportError:
     from PIL import Image
 from colour import Color
-
+import ivy
 
 _tango = colors.tango()
 
@@ -995,6 +995,65 @@ def add_tree_heatmap(treeplot, locations, vis=True, color=(1,0,0)):
     distances = zip(*locations)[1]
 
     add_circles_branches(treeplot, nodes, distances, colors=color,vis=vis, size=5)
+
+def add_mkmr_heatmap(treeplot, locations, vis=True, seglen=0.02):
+    """
+    Heatmap that shows which portions of the tree are most likely
+    to contain a switchpoint
+
+    To be used with the output from mk_multi_bayes.
+
+    Args:
+        locations (list): List of lists containing node and distance.
+          The output from the switchpoint stochastic of mk_multi_bayes.
+        seglen (float): The size of segments to break the tree into.
+          MUST BE the same as the seglen used in mk_multi)bayes.
+    """
+    treelen = treeplot.root.max_tippath()
+    seglen_px = seglen*treelen
+    locations = [tuple([treeplot.root[x[0].ni],round(x[1],7)]) for x in locations]
+    segmap = ivy.chars.mk_mr.tree_map(treeplot.root, seglen=seglen)
+    segmap = [tuple([x[0],round(x[1],7)]) for x in segmap] # All possible segments to plot
+
+    nrep = len(locations)
+
+    rates = defaultdict(lambda: 0) # Setting heatmap densities
+    for l in Counter(locations).items():
+        rates[l[0]] = l[1]
+
+    cmap = RdYlBu
+    segments = []
+    values = []
+    # TODO: radial plot type
+
+    for s in segmap:
+        node = s[0]
+        c = xy(treeplot, node)
+        cp = xy(treeplot, node.parent)
+
+        x0 = c[0] - s[1] # Start of segment
+        x1 = x0 - seglen_px# End of segment
+        if x1 < cp[0]:
+            x1 = cp[0]
+        y0 = y1 = c[1]
+
+        segments.append(((x0,y0),(x1,y1)))
+        values.append(rates[s]/nrep)
+
+        if s[1] == 0.0 and not s[0].isleaf: # Draw vertical segments
+            x0 = x1 = c[0]
+            y0 = xy(treeplot, node.children[0])[1]
+            y1 = xy(treeplot, node.children[-1])[1]
+        segments.append(((x0,y0),(x1,y1)))
+        values.append(rates[s]/nrep)
+
+    lc = LineCollection(segments, cmap=RdYlBu, lw=2)
+    lc.set_array(np.array(values))
+    treeplot.add_collection(lc)
+    lc.set_zorder(1)
+    lc.set_visible(vis)
+    treeplot.figure.canvas.draw_idle()
+
 
 
 
