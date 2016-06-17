@@ -4,12 +4,71 @@ import numpy as np
 cimport numpy as np
 from libc.math cimport exp, log
 
-
-DTYPE = np.double # Fixing a datatype for the arrays
 ctypedef np.double_t DTYPE_t
 
 cdef extern:
     void f_dexpm(int nstates, double* H, double t, double* expH)
+    void f_dexpm_wsp(int nstates, double* H, double t, int i,
+                     double* wsp, double* expH)
+
+cdef dexpm3(double[:,:,:] q, double[:] t, int[:] qi,
+            double[:,:,:] p, int ideg, double[:] wsp):
+    """
+    Compute transition probabilities exp(q*t) for a 'stack' of q
+    matrices, over all values of t from a 1-d array, where q is selected
+    from the stack by indices in qi. Uses pre-allocated arrays for
+    intermediate calculations and output, to minimize overhead of
+    repeated calls (e.g. for ML optimization or MCMC).
+
+    Args:
+
+        q (double[m,k,k]): stack of m square rate matrices of dimension k
+
+        t (double[n]): 1-d array of times (branch lengths) of length n
+
+        qi (int[n]): 1-d array indicating assigning q matrices to times
+
+        p (double[n,k,k]): stack of n square p matrices holding results
+          of exponentiation, i.e., p[i] = exp(q[qi[i]]*t[i])
+
+        ideg (int): used in expokit Fortran code; a good default is 6
+
+        wsp (double[:]): expokit "workspace" array, must have
+          min. length = 4*k*k+ideg+1
+
+    """
+    cdef int i, nstates = q.shape[1]
+    for i in range(t.shape[0]):
+        f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
+
+def test_dexpm3():
+    m = 3  # number of q matrices
+    k = 4  # number of states
+    q = np.zeros((m,k,k))  # 3-d 'stack' of q matrices
+    for i in range(m):
+        # fill the off-diagonals of each q matrix, incrementing:
+        # 0.1, 0.2, ...
+        a = q[i]
+        a += 0.1*(i+1)
+        # make the rows sum to zero
+        np.fill_diagonal(a, 0)
+        a[np.diag_indices_from(a)] = -a.sum(axis=1)
+    t = np.ones(3)
+    qi = np.array([0,1,2], dtype=np.int32)
+    
+    cdef int ideg = 6
+    wsp = np.empty(4*k*k+ideg+1)
+    n = len(t)
+    p = np.empty((n,k,k))
+    
+    # with all arrays allocated, can call dexpm3
+    dexpm3(q, t, qi, p, ideg, wsp)
+    return p
+
+## ## wip
+## def mklh(root, data):
+##     cdef np.ndarray[DTYPE_t, ndim=1] blen = np.array(
+##         [ n.length for n r.iternodes() ])
 
 cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
     """
@@ -64,15 +123,14 @@ def dexpm_tree_log(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
     for i, blen in enumerate(t):
         dexpm_slice_log(q, blen, p, i)
 
-
 def dexpm_tree(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
     """
     Compute exp(q*t) for all branches on tree and return array of all
     p-matrices
     """
-    assert q.shape[0]==q.shape[1], 'q must be square'
+    ## assert q.shape[0]==q.shape[1], 'q must be square'
 
-    assert (t > 0).all(), "All branch lengths must be greater than zero"
+    ## assert (t > 0).all(), "All branch lengths must be greater than zero"
 
     cdef int i
     cdef double blen
