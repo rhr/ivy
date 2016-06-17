@@ -8,7 +8,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import string, sys, re, shlex, types, itertools
 import numpy
-import ivy.nexus
 from io import StringIO
 from pprint import pprint
 
@@ -80,7 +79,7 @@ def parse(data, ttable=None, treename=None):
         StringTypes = [str]
 
     if type(data) in StringTypes:
-        data = StringIO(data)
+        data = StringIO(unicode(data)) # is unicode() needed in Python 3?
 
     start_pos = data.tell()
     tokens = Tokenizer(data)
@@ -272,6 +271,7 @@ def parse_ampersand_comment(s):
     return d
 
 def nexus_iter(infile):
+    from . import nexus
     import pyparsing
     pyparsing.ParserElement.enablePackrat()
     from pyparsing import Word, Literal, QuotedString, CaselessKeyword, \
