@@ -16,7 +16,7 @@ import itertools
 from .storage import Storage
 from copy import copy as _copy
 from .matrix import vcv
-import ivy.newick
+from . import newick
 import numpy as np
 
 
