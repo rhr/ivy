@@ -22,6 +22,7 @@ try:
     StringTypes = types.StringTypes # Python 2
 except AttributeError: # Python 3
     StringTypes = [str]
+IDEG = 6 # Constant used in Cython/Fortran code.
 
 # def mk_mr(tree, chars, Qs, locs, pi="Equal", returnPi=False,
 #                      ar = None):
@@ -106,7 +107,7 @@ except AttributeError: # Python 3
 #         return logli
 
 def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
-                     ar = None, debug=False, pmask=True):
+                     ar = None, debug=False):
     """
     Calculate likelhiood of mk model with BAMM-like multiple regimes
 
@@ -132,58 +133,85 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
              of Q matrix
            Fitzjohn: Root states weighted by how well they
              explain the data at the tips.
+
+    Returns:
+        (float): Log-likelihood of tree/characters given the Q matrices.
     """
+    ####################
+    # Step 1: setting up
+    ####################
+    # These lines of code ensure that the object switchpoint is of the correct
+    # type even when passed in from PYMC
     if len(switchpoint)>0:
         if type(switchpoint[0]) == pymc.PyMCObjects.Stochastic:
             switchpoint = [i.value for i in switchpoint]
+
+    # chars can be passed in as a dict. If it is, convert it to a list of ints in preorder sequence.
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
 
+    # Number of character states
     nchar = len(set(chars))
 
+    # Creation of preallocated arrays.
     if ar is None:
         ar = create_mkmr_mb_ar(tree,chars,nregime=Qs.shape[0],findmin=True)
+    # chars is going to need to be reordered.
     chars = ar["chars"]
+    # Get the actual nodes from the switchpoint tuple
     switchpoint_nodes = [ar["tree_copy"][switchpoint[i][0].id] for i in range(len(switchpoint))]
-    locs = locs_from_switchpoint(ar["tree_copy"], switchpoint_nodes,locs=ar["locs"])
 
     # Reset t values
-    ar["t"] = ar["blens"][:]
+    ar["t"] = ar["blens"][:] + 1e-40 # Branch lengths can't be exactly zero.
 
-    # Adjust t to account for presence of switchpoint
+    # Adjust t to represent the length of each switchpoint
     for s in switchpoint:
         sw = ar["tree_copy"][s[0].id].pi #Switchpoint
         sk = ar["tree_copy"][s[0].id].parent.pi #Switchpoint's parent
         ar["t"][sw] = s[1]
         ar["t"][sk] =  ar["tree_copy"][s[0].id].parent.length - s[1]
 
+
     # inds corresponds to the tree in postorder sequence, with each value
-    # corresponding to the regime that node is in
-    inds = [0]*len(ar["t"])
-    for l, a in enumerate(locs):
-        for n in a:
-            posti = ar["pre_post"][n]
-            inds[posti] = l
+    # corresponding to the regime that node is in. It is passed to dexpm3
+    switches_ni = [ar["tree_copy"][s[0].id].ni for s in switchpoint] + [0]
+    cyexpokit.inds_from_switchpoint(switches_ni, ar["cladesize_preorder"],
+                                    ar["clades_postorder_preorder"],
+                                    ar["inds"])
     (Qs != ar["prev_Q"]).any(axis=(1,2), out=ar["Qdif"])
-    indsmask = inds[:]
 
-    #Which Qs are different?
+    #####################
+    # Step 2: create "pmask"
+    #####################
+    # pmask is a mask array that keeps track of which p-matrices need to be
+    # recalculated and which ones can use the values from the previous call.
 
-    np.logical_or.reduce((ar["prev_inds"]!=inds, ar["t"]!=ar["prev_t"],ar["Qdif"][indsmask]),out=ar["pmask"]) # Which p-matrices do we need to recalcualte?
-    np.copyto(ar["prev_t"],ar["t"])
-    np.copyto(ar["prev_inds"], inds)
-    np.copyto(ar["prev_Q"], Qs)
+    #Which Qs are different? Different Qs mean we have to recalculate p for that index
+    np.logical_or.reduce((ar["prev_inds"]!=ar["inds"], ar["t"]!=ar["prev_t"],ar["Qdif"][ar["inds"]]),out=ar["pmask"]) # Which p-matrices do we need to recalcualte?
+
+    ##################
+    # Step 3: calculate p matrices
+    ##################
 
     # Creating probability matrices from Q matrices and branch lengths
     # inds indicates which Q matrix to use for which branch
-    if not pmask:
-        ar["pmask"].fill(True)
-    ar["t"]+=1e-40
-    cyexpokit.dexpm_treeMulti_preallocated_p_log(Qs,ar["t"], ar["p"], np.array(inds), pmask=ar["pmask"]) # This changes p in place
-    # Calculating the likelihoods for each node in post-order sequence
+    # np.exp(ar["p"], out=ar["p"]) # Exponentiate p matrices
+    cyexpokit.lndexpm3(Qs,ar["t"],np.array(ar["inds"]),ar["p"],ideg=IDEG,wsp=ar["wsp"],pmask=ar["pmask"].astype(int)) # Calculating the actual p matrix
+    # np.log(ar["p"], out=ar["p"]) # Log p matrices
 
-    np.copyto(ar["nodelist"], ar["nodelistOrig"]) # clearing the nodelist
-    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],ar["child_ar"])
+    #################
+    # Step 4: calculate likelihood
+    #################
+
+    # Calculating the likelihoods for each node in post-order sequence
+    np.copyto(ar["nodelist"], ar["nodelistOrig"]) # Resetting the starting values of nodelist.
+
+    cyexpokit.mklnl(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],ar["child_ar"]) # Performing the likelihood calculation
+    if debug:
+        print(ar["nodelist"][-1])
+    ################
+    # Step 5: apply root prior
+    ################
     # The last row of nodelist contains the likelihood values at the root
     # Applying the correct root prior
     if not type(pi) in StringTypes:
@@ -210,8 +238,12 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
         np.copyto(ar["root_priors"],qsd(Q))
         rootliks = [ i + np.log(ar["root_priors"][n]) for n,i in enumerate(ar["nodelist"][-1,:-1]) ]
     logli = scipy.misc.logsumexp(rootliks)
-    ar["lastQ"] = Qs
-    ar["lastswitch"] = switchpoint
+    ###############
+    # Cleanup and storing values for next call to this function
+    ##############
+    ar["prev_t"][:] = ar["t"][:]
+    ar["prev_inds"][:] = ar["inds"][:]
+    ar["prev_Q"][:] =  Qs[:]
     if returnPi:
         return (logli, {k:v for k,v in enumerate(ar["root_priors"])})
     else:
@@ -261,6 +293,8 @@ def create_mkmr_ar(tree, chars,nregime,findmin = True):
     upperbound = len(tree.leaves())/treelen
     charlist = list(range(nchar))
     tmp_ar = np.zeros(nchar) # Used for storing calculations
+
+    wsp = np.empty(4*nchar*nchar+IDEG+1)
 
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
@@ -340,27 +374,34 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
     charlist = list(range(nchar))
     tmp_ar = np.zeros(nchar) # Used for storing calculations
 
-    pre_post = {n.ni:n.pi for n in tree_copy} # The postorder index that corresponds to each preorder index
-    prev_inds = np.array([None]*len(t)) #Keeping track of locations from previous call
+    pre_post = np.array([n.pi for n in tree_copy]) # The postorder index that corresponds to each preorder index
+    prev_inds = np.zeros(len(t), dtype=int) #Keeping track of locations from previous call
     Qdif = np.ones([nregime], dtype=bool) # Array for keeping track of changes to Q
     locs = np.zeros(nregime, dtype=object)
+    inds = np.zeros(nt, dtype=int)
 
     max_children = max(len(n.children) for n in tree_copy)
     child_ar = np.empty([tree_copy.cladesize,max_children], dtype=np.int64)
     child_ar.fill(-1)
 
-    intnode_list = np.array(sorted(set(nodelist[:-1,nchar])))
+    intnode_list = np.array(sorted(set(nodelist[:-1,nchar])), dtype=int)
     for intnode in intnode_list:
         children = np.where(nodelist[:,nchar]==intnode)[0]
         child_ar[int(intnode)][:len(children)] = children
+
+    wsp = np.empty(4*nchar*nchar+IDEG+1)
+    cladesize_preorder = np.array([len(n) for n in tree_copy])
+    clades_postorder_preorder = [[i.pi for i in n] for n in tree_copy]
 
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,
            "root_priors":rootpriors, "nullval":nullval, "tmp_ar":tmp_ar,
            "tree_copy":tree_copy,"chars":chars,"pre_post":pre_post,"prev_Q":prev_Q,
            "prev_t":prev_t, "blens":blens,"pmask":pmask,
-           "prev_inds":prev_inds, "Qdif":Qdif,"locs":locs,
-           "intnode_list":intnode_list,"child_ar":child_ar}
+           "prev_inds":prev_inds, "locs":locs,"Qdif":Qdif,
+           "intnode_list":intnode_list,"child_ar":child_ar,"wsp":wsp,
+           "inds":inds,"cladesize_preorder":cladesize_preorder,
+           "clades_postorder_preorder":clades_postorder_preorder}
     return var
 
 
@@ -637,8 +678,10 @@ def locs_from_switchpoint(tree, switches, locs=None):
     switches_c = switches[:]
     switches_c.sort(key=lambda x: x.cladesize)
     if locs is None:
+        out = True
         locs = np.zeros(len(switches_c), dtype=object)
     else:
+        out = False
         locs.fill(0) # Clear locs array
     for i,s in enumerate(switches_c):
         t_l = []
@@ -655,8 +698,23 @@ def locs_from_switchpoint(tree, switches, locs=None):
 
     # Return locs in proper order (locations descended from each switch in order,
     # with locations descended from the root last)
-    return locs[[switches_c.index(i) for i in switches]]
+    locs[:] =locs[[switches_c.index(i) for i in switches]][:]
 
+    if out:
+        return locs
+
+def inds_from_switchpoint_cython(tree, switches_ni, ar,debug=False):
+    nr = len(switches_ni)-1
+
+    switches_ni_c = switches_ni[:]
+    switches_ni_c.sort(key=lambda x: ar["cladesize_preorder"][x])
+
+    switches_key = [switches_ni_c.index(i) for i in switches_ni]
+
+    for i,s in enumerate(switches_ni_c[::-1]):
+        for n in ar["clades_postorder_preorder"][s]:
+            if not n==len(ar["cladesize_preorder"])-1: # Ignore the root
+                ar["inds"][n] = switches_key[nr-i]
 
 
 class ModelOrderMetropolis(pymc.Metropolis):

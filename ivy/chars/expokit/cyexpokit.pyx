@@ -3,13 +3,60 @@
 import numpy as np
 cimport numpy as np
 from libc.math cimport exp, log
-
+from numpy.math cimport INFINITY
 
 DTYPE = np.double # Fixing a datatype for the arrays
 ctypedef np.double_t DTYPE_t
 
 cdef extern:
     void f_dexpm(int nstates, double* H, double t, double* expH)
+    void f_dexpm_wsp(int nstates, double* H, double t, int i,
+                     double* wsp, double* expH)
+
+def lndexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
+            double[:,:,:] p, int ideg, np.ndarray[dtype=DTYPE_t, ndim=1] wsp,
+            np.ndarray[dtype=np.int64_t, ndim=1] pmask):
+    """
+    Compute transition probabilities exp(q*t) for a 'stack' of q
+    matrices, over all values of t from a 1-d array, where q is selected
+    from the stack by indices in qi. Uses pre-allocated arrays for
+    intermediate calculations and output, to minimize overhead of
+    repeated calls (e.g. for ML optimization or MCMC).
+    Args:
+        q (double[m,k,k]): stack of m square rate matrices of dimension k
+        t (double[n]): 1-d array of times (branch lengths) of length n
+        qi (int[n]): 1-d array indicating assigning q matrices to times
+        p (double[n,k,k]): stack of n square p matrices holding results
+          of exponentiation, i.e., p[i] = exp(q[qi[i]]*t[i])
+        ideg (int): used in expokit Fortran code; a good default is 6
+        wsp (double[:]): expokit "workspace" array, must have
+          min. length = 4*k*k+ideg+1
+    """
+    cdef Py_ssize_t i,j,k
+    cdef int nstates = q.shape[1]
+    for i in range(t.shape[0]):
+        if pmask[i]:
+            f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
+            for j in range(nstates):
+                for k in range(nstates):
+                    p[i,j,k] = log(p[i,j,k])
+
+def inds_from_switchpoint(list switches_ni,
+                          np.ndarray cladesize_preorder,
+                          list clades_postorder_preorder,
+                          np.ndarray inds):
+    cdef int i, s, n, nr
+    nr = len(switches_ni)-1
+
+    switches_ni_c = switches_ni[:]
+    switches_ni_c.sort(key=lambda x: cladesize_preorder[x])
+
+    switches_key = [switches_ni_c.index(i) for i in switches_ni]
+
+    for i,s in enumerate(switches_ni_c[::-1]):
+        for n in clades_postorder_preorder[s]:
+            if not n==len(cladesize_preorder)-1: # Ignore the root
+                inds[n] = switches_key[nr-i]
 
 cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
     """
@@ -158,23 +205,69 @@ def cy_mk(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
 
                 nextli[ch] *= tmp
 
-def cy_mk_log(np.ndarray[dtype=DTYPE_t, ndim=2] nodelist,
-          np.ndarray[dtype=DTYPE_t, ndim=3] p,
+def mklnl(double[:,:] fraclnl,
+                double[:,:,:] p,
+                int k,
+                double[:] tmp,
+                Py_ssize_t[:] postorder,
+                Py_ssize_t[:,:] children):
+    """
+    Standard Mk log-likelihood calculator.
+    Args:
+    fraclnl (double[m,k]): array to hold computed fractional log-likelihoods,
+      where m = number of nodes, including leaf nodes; k = number of states
+      * fraclnl[i,j] = fractional log-likelihood of node i for charstate j
+      * leaf node values should be pre-filled, e.g. 0 for observed state,
+        -np.inf everywhere else
+      * Internal nodes should be filled with 0
+      * this function calculates the internal node values (where a node
+        could be a branch 'knee')
+    p (double[m,k,k]): p matrix
+    k (int): number of states
+    tmp (double[k]): to hold intermediate values
+    postorder (Py_ssize_t[n]): postorder array of n internal node indices (n < m)
+    children (Py_ssize_t[n,c]): array of the children of internal nodes, where
+      c = max number of children for any internal node
+      * children[i,j] = index of jth child of node i
+      * rows should be right-padded with -1 if the number of children < c
+    """
+
+    cdef Py_ssize_t i, parent, j, child, ancstate, childstate
+    cdef Py_ssize_t c = children.shape[1]
+
+    # For each internal node (in postorder sequence)...
+    for i in range(postorder.shape[0]):
+        # parent indexes the current internal node
+        parent = postorder[i]
+        # For each child of this node...
+        for j in range(c):
+            child = children[parent,j] # fraclnl index of the jth child of node
+            if child == -1: # -1 is the empty value for this array
+                break
+            for ancstate in range(k):
+                for childstate in range(k):
+                    # Multiply child's likelihood by p-matrix entry
+                    tmp[childstate] = (p[child,ancstate,childstate] +
+                                       fraclnl[child,childstate])
+                # Sum of log-likelihoods of children
+                fraclnl[parent,ancstate] += lse_cython(tmp)
+def cy_mk_log(
+          DTYPE_t[:,:] nodelist,
+          DTYPE_t[:,:,:] p,
           int nchar,
-          np.ndarray[dtype=DTYPE_t, ndim=1] tmp_ar,
-          np.ndarray[dtype=DTYPE_t, ndim=1] intnode_list,
-          np.ndarray[dtype=np.int64_t, ndim=2] child_ar):
+          double[:] tmp_ar,
+          Py_ssize_t[:] intnode_list,
+          Py_ssize_t[:,:] child_ar):
 
     cdef int intnode # "internal node"
     cdef int ind # index
     cdef int ch # parent character state
     cdef int st # child character state
 
-
     for intnode in intnode_list: # For each internal node (in postorder sequence)...
         nextli = nodelist[intnode]
         for ind in child_ar[intnode]: # For each child of this node...
-            if not ind == -1: # -1 is the empty value for this array
+            if not ind == -1: # -1 is the empty value for this array. -1 indicates that this node has no more children
                 li = nodelist[ind]
                 for ch in range(nchar):
                     for st in range(nchar):
@@ -241,7 +334,7 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
     return m_nl
 
 
-cpdef lse_cython(np.ndarray[DTYPE_t, ndim=1] a):
+cpdef lse_cython(double[:] a):
     """
     nbviewer.jupyter.org/gist/sebastien-bratieres/285184b4a808dfea7070
     Faster than scipy.misc.logsumexp

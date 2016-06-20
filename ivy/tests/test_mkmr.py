@@ -132,7 +132,7 @@ class Mk_mr_tests(unittest.TestCase):
 
 
         predictedLikelihood = math.log(L0r * 0.5 + L1r * 0.5)
-        calculatedLikelihood = mk_mr.mk_mr_midbranch(tree, chars, Qs, [switchpoint])
+        calculatedLikelihood = mk_mr.mk_mr_midbranch(tree, chars, Qs, [switchpoint],debug=False)
 
         self.assertTrue(np.isclose(predictedLikelihood, calculatedLikelihood))
 
@@ -246,18 +246,15 @@ class Mk_mr_tests(unittest.TestCase):
 
         l1 = mk_mr.mk_mr_midbranch(tree, chars, Qs, switchpoint_1, ar=ar, debug=False)
 
-        self.assertTrue((ar["lastQ"]==Qs).all())
-        self.assertEqual(ar["lastswitch"],switchpoint_1)
-
 
         switchpoint_2 = [(tree["D"], 0.5)]
 
-        l2 = mk_mr.mk_mr_midbranch(tree, chars, Qs, switchpoint_2, ar=ar, debug=True)
+        l2 = mk_mr.mk_mr_midbranch(tree, chars, Qs, switchpoint_2, ar=ar, debug=False)
 
 
         ar2 = mk_mr.create_mkmr_mb_ar(tree, chars, 2)
 
-        l2True = mk_mr.mk_mr_midbranch(tree, chars, Qs, switchpoint_2, ar=ar2, debug=True)
+        l2True = mk_mr.mk_mr_midbranch(tree, chars, Qs, switchpoint_2, ar=ar2, debug=False)
 
         self.assertEqual(l2, l2True)
     def test_maskarrayp_changeQ_correctentriesmasked(self):
@@ -339,7 +336,49 @@ class Mk_mr_tests(unittest.TestCase):
         __builtin__.__dict__.update(locals())
 
         dotime()
+    def test_mkmr_largetree_correctlikelihood(self):
+        tree = ivy.tree.read(u"support/hrm_600tips.newick")
+        chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0,
+        1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+        0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+        1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        Q0 = np.array([[-0.061457569587587413,0.061457569587587413],
+                      [0.061457569587587413,-0.061457569587587413]])
+        Q1 = np.array([[-1.4976115055655292,1.4976115055655292],
+                      [1.4976115055655292,-1.4976115055655292]])
+        Q2 = np.array([[-0.0014644343303779842,0.0014644343303779842],
+                      [0.0014644343303779842,-0.0014644343303779842]])
+        Qs = np.array([Q0,Q1,Q2])
+        switchpoint0 = (tree[579],1.2)
+        switchpoint1 = (tree[329],3.0)
 
+        true_L = -89.213330113632566
 
+        ar = mk_mr.create_mkmr_mb_ar(tree, chars, 3)
+
+        calculated_l = mk_mr.mk_mr_midbranch(tree, chars, Qs, [switchpoint0,switchpoint1],ar=ar,debug=True)
+
+        print(true_L)
+        print(calculated_l)
+        self.assertTrue(np.isclose(calculated_l, true_L))
 if __name__ == "__main__":
     unittest.main()
