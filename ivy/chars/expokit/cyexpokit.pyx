@@ -70,6 +70,41 @@ cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
     for i in range(t.shape[0]):
         f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
 
+@cython.boundscheck(False)
+cdef void lndexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
+                   double[:,:,:] p, int ideg, double[:] wsp) nogil:
+    """
+    Compute transition probabilities exp(q*t) for a 'stack' of q
+    matrices, over all values of t from a 1-d array, where q is selected
+    from the stack by indices in qi. Uses pre-allocated arrays for
+    intermediate calculations and output, to minimize overhead of
+    repeated calls (e.g. for ML optimization or MCMC).
+
+    Args:
+
+        q (double[m,k,k]): stack of m square rate matrices of dimension k
+
+        t (double[n]): 1-d array of times (branch lengths) of length n
+
+        qi (int[n]): 1-d array indicating assigning q matrices to times
+
+        p (double[n,k,k]): stack of n square p matrices holding results
+          of exponentiation, i.e., p[i] = exp(q[qi[i]]*t[i])
+
+        ideg (int): used in expokit Fortran code; a good default is 6
+
+        wsp (double[:]): expokit "workspace" array, must have
+          min. length = 4*k*k+ideg+1
+
+    """
+    cdef Py_ssize_t i, j, k
+    cdef int nstates = q.shape[1]
+    for i in range(t.shape[0]):
+        f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
+        for j in range(nstates):
+            for k in range(nstates):
+                p[i,j,k] = log(p[i,j,k])
+
 def test_dexpm3():
     m = 3  # number of q matrices
     k = 4  # number of states
@@ -166,7 +201,6 @@ cdef double logsumexp(double[:] a) nogil:
         result += exp(a[i] - largest_in_a)
     return largest_in_a + log(result)
 
-## wip
 def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef list nodes = list(root.iternodes())
     cdef np.ndarray postorder = np.array(
@@ -192,11 +226,26 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef np.ndarray q = np.zeros((nq,k,k), dtype=np.double)
     
     def f(double[:] params, Py_ssize_t[:,:] qidx=qidx):
-        cdef Py_ssize_t r, a, b, c
+        """
+        params: array of free rate parameters, assigned to q by indices in qidx
+
+        qidx columns:
+            0, 1, 2 - index axes of q
+            3 - index of params
+
+        This scheme allows flexible specification of models. E.g.:
+
+        Symmetric mk2:
+            params = [0.2]; qidx = [[0,0,1,0],[0,1,0,0]]
+            
+        Asymmetric mk2:
+            params = [0.2,0.6]; qidx = [[0,0,1,0],[0,1,0,1]]
+        """
+        cdef Py_ssize_t r, a, b, c, d
         cdef double x = 0
-        for r in range(len(params)):
-            a = qidx[r,0]; b = qidx[r,1]; c = qidx[r,2]
-            q[a,b,c] = params[r]
+        for r in range(qidx.shape[0]):
+            a = qidx[r,0]; b = qidx[r,1]; c = qidx[r,2]; d = qidx[r,3]
+            q[a,b,c] = params[d]
         for r in range(nq):
             for i in range(k):
                 x = 0
@@ -204,7 +253,6 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
                     if i != j:
                         x -= q[r,i,j]
                 q[r,i,i] = x
-        dexpm3(q, t, qi, p, ideg, wsp)
         np.log(p, out=p)
         mklnl(fraclnl, p, k, tmp, postorder, children)
         return logsumexp(fraclnl[postorder[-1]])
