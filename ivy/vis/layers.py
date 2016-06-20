@@ -63,7 +63,7 @@ def xy(plot, p):
 
     Args:
         plot (TreeSubplot): treeplot
-        p: node or node label
+        p: node or node label (or list of nodes/node labels)
     """
     if isinstance(p, tree.Node):
         c = plot.n2c[p]
@@ -1007,7 +1007,7 @@ def add_mkmr_heatmap(treeplot, locations, vis=True, seglen=0.02):
         locations (list): List of lists containing node and distance.
           The output from the switchpoint stochastic of mk_multi_bayes.
         seglen (float): The size of segments to break the tree into.
-          MUST BE the same as the seglen used in mk_multi)bayes.
+          MUST BE the same as the seglen used in mk_multi_bayes.
     """
     treelen = treeplot.root.max_tippath()
     seglen_px = seglen*treelen
@@ -1053,8 +1053,6 @@ def add_mkmr_heatmap(treeplot, locations, vis=True, seglen=0.02):
     lc.set_zorder(1)
     lc.set_visible(vis)
     treeplot.figure.canvas.draw_idle()
-
-
 
 
 def color_blender_1(value, start, end):
