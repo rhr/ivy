@@ -3,16 +3,44 @@
 import numpy as np
 cimport numpy as np
 from libc.math cimport exp, log
+from numpy.math cimport INFINITY
+cimport cython
 
 ctypedef np.double_t DTYPE_t
 
-cdef extern:
-    void f_dexpm(int nstates, double* H, double t, double* expH)
-    void f_dexpm_wsp(int nstates, double* H, double t, int i,
-                     double* wsp, double* expH)
+# Indexing arrays - what type to use?
+# -----------------------------------
+#
+# TL;DR: int is probably fine; BUT
+# 
+# In Cython, for maximum correctness and portability, variables used
+# for indexing arrays should be declared Py_ssize_t, not int. This
+# raises a question: If you want to create/use a numpy array of
+# indices, what type should it be? Py_ssize_t has no defined
+# equivalent in numpy. The closest seems to be np.intp: see
+# 
+# https://github.com/scikit-learn/scikit-learn/wiki/C-integer-types:-the-missing-manual
+#
+# and
+#
+# https://github.com/numpy/numpy/issues/1654
+#
+# So, e.g:
+#
+# cdef np.ndarray[np.intp_t, ndim=1] my_index_array = np.arange(10, dtype=np.intp)
+#
+# (Note np.intp_t on the cdef side, np.intp on the Python side.)
 
-cdef dexpm3(double[:,:,:] q, double[:] t, int[:] qi,
-            double[:,:,:] p, int ideg, double[:] wsp):
+cdef extern:
+    void f_dexpm(int nstates, double* H, double t, double* expH) nogil
+    void f_dexpm_wsp(int nstates, double* H, double t, int i,
+                     double* wsp, double* expH) nogil
+
+# TODO: modify this to take a 1-d binary array that indicates which t
+# values should be processed
+@cython.boundscheck(False)
+cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
+                 double[:,:,:] p, int ideg, double[:] wsp) nogil:
     """
     Compute transition probabilities exp(q*t) for a 'stack' of q
     matrices, over all values of t from a 1-d array, where q is selected
@@ -37,7 +65,8 @@ cdef dexpm3(double[:,:,:] q, double[:] t, int[:] qi,
           min. length = 4*k*k+ideg+1
 
     """
-    cdef int i, nstates = q.shape[1]
+    cdef Py_ssize_t i, j, k
+    cdef int nstates = q.shape[1]
     for i in range(t.shape[0]):
         f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
 
@@ -54,7 +83,7 @@ def test_dexpm3():
         np.fill_diagonal(a, 0)
         a[np.diag_indices_from(a)] = -a.sum(axis=1)
     t = np.ones(3)
-    qi = np.array([0,1,2], dtype=np.int32)
+    qi = np.array([0,1,2], dtype=np.intp)
     
     cdef int ideg = 6
     wsp = np.empty(4*k*k+ideg+1)
@@ -65,11 +94,132 @@ def test_dexpm3():
     dexpm3(q, t, qi, p, ideg, wsp)
     return p
 
-## ## wip
-## def mklh(root, data):
-##     cdef np.ndarray[DTYPE_t, ndim=1] blen = np.array(
-##         [ n.length for n r.iternodes() ])
+@cython.boundscheck(False)
+cdef void mklnl(double[:,:] fraclnl,
+                double[:,:,:] p,
+                int k,
+                double[:] tmp,
+                Py_ssize_t[:] postorder,
+                Py_ssize_t[:,:] children) nogil:
+    """
+    Standard Mk log-likelihood calculator.
 
+    Args:
+
+    fraclnl (double[m,k]): array to hold computed fractional log-likelihoods,
+      where m = number of nodes, including leaf nodes; k = number of states
+      * fraclnl[i,j] = fractional log-likelihood of node i for charstate j
+      * leaf node values should be pre-filled, e.g. 0 for observed state,
+        -np.inf everywhere else
+      * this function calculates the internal node values (where a node
+        could be a branch 'knee')
+
+    p (double[m,k,k]): p matrix
+
+    k (int): number of states
+
+    tmp (double[k]): to hold intermediate values
+
+    postorder (Py_ssize_t[n]): postorder array of n internal node indices (n < m)
+
+    children (Py_ssize_t[n,c]): array of the children of internal nodes, where
+      c = max number of children for any internal node
+      * children[i,j] = index of jth child of node i
+      * rows should be right-padded with -1 if the number of children < c
+    """
+
+    cdef Py_ssize_t i, parent, j, child, ancstate, childstate
+    cdef Py_ssize_t c = children.shape[1]
+
+    # For each internal node (in postorder sequence)...
+    for i in range(postorder.shape[0]):
+        # parent indexes the current internal node
+        parent = postorder[i]
+        # For each child of this node...
+        for j in range(c):
+            child = children[i,j] # fraclnl index of the jth child of node
+            if child == -1: # -1 is the empty value for this array
+                break
+            for ancstate in range(k):
+                for childstate in range(k):
+                    # Multiply child's likelihood by p-matrix entry
+                    tmp[childstate] = (p[child,ancstate,childstate] +
+                                       fraclnl[child,childstate])
+                # Sum of log-likelihoods of children
+                if fraclnl[parent,ancstate] == -INFINITY:
+                    fraclnl[parent,ancstate] = logsumexp(tmp)
+                else:
+                    fraclnl[parent,ancstate] += logsumexp(tmp)
+
+@cython.boundscheck(False)
+cdef double logsumexp(double[:] a) nogil:
+    """
+    nbviewer.jupyter.org/gist/sebastien-bratieres/285184b4a808dfea7070
+    Faster than scipy.misc.logsumexp
+    """
+    cdef Py_ssize_t i, n = a.shape[0]
+    cdef double result = 0.0, largest_in_a = a[0]
+    for i in range(1, n):
+        if (a[i] > largest_in_a):
+            largest_in_a = a[i]
+    for i in range(n):
+        result += exp(a[i] - largest_in_a)
+    return largest_in_a + log(result)
+
+## wip
+def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
+    cdef list nodes = list(root.iternodes())
+    cdef np.ndarray postorder = np.array(
+        [ nodes.index(n) for n in root.postiter() if n.children ], dtype=np.intp)
+    cdef Py_ssize_t i, j, N = len(postorder)
+    cdef np.ndarray t = np.array([ n.length for n in nodes ], dtype=np.double)
+    cdef np.ndarray p = np.empty((len(nodes), k, k), dtype=np.double)
+    cdef int ideg = 6
+    cdef np.ndarray wsp = np.empty(4*k*k+ideg+1)
+    cdef np.ndarray qi = np.zeros(len(nodes), dtype=np.intp)
+    cdef np.ndarray fraclnl = np.empty((len(nodes), k), dtype=np.double)
+    fraclnl.fill(-INFINITY)
+    for lf in root.leaves():
+        i = nodes.index(lf)
+        fraclnl[i, data[lf.label]] = 0
+    cdef np.ndarray tmp = np.empty(k)
+    cdef int c = max([ len(n.children) for n in root if n.children ])
+    cdef np.ndarray children = np.zeros((N, c), dtype=np.intp)
+    children -= 1
+    for i in range(len(postorder)):
+        for j, child in enumerate(nodes[postorder[i]].children):
+            children[i,j] = nodes.index(child)
+    cdef np.ndarray q = np.zeros((nq,k,k), dtype=np.double)
+    
+    def f(double[:] params, Py_ssize_t[:,:] qidx=qidx):
+        cdef Py_ssize_t r, a, b, c
+        cdef double x = 0
+        for r in range(len(params)):
+            a = qidx[r,0]; b = qidx[r,1]; c = qidx[r,2]
+            q[a,b,c] = params[r]
+        for r in range(nq):
+            for i in range(k):
+                x = 0
+                for j in range(k):
+                    if i != j:
+                        x -= q[r,i,j]
+                q[r,i,i] = x
+        dexpm3(q, t, qi, p, ideg, wsp)
+        np.log(p, out=p)
+        mklnl(fraclnl, p, k, tmp, postorder, children)
+        return logsumexp(fraclnl[postorder[-1]])
+
+    # attached allocated arrays to function object
+    f.fraclnl = fraclnl
+    f.q = q
+    f.p = p
+    f.qi = qi
+    f.postorder = postorder
+    f.children = children
+    f.t = t
+        
+    return f
+    
 cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
     """
     Compute exp(q*t) for one branch on a tree and place result in pre-
@@ -119,7 +269,7 @@ def dexpm_tree_log(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
     cdef int i
     cdef double blen
 
-    cdef np.ndarray[DTYPE_t, ndim=3] p = np.empty([len(t), q.shape[0], q.shape[1]], dtype = DTYPE, order="C")
+    cdef np.ndarray[DTYPE_t, ndim=3] p = np.empty([len(t), q.shape[0], q.shape[1]], dtype = long, order="C")
     for i, blen in enumerate(t):
         dexpm_slice_log(q, blen, p, i)
 
@@ -135,7 +285,7 @@ def dexpm_tree(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
     cdef int i
     cdef double blen
 
-    cdef np.ndarray[DTYPE_t, ndim=3] p = np.empty([len(t), q.shape[0], q.shape[1]], dtype = DTYPE, order="C")
+    cdef np.ndarray[DTYPE_t, ndim=3] p = np.empty([len(t), q.shape[0], q.shape[1]], dtype = long, order="C")
     for i, blen in enumerate(t):
         dexpm_slice(q, blen, p, i)
 
