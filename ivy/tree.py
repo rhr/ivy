@@ -231,6 +231,7 @@ class Node(object):
         Args:
             add (bool): Whether or not to add self's length to children's
               length.
+            reindex (bool): Whether to recalculate index attributes after mutating
 
         Returns:
             Node: Parent of self
@@ -380,6 +381,8 @@ class Node(object):
 
         Args:
             child (Node): A node object
+            reindex (bool): Whether to recalculate index attributes after mutating
+
         """
         assert child not in self.children
         self.children.append(child)
@@ -400,6 +403,7 @@ class Node(object):
               new node. Defaults to 0.5 (bisection). Higher numbers
               set the new node closer to the parent, lower
               numbers set it closer to child.
+            reindex (bool): Whether to recalculate index attributes after mutating
 
         Returns:
             Node: A new node.
@@ -422,10 +426,12 @@ class Node(object):
     def remove_child(self, child, reindex=True):
         """
         Mutate function.
-        Remove child.
+        Remove child from self.
 
         Args:
             child (Node): A node object that is a child of self
+            reindex (bool): Whether to recalculate index attributes after mutating
+
         """
         assert child in self.children, "node '%s' not child of node '%s'" % (child.label or child.id, self.label or self.id)
         self.children.remove(child)
@@ -457,7 +463,8 @@ class Node(object):
         Returns:
             list: A list of leaves that are true for f (if f is given)
         """
-        if f: return [ n for n in self if (n.isleaf and f(n)) ]
+        if f:
+            return [ n for n in self if (n.isleaf and f(n)) ]
         return [ n for n in self if n.isleaf ]
 
     def internals(self, f=None):
@@ -471,7 +478,8 @@ class Node(object):
         Returns:
             list: A list of internal nodes that are true for f (if f is given)
         """
-        if f: return [ n for n in self if (n.children and f(n)) ]
+        if f:
+            return [ n for n in self if (n.children and f(n)) ]
         return [ n for n in self if n.children ]
 
     def clades(self):
@@ -482,24 +490,7 @@ class Node(object):
             list: A list of internal nodes descended from (and not including) self.
         """
         return [ n for n in self if (n is not self) and not n.isleaf ]
-    #
-    # def iternodes(self, f=None):
-    #     """
-    #     Return a generator of nodes descendant from self - including self
-    #
-    #     Args:
-    #         f (function): A function that evaluates to true if called with
-    #         desired node as the first input. Optional
-    #
-    #     Yields:
-    #         Node: Nodes descended from self (including self) in
-    #           preorder sequence
-    #     """
-    #     if (f and f(self)) or (not f):
-    #         yield self
-    #     for child in self.children:
-    #         for n in child.iternodes(f):
-    #             yield n
+
     def iternodes(self,f=None):
         """
         List of nodes descendant from self - including self
@@ -519,12 +510,16 @@ class Node(object):
             for child in reversed(n.children):
                 s.append(child)
     def set_iternode_cache(self):
+        """
+        Store iteration order for faster access.
+        """
         for n in self.iternodes():
             n.meta["iterlist"] = list(n.iternodes())
 
     def iternodes_cached(self, f=None, force=False):
         """
-        Cached version of iternodes
+        Cached version of iternodes. Faster, but requires that the tree
+        is static and not being changed.
         """
         if f is None:
             f = lambda x: True
@@ -583,7 +578,6 @@ class Node(object):
 
     def drop_tip(self, nodes):
         """
-        (semi) Mutate function
         Return a NEW TREE with the given tips dropped from it. Does not
         affect old tree.
 
@@ -639,7 +633,6 @@ class Node(object):
 
     def keep_tip(self, nodes):
         """
-        (semi) Mutate function
         Return a NEW TREE containing only the given tips.
 
         Args:
@@ -723,7 +716,7 @@ class Node(object):
 
     def find(self, f, *args, **kwargs):
         """
-        Find descendant nodes.
+        Find descendant nodes (generator version)
 
         Args:
             f: Function or a string.  If a string, it is converted to a
@@ -745,7 +738,19 @@ class Node(object):
                 yield n
 
     def findall(self, f, *args, **kwargs):
-        """Return a list of found nodes."""
+        """
+        Find descendant nodes (list version)
+
+        Args:
+            f: Function or a string.  If a string, it is converted to a
+              function for finding *f* as a substring in node labels.
+              Otherwise, *f* should evaluate to True if called with a desired
+              node as the first parameter.
+
+        Yields:
+            Node: Found nodes in preorder sequence.
+
+        """
         return list(self.find(f, *args, **kwargs))
 
     def is_same_tree(self, tree):
@@ -778,7 +783,7 @@ class Node(object):
 
         """
         propsToCheck = ["age", "apeidx", "isleaf", "isroot",
-                        "label", "length", "support", "nchildren"]
+                        "label", "length", "support"]
 
         for prop in propsToCheck:
             if (type(getattr(self, prop))) == float and (type(getattr(node, prop)) == float ):
@@ -803,6 +808,9 @@ class Node(object):
 
         All descendants of self are also removed
 
+        Args:
+            reindex (bool): Whether to recalculate index attributes after mutating tree.
+
         Returns:
             Node: Parent of self. If parent had only two children,
               parent is now a 'knee' and can be removed with excise.
@@ -820,6 +828,10 @@ class Node(object):
         """
         Mutate function
         For 'knees': remove self from between parent and single child
+
+        Args:
+            reindex (bool): Whether to recalculate index attributes after mutating tree.
+
         """
         assert self.parent
         assert len(self.children)==1
@@ -839,6 +851,10 @@ class Node(object):
         """
         Mutate function
         Add node as sister to self.
+        Args:
+            node (Node): Node to graft to tree
+            reindex (bool): Whether to recalculate index attributes after mutating tree.
+
         """
         parent = self.parent
         parent.remove_child(self, reindex=reindex)
@@ -918,7 +934,6 @@ class Node(object):
         """
         Get the maximum length from self to a leaf node
         """
-        # TODO: optimize
         v = 0
         if self.children:
             v = max([ c.max_tippath(False) for c in self.children ])
@@ -997,7 +1012,6 @@ class Node(object):
 
     def reroot(self, newroot, distance = 0.5):
         """
-        (semi)mutate function
         Reroot the tree between newroot and its parent.
         By default, the new node is halfway in between
         newroot and its current parent. Works by unrooting the tree, then
@@ -1016,12 +1030,14 @@ class Node(object):
             Node: Root node of new rerooted tree.
         """
         oldroot = self.copy()
+        for n in oldroot.iternodes():
+            n.meta["cached"]=False
         newroot = self[newroot]
         oldroot.isroot = False
         newroot = oldroot[newroot.id]
         assert newroot in oldroot
         assert newroot not in oldroot.children
-        newtree = newroot.bisect_branch(distance)
+        newtree = newroot.bisect_branch(distance, reindex=False)
 
         root_path = list(newtree.rootpath())
         newtree.parent = None
@@ -1039,12 +1055,15 @@ class Node(object):
             newparent = node
         root_path[-1].children = [ x for x in root_path[-1].children if x ]
         try:
-            root_path[-1].excise()
+            root_path[-1].excise(reindex=False)
         except:
             pass
 
         newtree.isroot = True
         newtree.set_iternode_cache()
+        for n in newroot.iternodes():
+            n.meta["cached"]=False
+        newtree.reindex()
         return newtree
     def makeroot(self, shift_labels=False):
         """
