@@ -36,10 +36,9 @@ cdef extern:
     void f_dexpm_wsp(int nstates, double* H, double t, int i,
                      double* wsp, double* expH) nogil
 
-# TODO: modify this to take a 1-d binary array that indicates which t
-# values should be processed
 @cython.boundscheck(False)
 cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
+                 np.uint8_t[:] tmask,
                  double[:,:,:] p, int ideg, double[:] wsp) nogil:
     """
     Compute transition probabilities exp(q*t) for a 'stack' of q
@@ -56,6 +55,8 @@ cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
 
         qi (int[n]): 1-d array indicating assigning q matrices to times
 
+        tmask (bint[n]): 1-d array indicating which t values to process
+        
         p (double[n,k,k]): stack of n square p matrices holding results
           of exponentiation, i.e., p[i] = exp(q[qi[i]]*t[i])
 
@@ -63,47 +64,26 @@ cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
 
         wsp (double[:]): expokit "workspace" array, must have
           min. length = 4*k*k+ideg+1
-
     """
-    cdef Py_ssize_t i, j, k
+    cdef Py_ssize_t i
     cdef int nstates = q.shape[1]
     for i in range(t.shape[0]):
-        f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
+        if tmask[i]:
+            f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
 
 @cython.boundscheck(False)
 cdef void lndexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
+                   np.uint8_t[:] tmask,
                    double[:,:,:] p, int ideg, double[:] wsp) nogil:
-    """
-    Compute transition probabilities exp(q*t) for a 'stack' of q
-    matrices, over all values of t from a 1-d array, where q is selected
-    from the stack by indices in qi. Uses pre-allocated arrays for
-    intermediate calculations and output, to minimize overhead of
-    repeated calls (e.g. for ML optimization or MCMC).
-
-    Args:
-
-        q (double[m,k,k]): stack of m square rate matrices of dimension k
-
-        t (double[n]): 1-d array of times (branch lengths) of length n
-
-        qi (int[n]): 1-d array indicating assigning q matrices to times
-
-        p (double[n,k,k]): stack of n square p matrices holding results
-          of exponentiation, i.e., p[i] = exp(q[qi[i]]*t[i])
-
-        ideg (int): used in expokit Fortran code; a good default is 6
-
-        wsp (double[:]): expokit "workspace" array, must have
-          min. length = 4*k*k+ideg+1
-
-    """
+    "same as dmexp3, but log-transforms p"
     cdef Py_ssize_t i, j, k
     cdef int nstates = q.shape[1]
     for i in range(t.shape[0]):
-        f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
-        for j in range(nstates):
-            for k in range(nstates):
-                p[i,j,k] = log(p[i,j,k])
+        if tmask[i]:
+            f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
+            for j in range(nstates):
+                for k in range(nstates):
+                    p[i,j,k] = log(p[i,j,k])
 
 def test_dexpm3():
     m = 3  # number of q matrices
@@ -118,6 +98,7 @@ def test_dexpm3():
         np.fill_diagonal(a, 0)
         a[np.diag_indices_from(a)] = -a.sum(axis=1)
     t = np.ones(3)
+    tmask = np.ones(3, dtype=np.uint8)
     qi = np.array([0,1,2], dtype=np.intp)
     
     cdef int ideg = 6
@@ -126,7 +107,7 @@ def test_dexpm3():
     p = np.empty((n,k,k))
     
     # with all arrays allocated, can call dexpm3
-    dexpm3(q, t, qi, p, ideg, wsp)
+    dexpm3(q, t, qi, tmask, p, ideg, wsp)
     return p
 
 @cython.boundscheck(False)
@@ -203,15 +184,17 @@ cdef double logsumexp(double[:] a) nogil:
 
 def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef list nodes = list(root.iternodes())
+    cdef nnodes = len(nodes)
     cdef np.ndarray postorder = np.array(
         [ nodes.index(n) for n in root.postiter() if n.children ], dtype=np.intp)
     cdef Py_ssize_t i, j, N = len(postorder)
     cdef np.ndarray t = np.array([ n.length for n in nodes ], dtype=np.double)
-    cdef np.ndarray p = np.empty((len(nodes), k, k), dtype=np.double)
+    cdef np.ndarray p = np.empty((nnodes, k, k), dtype=np.double)
     cdef int ideg = 6
     cdef np.ndarray wsp = np.empty(4*k*k+ideg+1)
-    cdef np.ndarray qi = np.zeros(len(nodes), dtype=np.intp)
-    cdef np.ndarray fraclnl = np.empty((len(nodes), k), dtype=np.double)
+    cdef np.ndarray qi = np.zeros(nnodes, dtype=np.intp)
+    cdef tmask = np.ones(nnodes, dtype=np.uint8)
+    cdef np.ndarray fraclnl = np.empty((nnodes, k), dtype=np.double)
     fraclnl.fill(-INFINITY)
     for lf in root.leaves():
         i = nodes.index(lf)
@@ -253,6 +236,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
                     if i != j:
                         x -= q[r,i,j]
                 q[r,i,i] = x
+        dexpm3(q, t, qi, tmask, p, ideg, wsp)
         np.log(p, out=p)
         mklnl(fraclnl, p, k, tmp, postorder, children)
         return logsumexp(fraclnl[postorder[-1]])
@@ -262,10 +246,10 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     f.q = q
     f.p = p
     f.qi = qi
+    f.tmask = tmask
     f.postorder = postorder
     f.children = children
     f.t = t
-        
     return f
     
 cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
