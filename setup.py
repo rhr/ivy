@@ -36,7 +36,7 @@ use_cython = False
 
 
 packages = [
-    "ivy", "ivy.vis", "ivy.chars", "ivy.chars.expokit", "ivy.sim"
+    "ivy", "ivy.vis", "ivy.chars", "ivy.chars.expokit", "ivy.sim", "ivy.chars.cy_tree"
     ]
 #packages=find_packages(exclude=["contrib","db"])
 
