@@ -127,7 +127,7 @@ cdef class Tree(object):
         # allocate attribute storage
         self.root = None
         cdef int i = 0
-        cdef Node n
+#        cdef Node n
         for i, n in enumerate(root.iternodes()):
             i += 1
         self.nnodes = i
@@ -142,7 +142,7 @@ cdef class Tree(object):
 
     cpdef index(self, root=None):
         "call on __cinit__, or when topology changes but no. nodes is the same"
-        cdef Node n
+#        cdef Node n
         cdef Py_ssize_t i
         if root is None:
             root = self.root
@@ -169,15 +169,16 @@ cdef class Tree(object):
             i = self.parent[i]
         return x
 
-cpdef tree_from_ivy(ivytree):
+def tree_from_ivy(ivytree):
     """
     Convert ivy Node to cython Tree
     """
-    cdef n,rightsib,c,out
-
+    ivytree.rightsib = None
     for n in ivytree.iternodes():
         if n.children:
             n.leftchild = n.children[0]
+        else:
+            n.leftchild = None
         rightsib = None
         for c in n.children[::-1]: # Iterate through children backwards to assign rightsibs
             c.rightsib = rightsib
