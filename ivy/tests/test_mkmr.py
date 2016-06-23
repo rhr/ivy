@@ -6,6 +6,7 @@ import unittest
 import timeit
 import ivy
 from ivy.chars.expokit import cyexpokit
+from ivy.chars.cy_tree import cy_tree
 from ivy.chars import mk, hrm, mk_mr
 import numpy as np
 import math
@@ -380,5 +381,24 @@ class Mk_mr_tests(unittest.TestCase):
         print(true_L)
         print(calculated_l)
         self.assertTrue(np.isclose(calculated_l, true_L))
+
+    def test_makemklnlfunc_makesfunc(self):
+        tree = ivy.tree.read(u'((((Homo:0.21,Pongo:0.21)A:0.28,Macaca:0.49)B:0.13,Ateles:0.62)C:0.38,Galago:1.00)root;')
+        chars = [0,0,1,1,1]
+        data = {n.label:chars[i] for i,n in enumerate(tree.leaves()) }
+        qidx = np.zeros([len(tree)-1,4], dtype=int)
+
+        f = cyexpokit.make_mklnl_func(tree, data, 2, 1, qidx)
+        switches = np.array([],dtype=int)
+        lengths = np.array([], dtype=np.double)
+        params = np.array([0.1])
+        f(params,switches,lengths)
+    # def test_cytree_makestree(self):
+    #     tree = ivy.tree.read(u"support/hrm_600tips.newick")
+    #     cytree = cy_tree.tree_from_ivy(tree)
+
+
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -59,6 +59,84 @@ def inds_from_switchpoint(list switches_ni,
             if not n==len(cladesize_preorder)-1: # Ignore the root
                 inds[n] = switches_key[nr-i]
 
+def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
+    cdef list nodes = list(root.iternodes())
+    cdef nnodes = len(nodes)
+    cdef np.ndarray postorder = np.array(
+        [ nodes.index(n) for n in root.postiter() if n.children ], dtype=np.intp)
+    cdef Py_ssize_t i, j, N = len(postorder)
+    cdef np.ndarray t = np.array([ n.length for n in nodes ], dtype=np.double)
+    cdef np.ndarray p = np.empty((nnodes, k, k), dtype=np.double)
+    cdef int ideg = 6
+    cdef np.ndarray wsp = np.empty(4*k*k+ideg+1)
+    cdef np.ndarray qi = np.zeros(nnodes, dtype=np.intp)
+    cdef tmask = np.ones(nnodes, dtype=np.uint8)
+    cdef np.ndarray fraclnl = np.empty((nnodes, k), dtype=np.double)
+    fraclnl.fill(-INFINITY)
+    for lf in root.leaves():
+        i = nodes.index(lf)
+        fraclnl[i, data[lf.label]] = 0
+    for intr in root.internals(): # Setting internal likelihoods to 0
+        i = nodes.index(intr)
+        fraclnl[i] = 0
+    cdef np.ndarray tmp = np.empty(k)
+    cdef int c = max([ len(n.children) for n in root if n.children ])
+    cdef np.ndarray children = np.zeros((N, c), dtype=np.intp)
+    children -= 1
+    for i in range(len(postorder)):
+        for j, child in enumerate(nodes[postorder[i]].children):
+            children[i,j] = nodes.index(child)
+    cdef np.ndarray q = np.zeros((nq,k,k), dtype=np.double)
+
+    def f(double[:] params, Py_ssize_t[:] switches, double[:] lengths,Py_ssize_t[:,:] qidx=qidx):
+        """
+        params: array of free rate parameters, assigned to q by indices in qidx
+        qidx columns:
+            0, 1, 2 - index axes of q
+            3 - index of params
+        This scheme allows flexible specification of models. E.g.:
+        Symmetric mk2:
+            params = [0.2]; qidx = [[0,0,1,0],[0,1,0,0]]
+
+        Asymmetric mk2:
+            params = [0.2,0.6]; qidx = [[0,0,1,0],[0,1,0,1]]
+
+        switches:
+          list of node ids (in preorder sequence) to act as switchpoints
+        lengths:
+          list of lengths associated with each switchpoint. Each length corresponds
+          to how far along the branch the switchpoint is located. Larger numbers
+          indicate that the switchpoint is closer to the parent.
+
+        """
+        cdef Py_ssize_t r, a, b, c, d
+        cdef double x = 0
+        for r in range(qidx.shape[0]):
+            a = qidx[r,0]; b = qidx[r,1]; c = qidx[r,2]; d = qidx[r,3]
+            q[a,b,c] = params[d]
+        for r in range(nq):
+            for i in range(k):
+                x = 0
+                for j in range(k):
+                    if i != j:
+                        x -= q[r,i,j]
+                q[r,i,i] = x
+        lndexpm3(q, t, qi, tmask, p, ideg, wsp)
+        np.log(p, out=p)
+        mklnl(fraclnl, p, k, tmp, postorder, children)
+        return logsumexp(fraclnl[postorder[-1]])
+
+    # attached allocated arrays to function object
+    f.fraclnl = fraclnl
+    f.q = q
+    f.p = p
+    f.qi = qi
+    f.tmask = tmask
+    f.postorder = postorder
+    f.children = children
+    f.t = t
+    return f
+
 cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
     """
     Compute exp(q*t) for one branch on a tree and place result in pre-
