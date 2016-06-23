@@ -4,6 +4,7 @@ import numpy as np
 cimport numpy as np
 from libc.math cimport exp, log
 from numpy.math cimport INFINITY
+cimport cython
 
 DTYPE = np.double # Fixing a datatype for the arrays
 ctypedef np.double_t DTYPE_t
@@ -250,7 +251,7 @@ def mklnl(double[:,:] fraclnl,
                     tmp[childstate] = (p[child,ancstate,childstate] +
                                        fraclnl[child,childstate])
                 # Sum of log-likelihoods of children
-                fraclnl[parent,ancstate] += lse_cython(tmp)
+                fraclnl[parent,ancstate] += logsumexp(tmp)
 def cy_mk_log(
           DTYPE_t[:,:] nodelist,
           DTYPE_t[:,:,:] p,
@@ -272,7 +273,7 @@ def cy_mk_log(
                 for ch in range(nchar):
                     for st in range(nchar):
                         tmp_ar[st] = p[ind,ch,st]+li[st] # Multiply child's likelihood by p-matrix
-                    nextli[ch] += lse_cython(tmp_ar) # Sum of log-likelihoods of children
+                    nextli[ch] += logsumexp(tmp_ar) # Sum of log-likelihoods of children
 
 def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                  np.ndarray[dtype=DTYPE_t, ndim=2] d_nl,
@@ -334,30 +335,17 @@ def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
     return m_nl
 
 
-cpdef lse_cython(double[:] a):
+@cython.boundscheck(False)
+cdef double logsumexp(double[:] a) nogil:
     """
     nbviewer.jupyter.org/gist/sebastien-bratieres/285184b4a808dfea7070
     Faster than scipy.misc.logsumexp
     """
-    cdef int i
-    cdef double result = 0.0
-    cdef double largest_in_a = a[0]
-    for i in range(1,a.shape[0]):
+    cdef Py_ssize_t i, n = a.shape[0]
+    cdef double result = 0.0, largest_in_a = a[0]
+    for i in range(1, n):
         if (a[i] > largest_in_a):
             largest_in_a = a[i]
-    for i in range(a.shape[0]):
+    for i in range(n):
         result += exp(a[i] - largest_in_a)
     return largest_in_a + log(result)
-
-cpdef lse_cython_ab(DTYPE_t a, DTYPE_t b):
-    """
-    The sum of two logs
-    """
-    cdef int i
-    cdef DTYPE_t result = 0.0
-    cdef DTYPE_t largest = a
-    if a<b:
-        largest = b
-    result += exp(a - largest)
-    result += exp(b - largest)
-    return largest + log(result)

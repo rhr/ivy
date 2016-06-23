@@ -196,6 +196,8 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
     # Creating probability matrices from Q matrices and branch lengths
     # inds indicates which Q matrix to use for which branch
     # np.exp(ar["p"], out=ar["p"]) # Exponentiate p matrices
+    Qs += 1e-40
+    print(Qs)
     cyexpokit.lndexpm3(Qs,ar["t"],np.array(ar["inds"]),ar["p"],ideg=IDEG,wsp=ar["wsp"],pmask=ar["pmask"].astype(int)) # Calculating the actual p matrix
     # np.log(ar["p"], out=ar["p"]) # Log p matrices
 
@@ -207,6 +209,7 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
     np.copyto(ar["nodelist"], ar["nodelistOrig"]) # Resetting the starting values of nodelist.
 
     cyexpokit.mklnl(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],ar["child_ar"]) # Performing the likelihood calculation
+    # cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],ar["child_ar"])
     if debug:
         print(ar["nodelist"][-1])
     ################
