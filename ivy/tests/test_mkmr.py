@@ -383,19 +383,58 @@ class Mk_mr_tests(unittest.TestCase):
         self.assertTrue(np.isclose(calculated_l, true_L))
 
     def test_makemklnlfunc_makesfunc(self):
-        tree = ivy.tree.read(u'((((Homo:0.21,Pongo:0.21)A:0.28,Macaca:0.49)B:0.13,Ateles:0.62)C:0.38,Galago:1.00)root;')
-        chars = [0,0,1,1,1]
-        data = {n.label:chars[i] for i,n in enumerate(tree.leaves()) }
-        qidx = np.zeros([len(tree)-1,4], dtype=int)
+        tree = ivy.tree.read(u"((t2:0.3778728602,(t3:0.03239763423,t4:0.03239763423):0.345475226):0.9831289164,t1:1.361001777);")
+        chars = [0, 0, 0, 1]
+        labels = [ lf.label for lf in tree.leaves() ]
+        data = dict(zip(labels, chars))
+
+        qidx = np.array(
+            [[0,0,1,1],
+             [0,1,0,1]],
+            dtype=np.intp)
 
         f = cyexpokit.make_mklnl_func(tree, data, 2, 1, qidx)
-        switches = np.array([],dtype=int)
-        lengths = np.array([], dtype=np.double)
-        params = np.array([0.1])
-        f(params,switches,lengths)
-    # def test_cytree_makestree(self):
-    #     tree = ivy.tree.read(u"support/hrm_600tips.newick")
-    #     cytree = cy_tree.tree_from_ivy(tree)
+        params = np.array([0.1,0.1])
+        cylik = (f(params))
+
+        Qs = np.array([[[-0.1,  0.1],
+                     [ 0.1, -0.1]]])
+
+
+        truelik = mk_mr.mk_mr_midbranch(tree, chars, Qs, [])
+
+        self.assertTrue(np.isclose(cylik, truelik))
+    def test_makemklnlfunc_multi_makesfunc(self):
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
+        daata = {"A":1,"B":0,"D":0,"F":0}
+        Q1 = np.array([[-0.10,0.10],
+                       [0.05,-0.05]])
+        Q2 = np.array([[-1.5,1.5],
+                       [1.,-1.]])
+        Qs = np.array([Q2,Q1])
+        switchpoint = (tree["C"], 0.75)
+
+        qidx = np.array(
+            [[0,0,1,0],
+             [0,1,0,1],
+             [1,0,1,3],
+             [1,1,0,2]],
+            dtype=np.intp)
+
+        switches = np.array([switchpoint[0].ni], dtype=np.intp)
+        lengths = np.array([switchpoint[1]], dtype=np.double)
+        f = cyexpokit.make_mklnl_func(tree, data, 2, 2, qidx)
+
+        params = np.array([0.05,0.1,1.0,1.5])
+        cylik = f(params, switches, lengths)
+
+        truelik = mk_mr.mk_mr_midbranch(tree, chars, Qs, [switchpoint])
+
+        self.assertTrue(np.isclose(cylik, truelik))
+
+    def test_cytree_makestree(self):
+        tree = ivy.tree.read(u"support/hrm_600tips.newick")
+        cytree = cy_tree.tree_from_ivy(tree)
 
 
 

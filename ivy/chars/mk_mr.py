@@ -95,7 +95,7 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
     # inds corresponds to the tree in postorder sequence, with each value
     # corresponding to the regime that node is in. It is passed to dexpm3
     switches_ni = [ar["tree_copy"][s[0].id].ni for s in switchpoint] + [0]
-    cyexpokit.inds_from_switchpoint(switches_ni, ar["cladesize_preorder"],
+    cyexpokit.inds_from_switchpoint(np.array(switches_ni), ar["cladesize_preorder"],
                                     ar["clades_postorder_preorder"],
                                     ar["inds"])
     (Qs != ar["prev_Q"]).any(axis=(1,2), out=ar["Qdif"])
@@ -117,7 +117,6 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
     # inds indicates which Q matrix to use for which branch
     # np.exp(ar["p"], out=ar["p"]) # Exponentiate p matrices
     Qs += 1e-40
-    print(Qs)
     cyexpokit.lndexpm3(Qs,ar["t"],np.array(ar["inds"]),ar["p"],ideg=IDEG,wsp=ar["wsp"],pmask=ar["pmask"].astype(int)) # Calculating the actual p matrix
     # np.log(ar["p"], out=ar["p"]) # Log p matrices
 
@@ -128,7 +127,7 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
     # Calculating the likelihoods for each node in post-order sequence
     np.copyto(ar["nodelist"], ar["nodelistOrig"]) # Resetting the starting values of nodelist.
 
-    cyexpokit.mklnl(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],ar["child_ar"]) # Performing the likelihood calculation
+    cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],ar["child_ar"]) # Performing the likelihood calculation
     # cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],ar["child_ar"])
     if debug:
         print(ar["nodelist"][-1])
