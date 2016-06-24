@@ -378,8 +378,6 @@ class Mk_mr_tests(unittest.TestCase):
 
         calculated_l = mk_mr.mk_mr_midbranch(tree, chars, Qs, [switchpoint0,switchpoint1],ar=ar,debug=True)
 
-        print(true_L)
-        print(calculated_l)
         self.assertTrue(np.isclose(calculated_l, true_L))
 
     def test_makemklnlfunc_makesfunc(self):
@@ -395,7 +393,7 @@ class Mk_mr_tests(unittest.TestCase):
 
         f = cyexpokit.make_mklnl_func(tree, data, 2, 1, qidx)
         params = np.array([0.1,0.1])
-        cylik = (f(params))
+        cylik = f(params,np.array([],dtype=int),np.array([]))
 
         Qs = np.array([[[-0.1,  0.1],
                      [ 0.1, -0.1]]])
@@ -406,7 +404,7 @@ class Mk_mr_tests(unittest.TestCase):
         self.assertTrue(np.isclose(cylik, truelik))
     def test_makemklnlfunc_multi_makesfunc(self):
         tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
-        daata = {"A":1,"B":0,"D":0,"F":0}
+        data = {"A":1,"B":0,"D":0,"F":0}
         Q1 = np.array([[-0.10,0.10],
                        [0.05,-0.05]])
         Q2 = np.array([[-1.5,1.5],
@@ -415,22 +413,156 @@ class Mk_mr_tests(unittest.TestCase):
         switchpoint = (tree["C"], 0.75)
 
         qidx = np.array(
-            [[0,0,1,0],
-             [0,1,0,1],
+            [[0,0,1,1],
+             [0,1,0,0],
              [1,0,1,3],
              [1,1,0,2]],
             dtype=np.intp)
 
         switches = np.array([switchpoint[0].ni], dtype=np.intp)
         lengths = np.array([switchpoint[1]], dtype=np.double)
-        f = cyexpokit.make_mklnl_func(tree, data, 2, 2, qidx)
+
+        tree_copy = tree.copy()
+        for n in tree_copy.descendants():
+            n.meta["cached"]=False
+            n.bisect_branch(1e-15, reindex=False)
+        tree_copy.reindex()
+        tree_copy.set_iternode_cache()
+        for n in tree_copy.iternodes():
+            n.meta["cached"] = True
+
+        switches = np.array([tree_copy[switchpoint[0].id].ni], dtype=np.intp)
+        lengths = np.array([switchpoint[1]], dtype=np.double)
+
+        f = cyexpokit.make_mklnl_func(tree_copy, data, 2, 2, qidx)
 
         params = np.array([0.05,0.1,1.0,1.5])
         cylik = f(params, switches, lengths)
 
-        truelik = mk_mr.mk_mr_midbranch(tree, chars, Qs, [switchpoint])
+        truelik = mk_mr.mk_mr_midbranch(tree, data, Qs, [switchpoint])
+
+
+        trueinds = np.array([0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0])
+
+        self.assertTrue((trueinds==f.qi).all())
 
         self.assertTrue(np.isclose(cylik, truelik))
+    def test_makemklnlfunc_twoswitch_makesfunc(self):
+        tree = ivy.tree.read(u'(((A:1,B:1)C:1,D:2)E:1,F:3)root;')
+        data = {"A":1,"B":0,"D":0,"F":0}
+        Q1 = np.array([[-0.10,0.10],
+                       [0.05,-0.05]])
+        Q2 = np.array([[-1.5,1.5],
+                       [1.,-1.]])
+        Q3 = np.array([[-.01,.01],
+                       [.015,-.015]])
+        Qs = np.array([Q2,Q3,Q1])
+        switchpoint = [(tree["C"], 0.75),(tree["E"],0.25)]
+
+        qidx = np.array(
+            [[0,0,1,1],
+             [0,1,0,0],
+             [1,0,1,3],
+             [1,1,0,2],
+             [2,0,1,4],
+             [2,1,0,5]],
+            dtype=np.intp)
+
+        tree_copy = tree.copy()
+        for n in tree_copy.descendants():
+            n.meta["cached"]=False
+            n.bisect_branch(1e-15, reindex=False)
+        tree_copy.reindex()
+        tree_copy.set_iternode_cache()
+        for n in tree_copy.iternodes():
+            n.meta["cached"] = True
+
+        switches = np.array([tree_copy[s[0].id].ni for s in switchpoint], dtype=np.intp)
+        lengths = np.array([s[1] for s in switchpoint], dtype=np.double)
+
+        f = cyexpokit.make_mklnl_func(tree_copy, data, 2, 3, qidx)
+
+        params = np.array([0.05,0.1,1.0,1.5,.01,.015])
+        cylik = f(params, switches, lengths)
+
+        truelik = mk_mr.mk_mr_midbranch(tree, data, Qs, switchpoint)
+        self.assertTrue(np.isclose(cylik, truelik))
+
+        # If we re-use the same likelihood function, do we get the correct
+        # likelihood?
+        switches_2 = np.array([2,6],dtype=np.int)
+        lens_2 = np.array([.333,.5])
+
+        f_2 = cyexpokit.make_mklnl_func(tree_copy, data, 2, 3, qidx)
+
+        cylik1 = f(params, switches_2,lens_2)
+        cylik2 = f_2(params, switches_2, lens_2)
+        self.assertTrue(np.isclose(cylik1,cylik2))
+
+    def test_makemklnl_largetree(self):
+        tree = ivy.tree.read(u"support/hrm_600tips.newick")
+        chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0,
+        1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+        0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+        1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        data = dict(zip([n.label for n in tree.leaves()],chars))
+        Q0 = np.array([[-0.061457569587587413,0.061457569587587413],
+                      [0.061457569587587413,-0.061457569587587413]])
+        Q1 = np.array([[-1.4976115055655292,1.4976115055655292],
+                      [1.4976115055655292,-1.4976115055655292]])
+        Q2 = np.array([[-0.0014644343303779842,0.0014644343303779842],
+                      [0.0014644343303779842,-0.0014644343303779842]])
+        Qs = np.array([Q0,Q1,Q2])
+        switchpoint0 = (tree[579],1.2)
+        switchpoint1 = (tree[329],3.0)
+        switchpoint = [switchpoint0,switchpoint1]
+
+        true_L = -89.213330113632566
+        qidx = np.array(
+            [[0,0,1,0],
+             [0,1,0,0],
+             [1,0,1,1],
+             [1,1,0,1],
+             [2,0,1,2],
+             [2,1,0,2]],
+            dtype=np.intp)
+
+        tree_copy = tree.copy()
+        for n in tree_copy.descendants():
+            n.meta["cached"]=False
+            n.bisect_branch(1e-15, reindex=False)
+        tree_copy.reindex()
+        tree_copy.set_iternode_cache()
+        for n in tree_copy.iternodes():
+            n.meta["cached"] = True
+
+        switches = np.array([tree_copy[s[0].id].ni for s in switchpoint], dtype=np.intp)
+        lengths = np.array([s[1] for s in switchpoint], dtype=np.double)
+
+        f = cyexpokit.make_mklnl_func(tree_copy, data, 2, 3, qidx)
+        cy_l = f(np.array([0.0014644,0.061457,1.497611]), switches, lengths)
+        cy_l = f(np.array([0.0014644,0.061457,1.497611]), switches, lengths)
+
+        self.assertTrue(np.isclose(true_L, cy_l, atol=1e-4))
 
     def test_cytree_makestree(self):
         tree = ivy.tree.read(u"support/hrm_600tips.newick")

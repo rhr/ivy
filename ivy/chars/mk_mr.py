@@ -95,7 +95,7 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
     # inds corresponds to the tree in postorder sequence, with each value
     # corresponding to the regime that node is in. It is passed to dexpm3
     switches_ni = [ar["tree_copy"][s[0].id].ni for s in switchpoint] + [0]
-    cyexpokit.inds_from_switchpoint(np.array(switches_ni), ar["cladesize_preorder"],
+    cyexpokit.inds_from_switchpoint_p(np.array(switches_ni), ar["cladesize_preorder"],
                                     ar["clades_postorder_preorder"],
                                     ar["inds"])
     (Qs != ar["prev_Q"]).any(axis=(1,2), out=ar["Qdif"])
@@ -313,7 +313,10 @@ def create_mkmr_mb_ar(tree, chars,nregime,findmin = True):
 
     wsp = np.empty(4*nchar*nchar+IDEG+1)
     cladesize_preorder = np.array([len(n) for n in tree_copy])
-    clades_postorder_preorder = [[i.pi for i in n] for n in tree_copy]
+    clades_postorder_preorder = np.zeros([len(tree_copy),len(tree_copy)])
+    clades_postorder_preorder -= 1
+    for ni,node in enumerate(tree_copy):
+        clades_postorder_preorder[ni][:cladesize_preorder[ni]] = [x.pi for x in node]
 
     var = {"Q": Q, "p": p, "t":t, "nodelist":nodelist, "charlist":charlist,
            "nodelistOrig":nodelistOrig, "upperbound":upperbound,

@@ -68,22 +68,42 @@ def lndexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
                 for k in range(nstates):
                     p[i,j,k] = log(p[i,j,k])
 
-def inds_from_switchpoint(np.ndarray switches_ni,
+def inds_from_switchpoint_p(np.ndarray switches_ni,
                           np.ndarray cladesize_preorder,
-                          list clades_postorder_preorder,
+                          np.ndarray clades_postorder_preorder,
                           np.ndarray inds):
     cdef int i, s, n, nr
     nr = len(switches_ni)-1
 
-    switches_ni_c = switches_ni[:]
-    switches_ni_c.sort(key=lambda x: cladesize_preorder[x])
-
-    switches_key = [switches_ni_c.index(i) for i in switches_ni]
-
-    for i,s in enumerate(switches_ni_c[::-1]):
+    # cdef np.ndarray switches_key #Argsort creates new array. Is there a better way to do this?
+    switches_key = np.argsort(cladesize_preorder[switches_ni])
+    # all descendants of that node to that switchpoint's regime.
+    # Switchpoints that are more downstream will overwrite upstream
+    # switchpoints.
+    for i,s in enumerate(switches_ni[switches_key][::-1]):
         for n in clades_postorder_preorder[s]:
+            if n == -1:
+                break
             if not n==len(cladesize_preorder)-1: # Ignore the root
                 inds[n] = switches_key[nr-i]
+
+cdef inds_from_switchpoint(np.ndarray switches_ni,
+                          Py_ssize_t[:] switch_q_tracker,
+                          Py_ssize_t[:,:] clades_preorder,
+                          Py_ssize_t[:] qi):
+    cdef int i, s, n, nr
+    qi[:] = 0 # Start by assigning all nodes to root q (0)
+    nr = len(switches_ni)
+
+    for i,s in enumerate(switches_ni):
+        switch_q_tracker[s] = i+1 # 0 belongs to the root
+    switches_ni.sort()
+    for i,s in enumerate(switches_ni[::-1]): # Iterate through from smallest to largest clade
+        for n in clades_preorder[s]:
+            if n == -1:
+                break
+            if qi[n] == 0: # Skip over node if it has already been assigned
+                qi[n] = switch_q_tracker[s]
 
 def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef list nodes = list(root.iternodes())
@@ -92,6 +112,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         [ nodes.index(n) for n in root.postiter() if n.children ], dtype=np.intp)
     cdef Py_ssize_t i, j, N = len(postorder)
     cdef np.ndarray t = np.array([ n.length for n in nodes ], dtype=np.double)
+    cdef np.ndarray t_copy = t.copy()
     cdef np.ndarray p = np.empty((nnodes, k, k), dtype=np.double)
     cdef int ideg = 6
     cdef np.ndarray wsp = np.empty(4*k*k+ideg+1)
@@ -105,6 +126,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     for nd in root.internals(): # Setting internal log-likelihoods to 0
         i = nodes.index(nd)
         fraclnl[i,:] = 0
+    cdef np.ndarray fraclnl_copy = fraclnl.copy()
     cdef np.ndarray tmp = np.empty(k)
     cdef int c = max([ len(n.children) for n in root if n.children ])
     cdef np.ndarray children = np.zeros((N, c), dtype=np.intp)
@@ -113,12 +135,22 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         for j, child in enumerate(nodes[postorder[i]].children):
             children[i,j] = nodes.index(child)
     cdef np.ndarray q = np.zeros((nq,k,k), dtype=np.double)
+
     cdef np.ndarray rootprior = np.empty([k])
     rootprior[:] = np.log(1.0/k) # Flat root prior
-    cdef np.ndarray cladesize_preorder # Used for assigning branches to switchpoints
-    cladesize_preorder = np.array([len(n) for n in root])
 
-    def f(double[:] params,Py_ssize_t[:] switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx):
+
+    cdef np.ndarray clades_preorder # preorder indices of all descendants of each node, in preorder sequence
+    clades_preorder = np.zeros([nnodes,nnodes],dtype=np.intp)
+    clades_preorder -= 1
+    for n,node in enumerate(nodes):
+        clades_preorder[n][:len(node)] = [x.ni for x in node]
+
+    # Hackish way of keeping track of switchpoints after sorting them in inds_from_switchpoint
+    cdef np.ndarray switch_q_tracker = np.zeros([nnodes],dtype=np.intp) # keep track of which switchpoint nodes are associated with which q matrices
+    cdef np.ndarray switches_copy = np.zeros([nq-1],dtype=np.intp) # Store pre-sorted switches
+
+    def f(double[:] params,np.ndarray switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx):
         """
         params: array of free rate parameters, assigned to q by indices in qidx
         qidx columns:
@@ -131,7 +163,8 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         Asymmetric mk2:
             params = [0.2,0.6]; qidx = [[0,0,1,0],[0,1,0,1]]
         """
-        cdef Py_ssize_t r, a, b, c, d
+        switches_copy[:] = switches[:]
+        cdef Py_ssize_t r, a, b, c, d, si
         cdef double x = 0
         for r in range(qidx.shape[0]):
             a = qidx[r,0]
@@ -146,13 +179,28 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
                     if i != j:
                         x -= q[r,i,j]
                 q[r,i,i] = x
+
+        t[:] = t_copy[:] # Reset branch lengths
+        for r in range(nq-1): # Branch lengths for switchpoints
+            si = switches[r]
+            t[si] = lengths[r]
+            t[si-1] -= lengths[r]
+
+        # Q indices
+        inds_from_switchpoint(switches_copy,switch_q_tracker,clades_preorder,qi)
+
+        # P matrix exponentiation
+
         dexpm3(q, t, qi, tmask, p, ideg, wsp)
         np.log(p, out=p)
+        # Likelihood calculation
+        fraclnl[:] = fraclnl_copy[:]
         mklnl(fraclnl, p, k, tmp, postorder, children)
         return logsumexp(fraclnl[postorder[-1]]+rootprior)
 
     # attached allocated arrays to function object
     f.fraclnl = fraclnl
+    f.fraclnl_copy = fraclnl_copy
     f.q = q
     f.p = p
     f.qi = qi
@@ -160,7 +208,10 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     f.postorder = postorder
     f.children = children
     f.t = t
+    f.t_copy = t_copy
     f.rootprior = rootprior
+    f.clades_preorder = clades_preorder
+    f.switch_q_tracker = switch_q_tracker
     return f
 
 # cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
@@ -329,9 +380,12 @@ def mklnl(double[:,:] fraclnl,
             for ancstate in range(k):
                 for childstate in range(k):
                     # Multiply child's likelihood by p-matrix entry
+
                     tmp[childstate] = (p[child,ancstate,childstate] +
                                        fraclnl[child,childstate])
                 # Sum of log-likelihoods of children
+                if parent == 31:
+                    print(fraclnl[parent,ancstate])
                 fraclnl[parent,ancstate] += logsumexp(tmp)
 
 # def cy_mk(double[:,:] fraclnl,
