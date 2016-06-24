@@ -150,6 +150,15 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef np.ndarray switch_q_tracker = np.zeros([nnodes],dtype=np.intp) # keep track of which switchpoint nodes are associated with which q matrices
     cdef np.ndarray switches_copy = np.zeros([nq-1],dtype=np.intp) # Store pre-sorted switches
 
+
+    # Keeping track of previously calculated values to avoid redundant calculations
+    cdef np.ndarray prev_t = t.copy()
+    prev_t[:] = -1
+    cdef np.ndarray prev_q = q.copy()
+    prev_q[:] = -1
+    cdef np.ndarray prev_qi = qi.copy()
+    prev_qi[:] = -1
+    cdef np.ndarray qdif = np.zeros([nq],dtype=np.uint8) # Which q-matrices are different
     def f(double[:] params,np.ndarray switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx):
         """
         params: array of free rate parameters, assigned to q by indices in qidx
@@ -189,13 +198,39 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         # Q indices
         inds_from_switchpoint(switches_copy,switch_q_tracker,clades_preorder,qi)
 
-        # P matrix exponentiation
+        # tmask creation
+        tmask[:]=0
 
+        # q indices changed?
+        tmask[:] = qi!=prev_qi
+
+        # q parameters changed?
+        qdif.fill(0)
+        for r in range(nq):
+            if not (q[r] == prev_q[r]).all():
+                qdif[r] == 1
+        for r in range(nnodes):
+            if qdif[qi[r]]:
+                tmask[r] = 1
+        # Branch lengths changed?
+        for r in range(nnodes):
+            if t[r] != prev_t[r]:
+                tmask[r] = 1
+
+
+        # P matrix exponentiation
+        np.exp(p,out=p) # Necessary for handling p-matrices that aren't recalculated
         dexpm3(q, t, qi, tmask, p, ideg, wsp)
         np.log(p, out=p)
+
         # Likelihood calculation
         fraclnl[:] = fraclnl_copy[:]
         mklnl(fraclnl, p, k, tmp, postorder, children)
+
+        prev_t[:] = t[:]
+        prev_q[:] = q[:]
+        prev_qi[:] = qi[:]
+
         return logsumexp(fraclnl[postorder[-1]]+rootprior)
 
     # attached allocated arrays to function object
@@ -384,8 +419,6 @@ def mklnl(double[:,:] fraclnl,
                     tmp[childstate] = (p[child,ancstate,childstate] +
                                        fraclnl[child,childstate])
                 # Sum of log-likelihoods of children
-                if parent == 31:
-                    print(fraclnl[parent,ancstate])
                 fraclnl[parent,ancstate] += logsumexp(tmp)
 
 # def cy_mk(double[:,:] fraclnl,
