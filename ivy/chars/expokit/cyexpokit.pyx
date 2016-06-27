@@ -15,7 +15,7 @@ cdef extern:
                      double* wsp, double* expH)
 @cython.boundscheck(False)
 cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
-                 np.uint8_t[:] tmask,
+                 Py_ssize_t[:] tmask,
                  double[:,:,:] p, int ideg, double[:] wsp):
     """
     Compute transition probabilities exp(q*t) for a 'stack' of q
@@ -91,14 +91,14 @@ cdef inds_from_switchpoint(np.ndarray switches_ni,
                           Py_ssize_t[:] switch_q_tracker,
                           Py_ssize_t[:,:] clades_preorder,
                           Py_ssize_t[:] qi):
-    cdef int i, s, n, nr
+    cdef Py_ssize_t i, s, n, nr
     qi[:] = 0 # Start by assigning all nodes to root q (0)
     nr = len(switches_ni)
-
-    for i,s in enumerate(switches_ni):
-        switch_q_tracker[s] = i+1 # 0 belongs to the root
+    for i in range(nr):
+        switch_q_tracker[switches_ni[i]] = i+1
     switches_ni.sort()
-    for i,s in enumerate(switches_ni[::-1]): # Iterate through from smallest to largest clade
+    for i in range(nr):
+        s = switches_ni[::-1][i]
         for n in clades_preorder[s]:
             if n == -1:
                 break
@@ -108,35 +108,35 @@ cdef inds_from_switchpoint(np.ndarray switches_ni,
 def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef list nodes = list(root.iternodes())
     cdef nnodes = len(nodes)
-    cdef np.ndarray postorder = np.array(
+    cdef Py_ssize_t[:] postorder = np.array(
         [ nodes.index(n) for n in root.postiter() if n.children ], dtype=np.intp)
     cdef Py_ssize_t i, j, N = len(postorder)
-    cdef np.ndarray t = np.array([ n.length for n in nodes ], dtype=np.double)
-    cdef np.ndarray t_copy = t.copy()
+    cdef double[:] t = np.array([ n.length for n in nodes ], dtype=np.double)
+    cdef double[:] t_copy = t.copy()
     cdef np.ndarray p = np.empty((nnodes, k, k), dtype=np.double)
     cdef int ideg = 6
-    cdef np.ndarray wsp = np.empty(4*k*k+ideg+1)
-    cdef np.ndarray qi = np.zeros(nnodes, dtype=np.intp)
-    cdef tmask = np.ones(nnodes, dtype=np.uint8)
-    cdef np.ndarray fraclnl = np.empty((nnodes, k), dtype=np.double)
-    fraclnl.fill(-INFINITY)
+    cdef double[:] wsp = np.empty(4*k*k+ideg+1)
+    cdef Py_ssize_t[:] qi = np.zeros(nnodes, dtype=np.intp)
+    cdef Py_ssize_t[:] tmask = np.ones(nnodes, dtype=np.intp)
+    cdef double[:,:] fraclnl = np.empty((nnodes, k), dtype=np.double)
+    fraclnl[:] = -INFINITY
     for lf in root.leaves():
         i = nodes.index(lf)
         fraclnl[i, data[lf.label]] = 0
     for nd in root.internals(): # Setting internal log-likelihoods to 0
         i = nodes.index(nd)
         fraclnl[i,:] = 0
-    cdef np.ndarray fraclnl_copy = fraclnl.copy()
-    cdef np.ndarray tmp = np.empty(k)
+    cdef double[:,:] fraclnl_copy = fraclnl.copy()
+    cdef double[:] tmp = np.empty(k)
     cdef int c = max([ len(n.children) for n in root if n.children ])
-    cdef np.ndarray children = np.zeros((N, c), dtype=np.intp)
-    children -= 1
+    cdef Py_ssize_t[:,:] children = np.zeros((N, c), dtype=np.intp)
+    children[:] = -1
     for i in range(len(postorder)):
         for j, child in enumerate(nodes[postorder[i]].children):
             children[i,j] = nodes.index(child)
-    cdef np.ndarray q = np.zeros((nq,k,k), dtype=np.double)
+    cdef double[:,:,:] q = np.zeros((nq,k,k), dtype=np.double)
 
-    cdef np.ndarray rootprior = np.empty([k])
+    cdef double[:] rootprior = np.empty([k])
     rootprior[:] = np.log(1.0/k) # Flat root prior
 
 
@@ -147,18 +147,18 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         clades_preorder[n][:len(node)] = [x.ni for x in node]
 
     # Hackish way of keeping track of switchpoints after sorting them in inds_from_switchpoint
-    cdef np.ndarray switch_q_tracker = np.zeros([nnodes],dtype=np.intp) # keep track of which switchpoint nodes are associated with which q matrices
+    cdef Py_ssize_t[:] switch_q_tracker = np.zeros([nnodes],dtype=np.intp) # keep track of which switchpoint nodes are associated with which q matrices
     cdef np.ndarray switches_copy = np.zeros([nq-1],dtype=np.intp) # Store pre-sorted switches
 
 
     # Keeping track of previously calculated values to avoid redundant calculations
-    cdef np.ndarray prev_t = t.copy()
+    cdef double[:] prev_t = t.copy()
     prev_t[:] = -1
-    cdef np.ndarray prev_q = q.copy()
+    cdef double[:,:,:] prev_q = q.copy()
     prev_q[:] = -1
-    cdef np.ndarray prev_qi = qi.copy()
+    cdef Py_ssize_t[:] prev_qi = qi.copy()
     prev_qi[:] = -1
-    cdef np.ndarray qdif = np.zeros([nq],dtype=np.uint8) # Which q-matrices are different
+    cdef Py_ssize_t[:] qdif = np.zeros([nq],dtype=np.intp) # Which q-matrices are different
     def f(double[:] params,np.ndarray switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx):
         """
         params: array of free rate parameters, assigned to q by indices in qidx
@@ -200,26 +200,27 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
 
         # tmask creation
         tmask[:]=0
-
-        # q indices changed?
-        tmask[:] = qi!=prev_qi
-
         # q parameters changed?
-        qdif.fill(0)
+        qdif[:] = 0
         for r in range(nq):
-            if not (q[r] == prev_q[r]).all():
-                qdif[r] == 1
+            for a in range(q.shape[1]):
+                for b in range(q.shape[1]):
+                    if not (q[r,a,b] == prev_q[r,a,b]):
+                        qdif[r] == 1
+                        break
+                if qdif[r]==1:
+                    break
         for r in range(nnodes):
-            if qdif[qi[r]]:
+            if qdif[qi[r]]: # Q parameters changed
                 tmask[r] = 1
-        # Branch lengths changed?
-        for r in range(nnodes):
-            if t[r] != prev_t[r]:
+            if qi[r] != prev_qi[r]: # Q index changed
+                tmask[r] = 1
+            if t[r] != prev_t[r]: # Branch lengths changed
                 tmask[r] = 1
 
 
         # P matrix exponentiation
-        np.exp(p,out=p) # Necessary for handling p-matrices that aren't recalculated
+        np.exp(p, out=p) # Necessary for handling p-matrices that aren't recalculated
         dexpm3(q, t, qi, tmask, p, ideg, wsp)
         np.log(p, out=p)
 
@@ -227,11 +228,16 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         fraclnl[:] = fraclnl_copy[:]
         mklnl(fraclnl, p, k, tmp, postorder, children)
 
+        # Storing parameters
         prev_t[:] = t[:]
         prev_q[:] = q[:]
         prev_qi[:] = qi[:]
 
-        return logsumexp(fraclnl[postorder[-1]]+rootprior)
+        # The root likelihood is the first row of fraclnl
+        for r in range(k):
+            fraclnl[0][r] += rootprior[r]
+
+        return logsumexp(fraclnl[0])
 
     # attached allocated arrays to function object
     f.fraclnl = fraclnl
