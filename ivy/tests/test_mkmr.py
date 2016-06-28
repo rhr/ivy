@@ -422,19 +422,11 @@ class Mk_mr_tests(unittest.TestCase):
         switches = np.array([switchpoint[0].ni], dtype=np.intp)
         lengths = np.array([switchpoint[1]], dtype=np.double)
 
-        tree_copy = tree.copy()
-        for n in tree_copy.descendants():
-            n.meta["cached"]=False
-            n.bisect_branch(1e-15, reindex=False)
-        tree_copy.reindex()
-        tree_copy.set_iternode_cache()
-        for n in tree_copy.iternodes():
-            n.meta["cached"] = True
 
-        switches = np.array([tree_copy[switchpoint[0].id].ni], dtype=np.intp)
+        switches = np.array([tree[switchpoint[0].id].ni], dtype=np.intp)
         lengths = np.array([switchpoint[1]], dtype=np.double)
 
-        f = cyexpokit.make_mklnl_func(tree_copy, data, 2, 2, qidx)
+        f = cyexpokit.make_mklnl_func(tree, data, 2, 2, qidx)
 
         params = np.array([0.05,0.1,1.0,1.5])
         cylik = f(params, switches, lengths)
@@ -468,19 +460,10 @@ class Mk_mr_tests(unittest.TestCase):
              [2,1,0,5]],
             dtype=np.intp)
 
-        tree_copy = tree.copy()
-        for n in tree_copy.descendants():
-            n.meta["cached"]=False
-            n.bisect_branch(1e-15, reindex=False)
-        tree_copy.reindex()
-        tree_copy.set_iternode_cache()
-        for n in tree_copy.iternodes():
-            n.meta["cached"] = True
-
-        switches = np.array([tree_copy[s[0].id].ni for s in switchpoint], dtype=np.intp)
+        switches = np.array([s[0].ni for s in switchpoint], dtype=np.intp)
         lengths = np.array([s[1] for s in switchpoint], dtype=np.double)
 
-        f = cyexpokit.make_mklnl_func(tree_copy, data, 2, 3, qidx)
+        f = cyexpokit.make_mklnl_func(tree, data, 2, 3, qidx)
 
         params = np.array([0.05,0.1,1.0,1.5,.01,.015])
         cylik = f(params, switches, lengths)
@@ -493,7 +476,7 @@ class Mk_mr_tests(unittest.TestCase):
         switches_2 = np.array([2,6],dtype=np.int)
         lens_2 = np.array([.333,.5])
 
-        f_2 = cyexpokit.make_mklnl_func(tree_copy, data, 2, 3, qidx)
+        f_2 = cyexpokit.make_mklnl_func(tree, data, 2, 3, qidx)
 
         cylik1 = f(params, switches_2,lens_2)
         cylik2 = f_2(params, switches_2, lens_2)
@@ -546,19 +529,10 @@ class Mk_mr_tests(unittest.TestCase):
              [2,1,0,2]],
             dtype=np.intp)
 
-        tree_copy = tree.copy()
-        for n in tree_copy.descendants():
-            n.meta["cached"]=False
-            n.bisect_branch(1e-15, reindex=False)
-        tree_copy.reindex()
-        tree_copy.set_iternode_cache()
-        for n in tree_copy.iternodes():
-            n.meta["cached"] = True
-
-        switches = np.array([tree_copy[s[0].id].ni for s in switchpoint], dtype=np.intp)
+        switches = np.array([tree[s[0].id].ni for s in switchpoint], dtype=np.intp)
         lengths = np.array([s[1] for s in switchpoint], dtype=np.double)
 
-        f = cyexpokit.make_mklnl_func(tree_copy, data, 2, 3, qidx)
+        f = cyexpokit.make_mklnl_func(tree, data, 2, 3, qidx)
         cy_l = f(np.array([0.0014644,0.061457,1.497611]), switches, lengths)
         cy_l = f(np.array([0.0014644,0.061457,1.497611]), switches, lengths)
 

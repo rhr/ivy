@@ -129,8 +129,7 @@ def mk_mr_midbranch(tree, chars, Qs, switchpoint, pi="Equal", returnPi=False,
 
     cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],ar["child_ar"]) # Performing the likelihood calculation
     # cyexpokit.cy_mk_log(ar["nodelist"], ar["p"], nchar, ar["tmp_ar"],ar["intnode_list"],ar["child_ar"])
-    if debug:
-        print(ar["nodelist"][-1])
+
     ################
     # Step 5: apply root prior
     ################
@@ -787,7 +786,7 @@ def make_modelorder_stoch(mods, name=str("modorder")):
         return 0
     return modelorder_stoch
 
-def mk_multi_bayes(tree, chars, mods=None, pi="Equal", db=None,
+def mk_multi_bayes(tree, chars,nregime,qidx=None, pi="Equal", db=None,
                    dbname=None,seglen=0.02,stepsize=0.05):
     """
     Create a Bayesian multi-mk model. User specifies which regime models
@@ -872,15 +871,13 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", db=None,
 
     """
     if type(chars) == dict:
+        data = chars.copy()
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
+    else:
+        data = dict(zip([n.label for n in tree.leaves()],chars))
     # Preparations
-
-    nregime = len(mods)
     nchar = len(set(chars))
-    if mods is not None:
-        nparam = len(set([i for s in mods for i in s]))
-    else: # Default to ARD model
-        nparam = ((nchar**2)-nchar) * nregime
+    nparam = len(set([n[-1] for n in qidx]))
     print("preparations complete")
 
     # This model has 2 components: Q parameters and switchpoints
@@ -911,22 +908,19 @@ def mk_multi_bayes(tree, chars, mods=None, pi="Equal", db=None,
     # Likelihood
     ###########################################################################
     # The likelihood function
-    if mods is not None:
-        l = lf_mk_mr_midbranch_mods(tree=tree, chars=chars,
-            mods=mods, pi=pi, findmin=False, orderedparams=False)
-    else:
-        l = lf_mk_mr_midbranch(tree, chars=chars, Qtype="ARD",
-                                               nregime=nregime, pi=pi,
-                                               findmin=False)
+    l = cyexpokit.make_mklnl_func(tree, data,nchar,nregime,qidx)
     print("likelihood function complete")
 
     @pymc.deterministic
     def likelihood(q = Qparams, s=switch,name="likelihood"):
-        return l(q,s)
+        return l(np.array(q),np.array([x[0].ni for x in s]),np.array([x[1] for x in s]))
 
     @pymc.potential
-    def multi_mklik(l=likelihood):
-        return l
+    def multi_mklik(lnl=likelihood):
+        if not (np.isnan(lnl)):
+            return lnl
+        else:
+            return -np.inf
 
     if db is None:
         mod = pymc.MCMC(locals())

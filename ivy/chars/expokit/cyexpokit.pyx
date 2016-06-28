@@ -38,7 +38,8 @@ cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
     cdef Py_ssize_t i
     cdef int nstates = q.shape[1]
     for i in range(t.shape[0]):
-        if tmask[i]:
+#        if tmask[i]:
+        if True:
             f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
 def lndexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
             double[:,:,:] p, int ideg, np.ndarray[dtype=DTYPE_t, ndim=1] wsp,
@@ -109,10 +110,19 @@ cdef inds_from_switchpoint(np.ndarray switches_ni,
                 qi[n] = switch_q_tracker[s] # Assign the correct q matrix to this index.
 
 def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
-    cdef list nodes = list(root.iternodes())
+    root_copy = root.copy()
+    for node in root_copy.descendants():
+        node.meta["cached"]=False
+        node.bisect_branch(1e-15,reindex=False)
+    root_copy.reindex()
+    root_copy.set_iternode_cache()
+    for node in root_copy.iternodes():
+        node.meta["cached"] = True
+    # root_copy is a fully bisected copy of the original tree
+    cdef list nodes = list(root_copy.iternodes())
     cdef nnodes = len(nodes)
     cdef Py_ssize_t[:] postorder = np.array(
-        [ nodes.index(n) for n in root.postiter() if n.children ], dtype=np.intp)
+        [ nodes.index(n) for n in root_copy.postiter() if n.children ], dtype=np.intp)
     cdef Py_ssize_t i, j, N = len(postorder)
     cdef double[:] t = np.array([ n.length for n in nodes ], dtype=np.double)
     cdef double[:] t_copy = t.copy()
@@ -123,15 +133,15 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef Py_ssize_t[:] tmask = np.ones(nnodes, dtype=np.intp)
     cdef double[:,:] fraclnl = np.empty((nnodes, k), dtype=np.double)
     fraclnl[:] = -INFINITY
-    for lf in root.leaves():
+    for lf in root_copy.leaves():
         i = nodes.index(lf)
         fraclnl[i, data[lf.label]] = 0
-    for nd in root.internals(): # Setting internal log-likelihoods to 0
+    for nd in root_copy.internals(): # Setting internal log-likelihoods to 0
         i = nodes.index(nd)
         fraclnl[i,:] = 0
     cdef double[:,:] fraclnl_copy = fraclnl.copy()
     cdef double[:] tmp = np.empty(k)
-    cdef int c = max([ len(n.children) for n in root if n.children ])
+    cdef int c = max([ len(n.children) for n in root_copy if n.children ])
     cdef Py_ssize_t[:,:] children = np.zeros((N, c), dtype=np.intp)
     children[:] = -1
     for i in range(len(postorder)):
@@ -176,6 +186,8 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         Asymmetric mk2:
             params = [0.2,0.6]; qidx = [[0,0,1,0],[0,1,0,1]]
         """
+        switches *= 2 # The corresponding ni of a node in the bisected tree
+                      # is 2x the original ni
         switches_copy[:] = switches[:]
         cdef Py_ssize_t r, a, b, c, d, si
         cdef double x = 0
@@ -241,6 +253,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         for r in range(k):
             fraclnl[0][r] += rootprior[r]
 
+        switches /= 2 # Reset switches back to original value
         return logsumexp(fraclnl[0])
 
     # attached allocated arrays to function object

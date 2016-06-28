@@ -88,6 +88,7 @@ import numpy as np
 from ivy.chars import bayesian_models
 import pymc
 import matplotlib.pyplot as plt
+from ivy.chars.expokit import cyexpokit
 
 from ivy.interactive import *
 tree = ivy.tree.read("support/Mk_two_regime_tree.newick")
@@ -108,7 +109,7 @@ mr_chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0]
-
+data = dict(zip([n.label for n in tree.leaves()],mr_chars))
 # The Q-matrices used to generate the character states
 trueFastQ = np.array([[-.8,.8], [.8,-.8]])
 trueSlowQ = np.array([[-.1,.1], [.1,-.1]])
@@ -117,12 +118,20 @@ ar = mk_mr.create_mkmr_mb_ar(tree, mr_chars, 2)
 
 switchpoint =[(tree[350],0.0)]
 
-%timeit mk_mr.mk_mr_midbranch(tree, mr_chars, trueQs, switchpoint,ar=ar)
-
 mods = [(2,2),(1,1)]
 
-mod_mr = mk_mr.mk_multi_bayes(tree, mr_chars, mods=mods,nregime=2,stepsize=0.2)
-mod_mr.sample(100,burn=10,thin=1)
+qidx = np.array([[0,0,1,0],
+                 [0,1,0,0],
+                 [1,0,1,1],
+                 [1,1,0,1]])
+switches = np.array([120])
+lengths = np.array([1e-15])
+f = cyexpokit.make_mklnl_func(tree, data, 2, 2, qidx)
+f(np.array([0.1,0.05]),switches,lengths)
+
+
+mod_mr = mk_mr.mk_multi_bayes(tree, data,nregime=2,qidx=qidx,stepsize=0.2)
+mod_mr.sample(100000,burn=10000,thin=3)
 
 
 chars = mr_chars
@@ -148,11 +157,11 @@ ar = create_mkmr_mb_ar(tree, chardict, nregime, findmin=True)
 
 cProfile.run("mk_mr_midbranch(tree,chars,trueQs,switchpoint,ar=ar)")
 
-x = mod_mr.trace(str("switch_0")[:])
+x = mod_mr.trace(str("switch_0"))[:]
 fig = treefig(tree)
 fig.add_layer(ivy.vis.layers.add_tree_heatmap, x)
 
-plt.plot(mod_mr.trace("switch_0")[:])
+plt.plot([n[0].ni for n in x])
 
 plt.plot(mod_mr.trace(str("Qparam_0"))[:])
 plt.plot(mod_mr.trace(str("Qparam_1"))[:])
@@ -238,19 +247,45 @@ switchpoints = [(tree[579],0.0),(tree[329],0.0)]
 # true_l = mk_mr.mk_mr(tree, chars_r3, true_Qs, true_locs)
 #-212.46280532572879
 mods = [(3, 3), (1, 1), (2, 2)]
+qidx = np.array(
+    [[0,0,1,0],
+     [0,1,0,0],
+     [1,0,1,1],
+     [1,1,0,1],
+     [2,0,1,2],
+     [2,1,0,2]],
+    dtype=np.intp)
+mod_r3 = mk_mr.mk_multi_bayes(tree, chars, 3,qidx=qidx)
 
-mod_r3 = mk_mr.mk_multi_bayes(tree, chars, mods=mods)
+mod_r3.sample(20000)
 
-mod_r3.sample(1000)
+qp1 = mod_r3.trace("Qparam_0")[150]
+qp2 = mod_r3.trace("Qparam_1")[150]
+qp3 = mod_r3.trace("Qparam_2")[150]
 
 
+eQ1 = np.array([[-qp1,qp1],
+                [qp1,-qp1]])
+eQ2 = np.array([[-qp2,qp2],
+               [qp2,-qp2]])
+eQ3 = np.array([[-qp3,qp3],
+               [qp3,-qp3]])
+
+est_Qs = np.array([eQ2,eQ3,eQ1])
+
+s1 = mod_r3.trace("switch_0")[150]
+s2 = mod_r3.trace("switch_1")[150]
+
+mk_mr.mk_mr_midbranch(tree, chars, est_Qs, [s1,s2])
+
+l = mod_r3.trace("likelihood")[150]
 
 x0 = mod_r3.trace(str("switch_0")[:])
 fig = treefig(tree)
 fig.add_layer(ivy.vis.layers.add_tree_heatmap, x0, store="switch0")
 
 x1 = mod_r3.trace(str("switch_1")[:])
-fig.add_layer(ivy.vis.layers.add_tree_heatmap, x0, store="switch1")
+fig.add_layer(ivy.vis.layers.add_tree_heatmap, x0, store="switch1",color="blue")
 
 
 
