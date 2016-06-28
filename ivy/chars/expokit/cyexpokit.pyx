@@ -94,8 +94,11 @@ cdef inds_from_switchpoint(np.ndarray switches_ni,
     cdef Py_ssize_t i, s, n, nr
     qi[:] = 0 # Start by assigning all nodes to root q (0)
     nr = len(switches_ni)
+    # We are going to sort the switchpoints by preorder index. Before we do that,
+    # we need to keep track of which switchpoints are associated with which q-indices
     for i in range(nr):
         switch_q_tracker[switches_ni[i]] = i+1
+    # Now we can sort the switchpoints
     switches_ni.sort()
     for i in range(nr):
         s = switches_ni[::-1][i]
@@ -103,7 +106,7 @@ cdef inds_from_switchpoint(np.ndarray switches_ni,
             if n == -1:
                 break
             if qi[n] == 0: # Skip over node if it has already been assigned
-                qi[n] = switch_q_tracker[s]
+                qi[n] = switch_q_tracker[s] # Assign the correct q matrix to this index.
 
 def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef list nodes = list(root.iternodes())
@@ -143,7 +146,8 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef np.ndarray clades_preorder # preorder indices of all descendants of each node, in preorder sequence
     clades_preorder = np.zeros([nnodes,nnodes],dtype=np.intp)
     clades_preorder -= 1
-    for n,node in enumerate(nodes):
+    for n in range(nnodes):
+        node = nodes[n]
         clades_preorder[n][:len(node)] = [x.ni for x in node]
 
     # Hackish way of keeping track of switchpoints after sorting them in inds_from_switchpoint
