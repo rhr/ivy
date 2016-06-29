@@ -38,8 +38,7 @@ cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
     cdef Py_ssize_t i
     cdef int nstates = q.shape[1]
     for i in range(t.shape[0]):
-#        if tmask[i]:
-        if True:
+        if tmask[i]:
             f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
 def lndexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
             double[:,:,:] p, int ideg, np.ndarray[dtype=DTYPE_t, ndim=1] wsp,
@@ -173,7 +172,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef Py_ssize_t[:] prev_qi = qi.copy()
     prev_qi[:] = -1
     cdef Py_ssize_t[:] qdif = np.zeros([nq],dtype=np.intp) # Which q-matrices are different
-    def f(double[:] params,np.ndarray switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx):
+    def f(double[:] params,np.ndarray switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx,debug=False):
         """
         params: array of free rate parameters, assigned to q by indices in qidx
         qidx columns:
@@ -218,14 +217,12 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         tmask[:]=0
         # q parameters changed?
         qdif[:] = 0
+
         for r in range(nq):
             for a in range(q.shape[1]):
                 for b in range(q.shape[1]):
-                    if not (q[r,a,b] == prev_q[r,a,b]):
-                        qdif[r] == 1
-                        break
-                if qdif[r]==1:
-                    break
+                    if (q[r,a,b] != prev_q[r,a,b]):
+                        qdif[r] = 1
         for r in range(nnodes):
             if qdif[qi[r]]: # Q parameters changed
                 tmask[r] = 1

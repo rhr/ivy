@@ -534,9 +534,17 @@ class Mk_mr_tests(unittest.TestCase):
 
         f = cyexpokit.make_mklnl_func(tree, data, 2, 3, qidx)
         cy_l = f(np.array([0.0014644,0.061457,1.497611]), switches, lengths)
-        cy_l = f(np.array([0.0014644,0.061457,1.497611]), switches, lengths)
 
         self.assertTrue(np.isclose(true_L, cy_l, atol=1e-4))
+
+        switches = np.array([200, 300])
+        lengths = np.array([.3,1.2])
+        cy_l = f(np.array([0.01,0.061457,1.497611]), switches, lengths,debug=True)
+
+        f2 = cyexpokit.make_mklnl_func(tree, data, 2, 3, qidx)
+        true_L = f2(np.array([0.01,0.061457,1.497611]), switches, lengths)
+        self.assertTrue(np.isclose(true_L, cy_l, atol=1e-4))
+
 
     def test_cytree_makestree(self):
         tree = ivy.tree.read(u"support/hrm_600tips.newick")

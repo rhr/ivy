@@ -288,10 +288,11 @@ x1 = mod_r3.trace(str("switch_1")[:])
 fig.add_layer(ivy.vis.layers.add_tree_heatmap, x0, store="switch1",color="blue")
 
 
+s0 = [s[0].ni for s in x0]
+s1 = [s[0].ni for s in x1]
 
-
-plt.plot(mod_r3.trace(str("switch_1"))[:])
-plt.plot(mod_r3.trace(str("switch_0"))[:])
+plt.plot(s0)
+plt.plot(s1)
 
 
 mods = [(2, 2), (3, 3), (1, 1)]
