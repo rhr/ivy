@@ -685,48 +685,13 @@ class SwitchpointMetropolis(pymc.Metropolis):
 
     def local_step(self):
         prev_location = self.stochastic.value
-        cur_node = prev_location[0]
-        cur_len = prev_location[1]
-        direction = random.choice([-1,1])
-        step_size = np.random.uniform(high=self.stepsize)
-        step_size = round_step_size(step_size, self.seg_size)
-        while True:
-            if direction == 1: # Rootward
-                if step_size < (cur_node.length - cur_len): # Stay on same branch
-                    new_location = (cur_node, cur_len+step_size+1e-15)
-                    break
-                else: # If step goes past the parent
-                    if not cur_node.parent.isroot: # Jump to parent node
-                        step_size = step_size - ((cur_node.length//self.seg_size)*self.seg_size-cur_len)
-                        cur_node = cur_node.parent
-                        cur_len = 1e-15
-                    else: # If parent is root, jump to a child of the root
-                        step_size = step_size - ((cur_node.length//self.seg_size)*self.seg_size-cur_len)
-                        valid_nodes = [n for n in cur_node.parent.children if n != cur_node]
-                        cur_node = random.choice(valid_nodes)
 
-                        cur_len = (cur_node.length//self.seg_size)*self.seg_size
-                        direction = -1
-            else: # tipward
-                # Stay on same branch
-                if step_size < cur_len:
-                    new_location = (cur_node, cur_len-step_size)
-                    break
-                else: # Move to new branch
-                    if not cur_node.isleaf: #Move to child
-                        step_size = step_size - cur_len + 1e-15
-                        valid_nodes = cur_node.children
-                        cur_node = random.choice(valid_nodes)
-                        cur_len = (cur_node.length//self.seg_size)*self.seg_size
-                    else: # Bounce up from tip
-                        step_size = step_size - cur_len
-                        cur_len = 1e-15
-                        direction = 1
+        new_location = cyexpokit.local_step(prev_location,self.stepsize,self.seg_size)
 
         self.stochastic.value = new_location
 
     def global_step(self):
-        self.stochastic.value = random_tree_location(self.seg_map)
+        self.stochastic.value = cyexpokit.random_tree_location(self.seg_map)
 
     def reject(self):
         self.rejected += 1
@@ -756,7 +721,7 @@ def tree_map(tree, seglen=0.02):
         nseg = int(ceil(cur_len/seg_size))
         for n in range(nseg):
             seg_map.append((node, n*seg_size+1e-15))
-    return seg_map
+    return np.array(seg_map)
 
 
 def random_tree_location(seg_map):
@@ -772,7 +737,7 @@ def random_tree_location(seg_map):
 
 
 def make_switchpoint_stoch(seg_map, name=str("switch")):
-    startingval = random_tree_location(seg_map)
+    startingval = cyexpokit.random_tree_location(seg_map)
     @pymc.stochastic(dtype=object, name=name)
     def switchpoint_stoch(value = startingval):
         # Flat prior on switchpoint location

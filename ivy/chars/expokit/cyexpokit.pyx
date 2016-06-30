@@ -5,6 +5,8 @@ cimport numpy as np
 from libc.math cimport exp, log
 from numpy.math cimport INFINITY
 cimport cython
+import random
+import pymc
 
 DTYPE = np.double # Fixing a datatype for the arrays
 ctypedef np.double_t DTYPE_t
@@ -584,3 +586,66 @@ cdef double logsumexp(double[:] a) nogil:
     for i in range(n):
         result += exp(a[i] - largest_in_a)
     return largest_in_a + log(result)
+
+
+cdef round_step_size(double step_size, double seg_size):
+    """
+    Round step_size to the nearest segment
+    """
+    if (step_size%seg_size) > (seg_size/2):
+        return step_size + (seg_size-(step_size%seg_size)) + 1e-15
+    else:
+        return step_size - (step_size%seg_size) + 1e-15
+def random_tree_location(seg_map):
+    """
+    Select random location on tree with uniform probability
+
+    Returns:
+        tuple: node and float, which represents the how far along the branch to
+          the parent node the switch occurs on
+    """
+    cdef Py_ssize_t i
+    i = random.choice(range(len(seg_map)))
+    return seg_map[i]
+
+def local_step(prev_location,double stepsize,double seg_size):
+    cdef double cur_len,step_size
+    cdef int direction
+    cur_node = prev_location[0]
+    cur_len = prev_location[1]
+    direction = random.choice([-1,1])
+    step_size = random.uniform(0,stepsize)
+    step_size = round_step_size(step_size, seg_size)
+    while 1:
+        if direction == 1: # Rootward
+            if step_size < (cur_node.length - cur_len): # Stay on same branch
+                new_location = (cur_node, cur_len+step_size+1e-15)
+                break
+            else: # If step goes past the parent
+                if not cur_node.parent.isroot: # Jump to parent node
+                    step_size = step_size - ((cur_node.length//seg_size)*seg_size-cur_len)
+                    cur_node = cur_node.parent
+                    cur_len = 1e-15
+                else: # If parent is root, jump to a child of the root
+                    step_size = step_size - ((cur_node.length//seg_size)*seg_size-cur_len)
+                    valid_nodes = [n for n in cur_node.parent.children if n != cur_node]
+                    cur_node = random.choice(valid_nodes)
+
+                    cur_len = (cur_node.length//seg_size)*seg_size
+                    direction = -1
+        else: # tipward
+            # Stay on same branch
+            if step_size < cur_len:
+                new_location = (cur_node, cur_len-step_size)
+                break
+            else: # Move to new branch
+                if not cur_node.isleaf: #Move to child
+                    step_size = step_size - cur_len + 1e-15
+                    valid_nodes = cur_node.children
+                    cur_node = random.choice(valid_nodes)
+                    cur_len = (cur_node.length//seg_size)*seg_size
+                else: # Bounce up from tip
+                    step_size = step_size - cur_len
+                    cur_len = 1e-15
+                    direction = 1
+    return new_location
