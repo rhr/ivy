@@ -271,129 +271,129 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     f.switch_q_tracker = switch_q_tracker
     return f
 
-# cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
-#     """
-#     Compute exp(q*t) for one branch on a tree and place result in pre-
-#     allocated array p
-#
-#     Args:
-#         q (np.array): Q matrix
-#         t (np.array): Double indicating branch length
-#         p (np.array): Pre-allocated array to store results
-#         i (int): Index of branch length and p-array
-#
-#     Returns:
-#         np.array: 3-D Array of P matrices
-#     """
-#     cdef DTYPE_t[:,::1] qview = q
-#     cdef DTYPE_t[:,::1] pview = p[i]
-#     f_dexpm(q.shape[0], &qview[0,0], t, &pview[0,0])
-#     np.log(p[i], out=p[i])
-#
-# cdef dexpm_slice(np.ndarray q, double t, np.ndarray p, int i):
-#     """
-#     Compute exp(q*t) for one branch on a tree and place result in pre-
-#     allocated array p
-#
-#     Args:
-#         q (np.array): Q matrix
-#         t (np.array): Double indicating branch length
-#         p (np.array): Pre-allocated array to store results
-#         i (int): Index of branch length and p-array
-#
-#     Returns:
-#         np.array: 3-D Array of P matrices
-#     """
-#     cdef DTYPE_t[:,::1] qview = q
-#     cdef DTYPE_t[:,::1] pview = p[i]
-#     f_dexpm(q.shape[0], &qview[0,0], t, &pview[0,0])
-#
-# def dexpm_tree_log(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
-#     """
-#     Compute exp(q*t) for all branches on tree and return array of all
-#     p-matrices
-#     """
-#     assert q.shape[0]==q.shape[1], 'q must be square'
-#
-#     assert (t > 0).all(), "All branch lengths must be greater than zero"
-#
-#     cdef int i
-#     cdef double blen
-#
-#     cdef np.ndarray[DTYPE_t, ndim=3] p = np.empty([len(t), q.shape[0], q.shape[1]], dtype = DTYPE, order="C")
-#     for i, blen in enumerate(t):
-#         dexpm_slice_log(q, blen, p, i)
-#
-#
-# def dexpm_tree(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
-#     """
-#     Compute exp(q*t) for all branches on tree and return array of all
-#     p-matrices
-#     """
-#     assert q.shape[0]==q.shape[1], 'q must be square'
-#
-#     assert (t > 0).all(), "All branch lengths must be greater than zero"
-#
-#     cdef int i
-#     cdef double blen
-#
-#     cdef np.ndarray[DTYPE_t, ndim=3] p = np.empty([len(t), q.shape[0], q.shape[1]], dtype = DTYPE, order="C")
-#     for i, blen in enumerate(t):
-#         dexpm_slice(q, blen, p, i)
-#
-#     return p
-#
-# def dexpm_tree_preallocated_p_log(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
-#     assert q.shape[0]==q.shape[1], 'q must be square'
-#     assert np.allclose(q.sum(1), 0, atol= 1e-6), 'rows of q must sum to zero'
-#
-#     assert (t > 0).all(), "All branch lengths must be greater than zero"
-#
-#     cdef int i
-#     cdef double blen
-#
-#     for i, blen in enumerate(t):
-#         dexpm_slice(q, blen, p, i)
-#     np.log(p, out=p)
-# def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
-#     assert q.shape[0]==q.shape[1], 'q must be square'
-#     assert np.allclose(q.sum(1), 0, atol= 1e-6), 'rows of q must sum to zero'
-#
-#     assert (t > 0).all(), "All branch lengths must be greater than zero"
-#
-#     cdef int i
-#     cdef double blen
-#
-#     for i, blen in enumerate(t):
-#         dexpm_slice(q, blen, p, i)
-# def dexpm_treeMulti_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=3] q,
-#                      np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p,
-#                      np.ndarray ind):
-#     assert q.shape[1]==q.shape[2], 'qs must be square'
-#     assert np.allclose(q.sum(2), 0, atol= 1e-6), 'rows of q must sum to zero'
-#
-#     assert (t > 0).all(), "All branch lengths must be greater than zero"
-#
-#     cdef int i
-#     cdef double blen
-#
-#     for i, blen in enumerate(t):
-#         dexpm_slice(q[ind[i]], blen, p, i)
-#
-# def dexpm_treeMulti_preallocated_p_log(np.ndarray[dtype=DTYPE_t, ndim=3] q,
-#                      np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p,
-#                      np.ndarray ind, np.ndarray pmask):
-#     assert q.shape[1]==q.shape[2], 'qs must be square'
-#     assert np.allclose(q.sum(2), 0, atol= 1e-6), 'rows of q must sum to zero'
-#
-#     assert (t > 0).all(), "All branch lengths must be greater than zero"
-#
-#     cdef int i
-#     cdef double blen
-#
-#     for i, blen in enumerate(t):
-#         if pmask[i]:
-#             dexpm_slice_log(q[ind[i]], blen, p, i)
+cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
+    """
+    Compute exp(q*t) for one branch on a tree and place result in pre-
+    allocated array p
+
+    Args:
+        q (np.array): Q matrix
+        t (np.array): Double indicating branch length
+        p (np.array): Pre-allocated array to store results
+        i (int): Index of branch length and p-array
+
+    Returns:
+        np.array: 3-D Array of P matrices
+    """
+    cdef DTYPE_t[:,::1] qview = q
+    cdef DTYPE_t[:,::1] pview = p[i]
+    f_dexpm(q.shape[0], &qview[0,0], t, &pview[0,0])
+    np.log(p[i], out=p[i])
+
+cdef dexpm_slice(np.ndarray q, double t, np.ndarray p, int i):
+    """
+    Compute exp(q*t) for one branch on a tree and place result in pre-
+    allocated array p
+
+    Args:
+        q (np.array): Q matrix
+        t (np.array): Double indicating branch length
+        p (np.array): Pre-allocated array to store results
+        i (int): Index of branch length and p-array
+
+    Returns:
+        np.array: 3-D Array of P matrices
+    """
+    cdef DTYPE_t[:,::1] qview = q
+    cdef DTYPE_t[:,::1] pview = p[i]
+    f_dexpm(q.shape[0], &qview[0,0], t, &pview[0,0])
+
+def dexpm_tree_log(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
+    """
+    Compute exp(q*t) for all branches on tree and return array of all
+    p-matrices
+    """
+    assert q.shape[0]==q.shape[1], 'q must be square'
+
+    assert (t > 0).all(), "All branch lengths must be greater than zero"
+
+    cdef int i
+    cdef double blen
+
+    cdef np.ndarray[DTYPE_t, ndim=3] p = np.empty([len(t), q.shape[0], q.shape[1]], dtype = DTYPE, order="C")
+    for i, blen in enumerate(t):
+        dexpm_slice_log(q, blen, p, i)
+
+
+def dexpm_tree(np.ndarray[dtype = DTYPE_t, ndim = 2] q, np.ndarray t):
+    """
+    Compute exp(q*t) for all branches on tree and return array of all
+    p-matrices
+    """
+    assert q.shape[0]==q.shape[1], 'q must be square'
+
+    assert (t > 0).all(), "All branch lengths must be greater than zero"
+
+    cdef int i
+    cdef double blen
+
+    cdef np.ndarray[DTYPE_t, ndim=3] p = np.empty([len(t), q.shape[0], q.shape[1]], dtype = DTYPE, order="C")
+    for i, blen in enumerate(t):
+        dexpm_slice(q, blen, p, i)
+
+    return p
+
+def dexpm_tree_preallocated_p_log(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
+    assert q.shape[0]==q.shape[1], 'q must be square'
+    assert np.allclose(q.sum(1), 0, atol= 1e-6), 'rows of q must sum to zero'
+
+    assert (t > 0).all(), "All branch lengths must be greater than zero"
+
+    cdef int i
+    cdef double blen
+
+    for i, blen in enumerate(t):
+        dexpm_slice(q, blen, p, i)
+    np.log(p, out=p)
+def dexpm_tree_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=2] q, np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p):
+    assert q.shape[0]==q.shape[1], 'q must be square'
+    assert np.allclose(q.sum(1), 0, atol= 1e-6), 'rows of q must sum to zero'
+
+    assert (t > 0).all(), "All branch lengths must be greater than zero"
+
+    cdef int i
+    cdef double blen
+
+    for i, blen in enumerate(t):
+        dexpm_slice(q, blen, p, i)
+def dexpm_treeMulti_preallocated_p(np.ndarray[dtype=DTYPE_t, ndim=3] q,
+                     np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p,
+                     np.ndarray ind):
+    assert q.shape[1]==q.shape[2], 'qs must be square'
+    assert np.allclose(q.sum(2), 0, atol= 1e-6), 'rows of q must sum to zero'
+
+    assert (t > 0).all(), "All branch lengths must be greater than zero"
+
+    cdef int i
+    cdef double blen
+
+    for i, blen in enumerate(t):
+        dexpm_slice(q[ind[i]], blen, p, i)
+
+def dexpm_treeMulti_preallocated_p_log(np.ndarray[dtype=DTYPE_t, ndim=3] q,
+                     np.ndarray t, np.ndarray[dtype=DTYPE_t, ndim=3] p,
+                     np.ndarray ind, np.ndarray pmask):
+    assert q.shape[1]==q.shape[2], 'qs must be square'
+    assert np.allclose(q.sum(2), 0, atol= 1e-6), 'rows of q must sum to zero'
+
+    assert (t > 0).all(), "All branch lengths must be greater than zero"
+
+    cdef int i
+    cdef double blen
+
+    for i, blen in enumerate(t):
+        if pmask[i]:
+            dexpm_slice_log(q[ind[i]], blen, p, i)
 
 def mklnl(double[:,:] fraclnl,
                 double[:,:,:] p,
@@ -443,52 +443,52 @@ def mklnl(double[:,:] fraclnl,
                 # Sum of log-likelihoods of children
                 fraclnl[parent,ancstate] += logsumexp(tmp)
 
-# def cy_mk(double[:,:] fraclnl,
-#                 double[:,:,:] p,
-#                 int k,
-#                 double[:] tmp,
-#                 Py_ssize_t[:] postorder,
-#                 Py_ssize_t[:,:] children):
-#     """
-#     Standard Mk log-likelihood calculator.
-#     Args:
-#     fraclnl (double[m,k]): array to hold computed fractional log-likelihoods,
-#       where m = number of nodes, including leaf nodes; k = number of states
-#       * fraclnl[i,j] = fractional log-likelihood of node i for charstate j
-#       * leaf node values should be pre-filled, e.g. 0 for observed state,
-#         -np.inf everywhere else
-#       * Internal nodes should be filled with 0
-#       * this function calculates the internal node values (where a node
-#         could be a branch 'knee')
-#     p (double[m,k,k]): p matrix
-#     k (int): number of states
-#     tmp (double[k]): to hold intermediate values
-#     postorder (Py_ssize_t[n]): postorder array of n internal node indices (n < m)
-#     children (Py_ssize_t[n,c]): array of the children of internal nodes, where
-#       c = max number of children for any internal node
-#       * children[i,j] = index of jth child of node i
-#       * rows should be right-padded with -1 if the number of children < c
-#     """
-#
-#     cdef Py_ssize_t i, parent, j, child, ancstate, childstate
-#     cdef Py_ssize_t c = children.shape[1]
-#
-#     # For each internal node (in postorder sequence)...
-#     for i in range(postorder.shape[0]):
-#         # parent indexes the current internal node
-#         parent = postorder[i]
-#         # For each child of this node...
-#         for j in range(c):
-#             child = children[parent,j] # fraclnl index of the jth child of node
-#             if child == -1: # -1 is the empty value for this array
-#                 break
-#             for ancstate in range(k):
-#                 for childstate in range(k):
-#                     # Multiply child's likelihood by p-matrix entry
-#                     tmp[childstate] = (p[child,ancstate,childstate] +
-#                                        fraclnl[child,childstate])
-#                 # Sum of log-likelihoods of children
-#                 fraclnl[parent,ancstate] += logsumexp(tmp)
+def cy_mk(double[:,:] fraclnl,
+                double[:,:,:] p,
+                int k,
+                double[:] tmp,
+                Py_ssize_t[:] postorder,
+                Py_ssize_t[:,:] children):
+    """
+    Standard Mk log-likelihood calculator.
+    Args:
+    fraclnl (double[m,k]): array to hold computed fractional log-likelihoods,
+      where m = number of nodes, including leaf nodes; k = number of states
+      * fraclnl[i,j] = fractional log-likelihood of node i for charstate j
+      * leaf node values should be pre-filled, e.g. 0 for observed state,
+        -np.inf everywhere else
+      * Internal nodes should be filled with 0
+      * this function calculates the internal node values (where a node
+        could be a branch 'knee')
+    p (double[m,k,k]): p matrix
+    k (int): number of states
+    tmp (double[k]): to hold intermediate values
+    postorder (Py_ssize_t[n]): postorder array of n internal node indices (n < m)
+    children (Py_ssize_t[n,c]): array of the children of internal nodes, where
+      c = max number of children for any internal node
+      * children[i,j] = index of jth child of node i
+      * rows should be right-padded with -1 if the number of children < c
+    """
+
+    cdef Py_ssize_t i, parent, j, child, ancstate, childstate
+    cdef Py_ssize_t c = children.shape[1]
+
+    # For each internal node (in postorder sequence)...
+    for i in range(postorder.shape[0]):
+        # parent indexes the current internal node
+        parent = postorder[i]
+        # For each child of this node...
+        for j in range(c):
+            child = children[parent,j] # fraclnl index of the jth child of node
+            if child == -1: # -1 is the empty value for this array
+                break
+            for ancstate in range(k):
+                for childstate in range(k):
+                    # Multiply child's likelihood by p-matrix entry
+                    tmp[childstate] = (p[child,ancstate,childstate] +
+                                       fraclnl[child,childstate])
+                # Sum of log-likelihoods of children
+                fraclnl[parent,ancstate] += logsumexp(tmp)
 def cy_mk_log(
           DTYPE_t[:,:] nodelist,
           DTYPE_t[:,:,:] p,
