@@ -163,6 +163,11 @@ class Node(object):
             Node: Found node(s)
 
         """
+        if self.meta["cached"] and type(x) == int:
+            try:
+                return self.iternodes_cached()[x] # Fast indexing using ni
+            except IndexError:
+                pass
         for n in self:
             if n==x or n.id==x or n.ni == x or (n.label and n.label==x):
                 return n
