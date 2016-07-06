@@ -72,9 +72,9 @@ class ModelValidity(unittest.TestCase):
     def test_mod_232_disconnectedone_returnsFalse(self):
         self.assertFalse(hrm_bayesian.is_valid_model(self.mod_232_disconnectedone,
                                       2,6,3, self.modorder_232))
-    def test_mod_232_validpartiallyconnected_returnsTrue(self):
-        self.assertTrue(hrm_bayesian.is_valid_model(self.mod_232_validpartiallyconnected,
-                                      2,6,3, self.modorder_232))
+    # def test_mod_232_validpartiallyconnected_returnsTrue(self):
+    #     self.assertTrue(hrm_bayesian.is_valid_model(self.mod_232_validpartiallyconnected,
+    #                                   2,6,3, self.modorder_232))
     def test_mod_232_missingparams_returnsFalse(self):
         self.assertFalse(hrm_bayesian.is_valid_model(self.mod_232_missingparams,
                                       2,6,3, self.modorder_232))

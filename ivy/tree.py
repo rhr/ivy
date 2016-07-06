@@ -787,15 +787,17 @@ class Node(object):
         in any order.
 
         """
-        propsToCheck = ["age", "apeidx", "isleaf", "isroot",
-                        "label", "length", "support"]
+
+        propsToCheck = ["label","nchildren"]
+        numericPropsToCheck = ["length"]
 
         for prop in propsToCheck:
-            if (type(getattr(self, prop))) == float and (type(getattr(node, prop)) == float ):
-                if not np.isclose(getattr(self, prop), getattr(node, prop)):
-                    return False
-            else:
-                if getattr(self, prop) != getattr(node, prop):
+            if getattr(self, prop) != getattr(node, prop):
+                return False
+        for prop in numericPropsToCheck:
+            att1 = getattr(self,prop);att2 = getattr(node,prop)
+            if att1 and att2:
+                if not np.isclose(att1, att2):
                     return False
         if self.nchildren == 0 and node.nchildren == 0:
             return True
