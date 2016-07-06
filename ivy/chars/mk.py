@@ -141,7 +141,7 @@ def create_mk_ar(tree, chars, findmin = True):
     child_ar = np.empty([tree.cladesize,max_children], dtype=np.int64) # List of children per node for cython function
     child_ar.fill(-1)
 
-    intnode_list = np.array(sorted(set(nodelist[:-1,nchar]))) # Internal node list for cython function
+    intnode_list = np.array(sorted(set(nodelist[:-1,nchar])),dtype=int) # Internal node list for cython function
     for intnode in intnode_list:
         children = np.where(nodelist[:,nchar]==intnode)[0]
         child_ar[int(intnode)][:len(children)] = children

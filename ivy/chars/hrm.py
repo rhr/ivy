@@ -22,17 +22,13 @@ from ivy.chars.hrm import *
 from scipy import cluster
 import nlopt
 np.seterr(invalid="warn")
-
-
 try:
     StringTypes = types.StringTypes # Python 2
 except AttributeError: # Python 3
     StringTypes = [str]
-
 """
 Functions for fitting an HRM model
 """
-
 
 def hrm_mk(tree, chars, Q, nregime, pi="Equal",returnPi=False,
           ar=None):
@@ -239,7 +235,6 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
     nnode = len(t)+1
     nodelist = np.zeros((nnode, nchar+1))
     nodelist.fill(-np.inf) # Fill initial likelihoods with log(0) (-inf)
-    childlist = np.zeros(nnode, dtype=object)
     leafind = [ n.isleaf for n in tree.postiter()]
     tmp_ar = np.zeros([nchar]) # For storing calculations in cython code
 
@@ -248,8 +243,6 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
         [ n for i,n in enumerate(nodelist) if leafind[i] ][k][hiddenChs] = np.log(1.0)
     for i,n in enumerate(nodelist[:-1]):
         n[nchar] = postnodes.index(postnodes[i].parent)
-        childlist[i] = [ nod.pi for nod in postnodes[i].children ]
-    childlist[i+1] = [ nod.pi for nod in postnodes[i+1].children ] # Add the root to the childlist array
 
     # Setting initial node likelihoods to log one for calculations
     nodelist[[ i for i,b in enumerate(leafind) if not b],:-1] = np.log(1.0)
@@ -273,7 +266,7 @@ def create_hrm_ar(tree, chars, nregime, findmin=True):
     child_ar = np.empty([tree.cladesize,max_children], dtype=np.int64)
     child_ar.fill(-1)
 
-    intnode_list = np.array(sorted(set(nodelist[:-1,nchar])))
+    intnode_list = np.array(sorted(set(nodelist[:-1,nchar])),dtype=int)
     for intnode in intnode_list:
         children = np.where(nodelist[:,nchar]==intnode)[0]
         child_ar[int(intnode)][:len(children)] = children
