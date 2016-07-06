@@ -11,7 +11,7 @@ directive_defaults['binding'] = True
 ext = Extension(
     "cyexpokit",
     ["cyexpokit.pyx"],
-    libraries = ["lapack", "blas", "m"],
+    libraries = ["lapack", "blas", "m","pyFPE"],
     extra_objects = ["dexpm_c.o", "expokit.o", "mataid.o", "clock.o"],
     define_macros=[('CYTHON_TRACE', '1')],
     include_dirs=[numpy.get_include()]
