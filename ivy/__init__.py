@@ -25,8 +25,8 @@ from . import tree, layout, contrasts, ages
 from . import bipart, genbank, nexus, newick, storage
 #import nodearray, data
 from . import treebase
-import gtk
-gtk.set_interactive(False)
+#import gtk
+#gtk.set_interactive(False)
 #import db
 #import contrib
 try:
