@@ -22,16 +22,15 @@ cmdclass =  {'build_py': build_py,
              }
 ext_modules = [ ]
 
-use_cython = False
-#if use_cython:
-#    ext_modules += [
-#        Extension("ivy.chars.expokit.cyexpokit", [ "ivy/chars/expokit/cyexpokit.pyx" ]),
-#    ]
-#    cmdclass.update({ 'build_ext': build_ext })
-#else:
-#    ext_modules += [
-#        Extension("ivy.chars.expokit.cyexpokit", [ "ivy/chars/expokit/cyexpokit.c" ])
-#    ]
+if use_cython:
+   ext_modules += [
+       Extension("ivy.chars.expokit.cyexpokit", [ "ivy/chars/expokit/cyexpokit.pyx" ]),
+   ]
+   cmdclass.update({ 'build_ext': build_ext })
+else:
+   ext_modules += [
+       Extension("ivy.chars.expokit.cyexpokit", [ "ivy/chars/expokit/cyexpokit.c" ])
+   ]
 
 
 
