@@ -10,7 +10,6 @@ except ImportError:
     use_cython = False
 else:
     use_cython = True
-    print("USING CYTHON")
 
 version = datetime.date.today().isoformat().replace("-","")
 #version = "0.2" # 2010-12-09
