@@ -844,10 +844,8 @@ def mk_multi_bayes(tree, chars,nregime,qidx=None, pi="Equal", db=None,
     nchar = len(set(chars))
     nparam = len(set([n[-1] for n in qidx]))
     print("preparations complete")
-
     # This model has 2 components: Q parameters and switchpoints
     # They are combined in a custom likelihood function
-
     ###########################################################################
     # Switchpoint:
     ###########################################################################

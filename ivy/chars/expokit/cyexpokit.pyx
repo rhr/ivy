@@ -15,6 +15,29 @@ cdef extern:
     void f_dexpm(int nstates, double* H, double t, double* expH)
     void f_dexpm_wsp(int nstates, double* H, double t, int i,
                      double* wsp, double* expH)
+
+cimport numpy as np
+import numpy as np
+
+cdef void quicksort(np.int64_t[:] A, int hi, int lo=0):
+    cdef int p
+    if lo < hi:
+        p = partition(A, hi, lo)
+        quicksort(A, p-1, lo)
+        quicksort(A, hi, p+1)
+
+cdef int partition(np.int64_t[:] A, int hi, int lo=0):
+    cdef pivot = A[hi]
+    cdef int i = lo
+    cdef int j
+    for j in range(lo, hi):
+        if A[j] <= pivot:
+            A[i], A[j] = A[j], A[i]
+            i += 1
+    A[i], A[hi] = A[hi], A[i]
+    return i
+
+
 @cython.boundscheck(False)
 cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
                  Py_ssize_t[:] tmask,
@@ -37,11 +60,12 @@ cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
         wsp (double[:]): expokit "workspace" array, must have
           min. length = 4*k*k+ideg+1
     """
-    cdef Py_ssize_t i
+    cdef Py_ssize_t i, x, y
     cdef int nstates = q.shape[1]
     for i in range(t.shape[0]):
         if tmask[i]:
             f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
+
 def lndexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
             double[:,:,:] p, int ideg, np.ndarray[dtype=DTYPE_t, ndim=1] wsp,
             np.ndarray[dtype=np.int64_t, ndim=1] pmask):
@@ -89,7 +113,7 @@ def inds_from_switchpoint_p(np.ndarray switches_ni,
             if not n==len(cladesize_preorder)-1: # Ignore the root
                 inds[n] = switches_key[nr-i]
 
-cdef inds_from_switchpoint(np.ndarray switches_ni,
+cdef inds_from_switchpoint(Py_ssize_t[:] switches_ni,
                           Py_ssize_t[:] switch_q_tracker,
                           Py_ssize_t[:,:] clades_preorder,
                           Py_ssize_t[:] qi):
@@ -101,7 +125,7 @@ cdef inds_from_switchpoint(np.ndarray switches_ni,
     for i in range(nr):
         switch_q_tracker[switches_ni[i]] = i+1
     # Now we can sort the switchpoints
-    switches_ni.sort()
+    cy_sort(switches_ni,nr)
     for i in range(nr):
         s = switches_ni[::-1][i]
         for n in clades_preorder[s]:
@@ -109,7 +133,7 @@ cdef inds_from_switchpoint(np.ndarray switches_ni,
                 break
             if qi[n] == 0: # Skip over node if it has already been assigned
                 qi[n] = switch_q_tracker[s] # Assign the correct q matrix to this index.
-
+@cython.boundscheck(False)
 def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     root_copy = root.copy()
     for node in root_copy.descendants():
@@ -121,7 +145,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         node.meta["cached"] = True
     # root_copy is a fully bisected copy of the original tree
     cdef list nodes = list(root_copy.iternodes())
-    cdef nnodes = len(nodes)
+    cdef int nnodes = len(nodes)
     cdef Py_ssize_t[:] postorder = np.array(
         [ nodes.index(n) for n in root_copy.postiter() if n.children ], dtype=np.intp)
     cdef Py_ssize_t i, j, N = len(postorder)
@@ -174,6 +198,8 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef Py_ssize_t[:] prev_qi = qi.copy()
     prev_qi[:] = -1
     cdef Py_ssize_t[:] qdif = np.zeros([nq],dtype=np.intp) # Which q-matrices are different
+
+    @cython.boundscheck(False)
     def f(double[:] params,np.ndarray switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx,debug=False):
         """
         params: array of free rate parameters, assigned to q by indices in qidx
@@ -395,12 +421,13 @@ def dexpm_treeMulti_preallocated_p_log(np.ndarray[dtype=DTYPE_t, ndim=3] q,
         if pmask[i]:
             dexpm_slice_log(q[ind[i]], blen, p, i)
 
-def mklnl(double[:,:] fraclnl,
+@cython.boundscheck(False)
+cdef void mklnl(double[:,:] fraclnl,
                 double[:,:,:] p,
                 int k,
                 double[:] tmp,
                 Py_ssize_t[:] postorder,
-                Py_ssize_t[:,:] children):
+                Py_ssize_t[:,:] children) nogil:
     """
     Standard Mk log-likelihood calculator.
     Args:
@@ -588,7 +615,7 @@ cdef double logsumexp(double[:] a) nogil:
     return largest_in_a + log(result)
 
 
-cdef round_step_size(double step_size, double seg_size):
+cdef double round_step_size(double step_size, double seg_size) nogil:
     """
     Round step_size to the nearest segment
     """

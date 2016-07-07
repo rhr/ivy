@@ -64,13 +64,32 @@ qidx = np.array(
      [2,0,1,2],
      [2,1,0,2]],
     dtype=np.intp)
-mod_r3 = mk_mr.mk_multi_bayes(tree, chars, 3,qidx=qidx)
-
-
 import line_profiler
 from ivy.chars.expokit import cyexpokit
-profile = line_profiler.LineProfiler(mk_mr.SwitchpointMetropolis.propose,
-                                     cyexpokit.random_tree_location,
-                                     cyexpokit.local_step)
-profile.run("mod_r3.sample(1000)")
+
+
+data = dict(zip([n.label for n in tree.leaves()],chars))
+my_f = cyexpokit.make_mklnl_func(tree, data, 2, 3, qidx=qidx)
+
+profile = line_profiler.LineProfiler(my_f)
+params = np.array([.5,.6,.7])
+switches = np.array([200, 300])
+lengths = np.array([.3,1.2])
+profile.run("my_f(params,switches,lengths)")
 profile.print_stats()
+
+################
+# MCMC timeit
+################
+
+qidx = np.array(
+    [[0,0,1,0],
+     [0,1,0,0],
+     [1,0,1,1],
+     [1,1,0,1],
+     [2,0,1,2],
+     [2,1,0,2]],
+    dtype=np.intp)
+mod_r3 = mk_mr.mk_multi_bayes(tree, chars, 3,qidx=qidx)
+
+mod_r3.sample(2000)
