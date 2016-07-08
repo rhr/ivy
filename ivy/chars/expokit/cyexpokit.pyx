@@ -19,14 +19,15 @@ cdef extern:
 cimport numpy as np
 import numpy as np
 
-cdef void quicksort(np.int64_t[:] A, int hi, int lo=0):
+
+cdef void quicksort(Py_ssize_t[:] A, int hi, int lo=0):
     cdef int p
     if lo < hi:
         p = partition(A, hi, lo)
         quicksort(A, p-1, lo)
         quicksort(A, hi, p+1)
 
-cdef int partition(np.int64_t[:] A, int hi, int lo=0):
+cdef int partition(Py_ssize_t[:] A, int hi, int lo=0):
     cdef pivot = A[hi]
     cdef int i = lo
     cdef int j
@@ -36,7 +37,6 @@ cdef int partition(np.int64_t[:] A, int hi, int lo=0):
             i += 1
     A[i], A[hi] = A[hi], A[i]
     return i
-
 
 @cython.boundscheck(False)
 cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
@@ -60,11 +60,40 @@ cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
         wsp (double[:]): expokit "workspace" array, must have
           min. length = 4*k*k+ideg+1
     """
-    cdef Py_ssize_t i, x, y
+    cdef Py_ssize_t i
     cdef int nstates = q.shape[1]
     for i in range(t.shape[0]):
         if tmask[i]:
             f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
+
+cdef void ln_dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
+            Py_ssize_t[:] tmask,
+            double[:,:,:] p, int ideg, double[:] wsp):
+    """
+    Compute transition probabilities exp(q*t) for a 'stack' of q
+    matrices, over all values of t from a 1-d array, where q is selected
+    from the stack by indices in qi. Uses pre-allocated arrays for
+    intermediate calculations and output, to minimize overhead of
+    repeated calls (e.g. for ML optimization or MCMC).
+    Args:
+        q (double[m,k,k]): stack of m square rate matrices of dimension k
+        t (double[n]): 1-d array of times (branch lengths) of length n
+        qi (int[n]): 1-d array indicating assigning q matrices to times
+        p (double[n,k,k]): stack of n square p matrices holding results
+          of exponentiation, i.e., p[i] = exp(q[qi[i]]*t[i])
+        ideg (int): used in expokit Fortran code; a good default is 6
+        wsp (double[:]): expokit "workspace" array, must have
+          min. length = 4*k*k+ideg+1
+    """
+    cdef Py_ssize_t i,j,k
+    cdef int nstates = q.shape[1]
+    for i in range(t.shape[0]):
+        if tmask[i]:
+            f_dexpm_wsp(nstates, &q[qi[i],0,0], t[i], ideg, &wsp[0], &p[i,0,0])
+            for j in range(nstates):
+                for k in range(nstates):
+                    p[i,j,k] = log(p[i,j,k])
+
 
 def lndexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
             double[:,:,:] p, int ideg, np.ndarray[dtype=DTYPE_t, ndim=1] wsp,
@@ -112,7 +141,7 @@ def inds_from_switchpoint_p(np.ndarray switches_ni,
                 break
             if not n==len(cladesize_preorder)-1: # Ignore the root
                 inds[n] = switches_key[nr-i]
-
+@cython.boundscheck(False)
 cdef inds_from_switchpoint(Py_ssize_t[:] switches_ni,
                           Py_ssize_t[:] switch_q_tracker,
                           Py_ssize_t[:,:] clades_preorder,
@@ -125,7 +154,7 @@ cdef inds_from_switchpoint(Py_ssize_t[:] switches_ni,
     for i in range(nr):
         switch_q_tracker[switches_ni[i]] = i+1
     # Now we can sort the switchpoints
-    cy_sort(switches_ni,nr)
+    quicksort(switches_ni,nr-1)
     for i in range(nr):
         s = switches_ni[::-1][i]
         for n in clades_preorder[s]:
@@ -187,7 +216,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
 
     # Hackish way of keeping track of switchpoints after sorting them in inds_from_switchpoint
     cdef Py_ssize_t[:] switch_q_tracker = np.zeros([nnodes],dtype=np.intp) # keep track of which switchpoint nodes are associated with which q matrices
-    cdef np.ndarray switches_copy = np.zeros([nq-1],dtype=np.intp) # Store pre-sorted switches
+    cdef Py_ssize_t[:] switches_copy = np.zeros([nq-1],dtype=np.intp) # Store pre-sorted switches
 
 
     # Keeping track of previously calculated values to avoid redundant calculations
@@ -200,7 +229,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef Py_ssize_t[:] qdif = np.zeros([nq],dtype=np.intp) # Which q-matrices are different
 
     @cython.boundscheck(False)
-    def f(double[:] params,np.ndarray switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx,debug=False):
+    def f(double[:] params,Py_ssize_t[:] switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx,debug=False):
         """
         params: array of free rate parameters, assigned to q by indices in qidx
         qidx columns:
@@ -213,10 +242,14 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         Asymmetric mk2:
             params = [0.2,0.6]; qidx = [[0,0,1,0],[0,1,0,1]]
         """
-        switches *= 2 # The corresponding ni of a node in the bisected tree
-                      # is 2x the original ni
-        switches_copy[:] = switches[:]
+
         cdef Py_ssize_t r, a, b, c, d, si
+        cdef int nr = len(switches)
+        # switches *= 2 # The corresponding ni of a node in the bisected tree
+        #               # is 2x the original ni
+        for r in range(nr):
+            switches[r] = switches[r]*2
+        switches_copy[:] = switches[:]
         cdef double x = 0
         for r in range(qidx.shape[0]):
             a = qidx[r,0]
@@ -261,9 +294,9 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
 
 
         # P matrix exponentiation
-        np.exp(p, out=p) # Necessary for handling p-matrices that aren't recalculated
-        dexpm3(q, t, qi, tmask, p, ideg, wsp)
-        np.log(p, out=p)
+        # np.exp(p, out=p) # Necessary for handling p-matrices that aren't recalculated
+        ln_dexpm3(q, t, qi, tmask, p, ideg, wsp)
+        # np.log(p, out=p)
 
         # Likelihood calculation
         fraclnl[:] = fraclnl_copy[:]
@@ -278,7 +311,9 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         for r in range(k):
             fraclnl[0][r] += rootprior[r]
 
-        switches /= 2 # Reset switches back to original value
+        # switches /= 2 # Reset switches back to original value
+        for r in range(nr):
+            switches[r] = switches[r]/2
         return logsumexp(fraclnl[0])
 
     # attached allocated arrays to function object
