@@ -677,7 +677,6 @@ class SwitchpointMetropolis(pymc.Metropolis):
     def propose(self):
         # Following BAMM, switchpoint movements can be either global or
         # local, with global switch happening 1/10 times
-
         if (random.choice(range(10))==0):
             self.global_step()
         else:
@@ -686,7 +685,7 @@ class SwitchpointMetropolis(pymc.Metropolis):
     def local_step(self):
         prev_location = self.stochastic.value
 
-        new_location = cyexpokit.local_step(prev_location,self.stepsize,self.seg_size)
+        new_location = cyexpokit.local_step(prev_location,self.stepsize,self.seg_size,self.adaptive_scale_factor)
 
         self.stochastic.value = new_location
 
@@ -698,6 +697,7 @@ class SwitchpointMetropolis(pymc.Metropolis):
         self.stochastic.value = self.stochastic.last_value
     def competence(self):
         return 0
+
 
 def round_step_size(step_size, seg_size):
     """

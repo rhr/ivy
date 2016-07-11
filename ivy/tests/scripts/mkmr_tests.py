@@ -131,7 +131,7 @@ f(np.array([0.1,0.05]),switches,lengths)
 
 
 mod_mr = mk_mr.mk_multi_bayes(tree, data,nregime=2,qidx=qidx,stepsize=0.2)
-mod_mr.sample(100000,burn=10000,thin=3)
+mod_mr.sample(10000,burn=1000,thin=3)
 
 
 chars = mr_chars

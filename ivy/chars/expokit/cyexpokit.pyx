@@ -670,13 +670,13 @@ def random_tree_location(seg_map):
     i = random.choice(range(len(seg_map)))
     return seg_map[i]
 
-def local_step(prev_location,double stepsize,double seg_size):
+def local_step(prev_location,double stepsize,double seg_size, double adaptive_scale_factor):
     cdef double cur_len,step_size
     cdef int direction
     cur_node = prev_location[0]
     cur_len = prev_location[1]
     direction = random.choice([-1,1])
-    step_size = random.uniform(0,stepsize)
+    step_size = random.uniform(0,stepsize) * adaptive_scale_factor
     step_size = round_step_size(step_size, seg_size)
     while 1:
         if direction == 1: # Rootward
