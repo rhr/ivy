@@ -266,7 +266,7 @@ class Node(object):
             Node: A copy of self.
 
         """
-        for n in self:
+        for n in self.iternodes():
             self.cached = False
         newnode = Node()
         for attr, value in list(self.__dict__.items()):
@@ -279,8 +279,9 @@ class Node(object):
                 ]
             if _par:
                 newnode.parent = _par
-        for n in self:
+        for n in self.iternodes():
             self.cached = True
+        newnode.set_iternode_cache()
         return newnode
 
     def leafsets(self, d=None, labels=False):

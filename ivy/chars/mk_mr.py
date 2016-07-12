@@ -876,7 +876,7 @@ def mk_multi_bayes(tree, chars,nregime,qidx=None, pi="Equal", db=None,
 
     @pymc.deterministic
     def likelihood(q = Qparams, s=switch,name="likelihood"):
-        return l(np.array(q),np.array([x[0].ni for x in s]),np.array([x[1] for x in s]))
+        return l(np.array(q),np.array([x[0].ni for x in s],dtype=np.intp),np.array([x[1] for x in s]))
 
     @pymc.potential
     def multi_mklik(lnl=likelihood):
