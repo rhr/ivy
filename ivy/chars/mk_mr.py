@@ -751,8 +751,7 @@ def make_modelorder_stoch(mods, name=str("modorder")):
         return 0
     return modelorder_stoch
 
-def mk_multi_bayes(tree, chars,nregime,qidx=None, pi="Equal", db=None,
-                   dbname=None,seglen=0.02,stepsize=0.05):
+def mk_multi_bayes(tree, chars,nregime,qidx, pi="Equal" ,seglen=0.02,stepsize=0.05):
     """
     Create a Bayesian multi-mk model. User specifies which regime models
     to use and the Bayesian model finds the switchpoints.
@@ -761,57 +760,22 @@ def mk_multi_bayes(tree, chars,nregime,qidx=None, pi="Equal", db=None,
         tree (Node): Root node of tree.
         chars (dict): Dict mapping tip labels to discrete character
           states. Character states must be in the form of [0,1,2...]
-        mods (list): List of tuples. List length is equal to the number
-          of regimes to be modeled.
 
-          Mods have the following rules:
-            * Each tuple is length nchar**2 - nchar, where nchar
-              is the number of distinct states.
-            * Each tuple consists of ints that correspond to unique
-              parameter values for a Q matrix. The ints are in row-wise
-              order.
-            * Different ints correspond to different parameters, but they
-              are *not* necessarily in order. That is, the parameter fitted
-              for int 1 is not necesarily less than the parameter fitted for
-              int 2.
-            * The model for the state at the root MUST be the last tuple.
-              The order of the other models does not matter
+        regime (int): The number of distinct regimes to test. Set to
+          1 for an Mk model, set to greater than 1 for a multi-regime Mk model.
+        qidx (np.array): Index specifying the model to test
 
-          To fit a model where there are two character states and you
-          hypothesize that the root state has an equal-rates regime
-          and there is a regime shift where transitions from 0->1 become
-          faster, mods would look like this:
+            columns:
+                0, 1, 2 - index axes of q
+                3 - index of params
+            This scheme allows flexible specification of models. E.g.:
+            Symmetric mk2:
+                params = [0.2]; qidx = [[0,0,1,0],
+                                        [0,1,0,0]]
 
-            [(2,1),(1,1)]
-
-          And would correspond to Q matrices that look like this:
-
-            [[-,2] # Regime 1
-             [1,-]
-
-             [-,1] # Root regime
-             [1,-]]
-
-        To fit a model where there are three character states and you hypothesize
-        that the root state is equal-rates and makes two transitions; one regime
-        that is equal rates but slower and one that is symmetric with all different
-        rates, mods would look like this:
-
-          [(2,2,2,2,2,2),(3,4,3,5,4,5),(1,1,1,1,1,1)]
-
-        And would correspond to Q matrices that look like this:
-
-          [[-,2,2] # Regime 1
-           [2,-,2]
-           [2,2,-]
-
-           [-,3,4] # Regime 2
-           [3,-,5]
-           [4,5,-]
-
-           [-,1,1] # Root regime
-           [1,-,1]
-           [1,1,-]]
+            Asymmetric mk2:
+                params = [0.2,0.6]; qidx = [[0,0,1,0],
+                                            [0,1,0,1]]
         pi (str or np.array): Option to weight the root node by given values.
            Either a string containing the method or an array
            of weights. Weights should be given in order.
@@ -823,10 +787,6 @@ def mk_multi_bayes(tree, chars,nregime,qidx=None, pi="Equal", db=None,
              of Q matrix
            Fitzjohn: Root states weighted by how well they
              explain the data at the tips.
-
-        db (str): Database backend to be passed to PYMC. See PYMC documentation
-          for details. https://pymc-devs.github.io/pymc/database.html. Optional.
-        dbname (str): Name of database file if db is provided. Optional.
         seglen (float): Size of segments to break tree into. The smaller this
           value, the more "fine-grained" the analysis will be. Optional,
           defaults to 2% of the root-to-tip length.

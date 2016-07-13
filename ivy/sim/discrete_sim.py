@@ -18,6 +18,7 @@ def sim_discrete(tree, Q, anc=None, charname=None, rseed=None):
         Q (np.array): Instantaneous rate matrix
         anc (int): Root state. Optional. If None, root state is chosen
           from stationary distrubution of Q matrix
+        rseed (int): Random seed to be passed to np.random. Optional
     Returns:
         Node: Copy of tree with each node containing its simulated
           state and the character history of its subtending branch.
