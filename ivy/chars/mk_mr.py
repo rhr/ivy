@@ -721,7 +721,7 @@ def tree_map(tree, seglen=0.02):
         nseg = int(ceil(cur_len/seg_size))
         for n in range(nseg):
             seg_map.append((node, n*seg_size+1e-15))
-    return np.array(seg_map)
+    return np.array(seg_map,dtype=object)
 
 
 def random_tree_location(seg_map):
@@ -845,10 +845,7 @@ def mk_multi_bayes(tree, chars,nregime,qidx, pi="Equal" ,seglen=0.02,stepsize=0.
         else:
             return -np.inf
 
-    if db is None:
-        mod = pymc.MCMC(locals())
-    else:
-        mod = pymc.MCMC(locals(), db=db, dbname=dbname)
+    mod = pymc.MCMC(locals())
     print("model created")
     for s in switch:
         mod.use_step_method(SwitchpointMetropolis, s, tree, seg_map,stepsize=stepsize,seglen=seglen)
