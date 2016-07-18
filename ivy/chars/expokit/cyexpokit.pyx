@@ -38,6 +38,7 @@ cdef int partition(Py_ssize_t[:] A, int hi, int lo=0):
     A[i], A[hi] = A[hi], A[i]
     return i
 
+
 @cython.boundscheck(False)
 cdef void dexpm3(double[:,:,:] q, double[:] t, Py_ssize_t[:] qi,
                  Py_ssize_t[:] tmask,
@@ -332,6 +333,104 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     f.switch_q_tracker = switch_q_tracker
     return f
 
+@cython.boundscheck(False)
+def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
+    cdef int nobschar = k/nq
+    cdef list nodes = list(root.iternodes())
+    cdef int nnodes = len(nodes)
+    cdef Py_ssize_t[:] postorder = np.array(
+        [ nodes.index(n) for n in root.postiter() if n.children ], dtype=np.intp)
+    cdef Py_ssize_t i, j, N = len(postorder)
+    cdef Py_ssize_t ki, ch
+    cdef double[:] t = np.array([ n.length for n in nodes ], dtype=np.double)
+    cdef np.ndarray p = np.empty((nnodes, k, k), dtype=np.double)
+    cdef int ideg = 6
+    cdef double[:] wsp = np.empty(4*k*k+ideg+1)
+    cdef double[:,:] fraclnl = np.empty((nnodes, k), dtype=np.double)
+    fraclnl[:] = -INFINITY
+    for lf in root.leaves():
+        i = nodes.index(lf)
+        for ki in range(nq):
+            ch = data[lf.label]+data[lf.label]*ki
+            fraclnl[i, ch] = 0 # Setting observed likelihoods to log(1)
+    for nd in root.internals(): # Setting internal log-likelihoods to 0
+        i = nodes.index(nd)
+        fraclnl[i,:] = 0
+    cdef double[:,:] fraclnl_copy = fraclnl.copy()
+    cdef double[:] tmp = np.empty(k)
+    cdef int c = max([ len(n.children) for n in root if n.children ])
+    cdef Py_ssize_t[:,:] children = np.zeros((N, c), dtype=np.intp)
+    children[:] = -1
+    for i in range(len(postorder)):
+        for j, child in enumerate(nodes[postorder[i]].children):
+            children[i,j] = nodes.index(child)
+    cdef double[:,:,:] q = np.zeros((1,k,k), dtype=np.double)
+    cdef Py_ssize_t[:] qi = np.zeros(nnodes,dtype=np.intp)
+    cdef Py_ssize_t[:] tmask = np.ones(nnodes,dtype=np.intp)
+
+    cdef double[:] rootprior = np.empty([k])
+    rootprior[:] = np.log(1.0/k) # Flat root prior
+    @cython.boundscheck(False)
+    def f(np.ndarray params, grad=None, qidx=qidx):
+        """
+        params: array of free rate parameters, assigned to q by indices in qidx
+        qidx columns:
+            0, 1, 2 - index axes of q
+            3 - index of params
+        This scheme allows flexible specification of models. E.g.:
+        Symmetric mk2:
+            params = [0.2]; qidx = [[0,0,1,0],[0,1,0,0]]
+
+        Asymmetric mk2:
+            params = [0.2,0.6]; qidx = [[0,0,1,0],[0,1,0,1]]
+        """
+
+        cdef Py_ssize_t r, a, b, c, d, si
+        # switches *= 2 # The corresponding ni of a node in the bisected tree
+        #               # is 2x the original ni
+        cdef double x = 0
+        for r in range(qidx.shape[0]):
+            a = qidx[r,0]
+            b = qidx[r,1]
+            c = qidx[r,2]
+            q[a,b] = params[c]
+        for i in range(k):
+            x = 0
+            for j in range(k):
+                if i != j:
+                    x -= q[0,i,j]
+            q[i,i] = x
+
+        # P matrix exponentiation
+        ln_dexpm3(q, t, qi, tmask, p, ideg, wsp)
+
+        # Likelihood calculation
+        fraclnl[:] = fraclnl_copy[:]
+        mklnl(fraclnl, p, k, tmp, postorder, children)
+
+
+        # The root likelihood is the first row of fraclnl
+        for r in range(k):
+            fraclnl[0][r] += rootprior[r]
+
+
+        return logsumexp(fraclnl[0])
+
+    # attached allocated arrays to function object
+    f.qidx = qidx
+    f.fraclnl = fraclnl
+    f.fraclnl_copy = fraclnl_copy
+    f.q = q
+    f.p = p
+    f.qi = qi
+    f.tmask = tmask
+    f.postorder = postorder
+    f.children = children
+    f.t = t
+    f.rootprior = rootprior
+
+    return f
+
 cdef dexpm_slice_log(np.ndarray q, double t, np.ndarray p, int i):
     """
     Compute exp(q*t) for one branch on a tree and place result in pre-
@@ -559,20 +658,18 @@ def cy_mk_log(
           Py_ssize_t[:] intnode_list,
           Py_ssize_t[:,:] child_ar):
 
-    cdef int intnode # "internal node"
-    cdef int ind # index
-    cdef int ch # parent character state
-    cdef int st # child character state
 
-    for intnode in intnode_list: # For each internal node (in postorder sequence)...
-        nextli = nodelist[intnode]
+    cdef Py_ssize_t intnode,ind,ancstate,childstate,i # "internal node"
+
+    for i in range(intnode_list.shape[0]): # For each internal node (in postorder sequence)...
+        intnode = intnode_list[i]
         for ind in child_ar[intnode]: # For each child of this node...
             if not ind == -1: # -1 is the empty value for this array. -1 indicates that this node has no more children
                 li = nodelist[ind]
-                for ch in range(nchar):
-                    for st in range(nchar):
-                        tmp_ar[st] = p[ind,ch,st]+li[st] # Multiply child's likelihood by p-matrix
-                    nextli[ch] += logsumexp(tmp_ar) # Sum of log-likelihoods of children
+                for ancstate in range(nchar):
+                    for childstate in range(nchar):
+                        tmp_ar[childstate] = p[ind,ancstate,childstate]+li[childstate] # Multiply child's likelihood by p-matrix
+                    nodelist[intnode,ancstate] += logsumexp(tmp_ar) # Sum of log-likelihoods of children
 
 def cy_anc_recon(np.ndarray[dtype=DTYPE_t, ndim=3] p,
                  np.ndarray[dtype=DTYPE_t, ndim=2] d_nl,

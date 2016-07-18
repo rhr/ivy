@@ -405,7 +405,53 @@ def extract_regimes(Q, nobschar, nregime):
         mask[np.diag_indices(nobschar)]=False
         np.copyto(out[i],Q[subQ, subQ])
     return out
+def fit_hrm_qidx(tree, chars, nregime, qidx, pi="Equal",
+                  orderedRegimes=True, startingvals=None):
+    """
+    Fit a hidden-rates mk model to a given tree and list of characters, and
+    number of regumes. Return fitted ARD Q matrix and calculated likelihood.
 
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
+        nregime (int): Number of hidden rates per character
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root node. Defaults to "Equal"
+          Method "Fitzjohn" is not thouroughly tested, use with caution
+        orderedRegimes (bool): Whether or not to constrain regime transitions
+          to only occur between adjacent regimes
+    Returns:
+        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
+    """
+    if type(chars) == dict:
+        data = chars
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
+    else:
+        data = dict(zip([n.label for n in tree.leaves()],chars))
+    nchar = len(set(chars))*nregime
+    nobschar = len(set(chars))
+
+    mk_func = cyexpokit.make_hrmlnl_func(tree, data,k=nchar,nq=nregime,
+                                        qidx=qidx)
+    print("assigning starting values")
+    if startingvals is None:
+        x0 = [0.1]*qidx.shape[0]
+    else:
+        x0 = startingvals
+    print("creating opt object")
+    opt = nlopt.opt(nlopt.LN_SBPLX, qidx.shape[0])
+    opt.set_min_objective(mk_func)
+    opt.set_lower_bounds(0)
+    print("optimizing")
+    optim = opt.optimize(x0)
+    print("done optimizing")
+    wr = (nobschar**2-nobschar)*nregime
+    q = fill_Q_matrix(nobschar, nregime, optim[:wr], optim[wr:],"ARD", orderedRegimes=orderedRegimes)
+    piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
+    return (q, -1*float(mk_func(optim, None)), piRates, mk_func, optim)
 
 def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
             orderedRegimes=True, startingvals=None):
@@ -466,7 +512,10 @@ def fit_hrm_mkARD(tree, chars, nregime, pi="Equal", constraints="Rate",
         tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
     """
     if type(chars) == dict:
+        data = chars
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
+    else:
+        data = dict(zip([n.label for n in tree.leaves()],chars))
     nchar = len(set(chars))*nregime
     nobschar = len(set(chars))
     mk_func = create_likelihood_function_hrm_mk_MLE(tree, chars, nregime=nregime,

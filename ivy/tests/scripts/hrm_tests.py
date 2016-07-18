@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from ivy.chars.hrm import create_hrmnodelist
 from ivy.chars.hrm import *
 
-tree = ivy.tree.read("../support/hrm_300tips.newick")
+tree = ivy.tree.read("support/hrm_300tips.newick")
 chars = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

@@ -163,24 +163,31 @@ class hrmMethods(unittest.TestCase):
 
         self.assertTrue(np.isclose(f(Qparams), -1*val))
     #
-    # def test_fitMkARD_600tiptree_matchescorHMM(self):
-    #     tree = self.randTree600
-    #     chars = self.randChars600
-    #
-    #     corHMMQ = np.array([[-0.05468,  0.03712,  0.01756,  0.     ],
-    #                          [ 0.01246, -0.01246,  0.,       0.     ],
-    #                          [ 0.,       0.,      -0.43921,  0.43921],
-    #                          [ 0.,       0.02909,  0.46159, -0.49068]]
-    #                         )
-    #
-    #     out = hrm.fit_hrm(tree, chars, 2,Qtype="ARD",pi="Equal",startingvals=[0.001]*8)
-    #
-    #     ivyQ = out["Q"]
-    #
-    #     try:
-    #         np.testing.assert_allclose(ivyQ, corHMMQ, atol = 1e-5)
-    #     except:
-    #         self.fail("expectedParam != calculatedParam")
+    def test_fitMkARD_600tiptree_matchescorHMM(self):
+        tree = self.randTree600
+        chars = self.randChars600
+
+        corHMMQ = np.array([[-0.05468,  0.03712,  0.01756,  0.     ],
+                             [ 0.01246, -0.01246,  0.,       0.     ],
+                             [ 0.,       0.,      -0.43921,  0.43921],
+                             [ 0.,       0.02909,  0.46159, -0.49068]]
+                            )
+        qidx = np.array([[0,1,0],
+                         [0,2,1],
+                         [1,0,2],
+                         [1,3,3],
+                         [2,0,4],
+                         [2,3,5],
+                         [3,1,6],
+                         [3,2,6]])
+        out = hrm.fit_hrm_qidx(tree, chars, 2,qidx=qidx,pi="Equal",startingvals=[0.001]*8)
+
+        ivyQ = out["Q"]
+
+        try:
+            np.testing.assert_allclose(ivyQ, corHMMQ, atol = 1e-5)
+        except:
+            self.fail("expectedParam != calculatedParam")
     #
     # def test_fitMkARD_600tiptree_symmetry(self):
     #     tree = self.randTree600
