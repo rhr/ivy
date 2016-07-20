@@ -351,7 +351,7 @@ def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     for lf in root.leaves():
         i = nodes.index(lf)
         for ki in range(nq):
-            ch = data[lf.label]+data[lf.label]*ki
+            ch = data[lf.label]+nobschar*ki
             fraclnl[i, ch] = 0 # Setting observed likelihoods to log(1)
     for nd in root.internals(): # Setting internal log-likelihoods to 0
         i = nodes.index(nd)
@@ -412,7 +412,6 @@ def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         # The root likelihood is the first row of fraclnl
         for r in range(k):
             fraclnl[0][r] += rootprior[r]
-
 
         return logsumexp(fraclnl[0])
 
@@ -561,7 +560,7 @@ cdef void mklnl(double[:,:] fraclnl,
                 int k,
                 double[:] tmp,
                 Py_ssize_t[:] postorder,
-                Py_ssize_t[:,:] children) nogil:
+                Py_ssize_t[:,:] children):
     """
     Standard Mk log-likelihood calculator.
     Args:

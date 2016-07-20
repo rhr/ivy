@@ -449,9 +449,17 @@ def fit_hrm_qidx(tree, chars, nregime, qidx, pi="Equal",
     optim = opt.optimize(x0)
     print("done optimizing")
     wr = (nobschar**2-nobschar)*nregime
-    q = fill_Q_matrix(nobschar, nregime, optim[:wr], optim[wr:],"ARD", orderedRegimes=orderedRegimes)
-    piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
-    return (q, -1*float(mk_func(optim, None)), piRates, mk_func, optim)
+    print("wr created")
+    test = optim
+    print(test)
+#    q = fill_Q_matrix(nobschar, nregime, optim[:wr], optim[wr:],"ARD", orderedRegimes=orderedRegimes)
+    print("q filled")
+#    piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
+    print("piRates calculated")
+    mk_func = cyexpokit.make_hrmlnl_func(tree, data,k=nchar,nq=nregime,
+                                        qidx=qidx)
+    print("new function created")
+    return (-1*float(mk_func(optim[:], None)), optim[:])
 
 def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
             orderedRegimes=True, startingvals=None):
