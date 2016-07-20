@@ -166,12 +166,17 @@ class hrmMethods(unittest.TestCase):
     def test_fitMkARD_600tiptree_matchescorHMM(self):
         tree = self.randTree600
         chars = self.randChars600
+        data = dict(zip([n.label for n in tree.leaves()],chars))
 
         corHMMQ = np.array([[-0.05468,  0.03712,  0.01756,  0.     ],
                              [ 0.01246, -0.01246,  0.,       0.     ],
                              [ 0.,       0.,      -0.43921,  0.43921],
                              [ 0.,       0.02909,  0.46159, -0.49068]]
                             )
+        altcorHMMQ = np.array([[-0.43920529,  0.43920529,  0.,          0.        ],
+                              [ 0.46159226, -0.49068071,  0.,          0.02908845],
+                              [ 0.01755819,  0.,         -0.05467711,  0.03711892],
+                              [ 0.,          0.,          0.01245645, -0.01245645]])
         qidx = np.array([[0,1,0],
                          [0,2,1],
                          [1,0,2],
@@ -179,14 +184,36 @@ class hrmMethods(unittest.TestCase):
                          [2,0,4],
                          [2,3,5],
                          [3,1,6],
-                         [3,2,6]])
-        out = hrm.fit_hrm_qidx(tree, chars, 2,qidx=qidx,pi="Equal",startingvals=[0.001]*8)
-        print(out)
+                         [3,2,7]])
+        params = np.array([0.03712,0.01756,0.01246,0.0,0.0,0.43921,0.02909,0.46159])
+        out = hrm.fit_hrm_qidx(tree, data, 2,qidx=qidx,pi="Equal",startingvals=[0.001]*8)
+        ivyQ = out[2]
+        np.set_printoptions(suppress=True,precision=5)
+        try:
+            np.testing.assert_allclose(ivyQ, corHMMQ, atol = 1e-5)
+        except:
+            try:
+                np.testing.assert_allclose(ivyQ, altcorHMMQ, atol=1e-5)
+            except:
+                self.fail("expectedParam != calculatedParam")
 
-        # try:
-        #     np.testing.assert_allclose(ivyQ, corHMMQ, atol = 1e-5)
-        # except:
-        #     self.fail("expectedParam != calculatedParam")
+    def test_hrmlnlfunc_correctlikelihood(self):
+        tree = self.threetiptree
+        chars = [0,1,1]
+        data = dict(zip([n.label for n in tree.leaves()],chars))
+
+        qidx = np.array([[0,1,0],
+                         [0,2,1],
+                         [1,0,2],
+                         [1,3,3],
+                         [2,0,4],
+                         [2,3,5],
+                         [3,1,6],
+                         [3,2,7]])
+        params = np.array([0.1,0.05,0.05,0.07,0.06,0.2,0.08,0.3])
+        f = cyexpokit.make_hrmlnl_func(tree, data,4,2,qidx)
+        out = f(params)
+        self.assertTrue(np.isclose(out, -2.980018))
     #
     # def test_fitMkARD_600tiptree_symmetry(self):
     #     tree = self.randTree600

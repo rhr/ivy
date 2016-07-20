@@ -435,31 +435,21 @@ def fit_hrm_qidx(tree, chars, nregime, qidx, pi="Equal",
     nobschar = len(set(chars))
 
     mk_func = cyexpokit.make_hrmlnl_func(tree, data,k=nchar,nq=nregime,
-                                        qidx=qidx)
-    print("assigning starting values")
+                                        qidx=qidx,findmin=True)
+    nparam = len(set([n[-1] for n in qidx]))
     if startingvals is None:
-        x0 = [0.1]*qidx.shape[0]
+        x0 = [0.1]*nparam
     else:
         x0 = startingvals
-    print("creating opt object")
-    opt = nlopt.opt(nlopt.LN_SBPLX, qidx.shape[0])
+    opt = nlopt.opt(nlopt.LN_SBPLX, nparam)
     opt.set_min_objective(mk_func)
     opt.set_lower_bounds(0)
-    print("optimizing")
     optim = opt.optimize(x0)
-    print("done optimizing")
     wr = (nobschar**2-nobschar)*nregime
-    print("wr created")
-    test = optim
-    print(test)
-#    q = fill_Q_matrix(nobschar, nregime, optim[:wr], optim[wr:],"ARD", orderedRegimes=orderedRegimes)
-    print("q filled")
-#    piRates = hrm_mk(tree, chars, q, nregime, pi=pi, returnPi=True)[1]
-    print("piRates calculated")
-    mk_func = cyexpokit.make_hrmlnl_func(tree, data,k=nchar,nq=nregime,
-                                        qidx=qidx)
-    print("new function created")
-    return (-1*float(mk_func(optim[:], None)), optim[:])
+
+    logli = mk_func(optim[:], None)
+    q = np.asarray(mk_func.q)[0]
+    return (-1*float(logli), optim[:], q)
 
 def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
             orderedRegimes=True, startingvals=None):

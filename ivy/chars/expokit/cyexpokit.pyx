@@ -230,7 +230,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef Py_ssize_t[:] qdif = np.zeros([nq],dtype=np.intp) # Which q-matrices are different
 
     @cython.boundscheck(False)
-    def f(double[:] params,Py_ssize_t[:] switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx,debug=False):
+    def f(double[:] params,Py_ssize_t[:] switches, double[:] lengths, Py_ssize_t[:,:] qidx=qidx):
         """
         params: array of free rate parameters, assigned to q by indices in qidx
         qidx columns:
@@ -334,7 +334,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     return f
 
 @cython.boundscheck(False)
-def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
+def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx,findmin=False):
     cdef int nobschar = k/nq
     cdef list nodes = list(root.iternodes())
     cdef int nnodes = len(nodes)
@@ -371,7 +371,7 @@ def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     cdef double[:] rootprior = np.empty([k])
     rootprior[:] = np.log(1.0/k) # Flat root prior
     @cython.boundscheck(False)
-    def f(np.ndarray params, grad=None, qidx=qidx):
+    def f(np.ndarray[dtype=double,ndim=1] params, grad=None, Py_ssize_t[:,:] qidx=qidx):
         """
         params: array of free rate parameters, assigned to q by indices in qidx
         qidx columns:
@@ -384,7 +384,6 @@ def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         Asymmetric mk2:
             params = [0.2,0.6]; qidx = [[0,0,1,0],[0,1,0,1]]
         """
-
         cdef Py_ssize_t r, a, b, c, d, si
         # switches *= 2 # The corresponding ni of a node in the bisected tree
         #               # is 2x the original ni
@@ -393,14 +392,13 @@ def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
             a = qidx[r,0]
             b = qidx[r,1]
             c = qidx[r,2]
-            q[a,b] = params[c]
+            q[0,a,b] = params[c]
         for i in range(k):
             x = 0
             for j in range(k):
                 if i != j:
                     x -= q[0,i,j]
-            q[i,i] = x
-
+            q[0,i,i] = x
         # P matrix exponentiation
         ln_dexpm3(q, t, qi, tmask, p, ideg, wsp)
 
@@ -413,7 +411,10 @@ def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         for r in range(k):
             fraclnl[0][r] += rootprior[r]
 
-        return logsumexp(fraclnl[0])
+        if findmin:
+            return -1*logsumexp(fraclnl[0])
+        else:
+            return logsumexp(fraclnl[0])
 
     # attached allocated arrays to function object
     f.qidx = qidx
@@ -560,7 +561,7 @@ cdef void mklnl(double[:,:] fraclnl,
                 int k,
                 double[:] tmp,
                 Py_ssize_t[:] postorder,
-                Py_ssize_t[:,:] children):
+                Py_ssize_t[:,:] children) nogil:
     """
     Standard Mk log-likelihood calculator.
     Args:
@@ -584,7 +585,6 @@ cdef void mklnl(double[:,:] fraclnl,
 
     cdef Py_ssize_t i, parent, j, child, ancstate, childstate
     cdef Py_ssize_t c = children.shape[1]
-
     # For each internal node (in postorder sequence)...
     for i in range(postorder.shape[0]):
         # parent indexes the current internal node
@@ -597,11 +597,11 @@ cdef void mklnl(double[:,:] fraclnl,
             for ancstate in range(k):
                 for childstate in range(k):
                     # Multiply child's likelihood by p-matrix entry
-
                     tmp[childstate] = (p[child,ancstate,childstate] +
                                        fraclnl[child,childstate])
                 # Sum of log-likelihoods of children
                 fraclnl[parent,ancstate] += logsumexp(tmp)
+
 
 def cy_mk(double[:,:] fraclnl,
                 double[:,:,:] p,
