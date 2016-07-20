@@ -48,7 +48,6 @@ def min_ages(node, leaf_ages, results={}):
 def smooth(node, node_ages, results={}):
     """
     adjust ages of internal nodes by smoothing
-    RR: I don't actually know what this function does -CZ
     """
     if node.parent:
         parent_age = node_ages[node.parent]

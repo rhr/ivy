@@ -5,13 +5,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import numpy
 
-# RR: Should results be set to None and then defined in the function to avoid
-# problems with mutable defaults in functions? -CZ
-def traverse(node, t=0, results=[]):
+
+def traverse(node, t=0, results=None):
     """
     Recursively traverse the tree and collect information about when
     nodes split and how many lineages are added by its splitting.
     """
+    if results is None:
+        results = []
     if node.children:
         ## if not node.label:
         ##     node.label = str(node.id)

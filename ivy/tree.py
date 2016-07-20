@@ -192,7 +192,7 @@ class Node(object):
                 ii += 1
         for n in node.postiter():
             n.pi = pi
-            n.pi += 1
+            pi += 1
 
     def ape_node_idx(self): # For use in phylorate plot
         i = 1
@@ -876,8 +876,7 @@ class Node(object):
 
     def leaf_distances(self, measure="length"):
         """
-        RR: I don't quite understand the structure of the output. Also,
-            I can't figure out what "measure" does.-CZ
+        RR: I don't quite understand the structure of the output.
         """
         from collections import defaultdict
         store = defaultdict(lambda:defaultdict(lambda:0))

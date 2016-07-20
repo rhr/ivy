@@ -14,7 +14,7 @@ from ivy.layout import cartesian
 from ivy.storage import Storage
 from ivy import pyperclip as clipboard
 #from ..nodecache import NodeCache
-import matplotlib, numpy 
+import matplotlib, numpy
 import matplotlib.pyplot as pyplot
 from matplotlib.figure import SubplotParams, Figure
 from matplotlib.axes import Axes, subplot_class_factory
@@ -866,6 +866,9 @@ class Tree(Axes):
 
 
     def layout(self):
+        """
+        Get coordinates of nodes
+        """
         self.n2c = cartesian(self.root, scaled=self.scaled, yunit=1.0,
                              smooth=self.smooth_xpos)
         self.labels = [ x.label for x in self.root ]

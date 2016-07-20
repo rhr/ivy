@@ -257,7 +257,7 @@ qidx = np.array(
     dtype=np.intp)
 mod_r3 = mk_mr.mk_multi_bayes(tree, chars, 3,qidx=qidx)
 
-mod_r3.sample(20000)
+mod_r3.sample(2000)
 
 qp1 = mod_r3.trace("Qparam_0")[150]
 qp2 = mod_r3.trace("Qparam_1")[150]

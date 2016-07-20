@@ -23,7 +23,6 @@ class Coordinates:
 
 def smooth_xpos(node, n2coords):
     """
-    RR: What does smoothing do? -CZ
     """
     if not node.isleaf:
         children = node.children
