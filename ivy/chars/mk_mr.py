@@ -776,6 +776,9 @@ def mk_multi_bayes(tree, chars,nregime,qidx, pi="Equal" ,seglen=0.02,stepsize=0.
             Asymmetric mk2:
                 params = [0.2,0.6]; qidx = [[0,0,1,0],
                                             [0,1,0,1]]
+           NOTE:
+             The qidx corresponding to the first q matrix (first column 0)
+             is always the root regime
         pi (str or np.array): Option to weight the root node by given values.
            Either a string containing the method or an array
            of weights. Weights should be given in order.
@@ -803,7 +806,6 @@ def mk_multi_bayes(tree, chars,nregime,qidx, pi="Equal" ,seglen=0.02,stepsize=0.
     # Preparations
     nchar = len(set(chars))
     nparam = len(set([n[-1] for n in qidx]))
-    print("preparations complete")
     # This model has 2 components: Q parameters and switchpoints
     # They are combined in a custom likelihood function
     ###########################################################################
@@ -812,11 +814,9 @@ def mk_multi_bayes(tree, chars,nregime,qidx, pi="Equal" ,seglen=0.02,stepsize=0.
     # Modeling the movement of the regime shift(s) is the tricky part
     # Regime shifts will only be allowed to happen at a node
     seg_map = tree_map(tree,seglen)
-    print("segmap complete")
     switch = [None]*(nregime-1)
     for regime in range(nregime-1):
         switch[regime]= make_switchpoint_stoch(seg_map, name=str("switch_{}".format(regime)))
-    print("switchpoints complete")
     ###########################################################################
     # Qparams:
     ###########################################################################
@@ -824,7 +824,6 @@ def mk_multi_bayes(tree, chars,nregime,qidx, pi="Equal" ,seglen=0.02,stepsize=0.
     Qparams = [None] * nparam
     for i in range(nparam):
          Qparams[i] = pymc.Exponential(name=str("Qparam_{}".format(i)), beta=1.0, value=0.1*(i+1))
-    print("Qparams complete")
 
 
     ###########################################################################
@@ -832,7 +831,6 @@ def mk_multi_bayes(tree, chars,nregime,qidx, pi="Equal" ,seglen=0.02,stepsize=0.
     ###########################################################################
     # The likelihood function
     l = cyexpokit.make_mklnl_func(tree, data,nchar,nregime,qidx)
-    print("likelihood function complete")
 
     @pymc.deterministic
     def likelihood(q = Qparams, s=switch,name="likelihood"):
@@ -846,8 +844,6 @@ def mk_multi_bayes(tree, chars,nregime,qidx, pi="Equal" ,seglen=0.02,stepsize=0.
             return -np.inf
 
     mod = pymc.MCMC(locals())
-    print("model created")
     for s in switch:
         mod.use_step_method(SwitchpointMetropolis, s, tree, seg_map,stepsize=stepsize,seglen=seglen)
-    print("step methods used")
     return mod

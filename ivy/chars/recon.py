@@ -74,6 +74,19 @@ def anc_recon_cat(tree, chars, Q, p=None, pi="Equal", ars=None, nregime=1):
 
     return ars["marginal_nl"]
 
+def anc_recon_mkmr(root,chars,Q,switchpoint):
+    nregime = Q.shape[0]
+    root_copy = root.copy()
+    for node in root_copy.descendants():
+        node.meta["cached"]=False
+        node.bisect_branch(1e-15,reindex=False)
+    root_copy.reindex()
+    root_copy.set_iternode_cache()
+    for node in root_copy.iternodes():
+        node.meta["cached"] = True
+    nchar = len(set(chars))
+    ars = create_ancrecon_ars(tree, chars, nregime)
+
 def create_ancrecon_ars(tree, chars, nregime = 1):
     """
     Create nodelists. For use in recon function
@@ -144,7 +157,6 @@ def create_ancrecon_ars(tree, chars, nregime = 1):
     ar_dict = {name:ar for name,ar in zip(names, ar_list)}
 
     return ar_dict
-
 
 def parsimony_recon(tree, chars):
     """

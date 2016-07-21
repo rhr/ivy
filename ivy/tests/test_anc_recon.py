@@ -6,6 +6,7 @@ import unittest
 import ivy
 from ivy.chars.expokit import cyexpokit
 from ivy.chars import discrete
+from ivy.chars import recon
 import numpy as np
 import math
 import scipy
@@ -57,6 +58,13 @@ class NodelikelihoodMethods(unittest.TestCase):
                                 out_cor[i+1][char],
                                 out[i+1][char]/np.sum(out[i+1][:2])))
 
+    def test_ancrecon_mkmr(self):
+        chars = self.fourchars
+        tree = self.fourtiptree
+        Q = np.array([self.Q2x2asym,self.Q2x2sym])
+        switchpoints = [(tree["E"],0.33333333)]
+
+        out = recon.anc_recon_mkmr(tree,chars,Q,switchpoints)
 
 if __name__ == "__main__":
     unittest.main()

@@ -449,7 +449,7 @@ def fit_hrm_qidx(tree, chars, nregime, qidx, pi="Equal",
 
     logli = mk_func(optim[:], None)
     q = np.asarray(mk_func.q)[0]
-    return (-1*float(logli), optim[:], q)
+    return {"Log-likelihood":-1*float(logli), "Q":q}
 
 def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
             orderedRegimes=True, startingvals=None):

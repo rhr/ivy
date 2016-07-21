@@ -187,7 +187,7 @@ class hrmMethods(unittest.TestCase):
                          [3,2,7]])
         params = np.array([0.03712,0.01756,0.01246,0.0,0.0,0.43921,0.02909,0.46159])
         out = hrm.fit_hrm_qidx(tree, data, 2,qidx=qidx,pi="Equal",startingvals=[0.001]*8)
-        ivyQ = out[2]
+        ivyQ = out["Q"]
         np.set_printoptions(suppress=True,precision=5)
         try:
             np.testing.assert_allclose(ivyQ, corHMMQ, atol = 1e-5)
@@ -197,7 +197,25 @@ class hrmMethods(unittest.TestCase):
             except:
                 self.fail("expectedParam != calculatedParam")
 
-    def test_hrmlnlfunc_correctlikelihood(self):
+    def test_hrmlnlfunc_ARD_correctlikelihood(self):
+        tree = self.threetiptree
+        chars = [0,1,1]
+        data = dict(zip([n.label for n in tree.leaves()],chars))
+
+        qidx = np.array([[0,1,0],
+                         [0,2,1],
+                         [1,0,0],
+                         [1,3,1],
+                         [2,0,1],
+                         [2,3,2],
+                         [3,1,1],
+                         [3,2,2]])
+        params = np.array([0.1,0.005,0.05])
+        f = cyexpokit.make_hrmlnl_func(tree, data,4,2,qidx)
+        calculatedLikelihood = f(params)
+        trueLikelihood = -3.4439775578484904
+        self.assertTrue(np.isclose(calculatedLikelihood,trueLikelihood))
+    def test_hrmlnlfunc_simple_correctlikelihood(self):
         tree = self.threetiptree
         chars = [0,1,1]
         data = dict(zip([n.label for n in tree.leaves()],chars))
@@ -212,8 +230,8 @@ class hrmMethods(unittest.TestCase):
                          [3,2,7]])
         params = np.array([0.1,0.05,0.05,0.07,0.06,0.2,0.08,0.3])
         f = cyexpokit.make_hrmlnl_func(tree, data,4,2,qidx)
-        out = f(params)
-        self.assertTrue(np.isclose(out, -2.980018))
+        calculatedLikelihood = f(params)
+        self.assertTrue(np.isclose(calculatedLikelihood, -2.980018))
     #
     # def test_fitMkARD_600tiptree_symmetry(self):
     #     tree = self.randTree600

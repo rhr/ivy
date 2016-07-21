@@ -399,8 +399,102 @@ visualize the reconstructed states on the tree.
 Green corresponds to state 0 and blue to state 1. The more saturated colors
 correspond to the faster regime and the duller colors to the slower regime.
 
-Bayesian
-~~~~~~~~
+BAMM-like Mk model
+------------------
+``ivy`` has code for fitting a `BAMM <http://bamm-project.org/index.html>`_-like
+Mk model (also referred to here as a multi-mk model) to a tree, where different
+sections of the tree have distinct Mk models associated with them.
 
-``ivy`` can also perform Bayesian analyses on HRM models. There are a number
-of different ways of fitting a Bayesian HRM model in ``ivy``.
+We will demonstrate fitting a two-regime BAMM-like Mk model in a Bayesian
+context using pymc
+
+.. sourcecode:: ipython
+
+    In [*]: import ivy
+    In [*]: from ivy.chars import mk_mr
+    In [*]: tree = ivy.tree.read("hrm_600tips.newick")
+    In [*]: chars = [0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1,
+                    0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0,
+                    0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1,
+                    1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0,
+                    0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+                    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
+                    0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                    1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+                    1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0,
+                    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
+                    1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0]
+
+    In [*]: data = dict(zip([n.label for n in tree.leaves()],chars))
+
+First, we will use the ``ivy`` function ``mk_multi_bayes`` to create the pymc
+obejct. We will specify the model using a special array, the ``qidx`` array. The
+``qidx`` array provides information for fitting parameters into a Q matrix.
+
+The ``qidx`` for a multi-mk model is a two-dimensional numpy array with four
+columns. The first column refers to regime, the second column refers to the row index
+of the Q matrix, and the third column refers to the column index of the Q matrix.
+The fourth row refers to the parameter identity that will be filled into this
+location.
+
+TODO: link to mk_multi_bayes documentation
+
+
+In this case, we will fit a model where there are two equal-rates mk models
+somewhere on the tree, each with two different rates. The ``qidx`` will be
+as follows:
+
+.. sourcecode:: ipython
+
+    In [*]: import numpy as np
+    In [*]: qidx = np.array([[0,0,1,0],
+                             [0,1,0,0],
+                             [1,0,1,1],
+                             [1,1,0,1]])
+    In [*]: my_model = mk_mr.mk_multi_bayes(tree, data,nregime=2,qidx=qidx)
+
+Now we will sample from our model. We will do 100,000 samples with a burn-in
+of 10,000 and a thinning factor of 3.
+
+.. sourcecode:: ipython
+
+    In [*] my_model.sample(100000,burn=10000,thin=3)
+
+Now we can look at the output. Seeing the fitted parameters is easy.
+
+.. sourcecode:: ipython
+
+    In [*]: print(np.mean(my_model.trace("Qparam_0")[:])) # Q param 0
+    In [*]: print(np.mean(my_model.trace("Qparam_1")[:])) # Q param 1
+
+Seeing the location of the fitted switchpoints is a little trickier. We can
+use the plotting layer ``add_tree_heatmap`` to see where the switchpoint
+was reconstructed at.
+
+.. sourcecode:: ipython
+
+    In [*]: from ivy.interactive import *
+    In [*]: fig = treefig(tree)
+    In [*]: switchpoint = my_model.trace("switch_0")[:]
+    In [*]: fig.add_layer(ivy.vis.layers.add_tree_heatmap,switchpoint)
+
+.. image:: _images/mkmr_1.png
+    :width: 700
