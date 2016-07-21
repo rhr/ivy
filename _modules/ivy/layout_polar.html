@@ -47,8 +47,10 @@
           <div class="body" role="main">
             
   <h1>Source code for ivy.layout_polar</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">storage</span> <span class="kn">import</span> <span class="n">Storage</span>
+<span class="kn">from</span> <span class="nn">.storage</span> <span class="kn">import</span> <span class="n">Storage</span>
 
 <span class="n">CLOCKWISE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 <span class="n">COUNTERCLOCKWISE</span> <span class="o">=</span> <span class="mi">1</span>
@@ -94,7 +96,7 @@
             <span class="n">coords</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">depth</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">coords</span><span class="o">.</span><span class="n">length_to_root</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">length_to_root</span> <span class="o">+</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="ow">or</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">print</span> <span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">label</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="n">coords</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">coords</span><span class="o">.</span><span class="n">length_to_root</span> <span class="o">=</span> <span class="mi">0</span>
@@ -192,7 +194,7 @@
     <span class="k">return</span> <span class="n">n2coords</span>
 </div>
 <div class="viewcode-block" id="test"><a class="viewcode-back" href="../../ivy.layout_polar.html#ivy.layout_polar.test">[docs]</a><span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
-    <span class="kn">import</span> <span class="nn">newick</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">newick</span>
     <span class="n">node</span> <span class="o">=</span> <span class="n">newick</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s">&quot;(a:3,(b:2,(c:4,d:5):1,(e:3,(f:1,g:1):2):2):2);&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">iternodes</span><span class="p">()):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span><span class="p">:</span>

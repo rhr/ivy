@@ -192,7 +192,7 @@
 
 <dl class="method">
 <dt id="ivy.vis.treevis.Tree.circle_selected_nodes">
-<code class="descname">circle_selected_nodes</code><span class="sig-paren">(</span><em>color='green'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.circle_selected_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.circle_selected_nodes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">circle_selected_nodes</code><span class="sig-paren">(</span><em>color=u'green'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.circle_selected_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.circle_selected_nodes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -240,7 +240,8 @@
 <dl class="method">
 <dt id="ivy.vis.treevis.Tree.layout">
 <code class="descname">layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.layout" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get coordinates of nodes</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ivy.vis.treevis.Tree.leaf_pixelsep">
@@ -351,7 +352,7 @@ current view, with a fixed data point (cx, cy)</p>
 
 <dl class="class">
 <dt id="ivy.vis.treevis.TreeFigure">
-<em class="property">class </em><code class="descclassname">ivy.vis.treevis.</code><code class="descname">TreeFigure</code><span class="sig-paren">(</span><em>data</em>, <em>name=None</em>, <em>scaled=True</em>, <em>div=0.25</em>, <em>branchlabels=True</em>, <em>leaflabels=True</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>mark_named=True</em>, <em>overview=True</em>, <em>interactive=True</em>, <em>radial=False</em>, <em>leaf_fontsize=10</em>, <em>branch_fontsize=10</em>, <em>direction='rightwards'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">ivy.vis.treevis.</code><code class="descname">TreeFigure</code><span class="sig-paren">(</span><em>data</em>, <em>name=None</em>, <em>scaled=True</em>, <em>div=0.25</em>, <em>branchlabels=True</em>, <em>leaflabels=True</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>mark_named=True</em>, <em>overview=True</em>, <em>interactive=True</em>, <em>radial=False</em>, <em>leaf_fontsize=10</em>, <em>branch_fontsize=10</em>, <em>direction=u'rightwards'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>mpl Figure for plotting trees.</p>
 <dl class="docutils">
@@ -605,8 +606,8 @@ one node), only the given node(s) are selected.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="ivy.vis.treevis.TreeFigure.tip_chars">
-<code class="descname">tip_chars</code><span class="sig-paren">(</span><em>chars</em>, <em>nodes=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.tip_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.tip_chars" title="Permalink to this definition">¶</a></dt>
+<dt id="ivy.vis.treevis.TreeFigure.tipstates">
+<code class="descname">tipstates</code><span class="sig-paren">(</span><em>chars</em>, <em>nodes=None</em>, <em>colors=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.tipstates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.tipstates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience function for drawing color-coded circles at tips indicating
 character states.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -614,8 +615,10 @@ character states.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; Character states in the form of [0,1, etc.]. should
-be in the same order as nodes.</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of nodes or node labels. Optional, defaults
 to all tip labels in preorder sequence</li>
 <li><strong>colors</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of strs of the same length as the number

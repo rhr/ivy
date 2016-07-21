@@ -50,15 +50,18 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Compute lineages through time</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span>
 
-<span class="c"># RR: Should results be set to None and then defined in the function to avoid</span>
-<span class="c"># problems with mutable defaults in functions? -CZ</span>
-<div class="viewcode-block" id="traverse"><a class="viewcode-back" href="../../ivy.ltt.html#ivy.ltt.traverse">[docs]</a><span class="k">def</span> <span class="nf">traverse</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">[]):</span>
+
+<div class="viewcode-block" id="traverse"><a class="viewcode-back" href="../../ivy.ltt.html#ivy.ltt.traverse">[docs]</a><span class="k">def</span> <span class="nf">traverse</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Recursively traverse the tree and collect information about when</span>
 <span class="sd">    nodes split and how many lineages are added by its splitting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
         <span class="c">## if not node.label:</span>
         <span class="c">##     node.label = str(node.id)</span>
@@ -87,12 +90,12 @@
     <span class="k">return</span> <span class="n">times</span><span class="p">,</span> <span class="n">diversity</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="test"><a class="viewcode-back" href="../../ivy.ltt.html#ivy.ltt.test">[docs]</a><span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
-    <span class="kn">import</span> <span class="nn">newick</span><span class="o">,</span> <span class="nn">ascii</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">newick</span><span class="p">,</span> <span class="n">ascii</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">newick</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s">&quot;(((a:1,b:2):3,(c:3,d:1):1,(e:0.5,f:3):2.5):1,g:4);&quot;</span><span class="p">)</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">ltt</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-    <span class="k">print</span> <span class="n">ascii</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">ascii</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
-        <span class="k">print</span> <span class="n">t</span><span class="p">,</span> <span class="n">n</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
 </div>
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">test</span><span class="p">()</span>

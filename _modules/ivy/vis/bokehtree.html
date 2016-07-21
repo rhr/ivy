@@ -50,6 +50,8 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Viewer for trees using Bokeh</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
 <span class="kn">import</span> <span class="nn">bokeh</span>
 <span class="kn">import</span> <span class="nn">ivy</span>
 <span class="kn">import</span> <span class="nn">types</span>
@@ -58,12 +60,11 @@
 <span class="kn">from</span> <span class="nn">bokeh.models</span> <span class="kn">import</span> <span class="n">Range1d</span><span class="p">,</span> <span class="n">HoverTool</span><span class="p">,</span> <span class="n">BoxZoomTool</span><span class="p">,</span> <span class="n">WheelZoomTool</span><span class="p">,</span> \
      <span class="n">ResizeTool</span><span class="p">,</span> <span class="n">ResetTool</span><span class="p">,</span> <span class="n">PanTool</span><span class="p">,</span> <span class="n">PreviewSaveTool</span>
 <span class="kn">from</span> <span class="nn">ivy.layout</span> <span class="kn">import</span> <span class="n">cartesian</span>
-<span class="n">StringTypes</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span>
-<span class="k">try</span><span class="p">:</span> <span class="c"># Python 2</span>
-    <span class="nb">iter</span><span class="p">(</span><span class="n">StringTypes</span><span class="p">)</span>
-<span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span> <span class="c"># Python 3</span>
-    <span class="n">StringTypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">StringTypes</span><span class="p">]</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">StringTypes</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span> <span class="c"># Python 2</span>
+<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="c"># Python 3</span>
+    <span class="n">StringTypes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 <div class="viewcode-block" id="BokehTree"><a class="viewcode-back" href="../../../ivy.vis.bokehtree.html#ivy.vis.bokehtree.BokehTree">[docs]</a><span class="k">class</span> <span class="nc">BokehTree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">scaled</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">nodelabels</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
 				 <span class="n">tiplabels</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">showplot</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">hover</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
@@ -116,9 +117,9 @@
 <span class="sd">		This method calculates the coordinates of the nodes</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">n2c</span> <span class="o">=</span> <span class="n">cartesian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scaled</span><span class="p">,</span> <span class="n">yunit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">n2c</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n2c</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
 			<span class="n">c</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xoff</span><span class="p">;</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yoff</span>
-		<span class="n">sv</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([[</span><span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">n2c</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+		<span class="n">sv</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([[</span><span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n2c</span><span class="o">.</span><span class="n">items</span><span class="p">())])</span>
 		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sv</span><span class="p">:</span>
 			<span class="n">i</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">yval</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 			<span class="n">i</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">xval</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>

@@ -48,29 +48,45 @@
             
   <h1>Source code for ivy.chars.mk_mr</h1><div class="highlight"><pre>
 <span class="c"># Mk multi regime models</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">ivy</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
 
+<span class="kn">import</span> <span class="nn">line_profiler</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">pymc</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
 <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">binom</span>
 
 <span class="kn">from</span> <span class="nn">ivy.chars.expokit</span> <span class="kn">import</span> <span class="n">cyexpokit</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">StringTypes</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span> <span class="c"># Python 2</span>
+<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="c"># Python 3</span>
+    <span class="n">StringTypes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="n">IDEG</span> <span class="o">=</span> <span class="mi">6</span> <span class="c"># Constant used in Cython/Fortran code.</span>
 
 
-<div class="viewcode-block" id="mk_multi_regime"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.mk_multi_regime">[docs]</a><span class="k">def</span> <span class="nf">mk_multi_regime</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qs</span><span class="p">,</span> <span class="n">locs</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Fitzjohn&quot;</span><span class="p">,</span> <span class="n">returnPi</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                     <span class="n">preallocated_arrays</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="mk_mr_midbranch"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.mk_mr_midbranch">[docs]</a><span class="k">def</span> <span class="nf">mk_mr_midbranch</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qs</span><span class="p">,</span> <span class="n">switchpoint</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">returnPi</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                     <span class="n">ar</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate likelhiood of mk model with BAMM-like multiple regimes</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        tree (Node): Root node of a tree. All branch lengths must be</span>
 <span class="sd">          greater than 0 (except root)</span>
-<span class="sd">        chars (list): List of character states corresponding to leaf nodes in</span>
-<span class="sd">          preoder sequence. Character states must be numbered 0,1,2,...</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
+
+<span class="sd">          Can also be a list with tip states in preorder sequence</span>
 <span class="sd">        Qs (np.array): Array of instantaneous rate matrices</span>
 <span class="sd">        locs (np.array): Array of the same length as Qs containing the</span>
 <span class="sd">          node indices that correspond to each Q matrix</span>
@@ -86,222 +102,319 @@
 <span class="sd">             of Q matrix</span>
 <span class="sd">           Fitzjohn: Root states weighted by how well they</span>
 <span class="sd">             explain the data at the tips.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (float): Log-likelihood of tree/characters given the Q matrices.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">nchar</span> <span class="o">=</span> <span class="n">Qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">preallocated_arrays</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="c"># Creating arrays to be used later</span>
-        <span class="n">preallocated_arrays</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;charlist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)</span>
-        <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isroot</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="c">####################</span>
+    <span class="c"># Step 1: setting up</span>
+    <span class="c">####################</span>
+    <span class="c"># These lines of code ensure that the object switchpoint is of the correct</span>
+    <span class="c"># type even when passed in from PYMC</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">switchpoint</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">switchpoint</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="n">pymc</span><span class="o">.</span><span class="n">PyMCObjects</span><span class="o">.</span><span class="n">Stochastic</span><span class="p">:</span>
+            <span class="n">switchpoint</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">switchpoint</span><span class="p">]</span>
+
+    <span class="c"># chars can be passed in as a dict. If it is, convert it to a list of ints in preorder sequence.</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
+
+    <span class="c"># Number of character states</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
+
+    <span class="c"># Creation of preallocated arrays.</span>
+    <span class="k">if</span> <span class="n">ar</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">create_mkmr_mb_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="o">=</span><span class="n">Qs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># chars is going to need to be reordered.</span>
+    <span class="n">chars</span> <span class="o">=</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;chars&quot;</span><span class="p">]</span>
+    <span class="c"># Get the actual nodes from the switchpoint tuple</span>
+    <span class="n">switchpoint_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;tree_copy&quot;</span><span class="p">][</span><span class="n">switchpoint</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">switchpoint</span><span class="p">))]</span>
+
+    <span class="c"># Reset t values</span>
+    <span class="n">ar</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;blens&quot;</span><span class="p">][:]</span> <span class="o">+</span> <span class="mf">1e-40</span> <span class="c"># Branch lengths can&#39;t be exactly zero.</span>
+
+    <span class="c"># Adjust t to represent the length of each switchpoint</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">switchpoint</span><span class="p">:</span>
+        <span class="n">sw</span> <span class="o">=</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;tree_copy&quot;</span><span class="p">][</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="o">.</span><span class="n">pi</span> <span class="c">#Switchpoint</span>
+        <span class="n">sk</span> <span class="o">=</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;tree_copy&quot;</span><span class="p">][</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pi</span> <span class="c">#Switchpoint&#39;s parent</span>
+        <span class="n">ar</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">][</span><span class="n">sw</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ar</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">][</span><span class="n">sk</span><span class="p">]</span> <span class="o">=</span>  <span class="n">ar</span><span class="p">[</span><span class="s">&quot;tree_copy&quot;</span><span class="p">][</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">length</span> <span class="o">-</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
 
-    <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># Instantiating empty array</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">]),</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;C&quot;</span><span class="p">)</span>
+    <span class="c"># inds corresponds to the tree in postorder sequence, with each value</span>
+    <span class="c"># corresponding to the regime that node is in. It is passed to dexpm3</span>
+    <span class="n">switches_ni</span> <span class="o">=</span> <span class="p">[</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;tree_copy&quot;</span><span class="p">][</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="o">.</span><span class="n">ni</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">switchpoint</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">inds_from_switchpoint_p</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">switches_ni</span><span class="p">),</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;cladesize_preorder&quot;</span><span class="p">],</span>
+                                    <span class="n">ar</span><span class="p">[</span><span class="s">&quot;clades_postorder_preorder&quot;</span><span class="p">],</span>
+                                    <span class="n">ar</span><span class="p">[</span><span class="s">&quot;inds&quot;</span><span class="p">])</span>
+    <span class="p">(</span><span class="n">Qs</span> <span class="o">!=</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;prev_Q&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">out</span><span class="o">=</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;Qdif&quot;</span><span class="p">])</span>
 
-    <span class="n">inds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">])</span>
+    <span class="c">#####################</span>
+    <span class="c"># Step 2: create &quot;pmask&quot;</span>
+    <span class="c">#####################</span>
+    <span class="c"># pmask is a mask array that keeps track of which p-matrices need to be</span>
+    <span class="c"># recalculated and which ones can use the values from the previous call.</span>
 
-    <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">locs</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
-            <span class="n">inds</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">l</span>
+    <span class="c">#Which Qs are different? Different Qs mean we have to recalculate p for that index</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="o">.</span><span class="n">reduce</span><span class="p">((</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;prev_inds&quot;</span><span class="p">]</span><span class="o">!=</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;inds&quot;</span><span class="p">],</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">]</span><span class="o">!=</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;prev_t&quot;</span><span class="p">],</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;Qdif&quot;</span><span class="p">][</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;inds&quot;</span><span class="p">]]),</span><span class="n">out</span><span class="o">=</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;pmask&quot;</span><span class="p">])</span> <span class="c"># Which p-matrices do we need to recalcualte?</span>
+
+    <span class="c">##################</span>
+    <span class="c"># Step 3: calculate p matrices</span>
+    <span class="c">##################</span>
 
     <span class="c"># Creating probability matrices from Q matrices and branch lengths</span>
     <span class="c"># inds indicates which Q matrix to use for which branch</span>
-    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">dexpm_treeMulti_preallocated_p</span><span class="p">(</span><span class="n">Qs</span><span class="p">,</span> <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">],</span> <span class="n">p</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inds</span><span class="p">))</span> <span class="c"># This changes p in place</span>
+    <span class="c"># np.exp(ar[&quot;p&quot;], out=ar[&quot;p&quot;]) # Exponentiate p matrices</span>
+    <span class="n">Qs</span> <span class="o">+=</span> <span class="mf">1e-40</span>
+    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">lndexpm3</span><span class="p">(</span><span class="n">Qs</span><span class="p">,</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;inds&quot;</span><span class="p">]),</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">],</span><span class="n">ideg</span><span class="o">=</span><span class="n">IDEG</span><span class="p">,</span><span class="n">wsp</span><span class="o">=</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;wsp&quot;</span><span class="p">],</span><span class="n">pmask</span><span class="o">=</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;pmask&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span> <span class="c"># Calculating the actual p matrix</span>
+    <span class="c"># np.log(ar[&quot;p&quot;], out=ar[&quot;p&quot;]) # Log p matrices</span>
 
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
-        <span class="c"># Creating more arrays</span>
-        <span class="n">nnode</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">())</span><span class="o">+</span><span class="mi">1</span>
-        <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nnode</span><span class="p">,</span> <span class="n">nchar</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">leafind</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">()]</span>
-        <span class="c"># Reordering character states to be in postorder sequence</span>
-        <span class="n">preleaves</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">preiter</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
-        <span class="n">postleaves</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
-        <span class="n">postnodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">());</span><span class="n">prenodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">preiter</span><span class="p">())</span>
-        <span class="n">postChars</span> <span class="o">=</span> <span class="p">[</span> <span class="n">chars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span> <span class="n">preleaves</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">postleaves</span> <span class="p">]</span> <span class="p">]</span>
-        <span class="c"># Filling in the node list. It contains all of the information needed</span>
-        <span class="c"># to calculate the likelihoods at each node</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">postChars</span><span class="p">):</span>
-            <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">leafind</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-                <span class="n">n</span><span class="p">[</span><span class="n">nchar</span><span class="p">]</span> <span class="o">=</span> <span class="n">postnodes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">postnodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
-
-        <span class="c"># Setting initial node likelihoods to 1.0 for calculations</span>
-        <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">leafind</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">b</span><span class="p">],:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
-
-        <span class="c"># Empty array to store root priors</span>
-        <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="c">#################</span>
+    <span class="c"># Step 4: calculate likelihood</span>
+    <span class="c">#################</span>
 
     <span class="c"># Calculating the likelihoods for each node in post-order sequence</span>
-    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">cy_mk</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">p</span><span class="p">,</span> <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;charlist&quot;</span><span class="p">])</span>
-    <span class="c"># The last row of nodelist contains the likelihood values at the root</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelistOrig&quot;</span><span class="p">])</span> <span class="c"># Resetting the starting values of nodelist.</span>
 
+    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">cy_mk_log</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">],</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;tmp_ar&quot;</span><span class="p">],</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;intnode_list&quot;</span><span class="p">],</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;child_ar&quot;</span><span class="p">])</span> <span class="c"># Performing the likelihood calculation</span>
+    <span class="c"># cyexpokit.cy_mk_log(ar[&quot;nodelist&quot;], ar[&quot;p&quot;], nchar, ar[&quot;tmp_ar&quot;],ar[&quot;intnode_list&quot;],ar[&quot;child_ar&quot;])</span>
+
+    <span class="c">################</span>
+    <span class="c"># Step 5: apply root prior</span>
+    <span class="c">################</span>
+    <span class="c"># The last row of nodelist contains the likelihood values at the root</span>
     <span class="c"># Applying the correct root prior</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span> <span class="o">==</span> <span class="n">nchar</span><span class="p">,</span> <span class="s">&quot;length of given pi does not match Q dimensions&quot;</span>
         <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">pi</span><span class="p">))</span> <span class="o">==</span> <span class="s">&quot;&lt;type &#39;numpy.ndarray&#39;&gt;&quot;</span><span class="p">,</span> <span class="s">&quot;pi must be str or numpy array&quot;</span>
         <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">pi</span><span class="p">),</span> <span class="mi">1</span><span class="p">),</span> <span class="s">&quot;values of given pi must sum to 1&quot;</span>
 
-        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">],</span> <span class="n">pi</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">],</span> <span class="n">pi</span><span class="p">)</span>
 
-        <span class="n">li</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span> <span class="n">i</span><span class="o">*</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">][</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="p">])</span>
-        <span class="n">logli</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">li</span><span class="p">)</span>
+        <span class="n">rootliks</span> <span class="o">=</span> <span class="p">([</span> <span class="n">i</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">][</span><span class="n">n</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="p">])</span>
 
     <span class="k">elif</span> <span class="n">pi</span> <span class="o">==</span> <span class="s">&quot;Equal&quot;</span><span class="p">:</span>
-        <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">nchar</span><span class="p">)</span>
-        <span class="n">li</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span> <span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">nchar</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">])</span>
-
-        <span class="n">logli</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">li</span><span class="p">)</span>
-
+        <span class="n">ar</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">nchar</span><span class="p">)</span>
+        <span class="n">rootliks</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">][</span><span class="n">n</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span>
     <span class="k">elif</span> <span class="n">pi</span> <span class="o">==</span> <span class="s">&quot;Fitzjohn&quot;</span><span class="p">:</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">],</span>
-                  <span class="p">[</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">charstate</span><span class="p">]</span><span class="o">/</span>
-                   <span class="nb">sum</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">],</span>
+                  <span class="p">[</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">charstate</span><span class="p">]</span><span class="o">-</span>
+                   <span class="n">scipy</span><span class="o">.</span><span class="n">misc</span><span class="o">.</span><span class="n">logsumexp</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span>
                    <span class="n">charstate</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="p">])</span>
-
-        <span class="n">li</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span> <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">charstate</span><span class="p">]</span> <span class="o">*</span>
-                     <span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">][</span><span class="n">charstate</span><span class="p">]</span> <span class="k">for</span> <span class="n">charstate</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="p">])</span>
-        <span class="n">logli</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">li</span><span class="p">)</span>
+        <span class="n">rootliks</span> <span class="o">=</span> <span class="p">[</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">charstate</span><span class="p">]</span> <span class="o">+</span>
+                     <span class="n">ar</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">][</span><span class="n">charstate</span><span class="p">]</span> <span class="k">for</span> <span class="n">charstate</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="p">]</span>
     <span class="k">elif</span> <span class="n">pi</span> <span class="o">==</span> <span class="s">&quot;Equilibrium&quot;</span><span class="p">:</span>
         <span class="c"># Equilibrium pi from the stationary distribution of Q</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">],</span><span class="n">qsd</span><span class="p">(</span><span class="n">Qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="n">li</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span> <span class="n">i</span><span class="o">*</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">][</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="p">])</span>
-        <span class="n">logli</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">li</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">],</span><span class="n">qsd</span><span class="p">(</span><span class="n">Q</span><span class="p">))</span>
+        <span class="n">rootliks</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">][</span><span class="n">n</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="p">]</span>
+    <span class="n">logli</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">misc</span><span class="o">.</span><span class="n">logsumexp</span><span class="p">(</span><span class="n">rootliks</span><span class="p">)</span>
+    <span class="c">###############</span>
+    <span class="c"># Cleanup and storing values for next call to this function</span>
+    <span class="c">##############</span>
+    <span class="n">ar</span><span class="p">[</span><span class="s">&quot;prev_t&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">][:]</span>
+    <span class="n">ar</span><span class="p">[</span><span class="s">&quot;prev_inds&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;inds&quot;</span><span class="p">][:]</span>
+    <span class="n">ar</span><span class="p">[</span><span class="s">&quot;prev_Q&quot;</span><span class="p">][:]</span> <span class="o">=</span>  <span class="n">Qs</span><span class="p">[:]</span>
     <span class="k">if</span> <span class="n">returnPi</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">logli</span><span class="p">,</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">preallocated_arrays</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">])})</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">logli</span><span class="p">,</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">])})</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">logli</span>
 
 </div>
-<div class="viewcode-block" id="create_likelihood_function_multimk"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.create_likelihood_function_multimk">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_multimk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">locs</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
-                                  <span class="nb">min</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">min</span><span class="p">:</span>
+<div class="viewcode-block" id="create_mkmr_ar"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.create_mkmr_ar">[docs]</a><span class="k">def</span> <span class="nf">create_mkmr_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create preallocated arrays. For use in mk function</span>
+
+<span class="sd">    Nodelist = edgelist of nodes in postorder sequence</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isroot</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span> <span class="c"># t is in POSTORDER SEQUENCE</span>
+    <span class="n">nt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">())</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
+    <span class="n">preleaves</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">preiter</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
+    <span class="n">postleaves</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
+    <span class="n">postnodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">())</span>
+    <span class="n">postChars</span> <span class="o">=</span> <span class="p">[</span> <span class="n">chars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span> <span class="n">preleaves</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">postleaves</span> <span class="p">]</span> <span class="p">]</span>
+    <span class="n">nnode</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">nodelist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nnode</span><span class="p">,</span> <span class="n">nchar</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">nodelist</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span> <span class="c"># the log of 0 is negative infinity</span>
+    <span class="n">leafind</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">()]</span>
+
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">postChars</span><span class="p">):</span>
+        <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodelist</span><span class="p">)</span> <span class="k">if</span> <span class="n">leafind</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodelist</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">n</span><span class="p">[</span><span class="n">nchar</span><span class="p">]</span> <span class="o">=</span> <span class="n">postnodes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">postnodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+
+    <span class="c"># Setting initial node likelihoods to log one for calculations</span>
+    <span class="n">nodelist</span><span class="p">[[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">leafind</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">b</span><span class="p">],:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="c"># Empty Q matrix</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">nregime</span><span class="p">,</span><span class="n">nchar</span><span class="p">,</span> <span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="c"># Empty p matrix</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nt</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;C&quot;</span><span class="p">)</span>
+    <span class="n">nodelistOrig</span> <span class="o">=</span> <span class="n">nodelist</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">rootpriors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">findmin</span><span class="p">:</span>
         <span class="n">nullval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">nullval</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-
-    <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
-    <span class="n">nt</span> <span class="o">=</span>  <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">())</span>
-    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)</span>
-
-    <span class="c"># Empty Q matrix</span>
-    <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">locs</span><span class="p">),</span><span class="n">nchar</span><span class="p">,</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
-    <span class="c"># Empty p matrix</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nt</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;C&quot;</span><span class="p">)</span>
-    <span class="c"># Empty likelihood array</span>
-    <span class="n">nodelist</span><span class="p">,</span><span class="n">t</span> <span class="o">=</span> <span class="n">_create_nodelist</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">)</span>
-    <span class="n">nodelistOrig</span> <span class="o">=</span> <span class="n">nodelist</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c"># Second copy to refer back to</span>
-    <span class="c"># Empty root prior array</span>
-    <span class="n">rootpriors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
-
-    <span class="c"># Upper bounds</span>
     <span class="n">treelen</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span> <span class="n">n</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rootpath</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">length</span><span class="p">]</span><span class="o">+</span><span class="p">[</span>
                    <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">length</span><span class="p">])</span>
     <span class="n">upperbound</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">())</span><span class="o">/</span><span class="n">treelen</span>
+    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">))</span>
+    <span class="n">tmp_ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nchar</span><span class="p">)</span> <span class="c"># Used for storing calculations</span>
 
-    <span class="c"># Giving internal function access to these arrays.</span>
-       <span class="c"># Warning: can be tricky</span>
-       <span class="c"># Need to make sure old values</span>
-       <span class="c"># Aren&#39;t accidentally re-used</span>
+    <span class="n">wsp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">nchar</span><span class="o">*</span><span class="n">nchar</span><span class="o">+</span><span class="n">IDEG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
     <span class="n">var</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;Q&quot;</span><span class="p">:</span> <span class="n">Q</span><span class="p">,</span> <span class="s">&quot;p&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s">&quot;t&quot;</span><span class="p">:</span><span class="n">t</span><span class="p">,</span> <span class="s">&quot;nodelist&quot;</span><span class="p">:</span><span class="n">nodelist</span><span class="p">,</span> <span class="s">&quot;charlist&quot;</span><span class="p">:</span><span class="n">charlist</span><span class="p">,</span>
            <span class="s">&quot;nodelistOrig&quot;</span><span class="p">:</span><span class="n">nodelistOrig</span><span class="p">,</span> <span class="s">&quot;upperbound&quot;</span><span class="p">:</span><span class="n">upperbound</span><span class="p">,</span>
-           <span class="s">&quot;root_priors&quot;</span><span class="p">:</span><span class="n">rootpriors</span><span class="p">,</span> <span class="s">&quot;nullval&quot;</span><span class="p">:</span><span class="n">nullval</span><span class="p">,</span> <span class="s">&quot;locs&quot;</span><span class="p">:</span><span class="n">locs</span><span class="p">}</span>
+           <span class="s">&quot;root_priors&quot;</span><span class="p">:</span><span class="n">rootpriors</span><span class="p">,</span> <span class="s">&quot;nullval&quot;</span><span class="p">:</span><span class="n">nullval</span><span class="p">,</span> <span class="s">&quot;tmp_ar&quot;</span><span class="p">:</span><span class="n">tmp_ar</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">var</span>
+</div>
+<div class="viewcode-block" id="create_mkmr_mb_ar"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.create_mkmr_mb_ar">[docs]</a><span class="k">def</span> <span class="nf">create_mkmr_mb_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Preallocated arrays for midbranch mk_mr</span>
 
-    <span class="k">def</span> <span class="nf">likelihood_function</span><span class="p">(</span><span class="n">Qparams</span><span class="p">):</span>
-        <span class="c"># Enforcing upper bound on parameters</span>
+<span class="sd">    Create preallocated arrays. For use in mk_mr midbranch function</span>
 
-        <span class="c"># TODO: replace with sum of each Q</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">Qparams</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">locs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;upperbound&quot;</span><span class="p">])</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">Qparams</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+<span class="sd">    Nodelist = edgelist of nodes in postorder sequence</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">{</span><span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chars</span><span class="p">)}</span>
+    <span class="n">tree_copy_</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree_copy_</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
+        <span class="n">n</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s">&quot;cached&quot;</span><span class="p">]</span><span class="o">=</span><span class="bp">False</span>
+        <span class="n">n</span><span class="o">.</span><span class="n">bisect_branch</span><span class="p">(</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">reindex</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="c"># Here we break up the tree so that each node has a &quot;knee&quot;</span>
+    <span class="c"># for a parent. This knee starts with a length of 0, effectively</span>
+    <span class="c"># making it nonexistant, but can have its length changed</span>
+    <span class="c"># to act as a switchpoint.</span>
+    <span class="n">tree_copy_str</span> <span class="o">=</span> <span class="n">tree_copy_</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+    <span class="n">tree_copy</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">tree_copy_str</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n1</span><span class="p">,</span><span class="n">n2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tree_copy_</span><span class="o">.</span><span class="n">preiter</span><span class="p">(),</span> <span class="n">tree_copy</span><span class="o">.</span><span class="n">preiter</span><span class="p">()):</span>
+        <span class="n">n2</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">n1</span><span class="o">.</span><span class="n">id</span>
 
-        <span class="c"># Filling Q matrices:</span>
-        <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;ER&quot;</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">qmat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">]):</span>
-                <span class="n">qmat</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-                <span class="n">qmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">nchar</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="c"># elif Qtype == &quot;Sym&quot;:</span>
-        <span class="c">#     var[&quot;Q&quot;].fill(0.0) # Re-filling with zeroes</span>
-        <span class="c">#     xs,ys = np.triu_indices(nchar,k=1)</span>
-        <span class="c">#     var[&quot;Q&quot;][xs,ys] = Qparams</span>
-        <span class="c">#     var[&quot;Q&quot;][ys,xs] = Qparams</span>
-        <span class="c">#     var[&quot;Q&quot;][np.diag_indices(nchar)] = 0-np.sum(var[&quot;Q&quot;], 1)</span>
-        <span class="c"># elif Qtype == &quot;ARD&quot;:</span>
-        <span class="c">#     var[&quot;Q&quot;].fill(0.0) # Re-filling with zeroes</span>
-        <span class="c">#     var[&quot;Q&quot;][np.triu_indices(nchar, k=1)] = Qparams[:len(Qparams)/2]</span>
-        <span class="c">#     var[&quot;Q&quot;][np.tril_indices(nchar, k=-1)] = Qparams[len(Qparams)/2:]</span>
-        <span class="c">#     var[&quot;Q&quot;][np.diag_indices(nchar)] = 0-np.sum(var[&quot;Q&quot;], 1)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="s">&quot;Qtype must be one of: ER, Sym, ARD&quot;</span>
 
-        <span class="c"># Resetting the values in these arrays</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelistOrig&quot;</span><span class="p">])</span>
-        <span class="n">var</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree_copy</span><span class="p">:</span>
+        <span class="n">n</span><span class="o">.</span><span class="n">cladesize</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree_copy</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
+    <span class="n">blens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree_copy</span><span class="o">.</span><span class="n">postiter</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isroot</span><span class="p">])</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">blens</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">prev_t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">prev_t</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+    <span class="n">nt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
+    <span class="n">preleaves</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree_copy</span><span class="o">.</span><span class="n">preiter</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
+    <span class="n">postleaves</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree_copy</span><span class="o">.</span><span class="n">postiter</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="p">]</span>
+    <span class="n">postnodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tree_copy</span><span class="o">.</span><span class="n">postiter</span><span class="p">())</span>
 
-        <span class="k">if</span> <span class="nb">min</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">edgelist</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree_copy</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">edgelist</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">edgelist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">postnodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pi</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">mk_multi_regime</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">],</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;locs&quot;</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">],</span> <span class="n">pi</span> <span class="o">=</span> <span class="n">pi</span><span class="p">,</span> <span class="n">preallocated_arrays</span><span class="o">=</span><span class="n">var</span><span class="p">)</span> <span class="c"># Minimizing negative log-likelihood</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="c"># If likelihood returned is 0</span>
-            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+    <span class="n">postChars</span> <span class="o">=</span> <span class="p">[</span> <span class="n">chars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span> <span class="n">preleaves</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">postleaves</span> <span class="p">]</span> <span class="p">]</span>
+    <span class="n">nnode</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">nodelist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nnode</span><span class="p">,</span> <span class="n">nchar</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">nodelist</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span> <span class="c"># the log of 0 is negative infinity</span>
+    <span class="n">leafind</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree_copy</span><span class="o">.</span><span class="n">postiter</span><span class="p">()]</span>
 
-    <span class="k">return</span> <span class="n">likelihood_function</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">postChars</span><span class="p">):</span>
+        <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodelist</span><span class="p">)</span> <span class="k">if</span> <span class="n">leafind</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">nodelist</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">edgelist</span>
+
+    <span class="c"># Setting initial node likelihoods to log one for calculations</span>
+    <span class="n">nodelist</span><span class="p">[[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">leafind</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">b</span><span class="p">],:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="c"># Empty Q matrix</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">nregime</span><span class="p">,</span><span class="n">nchar</span><span class="p">,</span> <span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">prev_Q</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">prev_Q</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+    <span class="c"># Empty p matrix</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nt</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;C&quot;</span><span class="p">)</span>
+    <span class="n">pmask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">True</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+    <span class="n">nodelistOrig</span> <span class="o">=</span> <span class="n">nodelist</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">rootpriors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">findmin</span><span class="p">:</span>
+        <span class="n">nullval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nullval</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">treelen</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span> <span class="n">n</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree_copy</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rootpath</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">length</span><span class="p">]</span><span class="o">+</span><span class="p">[</span>
+                   <span class="n">tree_copy</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">length</span><span class="p">])</span>
+    <span class="n">upperbound</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree_copy</span><span class="o">.</span><span class="n">leaves</span><span class="p">())</span><span class="o">/</span><span class="n">treelen</span>
+    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">))</span>
+    <span class="n">tmp_ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nchar</span><span class="p">)</span> <span class="c"># Used for storing calculations</span>
+
+    <span class="n">pre_post</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">pi</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree_copy</span><span class="p">])</span> <span class="c"># The postorder index that corresponds to each preorder index</span>
+    <span class="n">prev_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="c">#Keeping track of locations from previous call</span>
+    <span class="n">Qdif</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">nregime</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span> <span class="c"># Array for keeping track of changes to Q</span>
+    <span class="n">locs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">max_children</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree_copy</span><span class="p">)</span>
+    <span class="n">child_ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">tree_copy</span><span class="o">.</span><span class="n">cladesize</span><span class="p">,</span><span class="n">max_children</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">child_ar</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">intnode_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nodelist</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">nchar</span><span class="p">])),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">intnode</span> <span class="ow">in</span> <span class="n">intnode_list</span><span class="p">:</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">nodelist</span><span class="p">[:,</span><span class="n">nchar</span><span class="p">]</span><span class="o">==</span><span class="n">intnode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">child_ar</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">intnode</span><span class="p">)][:</span><span class="nb">len</span><span class="p">(</span><span class="n">children</span><span class="p">)]</span> <span class="o">=</span> <span class="n">children</span>
+
+    <span class="n">wsp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">nchar</span><span class="o">*</span><span class="n">nchar</span><span class="o">+</span><span class="n">IDEG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">cladesize_preorder</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree_copy</span><span class="p">])</span>
+    <span class="n">clades_postorder_preorder</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">tree_copy</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">tree_copy</span><span class="p">)])</span>
+    <span class="n">clades_postorder_preorder</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">ni</span><span class="p">,</span><span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tree_copy</span><span class="p">):</span>
+        <span class="n">clades_postorder_preorder</span><span class="p">[</span><span class="n">ni</span><span class="p">][:</span><span class="n">cladesize_preorder</span><span class="p">[</span><span class="n">ni</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">pi</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">node</span><span class="p">]</span>
+
+    <span class="n">var</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;Q&quot;</span><span class="p">:</span> <span class="n">Q</span><span class="p">,</span> <span class="s">&quot;p&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s">&quot;t&quot;</span><span class="p">:</span><span class="n">t</span><span class="p">,</span> <span class="s">&quot;nodelist&quot;</span><span class="p">:</span><span class="n">nodelist</span><span class="p">,</span> <span class="s">&quot;charlist&quot;</span><span class="p">:</span><span class="n">charlist</span><span class="p">,</span>
+           <span class="s">&quot;nodelistOrig&quot;</span><span class="p">:</span><span class="n">nodelistOrig</span><span class="p">,</span> <span class="s">&quot;upperbound&quot;</span><span class="p">:</span><span class="n">upperbound</span><span class="p">,</span>
+           <span class="s">&quot;root_priors&quot;</span><span class="p">:</span><span class="n">rootpriors</span><span class="p">,</span> <span class="s">&quot;nullval&quot;</span><span class="p">:</span><span class="n">nullval</span><span class="p">,</span> <span class="s">&quot;tmp_ar&quot;</span><span class="p">:</span><span class="n">tmp_ar</span><span class="p">,</span>
+           <span class="s">&quot;tree_copy&quot;</span><span class="p">:</span><span class="n">tree_copy</span><span class="p">,</span><span class="s">&quot;chars&quot;</span><span class="p">:</span><span class="n">chars</span><span class="p">,</span><span class="s">&quot;pre_post&quot;</span><span class="p">:</span><span class="n">pre_post</span><span class="p">,</span><span class="s">&quot;prev_Q&quot;</span><span class="p">:</span><span class="n">prev_Q</span><span class="p">,</span>
+           <span class="s">&quot;prev_t&quot;</span><span class="p">:</span><span class="n">prev_t</span><span class="p">,</span> <span class="s">&quot;blens&quot;</span><span class="p">:</span><span class="n">blens</span><span class="p">,</span><span class="s">&quot;pmask&quot;</span><span class="p">:</span><span class="n">pmask</span><span class="p">,</span>
+           <span class="s">&quot;prev_inds&quot;</span><span class="p">:</span><span class="n">prev_inds</span><span class="p">,</span> <span class="s">&quot;locs&quot;</span><span class="p">:</span><span class="n">locs</span><span class="p">,</span><span class="s">&quot;Qdif&quot;</span><span class="p">:</span><span class="n">Qdif</span><span class="p">,</span>
+           <span class="s">&quot;intnode_list&quot;</span><span class="p">:</span><span class="n">intnode_list</span><span class="p">,</span><span class="s">&quot;child_ar&quot;</span><span class="p">:</span><span class="n">child_ar</span><span class="p">,</span><span class="s">&quot;wsp&quot;</span><span class="p">:</span><span class="n">wsp</span><span class="p">,</span>
+           <span class="s">&quot;inds&quot;</span><span class="p">:</span><span class="n">inds</span><span class="p">,</span><span class="s">&quot;cladesize_preorder&quot;</span><span class="p">:</span><span class="n">cladesize_preorder</span><span class="p">,</span>
+           <span class="s">&quot;clades_postorder_preorder&quot;</span><span class="p">:</span><span class="n">clades_postorder_preorder</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">var</span>
 
 </div>
-<div class="viewcode-block" id="create_likelihood_function_multimk_b"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.create_likelihood_function_multimk_b">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_multimk_b</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
-                                  <span class="nb">min</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">min</span><span class="p">:</span>
+<div class="viewcode-block" id="create_likelihood_function_multimk"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.create_likelihood_function_multimk">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_multimk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+                                  <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
+    <span class="k">if</span> <span class="n">findmin</span><span class="p">:</span>
         <span class="n">nullval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">nullval</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
 
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
     <span class="n">nt</span> <span class="o">=</span>  <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">())</span>
-    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)</span>
+    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">))</span>
+
+    <span class="c"># Number of parameters per Q matrix</span>
+    <span class="n">n_qp</span> <span class="o">=</span> <span class="n">nchar</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nchar</span>
 
     <span class="c"># Empty Q matrix</span>
     <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">nregime</span><span class="p">,</span><span class="n">nchar</span><span class="p">,</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
     <span class="c"># Empty p matrix</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nt</span><span class="p">,</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;C&quot;</span><span class="p">)</span>
     <span class="c"># Empty likelihood array</span>
-    <span class="n">nodelist</span><span class="p">,</span><span class="n">t</span> <span class="o">=</span> <span class="n">_create_nodelist</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">)</span>
-    <span class="n">nodelistOrig</span> <span class="o">=</span> <span class="n">nodelist</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c"># Second copy to refer back to</span>
-    <span class="c"># Empty root prior array</span>
-    <span class="n">rootpriors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
-
-    <span class="c"># Upper bounds</span>
-    <span class="n">treelen</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span> <span class="n">n</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rootpath</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">length</span><span class="p">]</span><span class="o">+</span><span class="p">[</span>
-                   <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">length</span><span class="p">])</span>
-    <span class="n">upperbound</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">())</span><span class="o">/</span><span class="n">treelen</span>
-
-    <span class="c"># Giving internal function access to these arrays.</span>
-       <span class="c"># Warning: can be tricky</span>
-       <span class="c"># Need to make sure old values</span>
-       <span class="c"># Aren&#39;t accidentally re-used</span>
-    <span class="n">var</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;Q&quot;</span><span class="p">:</span> <span class="n">Q</span><span class="p">,</span> <span class="s">&quot;p&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s">&quot;t&quot;</span><span class="p">:</span><span class="n">t</span><span class="p">,</span> <span class="s">&quot;nodelist&quot;</span><span class="p">:</span><span class="n">nodelist</span><span class="p">,</span> <span class="s">&quot;charlist&quot;</span><span class="p">:</span><span class="n">charlist</span><span class="p">,</span>
-           <span class="s">&quot;nodelistOrig&quot;</span><span class="p">:</span><span class="n">nodelistOrig</span><span class="p">,</span> <span class="s">&quot;upperbound&quot;</span><span class="p">:</span><span class="n">upperbound</span><span class="p">,</span>
-           <span class="s">&quot;root_priors&quot;</span><span class="p">:</span><span class="n">rootpriors</span><span class="p">,</span> <span class="s">&quot;nullval&quot;</span><span class="p">:</span><span class="n">nullval</span><span class="p">}</span>
-
+    <span class="n">var</span> <span class="o">=</span> <span class="n">create_mkmr_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">findmin</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">likelihood_function</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="n">locs</span><span class="p">):</span>
         <span class="c"># Enforcing upper bound on parameters</span>
-
+        <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">qp</span><span class="p">)</span> <span class="k">for</span> <span class="n">qp</span> <span class="ow">in</span> <span class="n">Qparams</span><span class="p">]</span>
         <span class="c"># # TODO: replace with sum of each Q</span>
-        <span class="c"># if (sum(Qparams)/len(locs) &gt; var[&quot;upperbound&quot;]) or any(Qparams &lt;= 0):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Qparams</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">locs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;upperbound&quot;</span><span class="p">])</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">([</span><span class="n">x</span><span class="o">&lt;=</span><span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Qparams</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+        <span class="c"># if not (Qparams == sorted(Qparams)):</span>
         <span class="c">#     return var[&quot;nullval&quot;]</span>
-
         <span class="c"># Filling Q matrices:</span>
+        <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">n_qp</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">)]</span>
+
         <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;ER&quot;</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">qmat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">]):</span>
                 <span class="n">qmat</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
                 <span class="n">qmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">nchar</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="c"># elif Qtype == &quot;Sym&quot;:</span>
-        <span class="c">#     var[&quot;Q&quot;].fill(0.0) # Re-filling with zeroes</span>
-        <span class="c">#     xs,ys = np.triu_indices(nchar,k=1)</span>
-        <span class="c">#     var[&quot;Q&quot;][xs,ys] = Qparams</span>
-        <span class="c">#     var[&quot;Q&quot;][ys,xs] = Qparams</span>
-        <span class="c">#     var[&quot;Q&quot;][np.diag_indices(nchar)] = 0-np.sum(var[&quot;Q&quot;], 1)</span>
         <span class="k">elif</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;ARD&quot;</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">qmat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">]):</span>
                 <span class="n">qmat</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span> <span class="c"># Re-filling with zeroes</span>
@@ -309,46 +422,487 @@
                 <span class="n">qmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">tril_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">,</span> <span class="n">k</span><span class="o">=-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="nb">len</span><span class="p">(</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">:]</span>
                 <span class="n">qmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">qmat</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="s">&quot;Qtype must be one of: ER, Sym, ARD&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Qtype must be one of: ER, Sym, ARD&quot;</span><span class="p">)</span>
         <span class="c"># Resetting the values in these arrays</span>
         <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelistOrig&quot;</span><span class="p">])</span>
         <span class="n">var</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">min</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">findmin</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">mk_multi_regime</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">],</span> <span class="n">locs</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">],</span> <span class="n">pi</span> <span class="o">=</span> <span class="n">pi</span><span class="p">,</span> <span class="n">preallocated_arrays</span><span class="o">=</span><span class="n">var</span><span class="p">)</span> <span class="c"># Minimizing negative log-likelihood</span>
+            <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">mk_mr</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">],</span> <span class="n">locs</span><span class="p">,</span> <span class="n">pi</span> <span class="o">=</span> <span class="n">pi</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="n">var</span><span class="p">)</span> <span class="c"># Minimizing negative log-likelihood</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="c"># If likelihood returned is 0</span>
             <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">likelihood_function</span>
+</div>
+<div class="viewcode-block" id="lf_mk_mr_midbranch"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.lf_mk_mr_midbranch">[docs]</a><span class="k">def</span> <span class="nf">lf_mk_mr_midbranch</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+                                  <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chardict</span> <span class="o">=</span> <span class="n">chars</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">chardict</span> <span class="o">=</span> <span class="p">{</span><span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chars</span><span class="p">)}</span>
+
+    <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
+
+
+    <span class="c"># Empty likelihood array</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">create_mkmr_mb_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chardict</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">findmin</span><span class="p">)</span>
+
+    <span class="c"># Number of parameters per Q matrix</span>
+    <span class="n">n_qp</span> <span class="o">=</span> <span class="n">nchar</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nchar</span>
+
+
+    <span class="k">def</span> <span class="nf">likelihood_function</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="n">switchpoint</span><span class="p">):</span>
+        <span class="c"># Enforcing upper bound on parameters</span>
+        <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">qp</span><span class="p">)</span> <span class="k">for</span> <span class="n">qp</span> <span class="ow">in</span> <span class="n">Qparams</span><span class="p">]</span>
+        <span class="c"># # TODO: replace with sum of each Q</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Qparams</span><span class="p">)</span><span class="o">/</span><span class="n">nregime</span> <span class="o">&gt;</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;upperbound&quot;</span><span class="p">])</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">([</span><span class="n">x</span><span class="o">&lt;=</span><span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Qparams</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+        <span class="c"># if not (Qparams == sorted(Qparams)):</span>
+        <span class="c">#     return var[&quot;nullval&quot;]</span>
+        <span class="c"># Filling Q matrices:</span>
+        <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">n_qp</span><span class="p">:</span><span class="n">i</span><span class="o">*</span><span class="n">n_qp</span><span class="o">+</span><span class="n">n_qp</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;ER&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">qmat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">]):</span>
+                <span class="n">qmat</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                <span class="n">qmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">nchar</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;ARD&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">qmat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">]):</span>
+                <span class="n">qmat</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span> <span class="c"># Re-filling with zeroes</span>
+                <span class="n">qmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="nb">len</span><span class="p">(</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">qmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">tril_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">,</span> <span class="n">k</span><span class="o">=-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="nb">len</span><span class="p">(</span><span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">//</span><span class="mi">2</span><span class="p">:]</span>
+                <span class="n">qmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">qmat</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Qtype must be one of: ER, Sym, ARD&quot;</span><span class="p">)</span>
+        <span class="c"># Resetting the values in these arrays</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelistOrig&quot;</span><span class="p">])</span>
+        <span class="n">var</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">findmin</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">mk_mr_midbranch</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">],</span> <span class="n">switchpoint</span><span class="p">,</span> <span class="n">pi</span> <span class="o">=</span> <span class="n">pi</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="n">var</span><span class="p">)</span> <span class="c"># Minimizing negative log-likelihood</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="c"># If likelihood returned is 0</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">likelihood_function</span>
+</div>
+<div class="viewcode-block" id="create_likelihood_function_multimk_mods"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.create_likelihood_function_multimk_mods">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_multimk_mods</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+                                  <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">orderedparams</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a likelihood function for testing the parameter values of user-</span>
+<span class="sd">    specified models</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
+    <span class="k">if</span> <span class="n">findmin</span><span class="p">:</span>
+        <span class="n">nullval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nullval</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="n">nregime</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mods</span><span class="p">)</span>
+
+    <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
+    <span class="n">nt</span> <span class="o">=</span>  <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">())</span>
+    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">))</span>
+
+    <span class="n">nparam</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">mods</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]))</span>
+
+    <span class="c"># Empty likelihood array</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">create_mkmr_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">findmin</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">likelihood_function</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="n">locs</span><span class="p">):</span>
+        <span class="c"># Enforcing upper bound on parameters</span>
+        <span class="n">Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1e-15</span><span class="p">)</span>
+        <span class="c"># # TODO: replace with sum of each Q</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Qparams</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">locs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;upperbound&quot;</span><span class="p">])</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">([</span><span class="n">x</span><span class="o">&lt;=</span><span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Qparams</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">orderedparams</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">Qparams</span> <span class="o">!=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Qparams</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+
+        <span class="c"># Clearing Q matrices</span>
+        <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="c"># Filling Q matrices:</span>
+        <span class="n">fill_model_mr_Q</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">])</span>
+
+        <span class="c"># Resetting the values in these arrays</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelistOrig&quot;</span><span class="p">])</span>
+        <span class="n">var</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">findmin</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">mk_mr</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">],</span> <span class="n">locs</span><span class="p">,</span> <span class="n">pi</span> <span class="o">=</span> <span class="n">pi</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="n">var</span><span class="p">)</span> <span class="c"># Minimizing negative log-likelihood</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="c"># If likelihood returned is 0</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">likelihood_function</span>
+</div>
+<div class="viewcode-block" id="lf_mk_mr_midbranch_mods"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.lf_mk_mr_midbranch_mods">[docs]</a><span class="k">def</span> <span class="nf">lf_mk_mr_midbranch_mods</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+                                  <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">orderedparams</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a likelihood function for testing the parameter values of user-</span>
+<span class="sd">    specified models with switchpoints allowed in the middle of branches</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chardict</span> <span class="o">=</span> <span class="n">chars</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">chardict</span> <span class="o">=</span> <span class="p">{</span><span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chars</span><span class="p">)}</span>
+
+    <span class="n">nregime</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mods</span><span class="p">)</span>
+
+    <span class="n">nparam</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">mods</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]))</span>
+
+    <span class="c"># Empty likelihood array</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">create_mkmr_mb_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chardict</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">findmin</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">likelihood_function</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="n">switchpoint</span><span class="p">):</span>
+        <span class="c"># Enforcing upper bound on parameters</span>
+        <span class="n">Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1e-15</span><span class="p">)</span>
+        <span class="c"># # TODO: replace with sum of each Q</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Qparams</span><span class="p">)</span><span class="o">/</span><span class="n">nregime</span> <span class="o">&gt;</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;upperbound&quot;</span><span class="p">])</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">([</span><span class="n">x</span><span class="o">&lt;=</span><span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Qparams</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">orderedparams</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">Qparams</span> <span class="o">!=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Qparams</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+
+        <span class="c"># Clearing Q matrices</span>
+        <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="c"># Filling Q matrices:</span>
+        <span class="n">fill_model_mr_Q</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">])</span>
+
+        <span class="c"># Resetting the values in these arrays</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelistOrig&quot;</span><span class="p">])</span>
+        <span class="n">var</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">findmin</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">mk_mr_midbranch</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">],</span> <span class="n">switchpoint</span><span class="p">,</span> <span class="n">pi</span> <span class="o">=</span> <span class="n">pi</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="n">var</span><span class="p">)</span> <span class="c"># Minimizing negative log-likelihood</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="c"># If likelihood returned is 0</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nullval&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">likelihood_function</span>
+</div>
+<div class="viewcode-block" id="fill_model_mr_Q"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.fill_model_mr_Q">[docs]</a><span class="k">def</span> <span class="nf">fill_model_mr_Q</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fill a Q-matrix with Qparams corresponding to the model.</span>
+
+<span class="sd">    Individual Q matrices are filled rowwise</span>
+
+<span class="sd">    Function alters Q in place</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Filling Q matrix row-wise (skipping diagonals)</span>
+    <span class="n">nregime</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mods</span><span class="p">)</span>
+    <span class="n">nchar</span><span class="o">=</span><span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">regime</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
+        <span class="n">modcount</span> <span class="o">=</span> <span class="mi">0</span> <span class="c"># Which mod index are we on</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)),</span><span class="n">repeat</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">r</span><span class="o">==</span><span class="n">c</span><span class="p">:</span> <span class="c"># Skip diagonals</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Q</span><span class="p">[</span><span class="n">regime</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">[</span><span class="n">mods</span><span class="p">[</span><span class="n">regime</span><span class="p">][</span><span class="n">modcount</span><span class="p">]]</span>
+                <span class="n">modcount</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">regime</span><span class="p">],</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">regime</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="c"># Filling diagonals</span>
 
 </div>
-<div class="viewcode-block" id="locs_from_switchpoint"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.locs_from_switchpoint">[docs]</a><span class="k">def</span> <span class="nf">locs_from_switchpoint</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">switch</span><span class="p">,</span> <span class="n">locs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="locs_from_switchpoint"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.locs_from_switchpoint">[docs]</a><span class="k">def</span> <span class="nf">locs_from_switchpoint</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">switches</span><span class="p">,</span> <span class="n">locs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Given a tree and a single node to be the switchpoint, return an</span>
+<span class="sd">    Given a tree and a list of nodes to be switchpoints, return an</span>
 <span class="sd">    array of all node indices in one regime vs the other</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        tree (Node): Root node of tree</span>
-<span class="sd">        switch (Node): Internal node to be the switchpoint. This node</span>
-<span class="sd">          is included in its own regime.</span>
+<span class="sd">        switches (list): List of internal nodes to act as switchpoints.</span>
+<span class="sd">          Switchpoint nodes are part of their own regimes.</span>
+<span class="sd">        locs (np.array): Optional pre-allocated array to store output.</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        array: Array of all nodes descended from switch, and all other nodes</span>
+<span class="sd">        np.array: Array of indices of all nodes associated with each switchpoint, plus</span>
+<span class="sd">          all nodes &quot;outside&quot; the switches in the last list</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Note: may need to exclude leaves and root</span>
-    <span class="n">r1</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span><span class="o">.</span><span class="n">ni</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">switch</span><span class="o">.</span><span class="n">preiter</span><span class="p">()]</span>
-    <span class="n">r2</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span><span class="o">.</span><span class="n">ni</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">()</span><span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">.</span><span class="n">ni</span> <span class="ow">in</span> <span class="n">r1</span> <span class="p">]</span>
-
+    <span class="c"># Include the root</span>
+    <span class="n">switches</span> <span class="o">=</span> <span class="n">switches</span> <span class="o">+</span> <span class="p">[</span><span class="n">tree</span><span class="p">]</span>
+    <span class="c"># Sort switches by clade size</span>
+    <span class="c"># We need the &quot;cladesize&quot; attribute to sort the clades. If it does not</span>
+    <span class="c"># exist on the tree, create it</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s">&quot;cladesize&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">:</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">cladesize</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">switches_c</span> <span class="o">=</span> <span class="n">switches</span><span class="p">[:]</span>
+    <span class="n">switches_c</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">cladesize</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">locs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">locs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">locs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">switches_c</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">locs</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c"># Clear locs array</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">switches_c</span><span class="p">):</span>
+        <span class="n">t_l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># Add descendants of node to location array if they are not</span>
+        <span class="c"># already recorded. This approach works because the clade sizes</span>
+        <span class="c"># were sorted beforehand</span>
+        <span class="n">viewed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">locs</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">[</span><span class="n">s</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">.</span><span class="n">ni</span> <span class="ow">in</span> <span class="n">viewed</span><span class="p">:</span>
+                <span class="n">t_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">ni</span><span class="p">)</span>
+        <span class="n">locs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_l</span>
+    <span class="c"># Remove the root</span>
+    <span class="n">locs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">locs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
 
-    <span class="n">locs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">r1</span>
-    <span class="n">locs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">r2</span>
-    <span class="k">return</span> <span class="n">locs</span></div>
+    <span class="c"># Return locs in proper order (locations descended from each switch in order,</span>
+    <span class="c"># with locations descended from the root last)</span>
+    <span class="n">locs</span><span class="p">[:]</span> <span class="o">=</span><span class="n">locs</span><span class="p">[[</span><span class="n">switches_c</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">switches</span><span class="p">]][:]</span>
+
+    <span class="k">if</span> <span class="n">out</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">locs</span>
+</div>
+<div class="viewcode-block" id="inds_from_switchpoint_cython"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.inds_from_switchpoint_cython">[docs]</a><span class="k">def</span> <span class="nf">inds_from_switchpoint_cython</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">switches_ni</span><span class="p">,</span> <span class="n">ar</span><span class="p">,</span><span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="n">nr</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">switches_ni</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">switches_ni_c</span> <span class="o">=</span> <span class="n">switches_ni</span><span class="p">[:]</span>
+    <span class="n">switches_ni_c</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;cladesize_preorder&quot;</span><span class="p">][</span><span class="n">x</span><span class="p">])</span>
+
+    <span class="n">switches_key</span> <span class="o">=</span> <span class="p">[</span><span class="n">switches_ni_c</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">switches_ni</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">switches_ni_c</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;clades_postorder_preorder&quot;</span><span class="p">][</span><span class="n">s</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;cladesize_preorder&quot;</span><span class="p">])</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="c"># Ignore the root</span>
+                <span class="n">ar</span><span class="p">[</span><span class="s">&quot;inds&quot;</span><span class="p">][</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">switches_key</span><span class="p">[</span><span class="n">nr</span><span class="o">-</span><span class="n">i</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="ModelOrderMetropolis"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.ModelOrderMetropolis">[docs]</a><span class="k">class</span> <span class="nc">ModelOrderMetropolis</span><span class="p">(</span><span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom step method for model order</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic</span><span class="p">):</span>
+        <span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">proposal_distribution</span><span class="o">=</span><span class="s">&quot;prior&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="ModelOrderMetropolis.propose"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.ModelOrderMetropolis.propose">[docs]</a>    <span class="k">def</span> <span class="nf">propose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cur_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">indexes_to_swap</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cur_order</span><span class="p">)),</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">new_order</span> <span class="o">=</span> <span class="n">cur_order</span><span class="p">[:]</span>
+        <span class="c"># Swap values</span>
+        <span class="n">new_order</span><span class="p">[</span><span class="n">indexes_to_swap</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">new_order</span><span class="p">[</span><span class="n">indexes_to_swap</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">new_order</span><span class="p">[</span><span class="n">indexes_to_swap</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">new_order</span><span class="p">[</span><span class="n">indexes_to_swap</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">new_order</span></div>
+<div class="viewcode-block" id="ModelOrderMetropolis.reject"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.ModelOrderMetropolis.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejected</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">last_value</span></div>
+<div class="viewcode-block" id="ModelOrderMetropolis.competence"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.ModelOrderMetropolis.competence">[docs]</a>    <span class="k">def</span> <span class="nf">competence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+</div></div>
+<div class="viewcode-block" id="SwitchpointMetropolis"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis">[docs]</a><span class="k">class</span> <span class="nc">SwitchpointMetropolis</span><span class="p">(</span><span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom step algorithm for selecting a new switchpoint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic</span><span class="p">,</span> <span class="n">tree</span><span class="p">,</span> <span class="n">seg_map</span><span class="p">,</span> <span class="n">stepsize</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">seglen</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
+        <span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">proposal_sd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">proposal_distribution</span><span class="o">=</span><span class="s">&quot;prior&quot;</span><span class="p">)</span>
+        <span class="n">root_to_tip_length</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">max_tippath</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seg_map</span> <span class="o">=</span> <span class="n">seg_map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stepsize</span> <span class="o">=</span> <span class="n">stepsize</span> <span class="o">*</span> <span class="n">root_to_tip_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seg_size</span> <span class="o">=</span> <span class="n">seglen</span> <span class="o">*</span> <span class="n">root_to_tip_length</span>
+<div class="viewcode-block" id="SwitchpointMetropolis.propose"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis.propose">[docs]</a>    <span class="k">def</span> <span class="nf">propose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Following BAMM, switchpoint movements can be either global or</span>
+        <span class="c"># local, with global switch happening 1/10 times</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_step</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">local_step</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SwitchpointMetropolis.local_step"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis.local_step">[docs]</a>    <span class="k">def</span> <span class="nf">local_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">prev_location</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">new_location</span> <span class="o">=</span> <span class="n">cyexpokit</span><span class="o">.</span><span class="n">local_step</span><span class="p">(</span><span class="n">prev_location</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">stepsize</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">seg_size</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">adaptive_scale_factor</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">new_location</span>
+</div>
+<div class="viewcode-block" id="SwitchpointMetropolis.global_step"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis.global_step">[docs]</a>    <span class="k">def</span> <span class="nf">global_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">cyexpokit</span><span class="o">.</span><span class="n">random_tree_location</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seg_map</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SwitchpointMetropolis.reject"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejected</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">last_value</span></div>
+<div class="viewcode-block" id="SwitchpointMetropolis.competence"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis.competence">[docs]</a>    <span class="k">def</span> <span class="nf">competence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+</div></div>
+<div class="viewcode-block" id="round_step_size"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.round_step_size">[docs]</a><span class="k">def</span> <span class="nf">round_step_size</span><span class="p">(</span><span class="n">step_size</span><span class="p">,</span> <span class="n">seg_size</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Round step_size to the nearest segment</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">step_size</span><span class="o">%</span><span class="n">seg_size</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">seg_size</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">step_size</span> <span class="o">+</span> <span class="p">(</span><span class="n">seg_size</span><span class="o">-</span><span class="p">(</span><span class="n">step_size</span><span class="o">%</span><span class="n">seg_size</span><span class="p">))</span> <span class="o">+</span> <span class="mf">1e-15</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">step_size</span> <span class="o">-</span> <span class="p">(</span><span class="n">step_size</span><span class="o">%</span><span class="n">seg_size</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-15</span>
+</div>
+<div class="viewcode-block" id="tree_map"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.tree_map">[docs]</a><span class="k">def</span> <span class="nf">tree_map</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">seglen</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a map of the tree cut into segments of size (seglen*root_to_tip_length)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root_to_tip_length</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">max_tippath</span><span class="p">()</span>
+    <span class="n">seg_size</span> <span class="o">=</span> <span class="n">seglen</span> <span class="o">*</span> <span class="n">root_to_tip_length</span>
+    <span class="n">seg_map</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="p">[</span><span class="n">tree</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
+        <span class="n">cur_len</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">length</span>
+        <span class="n">nseg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">cur_len</span><span class="o">/</span><span class="n">seg_size</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nseg</span><span class="p">):</span>
+            <span class="n">seg_map</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node</span><span class="p">,</span> <span class="n">n</span><span class="o">*</span><span class="n">seg_size</span><span class="o">+</span><span class="mf">1e-15</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg_map</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="random_tree_location"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.random_tree_location">[docs]</a><span class="k">def</span> <span class="nf">random_tree_location</span><span class="p">(</span><span class="n">seg_map</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Select random location on tree with uniform probability</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: node and float, which represents the how far along the branch to</span>
+<span class="sd">          the parent node the switch occurs on</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seg_map</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">seg_map</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="make_switchpoint_stoch"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.make_switchpoint_stoch">[docs]</a><span class="k">def</span> <span class="nf">make_switchpoint_stoch</span><span class="p">(</span><span class="n">seg_map</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s">&quot;switch&quot;</span><span class="p">)):</span>
+    <span class="n">startingval</span> <span class="o">=</span> <span class="n">cyexpokit</span><span class="o">.</span><span class="n">random_tree_location</span><span class="p">(</span><span class="n">seg_map</span><span class="p">)</span>
+    <span class="nd">@pymc.stochastic</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">switchpoint_stoch</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">startingval</span><span class="p">):</span>
+        <span class="c"># Flat prior on switchpoint location</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">switchpoint_stoch</span>
+</div>
+<div class="viewcode-block" id="make_modelorder_stoch"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.make_modelorder_stoch">[docs]</a><span class="k">def</span> <span class="nf">make_modelorder_stoch</span><span class="p">(</span><span class="n">mods</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s">&quot;modorder&quot;</span><span class="p">)):</span>
+    <span class="n">startingval</span> <span class="o">=</span> <span class="n">mods</span>
+    <span class="nd">@pymc.stochastic</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">modelorder_stoch</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">startingval</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">modelorder_stoch</span>
+</div>
+<div class="viewcode-block" id="mk_multi_bayes"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.mk_multi_bayes">[docs]</a><span class="k">def</span> <span class="nf">mk_multi_bayes</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">qidx</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span> <span class="p">,</span><span class="n">seglen</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span><span class="n">stepsize</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a Bayesian multi-mk model. User specifies which regime models</span>
+<span class="sd">    to use and the Bayesian model finds the switchpoints.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tree (Node): Root node of tree.</span>
+<span class="sd">        chars (dict): Dict mapping tip labels to discrete character</span>
+<span class="sd">          states. Character states must be in the form of [0,1,2...]</span>
+
+<span class="sd">        regime (int): The number of distinct regimes to test. Set to</span>
+<span class="sd">          1 for an Mk model, set to greater than 1 for a multi-regime Mk model.</span>
+<span class="sd">        qidx (np.array): Index specifying the model to test</span>
+
+<span class="sd">            columns:</span>
+<span class="sd">                0, 1, 2 - index axes of q</span>
+<span class="sd">                3 - index of params</span>
+<span class="sd">            This scheme allows flexible specification of models. E.g.:</span>
+<span class="sd">            Symmetric mk2:</span>
+<span class="sd">                params = [0.2]; qidx = [[0,0,1,0],</span>
+<span class="sd">                                        [0,1,0,0]]</span>
+
+<span class="sd">            Asymmetric mk2:</span>
+<span class="sd">                params = [0.2,0.6]; qidx = [[0,0,1,0],</span>
+<span class="sd">                                            [0,1,0,1]]</span>
+<span class="sd">           NOTE:</span>
+<span class="sd">             The qidx corresponding to the first q matrix (first column 0)</span>
+<span class="sd">             is always the root regime                               </span>
+<span class="sd">        pi (str or np.array): Option to weight the root node by given values.</span>
+<span class="sd">           Either a string containing the method or an array</span>
+<span class="sd">           of weights. Weights should be given in order.</span>
+
+<span class="sd">           Accepted methods of weighting root:</span>
+
+<span class="sd">           Equal: flat prior</span>
+<span class="sd">           Equilibrium: Prior equal to stationary distribution</span>
+<span class="sd">             of Q matrix</span>
+<span class="sd">           Fitzjohn: Root states weighted by how well they</span>
+<span class="sd">             explain the data at the tips.</span>
+<span class="sd">        seglen (float): Size of segments to break tree into. The smaller this</span>
+<span class="sd">          value, the more &quot;fine-grained&quot; the analysis will be. Optional,</span>
+<span class="sd">          defaults to 2% of the root-to-tip length.</span>
+<span class="sd">        stepsize (float): Maximum size of steps for switchpoints to take.</span>
+<span class="sd">          Optional, defaults to 5% of root-to-tip length.</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">chars</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()],</span><span class="n">chars</span><span class="p">))</span>
+    <span class="c"># Preparations</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
+    <span class="n">nparam</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">n</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">qidx</span><span class="p">]))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;preparations complete&quot;</span><span class="p">)</span>
+    <span class="c"># This model has 2 components: Q parameters and switchpoints</span>
+    <span class="c"># They are combined in a custom likelihood function</span>
+    <span class="c">###########################################################################</span>
+    <span class="c"># Switchpoint:</span>
+    <span class="c">###########################################################################</span>
+    <span class="c"># Modeling the movement of the regime shift(s) is the tricky part</span>
+    <span class="c"># Regime shifts will only be allowed to happen at a node</span>
+    <span class="n">seg_map</span> <span class="o">=</span> <span class="n">tree_map</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">seglen</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;segmap complete&quot;</span><span class="p">)</span>
+    <span class="n">switch</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">regime</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">switch</span><span class="p">[</span><span class="n">regime</span><span class="p">]</span><span class="o">=</span> <span class="n">make_switchpoint_stoch</span><span class="p">(</span><span class="n">seg_map</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s">&quot;switch_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">regime</span><span class="p">)))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;switchpoints complete&quot;</span><span class="p">)</span>
+    <span class="c">###########################################################################</span>
+    <span class="c"># Qparams:</span>
+    <span class="c">###########################################################################</span>
+    <span class="c"># Each Q parameter is an exponential</span>
+    <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nparam</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparam</span><span class="p">):</span>
+         <span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s">&quot;Qparam_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.1</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Qparams complete&quot;</span><span class="p">)</span>
+
+
+    <span class="c">###########################################################################</span>
+    <span class="c"># Likelihood</span>
+    <span class="c">###########################################################################</span>
+    <span class="c"># The likelihood function</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="n">cyexpokit</span><span class="o">.</span><span class="n">make_mklnl_func</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span><span class="n">nchar</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">qidx</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;likelihood function complete&quot;</span><span class="p">)</span>
+
+    <span class="nd">@pymc.deterministic</span>
+    <span class="k">def</span> <span class="nf">likelihood</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">switch</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;likelihood&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">l</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">q</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ni</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">s</span><span class="p">],</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]))</span>
+
+    <span class="nd">@pymc.potential</span>
+    <span class="k">def</span> <span class="nf">multi_mklik</span><span class="p">(</span><span class="n">lnl</span><span class="o">=</span><span class="n">likelihood</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">lnl</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">lnl</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">MCMC</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;model created&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">switch</span><span class="p">:</span>
+        <span class="n">mod</span><span class="o">.</span><span class="n">use_step_method</span><span class="p">(</span><span class="n">SwitchpointMetropolis</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">tree</span><span class="p">,</span> <span class="n">seg_map</span><span class="p">,</span><span class="n">stepsize</span><span class="o">=</span><span class="n">stepsize</span><span class="p">,</span><span class="n">seglen</span><span class="o">=</span><span class="n">seglen</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;step methods used&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mod</span></div>
 </pre></div>
 
           </div>

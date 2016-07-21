@@ -1,0 +1,523 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2. Trees in Ivy &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="User’s Guide" href="using.html" />
+    <link rel="next" title="3. Using Treebase" href="using_treebase.html" />
+    <link rel="prev" title="1. Quickstart" href="quickstart.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="using_treebase.html" title="3. Using Treebase"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="1. Quickstart"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="using.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="trees-in-ivy">
+<h1>2. Trees in Ivy<a class="headerlink" href="#trees-in-ivy" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> does not have a tree class per se; rather trees in <code class="docutils literal"><span class="pre">ivy</span></code> exist as collections
+of nodes. In <code class="docutils literal"><span class="pre">ivy</span></code>, a <code class="docutils literal"><span class="pre">Node</span></code> is a class that contains information about a node.
+<code class="docutils literal"><span class="pre">Nodes</span></code> are rooted and recursively contain their children. Functions
+in <code class="docutils literal"><span class="pre">ivy</span></code> act directly on <code class="docutils literal"><span class="pre">Node</span></code> objects. Nodes support Python idioms such as <code class="docutils literal"><span class="pre">in</span></code>,
+<code class="docutils literal"><span class="pre">[</span></code>, iteration, etc. This guide will cover how to read, view, navigate, modify,
+and write trees in <code class="docutils literal"><span class="pre">ivy</span></code>.</p>
+<div class="section" id="reading">
+<h2>2.1. Reading<a class="headerlink" href="#reading" title="Permalink to this headline">¶</a></h2>
+<p>You can read in trees using <code class="docutils literal"><span class="pre">ivy</span></code>&#8216;s <code class="docutils literal"><span class="pre">tree.read</span></code> function. This function supports
+newick and nexus files. The <code class="docutils literal"><span class="pre">tree.read</span></code> function can take a file name, a file
+object, or a Newick string as input. The output of this function is the root
+node of the tree.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">ivy</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;examples/primates.newick&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;examples/primates.newick&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+            <span class="s">&quot;((((Homo:0.21,Pongo:0.21)A:0.28,Macaca:0.49)&quot;</span>
+            <span class="s">&quot;B:0.13,Ateles:0.62)C:0.38,Galago:1.00)root;&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="c"># These three methods are identical</span>
+</pre></div>
+</div>
+<p>You can copy a read tree using the <code class="docutils literal"><span class="pre">copy</span></code> method on the root node. <code class="docutils literal"><span class="pre">Node</span></code>
+objects are mutable, so this method is preferred over <code class="docutils literal"><span class="pre">r2</span> <span class="pre">=</span> <span class="pre">r</span></code> if you want
+to create a deep copy.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="n">r2</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="viewing">
+<h2>2.2. Viewing<a class="headerlink" href="#viewing" title="Permalink to this headline">¶</a></h2>
+<p>There are a number of ways you can view trees in <code class="docutils literal"><span class="pre">ivy</span></code>. For a simple display
+without needing to create a plot, <code class="docutils literal"><span class="pre">ivy</span></code> can create ascii trees that can be
+printed to the console.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">9</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span> <span class="c"># You can use the ascii method on root nodes.</span>
+                               <span class="o">---------+</span> <span class="n">Homo</span>
+                      <span class="o">--------</span><span class="n">A</span><span class="o">+</span>
+             <span class="o">--------</span><span class="n">B</span><span class="o">+</span>        <span class="o">---------+</span> <span class="n">Pongo</span>
+             <span class="p">:</span>        <span class="p">:</span>
+    <span class="o">--------</span><span class="n">C</span><span class="o">+</span>        <span class="o">------------------+</span> <span class="n">Macaca</span>
+    <span class="p">:</span>        <span class="p">:</span>
+<span class="n">root</span><span class="o">+</span>        <span class="o">---------------------------+</span> <span class="n">Ateles</span>
+    <span class="p">:</span>
+    <span class="o">------------------------------------+</span> <span class="n">Galago</span>
+</pre></div>
+</div>
+<p>For a more detailed and interactive tree, <code class="docutils literal"><span class="pre">ivy</span></code> can create a plot using
+<code class="docutils literal"><span class="pre">matplotlib</span></code>. More detail about visualization using <code class="docutils literal"><span class="pre">matplotlib</span></code> are in the
+&#8220;Visualization with matplotlib&#8221; section.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">10</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">ivy.vis</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">11</span><span class="p">]:</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">treevis</span><span class="o">.</span><span class="n">TreeFigure</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">12</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/primate_mpl.png"><img alt="_images/primate_mpl.png" src="_images/primate_mpl.png" style="width: 700px;" /></a>
+<p>You can also create a plot using <code class="docutils literal"><span class="pre">Bokeh</span></code>.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">13</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">ivy.vis.bokehtree</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">14</span><span class="p">]:</span> <span class="n">fig2</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">bokehtree</span><span class="o">.</span><span class="n">BokehTree</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">15</span><span class="p">]:</span> <span class="n">fig2</span><span class="o">.</span><span class="n">drawtree</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/primate_bokeh.png"><img alt="_images/primate_bokeh.png" src="_images/primate_bokeh.png" style="width: 700px;" /></a>
+</div>
+<div class="section" id="navigating">
+<h2>2.3. Navigating<a class="headerlink" href="#navigating" title="Permalink to this headline">¶</a></h2>
+<p>A node in <code class="docutils literal"><span class="pre">ivy</span></code> is a container. It recursively contains its descendants,
+as well as itself. You can navigate a tree using the Python idioms that
+you are used to using.</p>
+<p>Let&#8217;s start by iterating over all of the children contained within the root
+node. By default, iteration over a node happens in preorder sequence, starting
+with the root node. To iterate over a node in a specific sequence, you can use
+the <code class="docutils literal"><span class="pre">preorder</span></code> and <code class="docutils literal"><span class="pre">postorder</span></code> methods.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">16</span><span class="p">]:</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">16</span><span class="p">]:</span> <span class="mi">9</span> <span class="c"># Length of a node = number of descendants + self</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">17</span><span class="p">]:</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">r</span><span class="p">:</span>
+            <span class="k">print</span> <span class="n">node</span> <span class="c"># Default is preorder sequence</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">139624003155728</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">139624003155536</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">139624003155600</span><span class="p">,</span> <span class="s">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">139624003155664</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">139624003155792</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Homo&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">139624003155856</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Pongo&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">139624003155920</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Macaca&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">139624003155984</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Ateles&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">139624003156048</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Galago&#39;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">18</span><span class="p">]:</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">preiter</span><span class="p">():</span>
+            <span class="k">print</span> <span class="n">node</span> <span class="c"># Same as above</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314320</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314384</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314448</span><span class="p">,</span> <span class="s">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314512</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314576</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Homo&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314192</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Pongo&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314256</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Macaca&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314640</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Ateles&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314704</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Galago&#39;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">19</span><span class="p">]:</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">postiter</span><span class="p">():</span>
+            <span class="k">print</span> <span class="n">node</span> <span class="c"># Nodes in postorder sequence.</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314576</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Homo&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314192</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Pongo&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314512</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314256</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Macaca&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314448</span><span class="p">,</span> <span class="s">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314640</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Ateles&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314384</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314704</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Galago&#39;</span><span class="p">)</span>
+<span class="n">Node</span><span class="p">(</span><span class="mi">140144824314320</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can access internal nodes using square brackets on the root node (or other
+ancestor node).</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">20</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">]</span> <span class="c"># You can use the node label</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">20</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155536</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">21</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="mi">139624003155536</span><span class="p">]</span> <span class="c"># The node ID</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">21</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155536</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">22</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c"># Or the index of the node in preorder sequence</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">22</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155536</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can access the information a node has about which other nodes it is
+connected to using the <code class="docutils literal"><span class="pre">children</span></code> and <code class="docutils literal"><span class="pre">parent</span></code> attributes, which return
+the nodes directly connected to the current node. The <code class="docutils literal"><span class="pre">descendants</span></code> method, on
+the other hand, recursively lists all descendants of a node (not including
+the node itself)</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">23</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">children</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">23</span><span class="p">]:</span> <span class="p">[</span><span class="n">Node</span><span class="p">(</span><span class="mi">139624003155600</span><span class="p">,</span> <span class="s">&#39;B&#39;</span><span class="p">),</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155984</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Ateles&#39;</span><span class="p">)]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">24</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;B&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">24</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155536</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">25</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;B&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">descendants</span><span class="p">()</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">25</span><span class="p">]:</span>
+<span class="p">[</span><span class="n">Node</span><span class="p">(</span><span class="mi">139624003155664</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">),</span>
+ <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155792</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Homo&#39;</span><span class="p">),</span>
+ <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155856</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Pongo&#39;</span><span class="p">),</span>
+ <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155920</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Macaca&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>We can search nodes using regular expressions with the <code class="docutils literal"><span class="pre">Node</span></code> <code class="docutils literal"><span class="pre">grep</span></code> method.
+We can also <code class="docutils literal"><span class="pre">grep</span></code> leaf nodes and internal nodes specifically.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">26</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">grep</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">)</span> <span class="c"># By default, grep ignores case</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">26</span><span class="p">]:</span>
+<span class="p">[</span><span class="n">Node</span><span class="p">(</span><span class="mi">139624003155664</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">),</span>
+ <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155920</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Macaca&#39;</span><span class="p">),</span>
+ <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155984</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Ateles&#39;</span><span class="p">),</span>
+ <span class="n">Node</span><span class="p">(</span><span class="mi">139624003156048</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Galago&#39;</span><span class="p">)]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">27</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">grep</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">,</span> <span class="n">ignorecase</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">27</span><span class="p">]:</span> <span class="p">[</span><span class="n">Node</span><span class="p">(</span><span class="mi">139624003155664</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">),</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155984</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Ateles&#39;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">28</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">lgrep</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">,</span> <span class="n">ignorecase</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span> <span class="c"># Limit our search to leaves</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">28</span><span class="p">]:</span> <span class="p">[</span><span class="n">Node</span><span class="p">(</span><span class="mi">140144824314640</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Ateles&#39;</span><span class="p">)]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">29</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">bgrep</span><span class="p">(</span><span class="s">&quot;Homo&quot;</span><span class="p">,</span> <span class="n">ignorecase</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span> <span class="c"># Limit our search to branches</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">29</span><span class="p">]:</span> <span class="p">[]</span>
+</pre></div>
+</div>
+<p>We can also search for nodes that match a certain criterion using the
+<code class="docutils literal"><span class="pre">find</span></code> method. <code class="docutils literal"><span class="pre">find</span></code> takes a function that takes a node as its
+first argument and returns a <code class="docutils literal"><span class="pre">bool</span></code>.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">30</span><span class="p">]:</span> <span class="k">def</span> <span class="nf">three_or_more_decs</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">31</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">three_or_more_decs</span><span class="p">)</span> <span class="c"># Find returns a generator</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">31</span><span class="p">]:</span> <span class="o">&lt;</span><span class="n">generator</span> <span class="nb">object</span> <span class="n">find</span> <span class="n">at</span> <span class="mh">0x7efcbf498730</span><span class="o">&gt;</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">32</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">three_or_more_decs</span><span class="p">)</span> <span class="c"># Findall returns a list</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">32</span><span class="p">]:</span>
+<span class="p">[</span><span class="n">Node</span><span class="p">(</span><span class="mi">139624003155728</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">),</span>
+ <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155536</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">),</span>
+ <span class="n">Node</span><span class="p">(</span><span class="mi">139624003155600</span><span class="p">,</span> <span class="s">&#39;B&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="testing">
+<h2>2.4. Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>We can test many attributes of a node in <code class="docutils literal"><span class="pre">ivy</span></code>.</p>
+<p>We can test whether a node contains another node. Recall that a node contains
+all of its descendants as well as itself.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">33</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;A&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">]</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">33</span><span class="p">]:</span> <span class="bp">True</span> <span class="c"># Nodes contain descendants</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">34</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;A&quot;</span><span class="p">]</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">34</span><span class="p">]:</span> <span class="bp">False</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">35</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">]</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">35</span><span class="p">]:</span> <span class="bp">True</span> <span class="c"># Nodes contain themselves</span>
+</pre></div>
+</div>
+<p>We can test if a node is the root</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">36</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">isroot</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">36</span><span class="p">]:</span> <span class="bp">True</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">37</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isroot</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">37</span><span class="p">]:</span> <span class="bp">False</span>
+</pre></div>
+</div>
+<p>We can test if a node is a leaf</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">38</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">isleaf</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">38</span><span class="p">]:</span> <span class="bp">False</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">39</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;Homo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isleaf</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">39</span><span class="p">]:</span> <span class="bp">True</span>
+</pre></div>
+</div>
+<p>We can test if a group of leaves is monophyletic</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">40</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">ismono</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&quot;Homo&quot;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;Pongo&quot;</span><span class="p">])</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">40</span><span class="p">]:</span> <span class="bp">True</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">41</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">ismono</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&quot;Homo&quot;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;Pongo&quot;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;Galago&quot;</span><span class="p">])</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">41</span><span class="p">]:</span> <span class="bp">False</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="modifying">
+<h2>2.5. Modifying<a class="headerlink" href="#modifying" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">ivy</span></code> <code class="docutils literal"><span class="pre">Node</span></code> object has many methods for modifying a tree in place.</p>
+<div class="section" id="removing">
+<h3>2.5.1. Removing<a class="headerlink" href="#removing" title="Permalink to this headline">¶</a></h3>
+<p>There are two main ways to remove nodes in <code class="docutils literal"><span class="pre">ivy</span></code>; collapsing and pruning.</p>
+<p>Collapsing removes a node and attaches its descendants to the node&#8217;s parent.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">42</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">42</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">140622783265744</span><span class="p">,</span> <span class="s">&#39;B&#39;</span><span class="p">)</span> <span class="c"># This function returns the node&#39;s parent and also alters the tree</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">43</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span>
+                            <span class="o">------------+</span> <span class="n">Macaca</span>
+                            <span class="p">:</span>
+                <span class="o">-----------</span><span class="n">B</span><span class="o">+-----------+</span> <span class="n">Homo</span>
+                <span class="p">:</span>           <span class="p">:</span>
+    <span class="o">-----------</span><span class="n">C</span><span class="o">+</span>           <span class="o">------------+</span> <span class="n">Pongo</span>
+    <span class="p">:</span>           <span class="p">:</span>
+<span class="n">root</span><span class="o">+</span>           <span class="o">------------------------+</span> <span class="n">Ateles</span>
+    <span class="p">:</span>
+    <span class="o">------------------------------------+</span> <span class="n">Galago</span>
+</pre></div>
+</div>
+<p>Pruning removes a node and its descendants</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">44</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;B&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">prune</span><span class="p">()</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">45</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span>
+    <span class="o">-----------------</span><span class="n">C</span><span class="o">+-----------------+</span> <span class="n">Ateles</span>
+<span class="n">root</span><span class="o">+</span>
+    <span class="o">------------------------------------+</span> <span class="n">Galago</span>
+</pre></div>
+</div>
+<p>You can see that the tree now has a &#8216;knee&#8217;: clade C only has one child and
+does not need to exist on the tree. We can remove it with another method of
+removing nodes: <code class="docutils literal"><span class="pre">excise</span></code>. Excising removes a node from between its parent
+and its single child.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">46</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">excise</span><span class="p">()</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">47</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span>
+    <span class="o">-------------------------------------+</span> <span class="n">Galago</span>
+<span class="n">root</span><span class="o">+</span>
+    <span class="o">-------------------------------------+</span> <span class="n">Ateles</span>
+</pre></div>
+</div>
+<p>To recap:</p>
+<ol class="arabic simple">
+<li><code class="docutils literal"><span class="pre">collapse</span></code> removes a node and adds its descendants to its parent</li>
+<li><code class="docutils literal"><span class="pre">prune</span></code> removes a node and also removes its descendants</li>
+<li><code class="docutils literal"><span class="pre">excise</span></code> removes &#8216;knees&#8217;</li>
+</ol>
+</div>
+<div class="section" id="adding">
+<h3>2.5.2. Adding<a class="headerlink" href="#adding" title="Permalink to this headline">¶</a></h3>
+<p>Our tree is looking a little sparse, so let&#8217;s add some nodes back in. There
+are a few methods of adding nodes in <code class="docutils literal"><span class="pre">ivy</span></code>. We will go over <code class="docutils literal"><span class="pre">biscect</span></code>,
+<code class="docutils literal"><span class="pre">add_child</span></code>, and <code class="docutils literal"><span class="pre">graft</span></code></p>
+<p>Bisecting creates a &#8216;knee&#8217; node halfway between a parent and a child.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">48</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;Galago&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">bisect_branch</span><span class="p">()</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">48</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">140144821654480</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">49</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span>
+    <span class="o">------------------------------------+</span> <span class="n">Ateles</span>
+<span class="n">root</span><span class="o">+</span>
+    <span class="o">------------------+-----------------+</span> <span class="n">Galago</span>
+</pre></div>
+</div>
+<p>We now have a brand new node. We can set some of its attributes, including its
+label.</p>
+<p>Note: modifying a tree can have unwanted side effects for node indices.
+Watch what happens when we print out the pre-order index for each node:</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">50</span><span class="p">]:</span> <span class="k">print</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">ni</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">r</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We would expect the indices to be [0,1,2,3]. We can fix the indices by calling
+the <code class="docutils literal"><span class="pre">`reindex</span></code> method.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">51</span><span class="p">]</span> <span class="n">r</span><span class="o">.</span><span class="n">reindex</span><span class="p">()</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">52</span><span class="p">]</span> <span class="k">print</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">ni</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">r</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Now that we have fixed the indices, we can access the new node by its index and
+set its label.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">53</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s">&quot;N&quot;</span>
+</pre></div>
+</div>
+<p>Now let&#8217;s add a node as a child of N. We can do this using the <code class="docutils literal"><span class="pre">add_child</span></code>
+method. Let&#8217;s use a node from the copy of <code class="docutils literal"><span class="pre">r</span></code> we made, <code class="docutils literal"><span class="pre">r2</span></code>.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">54</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;N&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">r2</span><span class="p">[</span><span class="s">&quot;Homo&quot;</span><span class="p">])</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">55</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span>
+    <span class="o">------------------------------------+</span> <span class="n">Ateles</span>
+<span class="n">root</span><span class="o">+</span>
+    <span class="p">:</span>                 <span class="o">------------------+</span> <span class="n">Galago</span>
+    <span class="o">-----------------</span><span class="n">N</span><span class="o">+</span>
+                      <span class="o">------------------+</span> <span class="n">Homo</span>
+</pre></div>
+</div>
+<p>We can also add nodes with <code class="docutils literal"><span class="pre">graft</span></code>. <code class="docutils literal"><span class="pre">graft</span></code> adds a node as a sibling to the
+current node. In doing so, it also adds a new node as parent to both nodes.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">56</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;Ateles&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">graft</span><span class="p">(</span><span class="n">r2</span><span class="p">[</span><span class="s">&quot;Macaca&quot;</span><span class="p">])</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">57</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s">&quot;Galago&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">graft</span><span class="p">(</span><span class="n">r2</span><span class="p">[</span><span class="s">&quot;Pongo&quot;</span><span class="p">])</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">58</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span>
+                <span class="o">------------------------+</span> <span class="n">Homo</span>
+    <span class="o">-----------</span><span class="n">N</span><span class="o">+</span>
+    <span class="p">:</span>           <span class="p">:</span>           <span class="o">------------+</span> <span class="n">Galago</span>
+    <span class="p">:</span>           <span class="o">------------+</span>
+<span class="n">root</span><span class="o">+</span>                       <span class="o">------------+</span> <span class="n">Pongo</span>
+    <span class="p">:</span>
+    <span class="p">:</span>                       <span class="o">------------+</span> <span class="n">Ateles</span>
+    <span class="o">------------------------+</span>
+                            <span class="o">------------+</span> <span class="n">Macaca</span>
+</pre></div>
+</div>
+<p>To recap:</p>
+<ol class="arabic simple">
+<li><code class="docutils literal"><span class="pre">bisect_branch</span></code> adds &#8216;knees&#8217;</li>
+<li><code class="docutils literal"><span class="pre">add_child</span></code> adds a node as a child to the current node</li>
+<li><code class="docutils literal"><span class="pre">graft</span></code> adds a node as a sister to the current node, and also adds a parent.</li>
+</ol>
+</div>
+<div class="section" id="ladderizing">
+<h3>2.5.3. Ladderizing<a class="headerlink" href="#ladderizing" title="Permalink to this headline">¶</a></h3>
+<p>Ladderizing non-destructively changes the tree so that it has a nicer-looking
+output when drawn. It orders the clades by size.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">59</span><span class="p">]:</span> <span class="n">r</span><span class="o">.</span><span class="n">ladderize</span><span class="p">()</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">60</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span>
+                            <span class="o">------------+</span> <span class="n">Ateles</span>
+    <span class="o">------------------------+</span>
+    <span class="p">:</span>                       <span class="o">------------+</span> <span class="n">Macaca</span>
+<span class="n">root</span><span class="o">+</span>
+    <span class="p">:</span>           <span class="o">------------------------+</span> <span class="n">Homo</span>
+    <span class="o">-----------</span><span class="n">N</span><span class="o">+</span>
+                <span class="p">:</span>           <span class="o">------------+</span> <span class="n">Galago</span>
+                <span class="o">------------+</span>
+                            <span class="o">------------+</span> <span class="n">Pongo</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="rerooting">
+<h3>2.5.4. Rerooting<a class="headerlink" href="#rerooting" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This reroot function has not been thouroughly tested. Use with caution.</p>
+</div>
+<p>All trees in <code class="docutils literal"><span class="pre">ivy</span></code> are rooted. If you read in a tree that has been incorrectly
+rooted, you may want to reroot it. You can do this with the <code class="docutils literal"><span class="pre">reroot</span></code>
+function. This function returns the root node of the rerooted tree. Note that
+unlike previous functions, the reroot function returns a <em>new</em> tree. The
+old tree is not modified.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">61</span><span class="p">]:</span> <span class="n">r_reroot</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">reroot</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&quot;Galago&quot;</span><span class="p">])</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">62</span><span class="p">]:</span> <span class="k">print</span> <span class="n">r_reroot</span><span class="o">.</span><span class="n">ascii</span><span class="p">()</span>
+<span class="o">----------------------------------------+</span> <span class="n">Galago</span>
+<span class="o">+</span>
+<span class="p">:</span>         <span class="o">------------------------------+</span> <span class="n">Pongo</span>
+<span class="o">----------+</span>
+          <span class="p">:</span>         <span class="o">--------------------+</span> <span class="n">Homo</span>
+          <span class="o">---------</span><span class="n">N</span><span class="o">+</span>
+                    <span class="p">:</span>         <span class="o">----------+</span> <span class="n">Ateles</span>
+                    <span class="o">----------+</span>
+                              <span class="o">----------+</span> <span class="n">Macaca</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dropping-tips">
+<h3>2.5.5. Dropping Tips<a class="headerlink" href="#dropping-tips" title="Permalink to this headline">¶</a></h3>
+<p>You can remove leaf nodes with the <code class="docutils literal"><span class="pre">drop_tips</span></code> function. Note that
+this function returns a <em>new</em> tree. The old tree is not modified.
+This function takes a list of tip labels as input.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">63</span><span class="p">]:</span> <span class="n">r_dropped</span> <span class="o">=</span> <span class="n">r_reroot</span><span class="o">.</span><span class="n">drop_tip</span><span class="p">([</span><span class="s">&quot;Pongo&quot;</span><span class="p">,</span> <span class="s">&quot;Macaca&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="writing">
+<h2>2.6. Writing<a class="headerlink" href="#writing" title="Permalink to this headline">¶</a></h2>
+<p>Once you are done modifying your tree, you will probably want to save it.
+You can save your trees with the <code class="docutils literal"><span class="pre">write</span></code> function. This function
+takes a root node and an open file object as inputs. This function can
+currently only write in newick format.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">64</span><span class="p">]:</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;primates_altered.newick&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">ivy</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r_dropped</span><span class="p">,</span> <span class="n">outfile</span> <span class="o">=</span> <span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Trees in Ivy</a><ul>
+<li><a class="reference internal" href="#reading">2.1. Reading</a></li>
+<li><a class="reference internal" href="#viewing">2.2. Viewing</a></li>
+<li><a class="reference internal" href="#navigating">2.3. Navigating</a></li>
+<li><a class="reference internal" href="#testing">2.4. Testing</a></li>
+<li><a class="reference internal" href="#modifying">2.5. Modifying</a><ul>
+<li><a class="reference internal" href="#removing">2.5.1. Removing</a></li>
+<li><a class="reference internal" href="#adding">2.5.2. Adding</a></li>
+<li><a class="reference internal" href="#ladderizing">2.5.3. Ladderizing</a></li>
+<li><a class="reference internal" href="#rerooting">2.5.4. Rerooting</a></li>
+<li><a class="reference internal" href="#dropping-tips">2.5.5. Dropping Tips</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#writing">2.6. Writing</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="previous chapter">1. Quickstart</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="using_treebase.html"
+                        title="next chapter">3. Using Treebase</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/trees_in_ivy.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="using_treebase.html" title="3. Using Treebase"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="1. Quickstart"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="using.html" >User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

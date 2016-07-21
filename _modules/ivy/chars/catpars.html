@@ -48,6 +48,7 @@
             
   <h1>Source code for ivy.chars.catpars</h1><div class="highlight"><pre>
 <span class="c">#!/usr/bin/env python</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 
@@ -142,7 +143,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Internal nodes mapping to reconstructed states.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">states</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stepmatrix</span><span class="p">))</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stepmatrix</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">uppass</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">,</span>
                   <span class="n">downpass</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">,</span> <span class="n">chardata</span><span class="p">))</span>
 
@@ -166,7 +167,7 @@
 
 
 <div class="viewcode-block" id="binary_deltran"><a class="viewcode-back" href="../../../ivy.chars.catpars.html#ivy.chars.catpars.binary_deltran">[docs]</a><span class="k">def</span> <span class="nf">binary_deltran</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chardata</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">):</span>
-    <span class="n">states</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stepmatrix</span><span class="p">))</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stepmatrix</span><span class="p">)))</span>
     <span class="n">node2dpv</span> <span class="o">=</span> <span class="n">downpass</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">,</span> <span class="n">chardata</span><span class="p">)</span>
     <span class="n">node2deltr</span> <span class="o">=</span> <span class="n">_bindeltran</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">,</span> <span class="n">node2dpv</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">node2deltr</span>
@@ -178,9 +179,9 @@
     <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;(a,((b,c),(d,(e,f))));&quot;</span><span class="p">)</span>
 
     <span class="n">nstates</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="n">states</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nstates</span><span class="p">)</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nstates</span><span class="p">))</span>
     <span class="n">cm</span> <span class="o">=</span> <span class="n">default_costmatrix</span><span class="p">(</span><span class="n">nstates</span><span class="p">)</span>
-    <span class="n">chardata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="s">&quot;abcdef&quot;</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="s">&quot;000233&quot;</span><span class="p">)))</span>
+    <span class="n">chardata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="s">&quot;abcdef&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="s">&quot;000233&quot;</span><span class="p">)))))</span>
     <span class="n">dp</span> <span class="o">=</span> <span class="n">downpass</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">cm</span><span class="p">,</span> <span class="n">chardata</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
@@ -189,7 +190,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">node</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">chardata</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">])</span>
 
-    <span class="k">print</span> <span class="n">ascii</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">ascii</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">root</span><span class="p">))</span>
 
 
 <span class="c">##     nstates = 2</span>

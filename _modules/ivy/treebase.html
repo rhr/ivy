@@ -50,11 +50,14 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Functions to get trees and character data from treebase</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span> <span class="nn">urllib2</span> <span class="kn">import</span> <span class="n">urlopen</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="k">try</span><span class="p">:</span> <span class="c"># Python 3</span>
+    <span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlopen</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span> <span class="c"># Python 2</span>
+    <span class="kn">from</span> <span class="nn">urllib2</span> <span class="kn">import</span> <span class="n">urlopen</span>
 <span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">storage</span> <span class="kn">import</span> <span class="n">Storage</span>
+<span class="kn">from</span> <span class="nn">.storage</span> <span class="kn">import</span> <span class="n">Storage</span>
 <span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span>
 
 <span class="c"># &quot;http://purl.org/phylo/treebase/phylows/study/TB2:S11152&quot;</span>
@@ -148,7 +151,7 @@
 <span class="sd">        list: A list of ivy Storage objects each</span>
 <span class="sd">          containing every node of a tree.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">tree</span> <span class="kn">import</span> <span class="n">Node</span>
+    <span class="kn">from</span> <span class="nn">.tree</span> <span class="kn">import</span> <span class="n">Node</span>
     <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">tb</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">NEXML</span><span class="o">+</span><span class="s">&quot;trees&quot;</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">te</span> <span class="ow">in</span> <span class="n">tb</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">NEXML</span><span class="o">+</span><span class="s">&quot;tree&quot;</span><span class="p">):</span>
@@ -170,7 +173,7 @@
                 <span class="k">if</span> <span class="n">length</span><span class="p">:</span>
                     <span class="n">n</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
                 <span class="n">p</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="p">]</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="p">]</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">r</span><span class="o">.</span><span class="n">isroot</span> <span class="o">=</span> <span class="bp">True</span>
@@ -275,14 +278,14 @@
                    <span class="n">id2symb</span><span class="o">=</span><span class="n">id2symb</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="parse_charsets"><a class="viewcode-back" href="../../ivy.treebase.html#ivy.treebase.parse_charsets">[docs]</a><span class="k">def</span> <span class="nf">parse_charsets</span><span class="p">(</span><span class="n">study_id</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">cStringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+    <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
     <span class="n">nx</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">fetch_study</span><span class="p">(</span><span class="n">study_id</span><span class="p">,</span> <span class="s">&#39;nexus&#39;</span><span class="p">))</span>
     <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;CHARSET &quot;</span><span class="p">):</span>
             <span class="n">v</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
             <span class="n">label</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;-&quot;</span><span class="p">))</span>
+            <span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;-&quot;</span><span class="p">)))</span>
             <span class="n">d</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">first</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">last</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">d</span>
 </div>

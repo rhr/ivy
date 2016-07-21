@@ -60,7 +60,7 @@
 <span id="ivy-chars-mk-module"></span><h1>ivy.chars.mk module<a class="headerlink" href="#module-ivy.chars.mk" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="ivy.chars.mk.create_likelihood_function_mk">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">create_likelihood_function_mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Qtype</em>, <em>pi='Equal'</em>, <em>findmin=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#create_likelihood_function_mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.create_likelihood_function_mk" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">create_likelihood_function_mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Qtype</em>, <em>pi=u'Equal'</em>, <em>findmin=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#create_likelihood_function_mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.create_likelihood_function_mk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a function that takes values for Q and returns likelihood.</p>
 <p>Specify the Q to be ER, Sym, or ARD</p>
 <p>Returned function to be passed into scipy.optimize</p>
@@ -71,8 +71,10 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>Qtype</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; What type of Q matrix to use. Either ER (equal rates),
 Sym (symmetric rates), or ARD (All rates different).</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
@@ -102,7 +104,7 @@ log-likelihood. To be optmimized with NLOPT</p>
 
 <dl class="function">
 <dt id="ivy.chars.mk.fitMkARD">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">fitMkARD</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>pi='Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fitMkARD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fitMkARD" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">fitMkARD</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>pi=u'Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fitMkARD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fitMkARD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimate parameters of an all-rates-different Q matrix
 Return log-likelihood of mk equation using fitted Q</p>
 <p>Multi-parameter model: all rates different</p>
@@ -113,8 +115,10 @@ Return log-likelihood of mk equation using fitted Q</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221; or &#8220;Fitzjohn&#8221;. How to weight values at root
 node. Defaults to &#8220;Equal&#8221;
 Method &#8220;Fitzjohn&#8221; is currently untested</li>
@@ -134,7 +138,7 @@ at the root.</p>
 
 <dl class="function">
 <dt id="ivy.chars.mk.fitMkER">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">fitMkER</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>pi='Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fitMkER"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fitMkER" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">fitMkER</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>pi=u'Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fitMkER"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fitMkER" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimate parameter of an equal-rate Q matrix
 Return log-likelihood of mk equation using fitted Q</p>
 <p>One-parameter model: alpha = beta</p>
@@ -145,8 +149,10 @@ Return log-likelihood of mk equation using fitted Q</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221; or &#8220;Fitzjohn&#8221;. How to weight values at root
 node. Defaults to &#8220;Equal&#8221;</li>
 </ul>
@@ -165,7 +171,7 @@ at the root.</p>
 
 <dl class="function">
 <dt id="ivy.chars.mk.fitMkSym">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">fitMkSym</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>pi='Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fitMkSym"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fitMkSym" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">fitMkSym</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>pi=u'Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fitMkSym"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fitMkSym" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimate parameter of a symmetrical-rate Q matrix
 Return log-likelihood of mk equation using fitted Q</p>
 <p>Multi-parameter model: forward = reverse</p>
@@ -176,8 +182,10 @@ Return log-likelihood of mk equation using fitted Q</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221; or &#8220;Fitzjohn&#8221;. How to weight values at root
 node. Defaults to &#8220;Equal&#8221;
 Method &#8220;Fitzjohn&#8221; is currently untested</li>
@@ -197,7 +205,7 @@ at the root.</p>
 
 <dl class="function">
 <dt id="ivy.chars.mk.fit_Mk">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">fit_Mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q='Equal'</em>, <em>pi='Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fit_Mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fit_Mk" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">fit_Mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q=u'Equal'</em>, <em>pi=u'Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#fit_Mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.fit_Mk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit an mk model to a given tree and list of characters. Return fitted
 Q matrix and calculated likelihood.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -207,8 +215,10 @@ Q matrix and calculated likelihood.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be in the form of 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>pi</strong> &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
 values at root node. Defaults to &#8220;Equal&#8221;
 Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
@@ -227,7 +237,7 @@ Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
 
 <dl class="function">
 <dt id="ivy.chars.mk.mk">
-<code class="descclassname">ivy.chars.mk.</code><code class="descname">mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>p=None</em>, <em>pi='Equal'</em>, <em>returnPi=False</em>, <em>ar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.mk" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.mk.</code><code class="descname">mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>p=None</em>, <em>pi=u'Equal'</em>, <em>returnPi=False</em>, <em>ar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/mk.html#mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.mk.mk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit mk model and return likelihood for the root node of a tree given a list of characters
 and a Q matrix</p>
 <p>Convert tree and character data into a form that can be input
@@ -240,8 +250,10 @@ into mk, which fits an mk model.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</li>
 <li><strong>p</strong> (<em>np.array</em>) &#8211; Optional pre-allocated p matrix</li>
 <li><strong>pi</strong> (<em>str or np.array</em>) &#8211; <p>Option to weight the root node by given values.

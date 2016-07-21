@@ -33,9 +33,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -57,7 +54,7 @@
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">tree</span><span class="p">,</span> <span class="n">bipart</span>
 <span class="kn">from</span> <span class="nn">..layout</span> <span class="kn">import</span> <span class="n">cartesian</span>
 <span class="kn">from</span> <span class="nn">..storage</span> <span class="kn">import</span> <span class="n">Storage</span>
-<span class="kn">from</span> <span class="nn">ivy</span> <span class="kn">import</span> <span class="n">pyperclip</span> <span class="k">as</span> <span class="n">clipboard</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">pyperclip</span> <span class="k">as</span> <span class="n">clipboard</span>
 <span class="c">#from ..nodecache import NodeCache</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span><span class="o">,</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">pyplot</span>
@@ -127,7 +124,6 @@
 <span class="sd">    * fig.toggle_leaflabels() - ditto for leaf labels</span>
 <span class="sd">    * fig.decorate(func) - decorate the tree with a function (see</span>
 <span class="sd">      :ref:`decorating TreeFigures &lt;decorating-trees&gt;`)</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">div</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
                  <span class="n">branchlabels</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">leaflabels</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">mark_named</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
@@ -232,11 +228,11 @@
 <span class="sd">        Add a new tree in a new window</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data: A node object or tree file.</span>
-<span class="sd">            name (str): Name of the plot. Defaults to None</span>
-<span class="sd">            branchlabels (bool): Whether or not to draw branch labels.</span>
+<span class="sd">            * data: A node object or tree file.</span>
+<span class="sd">            * name: Name of the plot. Defaults to None</span>
+<span class="sd">            * branchlabels: Bool. Whether or not to draw branch labels.</span>
 <span class="sd">              Defaults to False</span>
-<span class="sd">            leaflabels (bool): Whether or not to draw leaf labels.</span>
+<span class="sd">            * leaflabels: Bool. Whether or not to draw leaf labels.</span>
 <span class="sd">              Defaults to True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">newfig</span> <span class="o">=</span> <span class="n">MultiTreeFigure</span><span class="p">()</span>
@@ -289,7 +285,7 @@
 <span class="sd">        Define whether or not the tree is scaled and redraw tree</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            scaled (bool): Whether or not the tree is scaled.</span>
+<span class="sd">            * scaled. Bool. Whether or not the tree is scaled.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">overview</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">detail</span><span class="p">:</span>
             <span class="n">p</span><span class="o">.</span><span class="n">redraw</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">set_scaled</span><span class="p">(</span><span class="n">scaled</span><span class="p">))</span>
@@ -383,9 +379,9 @@
 <span class="sd">        Find nodes</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            x (str): String to search</span>
+<span class="sd">            * x: A string</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            list: A list of node objects found with the Node findall() method</span>
+<span class="sd">            A list of node objects found with the Node findall() method</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </div>
@@ -394,11 +390,11 @@
 <span class="sd">        Highlight nodes</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            nodes (list): A list of node objects</span>
-<span class="sd">            width (float): Width of highlighted lines. Defaults to 5</span>
-<span class="sd">            color (str): Color of highlighted lines. Defaults to red</span>
-<span class="sd">            xoff (float): Number of units to offset lines by. Defaults to 0</span>
-<span class="sd">            yoff (float): Number of units to offset lines by. Defaults to 0</span>
+<span class="sd">            * nodes: A list of node objects</span>
+<span class="sd">            * width: Float. Width of highlighted lines. Defaults to 5</span>
+<span class="sd">            * color: Str. Color of highlighted lines. Defaults to red</span>
+<span class="sd">            * xoff: Float. Number of units to offset lines by. Defaults to 0</span>
+<span class="sd">            * yoff: Float. Number of units to offset lines by. Defaults to 0</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overview</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
                              <span class="n">xoff</span><span class="o">=</span><span class="n">xoff</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="n">yoff</span><span class="p">)</span>
@@ -410,9 +406,9 @@
 <span class="sd">        Highlight nodes</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            x: Str or list of Strs or Node or list of Nodes</span>
-<span class="sd">            width (float): Width of highlighted lines. Defaults to 5</span>
-<span class="sd">            color (str): Color of highlighted lines. Defaults to red</span>
+<span class="sd">            * x: Str or list of Strs or Node or list of Nodes</span>
+<span class="sd">            * width: Float. Width of highlighted lines. Defaults to 5</span>
+<span class="sd">            * color: Str. Color of highlighted lines. Defaults to red</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">x</span><span class="p">:</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -449,24 +445,24 @@
 <span class="sd">        Zoom to fit a node *x* and all its descendants in the view.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            x: Node or str that matches the label of a node</span>
+<span class="sd">            * x: Node or str that matches the label of a node</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
             <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">detail</span><span class="o">.</span><span class="n">zoom_clade</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TreeFigure.zoom"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.tree.TreeFigure.zoom">[docs]</a>    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Zoom both axes by *factor* (relative display size).&quot;&quot;&quot;</span>
+        <span class="s">&quot;Zoom both axes by *factor* (relative display size).&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">detail</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">factor</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="TreeFigure.zx"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.tree.TreeFigure.zx">[docs]</a>    <span class="k">def</span> <span class="nf">zx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Zoom x axis by *factor*.&quot;&quot;&quot;</span>
+        <span class="s">&quot;Zoom x axis by *factor*.&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">detail</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">factor</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="TreeFigure.zy"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.tree.TreeFigure.zy">[docs]</a>    <span class="k">def</span> <span class="nf">zy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Zoom y axis by *factor*.&quot;&quot;&quot;</span>
+        <span class="s">&quot;Zoom y axis by *factor*.&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">detail</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 </div>
@@ -475,7 +471,7 @@
 <span class="sd">        Decorate the tree.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            func (function): A function that takes a TreePlot instance as the</span>
+<span class="sd">            * func: A function that takes a TreePlot instance as the</span>
 <span class="sd">              first parameter, and *args* and *kwargs* as additional</span>
 <span class="sd">              parameters.  It adds boxes, circles, etc to the TreePlot.</span>
 
@@ -720,11 +716,11 @@
 <span class="sd">        Highlight nodes</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            s: Str or list of Strs or Node or list of Nodes</span>
-<span class="sd">            add (bool): Whether to add to existing highlighted nodes or</span>
+<span class="sd">            * s: Str or list of Strs or Node or list of Nodes</span>
+<span class="sd">            * add: Bool. Whether to add to existing highlighted nodes or</span>
 <span class="sd">              overwrite them.</span>
-<span class="sd">            width (float): Width of highlighted lines. Defaults to 5</span>
-<span class="sd">            color (str): Color of highlighted lines. Defaults to red</span>
+<span class="sd">            * width: Float. Width of highlighted lines. Defaults to 5</span>
+<span class="sd">            * color: Str. Color of highlighted lines. Defaults to red</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">highlighted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -889,7 +885,7 @@
 <span class="sd">        Save tree as a newick file.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filename (str): Path to file.</span>
+<span class="sd">            * filename: str. Path to file.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
@@ -919,14 +915,14 @@
 <span class="sd">        *label* is ``None`` then the clade&#39;s label is used instead.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            nodes: Node or list of nodes</span>
-<span class="sd">            color (str): Color of the bar. Optional, defaults to None.</span>
-<span class="sd">            label (str): Optional label for bar. If None, the clade&#39;s</span>
+<span class="sd">            * nodes: Node or list of nodes</span>
+<span class="sd">            * color: Str. Color of the bar. Optional, defaults to None.</span>
+<span class="sd">            * label: Str. Optional label for bar. If None, the clade&#39;s</span>
 <span class="sd">              label is used instead. Defaults to None.</span>
-<span class="sd">            width (float): Width of bar</span>
-<span class="sd">            xoff (float): Offset from label to bar</span>
-<span class="sd">            showlabel (bool): Whether or not to draw the label</span>
-<span class="sd">            mrca: RR: Not quite sure what this does -CZ</span>
+<span class="sd">            * Width: Float. Width of bar</span>
+<span class="sd">            * xoff: Float. Offset from label to bar</span>
+<span class="sd">            * showlabel: Bool. Whether or not to draw the label</span>
+<span class="sd">            * mrca: RR: Not quite sure what this does -CZ</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">xlim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">();</span> <span class="n">ylim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
@@ -1241,9 +1237,6 @@
         <span class="c">##                                                yoff=yoff)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">lc</span>
-        
-        
-    
 </div>
 <div class="viewcode-block" id="Tree.hardcopy"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.tree.Tree.hardcopy">[docs]</a>    <span class="k">def</span> <span class="nf">hardcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relwidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">leafpad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">):</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">HC</span><span class="o">.</span><span class="n">TreeFigure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">relwidth</span><span class="o">=</span><span class="n">relwidth</span><span class="p">,</span> <span class="n">leafpad</span><span class="o">=</span><span class="n">leafpad</span><span class="p">,</span>
@@ -2223,9 +2216,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
       </ul>

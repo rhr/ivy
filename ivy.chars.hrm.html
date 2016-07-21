@@ -73,7 +73,7 @@ For use in evaluating symmetric constraint in hrm likelihood function</p>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.cluster_models">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">cluster_models</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>findmin=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#cluster_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.cluster_models" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">cluster_models</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>nregime</em>, <em>pi=u'Equal'</em>, <em>findmin=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#cluster_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.cluster_models" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given an MLE Q, return candidate models with more parsimonious
 parameter set by merging similar parameters</p>
 </dd></dl>
@@ -86,7 +86,7 @@ parameter set by merging similar parameters</p>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.create_likelihood_function_hrm_mk_MLE">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">create_likelihood_function_hrm_mk_MLE</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>Qtype</em>, <em>pi='Equal'</em>, <em>findmin=True</em>, <em>constraints='Rate'</em>, <em>orderedRegimes=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#create_likelihood_function_hrm_mk_MLE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.create_likelihood_function_hrm_mk_MLE" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">create_likelihood_function_hrm_mk_MLE</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>Qtype</em>, <em>pi=u'Equal'</em>, <em>findmin=True</em>, <em>constraints=u'Rate'</em>, <em>orderedRegimes=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#create_likelihood_function_hrm_mk_MLE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.create_likelihood_function_hrm_mk_MLE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a function that takes values for Q and returns likelihood.</p>
 <p>Specify the Q to be ER, Sym, or ARD</p>
 <p>Returned function to be passed into scipy.optimize</p>
@@ -97,8 +97,10 @@ parameter set by merging similar parameters</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>Qtype</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; ARD only</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
 values at root  node.</li>
@@ -152,7 +154,7 @@ parameters.</p>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.fill_Q_matrix">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fill_Q_matrix</code><span class="sig-paren">(</span><em>nobschar</em>, <em>nregime</em>, <em>wrparams</em>, <em>brparams</em>, <em>Qtype='ARD'</em>, <em>out=None</em>, <em>orderedRegimes=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fill_Q_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fill_Q_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fill_Q_matrix</code><span class="sig-paren">(</span><em>nobschar</em>, <em>nregime</em>, <em>wrparams</em>, <em>brparams</em>, <em>Qtype=u'ARD'</em>, <em>out=None</em>, <em>orderedRegimes=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fill_Q_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fill_Q_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fill a Q matrix with nchar*nregime rows and cols with values from Qparams</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -221,7 +223,7 @@ slow, medium, fast, etc. rates. The first is always 0</li>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.fit_hrm">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>constraints='Rate'</em>, <em>Qtype='ARD'</em>, <em>orderedRegimes=True</em>, <em>startingvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>pi=u'Equal'</em>, <em>constraints=u'Rate'</em>, <em>Qtype=u'ARD'</em>, <em>orderedRegimes=True</em>, <em>startingvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit a hidden-rates mk model to a given tree and list of characters, and
 number of regumes. Return fitted ARD Q matrix and calculated likelihood.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -231,8 +233,10 @@ number of regumes. Return fitted ARD Q matrix and calculated likelihood.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be in the form of 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of hidden rates per character</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
 values at root node. Defaults to &#8220;Equal&#8221;
@@ -255,7 +259,7 @@ to only occur between adjacent regimes</li>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.fit_hrm_distinct_regimes">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_distinct_regimes</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>nparams</em>, <em>pi='Equal'</em>, <em>br_variable=False</em>, <em>parallel=False</em>, <em>ncores=2</em>, <em>out_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_distinct_regimes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_distinct_regimes" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_distinct_regimes</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>nparams</em>, <em>pi=u'Equal'</em>, <em>br_variable=False</em>, <em>parallel=False</em>, <em>ncores=2</em>, <em>out_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_distinct_regimes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_distinct_regimes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit hrm with distinct regime types given number of regimes and
 number of parameters</p>
 <p>BINARY CHARACTERS ONLY</p>
@@ -265,7 +269,10 @@ number of parameters</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of tree</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; Character states in preorder sequence</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of regimes to test in model</li>
 <li><strong>nparams</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of unique parameters available for regimes</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Root prior</li>
@@ -284,7 +291,7 @@ the first part of the filename</li>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.fit_hrm_mkARD">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_mkARD</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>constraints='Rate'</em>, <em>orderedRegimes=True</em>, <em>startingvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_mkARD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_mkARD" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_mkARD</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>pi=u'Equal'</em>, <em>constraints=u'Rate'</em>, <em>orderedRegimes=True</em>, <em>startingvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_mkARD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_mkARD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit a hidden-rates mk model to a given tree and list of characters, and
 number of regumes. Return fitted ARD Q matrix and calculated likelihood.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -292,10 +299,11 @@ number of regumes. Return fitted ARD Q matrix and calculated likelihood.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
-greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be in the form of 0,1,2,...</li>
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of hidden rates per character</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
 values at root node. Defaults to &#8220;Equal&#8221;
@@ -317,7 +325,7 @@ to only occur between adjacent regimes</li>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.fit_hrm_mkSimple">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_mkSimple</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>orderedRegimes=True</em>, <em>startingvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_mkSimple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_mkSimple" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_mkSimple</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>pi=u'Equal'</em>, <em>orderedRegimes=True</em>, <em>startingvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_mkSimple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_mkSimple" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit a hidden-rates mk model to a given tree and list of characters, and
 number of regumes. Return fitted ARD Q matrix and calculated likelihood.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -327,8 +335,10 @@ number of regumes. Return fitted ARD Q matrix and calculated likelihood.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be in the form of 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of hidden rates per character</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
 values at root node. Defaults to &#8220;Equal&#8221;
@@ -348,14 +358,48 @@ Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.fit_hrm_model">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_model</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>mod</em>, <em>pi='Equal'</em>, <em>findmin=True</em>, <em>initialvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_model" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_model</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>mod</em>, <em>pi=u'Equal'</em>, <em>findmin=True</em>, <em>initialvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit parameters for a single model specified by the user</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.fit_hrm_model_likelihood">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_model_likelihood</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>mod</em>, <em>pi='Equal'</em>, <em>findmin=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_model_likelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_model_likelihood" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_model_likelihood</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>mod</em>, <em>pi=u'Equal'</em>, <em>findmin=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_model_likelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_model_likelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>Likelihood function for fitting user-specified model</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fit_hrm_qidx">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_qidx</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>qidx</em>, <em>pi=u'Equal'</em>, <em>orderedRegimes=True</em>, <em>startingvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_qidx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_qidx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a hidden-rates mk model to a given tree and list of characters, and
+number of regumes. Return fitted ARD Q matrix and calculated likelihood.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of hidden rates per character</li>
+<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+values at root node. Defaults to &#8220;Equal&#8221;
+Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
+<li><strong>orderedRegimes</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not to constrain regime transitions
+to only occur between adjacent regimes</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple of fitted Q matrix (a np array) and log-likelihood value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)">tuple</a></p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -367,12 +411,12 @@ fill_model_Q</p>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.hrm_disctinct_regimes_likelihoodfunc">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">hrm_disctinct_regimes_likelihoodfunc</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>regimetypes</em>, <em>pi='Equal'</em>, <em>findmin=True</em>, <em>br_variable=False</em>, <em>ar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#hrm_disctinct_regimes_likelihoodfunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.hrm_disctinct_regimes_likelihoodfunc" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">hrm_disctinct_regimes_likelihoodfunc</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>regimetypes</em>, <em>pi=u'Equal'</em>, <em>findmin=True</em>, <em>br_variable=False</em>, <em>ar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#hrm_disctinct_regimes_likelihoodfunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.hrm_disctinct_regimes_likelihoodfunc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.hrm_mk">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">hrm_mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>nregime</em>, <em>pi='Equal'</em>, <em>returnPi=False</em>, <em>ar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#hrm_mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.hrm_mk" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">hrm_mk</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>nregime</em>, <em>pi=u'Equal'</em>, <em>returnPi=False</em>, <em>ar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#hrm_mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.hrm_mk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return log-likelihood of hidden-rates-markov mk model as described in
 Beaulieu et al. 2013</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -382,8 +426,10 @@ Beaulieu et al. 2013</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</li>
 <li><strong>p</strong> (<em>np.array</em>) &#8211; Optional pre-allocated p matrix</li>
 <li><strong>pi</strong> (<em>str or np.array</em>) &#8211; <p>Option to weight the root node by given values.
@@ -432,7 +478,7 @@ speed by avoiding creating and destroying new arrays</li>
 
 <dl class="function">
 <dt id="ivy.chars.hrm.pairwise_merge">
-<code class="descclassname">ivy.chars.hrm.</code><code class="descname">pairwise_merge</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>nregime</em>, <em>pi='Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#pairwise_merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.pairwise_merge" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">pairwise_merge</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>nregime</em>, <em>pi=u'Equal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#pairwise_merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.pairwise_merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given an MLE Q, merge similar parameters pairwise to find more
 parsimonious models</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -442,8 +488,10 @@ parsimonious models</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</li>
 <li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of regimes in the model</li>
 <li><strong>pi</strong> (<em>str or np.array</em>) &#8211; <p>Option to weight the root node by given values.

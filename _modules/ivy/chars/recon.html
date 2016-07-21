@@ -48,6 +48,8 @@
             
   <h1>Source code for ivy.chars.recon</h1><div class="highlight"><pre>
 <span class="c">#!/usr/bin/env python</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
 <span class="kn">import</span> <span class="nn">math</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
@@ -72,8 +74,10 @@
 <span class="sd">    Args:</span>
 <span class="sd">        tree (Node): Root node of a tree. All branch lengths must be</span>
 <span class="sd">          greater than 0 (except root)</span>
-<span class="sd">        chars (list): List of character states corresponding to leaf nodes in</span>
-<span class="sd">          preoder sequence. Character states must be numbered 0,1,2,...</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
+
+<span class="sd">          Can also be a list with tip states in preorder sequence</span>
 <span class="sd">        Q (np.array): Instantaneous rate matrix</span>
 <span class="sd">        p (np.array): 3-D array of dimensions branch_number * nchar * nchar.</span>
 <span class="sd">            Optional. Pre-allocated space for efficient calculations</span>
@@ -96,6 +100,8 @@
 <span class="sd">        np.array: Array of nodes in preorder sequence containing marginal</span>
 <span class="sd">          likelihoods.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">ars</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="c"># Creating arrays to be used later</span>
@@ -124,6 +130,8 @@
 <span class="sd">    Returns edgelist of nodes in postorder sequence, edgelist of nodes in preorder sequence,</span>
 <span class="sd">    partial likelihood vector for each node&#39;s children, childlist, and branch lengths.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isroot</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
     <span class="n">nobschar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="n">nobschar</span> <span class="o">*</span> <span class="n">nregime</span>
@@ -169,7 +177,7 @@
     <span class="n">child_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">partial_nl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
     <span class="c"># ------- Character list</span>
-    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)</span>
+    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">))</span>
 
     <span class="c"># ------- Empty array to store root priors</span>
     <span class="n">root_priors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
@@ -196,14 +204,16 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        tree (Node): Root node of tree</span>
-<span class="sd">        chars (list): List of characters in preorder sequence</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
+
+<span class="sd">          Can also be a list with tip states in preorder sequence</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        np.array: Array of assigned states of interior nodes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">chardata</span> <span class="o">=</span> <span class="p">{</span><span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">:</span><span class="n">chars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chars</span><span class="p">))}</span>
-    <span class="n">stepmatrix</span> <span class="o">=</span> <span class="n">catpars</span><span class="o">.</span><span class="n">default_costmatrix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">)))</span>
-    <span class="n">rec</span> <span class="o">=</span> <span class="n">catpars</span><span class="o">.</span><span class="n">ancstates</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chardata</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">rec</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">stepmatrix</span> <span class="o">=</span> <span class="n">catpars</span><span class="o">.</span><span class="n">default_costmatrix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">catpars</span><span class="o">.</span><span class="n">ancstates</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="n">rec</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">rec</span>
 
@@ -212,11 +222,17 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the minimum number of changes needed by parsimony to observe</span>
 <span class="sd">    given data on the tree</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tree (Node): Root node of the tree</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
     <span class="n">precon</span> <span class="o">=</span>  <span class="n">parsimony_recon</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">)</span>
     <span class="n">minp</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isleaf</span><span class="p">:</span>
             <span class="n">ch</span> <span class="o">=</span> <span class="n">get_childstates</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">precon</span><span class="p">,</span> <span class="n">chars</span><span class="p">)</span>

@@ -129,7 +129,7 @@ Thinning parameter. Defaults to 1</li>
 
 <dl class="function">
 <dt id="ivy.chars.bayesian_models.hrm_bayesian">
-<code class="descclassname">ivy.chars.bayesian_models.</code><code class="descname">hrm_bayesian</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Qtype</em>, <em>nregime</em>, <em>pi='Fitzjohn'</em>, <em>constraint='Rate'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/bayesian_models.html#hrm_bayesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.bayesian_models.hrm_bayesian" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.bayesian_models.</code><code class="descname">hrm_bayesian</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Qtype</em>, <em>nregime</em>, <em>pi=u'Fitzjohn'</em>, <em>constraint=u'Rate'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/bayesian_models.html#hrm_bayesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.bayesian_models.hrm_bayesian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a hidden rates model for pymc to be sampled from.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -138,8 +138,10 @@ Thinning parameter. Defaults to 1</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be in the form of 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
 values at root node. Defaults to &#8220;Equal&#8221;
 Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>

@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4. Plotting &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="User’s Guide" href="using.html" />
+    <link rel="next" title="5. Performing analyses" href="analyses.html" />
+    <link rel="prev" title="3. Using Treebase" href="using_treebase.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="analyses.html" title="5. Performing analyses"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="using_treebase.html" title="3. Using Treebase"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="using.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="plotting">
+<h1>4. Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> supports interactive tree visualization with Matplotlib.</p>
+<div class="section" id="small-trees">
+<h2>4.1. Small Trees<a class="headerlink" href="#small-trees" title="Permalink to this headline">¶</a></h2>
+<p>Displaying a tree is very simple. For interactive tree viewing, you can run
+the command <code class="docutils literal"><span class="pre">from</span> <span class="pre">ivy.interactive</span> <span class="pre">import</span> <span class="pre">*</span></code>, which imports a number of
+convenience functions for interacting with trees. After importing everything
+from ivy.interactive, you may, for instance, use <code class="docutils literal"><span class="pre">readtree</span></code> instead of
+<code class="docutils literal"><span class="pre">ivy.tree.read</span></code> and <code class="docutils literal"><span class="pre">treefig</span></code> instead of <code class="docutils literal"><span class="pre">ivy.vis.tree.TreeFigure</span></code>.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.interactive</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">readtree</span><span class="p">(</span><span class="s">&quot;examples/primates.newick&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">treefig</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also use the magic command <code class="docutils literal"><span class="pre">%maketree</span></code> in the Ipython console to
+read in a tree.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="o">%</span><span class="k">maketree</span>
+<span class="n">Enter</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">a</span> <span class="n">tree</span> <span class="nb">file</span> <span class="ow">or</span> <span class="n">a</span> <span class="n">newick</span> <span class="n">string</span><span class="p">:</span>
+<span class="n">examples</span><span class="o">/</span><span class="n">primates</span><span class="o">.</span><span class="n">newick</span>
+<span class="n">Tree</span> <span class="n">parsed</span> <span class="ow">and</span> <span class="n">assigned</span> <span class="n">to</span> <span class="n">variable</span> <span class="s">&#39;root&#39;</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">root</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139904996110480</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/visualization_1.png"><img alt="_images/visualization_1.png" src="_images/visualization_1.png" style="width: 700px;" /></a>
+<p>A tree figure by default consists of the tree with clade and leaf
+labels and a navigation toolbar. The navigation toolbar allows zooming and
+panning. Panning can be done by clicking with the middle mouse button, using
+the arrow keys, or using the pan tool on the toolbar. Zooming can be done
+using the scroll wheel, the plus and minus keys, or the &#8216;zoom to rectangle&#8217;
+tool in the toolbar. Press t to return default zoom level.</p>
+<p>Larger trees are shown with a split overview pane as well, which can be toggled
+with the <code class="docutils literal"><span class="pre">toggle_overview</span></code> method.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">toggle_overview</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/visualization_2.png"><img alt="_images/visualization_2.png" src="_images/visualization_2.png" style="width: 700px;" /></a>
+<p>You can retrieve information about a node or group of nodes by selecting
+them (selected nodes have green circles on them)
+and accessing the <code class="docutils literal"><span class="pre">selected</span></code> nodes</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">selected</span>
+<span class="n">Out</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span>
+<span class="p">[</span><span class="n">Node</span><span class="p">(</span><span class="mi">139976891981456</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Homo&#39;</span><span class="p">),</span>
+ <span class="n">Node</span><span class="p">(</span><span class="mi">139976891981392</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">),</span>
+ <span class="n">Node</span><span class="p">(</span><span class="mi">139976891981520</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Pongo&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/visualization_3.png"><img alt="_images/visualization_3.png" src="_images/visualization_3.png" style="width: 700px;" /></a>
+<p>You can also select nodes from the command line. Entering an internal node will
+select that node and all of its descendants.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">9</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">select_nodes</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/visualization_4.png"><img alt="_images/visualization_4.png" src="_images/visualization_4.png" style="width: 700px;" /></a>
+<p>You can highlight certain branches using the <code class="docutils literal"><span class="pre">highlight</span></code> method. Again,
+entering an internal node will highlight that node and its descendants.</p>
+<p>You can optionally show the highlighted branches on the overview panel using
+the <code class="docutils literal"><span class="pre">ov</span></code> keyword</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">10</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">highlight</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">&quot;B&quot;</span><span class="p">],</span> <span class="n">ov</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/visualization_5.png"><img alt="_images/visualization_5.png" src="_images/visualization_5.png" style="width: 700px;" /></a>
+<p>You can add layers of various kinds using the <code class="docutils literal"><span class="pre">add_layers</span></code> method. The
+<code class="docutils literal"><span class="pre">layers</span></code> module contains various functions for adding layers to the tree,
+including images, labels, shapes, etc.</p>
+<p>In fact, the <code class="docutils literal"><span class="pre">highlight</span></code> method is simply a wrapper for an <code class="docutils literal"><span class="pre">add_layers</span></code>
+call.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">11</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.vis</span> <span class="kn">import</span> <span class="n">layers</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">12</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span> <span class="c"># This clears the plot</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">13</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_layer</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">add_circles</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">leaves</span><span class="p">(),</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;red&quot;</span><span class="p">,</span> <span class="s">&quot;orange&quot;</span><span class="p">,</span> <span class="s">&quot;yellow&quot;</span><span class="p">,</span> <span class="s">&quot;green&quot;</span><span class="p">,</span> <span class="s">&quot;blue&quot;</span><span class="p">],</span>
+        <span class="n">ov</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="c"># Prevent layer from appearing on overview with ov keyword</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/visualization_6.png"><img alt="_images/visualization_6.png" src="_images/visualization_6.png" style="width: 700px;" /></a>
+<p>The new layer will be cleared with the next call to <code class="docutils literal"><span class="pre">fig.redraw</span></code>. You can
+store a layer and draw it every time using the <code class="docutils literal"><span class="pre">store</span></code> keyword. We can
+access our stored layers through the <code class="docutils literal"><span class="pre">layers</span></code> attribute of the figure</p>
+<p>As we can see, our figure has &#8220;leaflabels&#8221; and &#8220;branchlabels&#8221; as layers, as
+well as the new &#8220;circles&#8221; layer. You can toggle the visibility of a layer
+using the <code class="docutils literal"><span class="pre">toggle_layer</span></code> method and the layer&#8217;s name. The layer is still
+there and can be accessed with <code class="docutils literal"><span class="pre">fig.layers</span></code>, but it is not visible on
+the plot. It can be toggled back on at any time</p>
+</div>
+<div class="section" id="large-trees">
+<h2>4.2. Large Trees<a class="headerlink" href="#large-trees" title="Permalink to this headline">¶</a></h2>
+<p>Oftentimes, the tree you are working with is too large to comfortably fit on
+one page. <code class="docutils literal"><span class="pre">ivy</span></code> has many tools for working with large trees and creating
+legible, printable figures of them. Let&#8217;s try working on the plant phylogeny.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">17</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">readtree</span><span class="p">(</span><span class="s">&quot;examples/plants.newick&quot;</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">18</span><span class="p">]:</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">treefig</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/plants_fig1.png"><img alt="_images/plants_fig1.png" src="_images/plants_fig1.png" style="width: 700px;" /></a>
+<p>When a tree has a large number of tips (&gt;100), <code class="docutils literal"><span class="pre">ivy</span></code> automatically includes an
+overview on the side. This tree looks rather cluttered. We can try to clean it
+up by ladderizing the tree and toggling off the node labels</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">19</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">ladderize</span><span class="p">()</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">20</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">toggle_branchlabels</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/plants_fig2.png"><img alt="_images/plants_fig2.png" src="_images/plants_fig2.png" style="width: 700px;" /></a>
+<p>Here you can see that when all of the tip labels do not fit on the tree, the
+plot automatically only draws as many labels as will fit.</p>
+<p>Let&#8217;s say we only want to look at the Solanales. The <code class="docutils literal"><span class="pre">highlight</span></code> function,
+combined with the <code class="docutils literal"><span class="pre">find</span></code> function, is very useful when working with large
+trees.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">21</span><span class="p">]:</span> <span class="n">sol</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;Solanales&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">22</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">highlight</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/plants_fig3.png"><img alt="_images/plants_fig3.png" src="_images/plants_fig3.png" style="width: 700px;" /></a>
+<p>We can zoom to this clade with the <code class="docutils literal"><span class="pre">zoom_clade</span></code> function.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">23</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">zoom_clade</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/plants_fig4.png"><img alt="_images/plants_fig4.png" src="_images/plants_fig4.png" style="width: 700px;" /></a>
+<p>Maybe we want to zoom out a little. We can select a few clades...</p>
+<a class="reference internal image-reference" href="_images/plants_fig5.png"><img alt="_images/plants_fig5.png" src="_images/plants_fig5.png" style="width: 700px;" /></a>
+<p>And then zoom to the MRCA of the selected nodes</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">24</span><span class="p">]:</span> <span class="n">c</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">mrca</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">selected</span><span class="p">)</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">25</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">zoom_clade</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/plants_fig6.png"><img alt="_images/plants_fig6.png" src="_images/plants_fig6.png" style="width: 700px;" /></a>
+<p>Another benefit to using <code class="docutils literal"><span class="pre">ivy</span></code> interactively is <code class="docutils literal"><span class="pre">ivy</span></code>&#8216;s node autocomplete
+function. You can type in the partial name of a node and hit <code class="docutils literal"><span class="pre">tab</span></code> to
+autocomplete, just like with any other autocompletion in ipython.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">26</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="s">&quot;Sy # Hit tab to autocomplete</span>
+<span class="n">Sylvichadsia</span>  <span class="n">Symplocaceae</span>  <span class="n">Synoum</span>        <span class="n">Syrmatium</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">27</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="s">&quot;Sym # Hitting tab will complete the line</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">28</span><span class="p">]:</span> <span class="n">fig</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="s">&quot;Symplocaceae&quot;</span><span class="p">]</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">28</span><span class="p">]:</span> <span class="n">Node</span><span class="p">(</span><span class="mi">139904995827408</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="s">&#39;Symplocaceae&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">ivy</span></code> also has tools for printing large figures across multiple pages. The
+figure method <code class="docutils literal"><span class="pre">hardcopy</span></code> creates an object that has methods for creating
+PDFs that can be printed or placed in documents. To print a large figure
+across multiple pages, you can use the <code class="docutils literal"><span class="pre">render_multipage</span></code> method of a
+<code class="docutils literal"><span class="pre">hardcopy</span></code> object. For more information, look at the documentation for
+<code class="docutils literal"><span class="pre">render_multipage</span></code>. The following code will create a PDF that has the figure
+spread across 4x4 letter-size pages.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">29</span><span class="p">]:</span> <span class="n">h</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">hardcopy</span><span class="p">()</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">30</span><span class="p">]:</span> <span class="n">h</span><span class="o">.</span><span class="n">render_multipage</span><span class="p">(</span><span class="n">outfile</span><span class="o">=</span><span class="s">&quot;plants.pdf&quot;</span><span class="p">,</span> <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="mf">34.0</span><span class="p">,</span> <span class="mf">44.4</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4. Plotting</a><ul>
+<li><a class="reference internal" href="#small-trees">4.1. Small Trees</a></li>
+<li><a class="reference internal" href="#large-trees">4.2. Large Trees</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="using_treebase.html"
+                        title="previous chapter">3. Using Treebase</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="analyses.html"
+                        title="next chapter">5. Performing analyses</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/plotting.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="analyses.html" title="5. Performing analyses"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="using_treebase.html" title="3. Using Treebase"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="using.html" >User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

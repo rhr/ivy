@@ -33,9 +33,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -66,21 +63,21 @@
            <span class="s">&#39;#aec7e8&#39;</span><span class="p">,</span> <span class="s">&#39;#ffbb78&#39;</span><span class="p">,</span> <span class="s">&#39;#98df8a&#39;</span><span class="p">,</span> <span class="s">&#39;#ff9896&#39;</span><span class="p">,</span> <span class="s">&#39;#c5b0d5&#39;</span><span class="p">,</span>
            <span class="s">&#39;#c49c94&#39;</span><span class="p">,</span> <span class="s">&#39;#f7b6d2&#39;</span><span class="p">,</span> <span class="s">&#39;#c7c7c7&#39;</span><span class="p">,</span> <span class="s">&#39;#dbdb8d&#39;</span><span class="p">,</span> <span class="s">&#39;#9edae5&#39;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="get_or_create_vp"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.get_or_create_vp">[docs]</a><span class="k">def</span> <span class="nf">get_or_create_vp</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ptype</span><span class="p">):</span>
+<div class="viewcode-block" id="get_or_create_vp"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.get_or_create_vp">[docs]</a><span class="k">def</span> <span class="nf">get_or_create_vp</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ptype</span><span class="p">):</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="p">:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="n">ptype</span><span class="p">)</span>
         <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
     <span class="k">return</span> <span class="n">p</span>
 </div>
-<div class="viewcode-block" id="get_or_create_ep"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.get_or_create_ep">[docs]</a><span class="k">def</span> <span class="nf">get_or_create_ep</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ptype</span><span class="p">):</span>
+<div class="viewcode-block" id="get_or_create_ep"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.get_or_create_ep">[docs]</a><span class="k">def</span> <span class="nf">get_or_create_ep</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ptype</span><span class="p">):</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="p">:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="n">ptype</span><span class="p">)</span>
         <span class="n">g</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
     <span class="k">return</span> <span class="n">p</span>
 </div>
-<div class="viewcode-block" id="Traverser"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.Traverser">[docs]</a><span class="k">class</span> <span class="nc">Traverser</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">DFSVisitor</span><span class="p">):</span>
+<div class="viewcode-block" id="Traverser"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.Traverser">[docs]</a><span class="k">class</span> <span class="nc">Traverser</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">DFSVisitor</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">post</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="c"># function to call on each vertex, preorder</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">pre</span><span class="p">:</span> <span class="n">pre</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="bp">None</span>
@@ -88,13 +85,13 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">post</span><span class="p">:</span> <span class="n">post</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">post</span> <span class="o">=</span> <span class="n">post</span> <span class="c"># postorder</span>
 
-<div class="viewcode-block" id="Traverser.discover_vertex"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.Traverser.discover_vertex">[docs]</a>    <span class="k">def</span> <span class="nf">discover_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<div class="viewcode-block" id="Traverser.discover_vertex"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.Traverser.discover_vertex">[docs]</a>    <span class="k">def</span> <span class="nf">discover_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pre</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Traverser.finish_vertex"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.Traverser.finish_vertex">[docs]</a>    <span class="k">def</span> <span class="nf">finish_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<div class="viewcode-block" id="Traverser.finish_vertex"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.Traverser.finish_vertex">[docs]</a>    <span class="k">def</span> <span class="nf">finish_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 </div></div>
-<div class="viewcode-block" id="taxid_cmp"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.taxid_cmp">[docs]</a><span class="k">def</span> <span class="nf">taxid_cmp</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">):</span>
+<div class="viewcode-block" id="taxid_cmp"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.taxid_cmp">[docs]</a><span class="k">def</span> <span class="nf">taxid_cmp</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    taxids: if t1 is nested in t2, return t1 before t2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -109,7 +106,7 @@
 </div>
 <span class="n">taxid_key</span> <span class="o">=</span> <span class="n">cmp_to_key</span><span class="p">(</span><span class="n">taxid_cmp</span><span class="p">)</span>
 
-<div class="viewcode-block" id="prune_to_clade"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.prune_to_clade">[docs]</a><span class="k">def</span> <span class="nf">prune_to_clade</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<div class="viewcode-block" id="prune_to_clade"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.prune_to_clade">[docs]</a><span class="k">def</span> <span class="nf">prune_to_clade</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    reduce taxonomy graph g to tid and its descendants</span>
 
@@ -130,7 +127,7 @@
     <span class="n">g</span><span class="o">.</span><span class="n">taxid_vertex</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([</span> <span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">vertex_taxid</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">vertices</span><span class="p">()</span> <span class="p">])</span>
     <span class="n">g</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">taxid_vertex</span><span class="p">[</span><span class="n">tid</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="index_graph"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.index_graph">[docs]</a><span class="k">def</span> <span class="nf">index_graph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">reindex</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="index_graph"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.index_graph">[docs]</a><span class="k">def</span> <span class="nf">index_graph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">reindex</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    create a vertex property map with hierarchical (left, right)</span>
 <span class="sd">    indices</span>
@@ -161,7 +158,7 @@
     <span class="n">traverse</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;...done&#39;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="create_generic_taxonomy_graph"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.create_generic_taxonomy_graph">[docs]</a><span class="k">def</span> <span class="nf">create_generic_taxonomy_graph</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+<div class="viewcode-block" id="create_generic_taxonomy_graph"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.create_generic_taxonomy_graph">[docs]</a><span class="k">def</span> <span class="nf">create_generic_taxonomy_graph</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;r is a root ivy.tree.Node&quot;&quot;&quot;</span>
     <span class="n">G</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
     <span class="n">G</span><span class="o">.</span><span class="n">vertex_name</span> <span class="o">=</span> <span class="n">get_or_create_vp</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;string&#39;</span><span class="p">)</span>
@@ -208,7 +205,7 @@
 
     <span class="k">return</span> <span class="n">G</span>
 </div>
-<div class="viewcode-block" id="create_ncbi_taxonomy_graph"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.create_ncbi_taxonomy_graph">[docs]</a><span class="k">def</span> <span class="nf">create_ncbi_taxonomy_graph</span><span class="p">(</span><span class="n">basepath</span><span class="o">=</span><span class="s">&#39;ncbi&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="create_ncbi_taxonomy_graph"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.create_ncbi_taxonomy_graph">[docs]</a><span class="k">def</span> <span class="nf">create_ncbi_taxonomy_graph</span><span class="p">(</span><span class="n">basepath</span><span class="o">=</span><span class="s">&#39;ncbi&#39;</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    create a graph containing the NCBI taxonomic hierarchy using files from:</span>
 
@@ -332,7 +329,7 @@
 
     <span class="k">return</span> <span class="n">G</span>
 </div>
-<div class="viewcode-block" id="create_opentree_taxonomy_graph"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.create_opentree_taxonomy_graph">[docs]</a><span class="k">def</span> <span class="nf">create_opentree_taxonomy_graph</span><span class="p">(</span><span class="n">basepath</span><span class="o">=</span><span class="s">&#39;ott&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="create_opentree_taxonomy_graph"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.create_opentree_taxonomy_graph">[docs]</a><span class="k">def</span> <span class="nf">create_opentree_taxonomy_graph</span><span class="p">(</span><span class="n">basepath</span><span class="o">=</span><span class="s">&#39;ott&#39;</span><span class="p">):</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
     <span class="n">g</span><span class="o">.</span><span class="n">vertex_name</span> <span class="o">=</span> <span class="n">get_or_create_vp</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;string&#39;</span><span class="p">)</span>
     <span class="n">g</span><span class="o">.</span><span class="n">vertex_uniqname</span> <span class="o">=</span> <span class="n">get_or_create_vp</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s">&#39;unique_name&#39;</span><span class="p">,</span> <span class="s">&#39;string&#39;</span><span class="p">)</span>
@@ -413,7 +410,7 @@
     <span class="n">g</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">g</span>
 </div>
-<div class="viewcode-block" id="graph_json"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.graph_json">[docs]</a><span class="k">def</span> <span class="nf">graph_json</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ecolor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ewidth</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+<div class="viewcode-block" id="graph_json"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.graph_json">[docs]</a><span class="k">def</span> <span class="nf">graph_json</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ecolor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ewidth</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                <span class="n">vcolor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vsize</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vtext</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">simplejson</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
@@ -457,7 +454,7 @@
         <span class="k">return</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span> <span class="n">links</span><span class="o">=</span><span class="n">links</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="s">&#39;  &#39;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="graph_view"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.graph_view">[docs]</a><span class="k">def</span> <span class="nf">graph_view</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">vfilt</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">efilt</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="graph_view"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.graph_view">[docs]</a><span class="k">def</span> <span class="nf">graph_view</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">vfilt</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">efilt</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="n">view</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">GraphView</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">vfilt</span><span class="o">=</span><span class="n">vfilt</span><span class="p">,</span> <span class="n">efilt</span><span class="o">=</span><span class="n">efilt</span><span class="p">)</span>
     <span class="n">view</span><span class="o">.</span><span class="n">vertex_name</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex_name</span>
     <span class="n">view</span><span class="o">.</span><span class="n">vertex_taxid</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex_taxid</span>
@@ -509,7 +506,7 @@
     <span class="n">g</span><span class="o">.</span><span class="n">taxid_hindex</span> <span class="o">=</span> <span class="n">taxid_hindex</span>
 
 
-<div class="viewcode-block" id="load_taxonomy_graph"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.load_taxonomy_graph">[docs]</a><span class="k">def</span> <span class="nf">load_taxonomy_graph</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+<div class="viewcode-block" id="load_taxonomy_graph"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.load_taxonomy_graph">[docs]</a><span class="k">def</span> <span class="nf">load_taxonomy_graph</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">load_graph</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
     <span class="n">g</span><span class="o">.</span><span class="n">vertex_name</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
     <span class="n">g</span><span class="o">.</span><span class="n">vertex_taxid</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&#39;taxid&#39;</span><span class="p">]</span>
@@ -550,7 +547,7 @@
     <span class="c">##     g = graph_view(g, vfilt=p)</span>
     <span class="k">return</span> <span class="n">g</span>
 </div>
-<div class="viewcode-block" id="taxid_subgraph"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.taxid_subgraph">[docs]</a><span class="k">def</span> <span class="nf">taxid_subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">taxids</span><span class="p">):</span>
+<div class="viewcode-block" id="taxid_subgraph"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.taxid_subgraph">[docs]</a><span class="k">def</span> <span class="nf">taxid_subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">taxids</span><span class="p">):</span>
     <span class="c">## BROKEN, do not use</span>
     <span class="n">vfilt</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&#39;bool&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">taxids</span><span class="p">:</span>
@@ -587,7 +584,7 @@
     <span class="n">_attach_funcs</span><span class="p">(</span><span class="n">sg</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">sg</span>
 </div>
-<div class="viewcode-block" id="taxid_new_subgraph_old"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.taxid_new_subgraph_old">[docs]</a><span class="k">def</span> <span class="nf">taxid_new_subgraph_old</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">taxids</span><span class="p">):</span>
+<div class="viewcode-block" id="taxid_new_subgraph_old"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.taxid_new_subgraph_old">[docs]</a><span class="k">def</span> <span class="nf">taxid_new_subgraph_old</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">taxids</span><span class="p">):</span>
     <span class="n">newg</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">pname</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">newp</span> <span class="o">=</span> <span class="n">newg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">value_type</span><span class="p">())</span>
@@ -637,7 +634,7 @@
     <span class="n">_attach_funcs</span><span class="p">(</span><span class="n">newg</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">newg</span>
 </div>
-<div class="viewcode-block" id="taxid_new_subgraph"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.taxid_new_subgraph">[docs]</a><span class="k">def</span> <span class="nf">taxid_new_subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">taxids</span><span class="p">):</span>
+<div class="viewcode-block" id="taxid_new_subgraph"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.taxid_new_subgraph">[docs]</a><span class="k">def</span> <span class="nf">taxid_new_subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">taxids</span><span class="p">):</span>
     <span class="n">vp</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&#39;bool&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">taxids</span><span class="p">:</span>
         <span class="n">vp</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">taxid_vertex</span><span class="p">[</span><span class="n">tid</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">True</span>
@@ -670,7 +667,7 @@
     <span class="n">_attach_funcs</span><span class="p">(</span><span class="n">newg</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">newg</span>
 </div>
-<div class="viewcode-block" id="taxonomy_subtree"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.taxonomy_subtree">[docs]</a><span class="k">def</span> <span class="nf">taxonomy_subtree</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<div class="viewcode-block" id="taxonomy_subtree"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.taxonomy_subtree">[docs]</a><span class="k">def</span> <span class="nf">taxonomy_subtree</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
     <span class="n">g</span><span class="o">.</span><span class="n">vertex_in_taxonomy</span> <span class="o">=</span> <span class="n">get_or_create_vp</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s">&#39;istaxon&#39;</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">)</span>
     <span class="n">g</span><span class="o">.</span><span class="n">edge_in_taxonomy</span> <span class="o">=</span> <span class="n">get_or_create_ep</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="s">&#39;istaxon&#39;</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">)</span>
@@ -706,7 +703,7 @@
     <span class="n">g</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">g</span>
     </div>
-<div class="viewcode-block" id="graph2sqlite"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.graph2sqlite">[docs]</a><span class="k">def</span> <span class="nf">graph2sqlite</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+<div class="viewcode-block" id="graph2sqlite"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.graph2sqlite">[docs]</a><span class="k">def</span> <span class="nf">graph2sqlite</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">sqlite3</span> <span class="kn">as</span> <span class="nn">db</span>
     <span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
     <span class="n">create</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
@@ -755,7 +752,7 @@
     <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="taxid_rootpath"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.taxid_rootpath">[docs]</a><span class="k">def</span> <span class="nf">taxid_rootpath</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">taxid</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="taxid_rootpath"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.taxid_rootpath">[docs]</a><span class="k">def</span> <span class="nf">taxid_rootpath</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">taxid</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">taxid_vertex</span><span class="p">[</span><span class="n">taxid</span><span class="p">]</span>
     <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">taxid</span><span class="p">]</span>
     <span class="k">while</span> <span class="n">v</span><span class="o">.</span><span class="n">in_degree</span><span class="p">():</span>
@@ -766,7 +763,7 @@
         <span class="k">if</span> <span class="n">stop</span> <span class="ow">and</span> <span class="n">tid</span> <span class="o">==</span> <span class="n">stop</span><span class="p">:</span> <span class="k">break</span>
     <span class="k">return</span> <span class="n">x</span>
 </div>
-<div class="viewcode-block" id="rootpath_mrca"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.rootpath_mrca">[docs]</a><span class="k">def</span> <span class="nf">rootpath_mrca</span><span class="p">(</span><span class="n">rootpaths</span><span class="p">,</span> <span class="n">i</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="rootpath_mrca"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.rootpath_mrca">[docs]</a><span class="k">def</span> <span class="nf">rootpath_mrca</span><span class="p">(</span><span class="n">rootpaths</span><span class="p">,</span> <span class="n">i</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rootpaths</span> <span class="p">])</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span>
     <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
@@ -776,7 +773,7 @@
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span> <span class="k">break</span>
     <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="map_stree"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.map_stree">[docs]</a><span class="k">def</span> <span class="nf">map_stree</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
+<div class="viewcode-block" id="map_stree"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.map_stree">[docs]</a><span class="k">def</span> <span class="nf">map_stree</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
     <span class="c">## print &#39;mapping&#39;, root.stree</span>
     <span class="c">## root = fetch_stree(stree_id, cache=cache,</span>
     <span class="c">##                    prune_to_ingroup=prune_to_ingroup)</span>
@@ -980,7 +977,7 @@
     <span class="k">return</span> <span class="n">root</span>
 
 </div>
-<div class="viewcode-block" id="merge_stree"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.merge_stree">[docs]</a><span class="k">def</span> <span class="nf">merge_stree</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">stree</span><span class="p">,</span> <span class="n">verts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="merge_stree"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.merge_stree">[docs]</a><span class="k">def</span> <span class="nf">merge_stree</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">stree</span><span class="p">,</span> <span class="n">verts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">verts</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">verts</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&#39;bool&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&#39;bool&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
@@ -1134,7 +1131,7 @@
     <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">):</span> <span class="k">assert</span> <span class="n">v</span><span class="o">.</span><span class="n">in_degree</span><span class="p">()</span><span class="o">==</span><span class="mi">1</span>
     
-<div class="viewcode-block" id="layout"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.layout">[docs]</a><span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">rootv</span><span class="p">,</span> <span class="n">sfdp</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">deg0</span><span class="o">=-</span><span class="mf">45.0</span><span class="p">,</span> <span class="n">degspan</span><span class="o">=</span><span class="mf">90.0</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<div class="viewcode-block" id="layout"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.layout">[docs]</a><span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">rootv</span><span class="p">,</span> <span class="n">sfdp</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">deg0</span><span class="o">=-</span><span class="mf">45.0</span><span class="p">,</span> <span class="n">degspan</span><span class="o">=</span><span class="mf">90.0</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
     <span class="n">isouter</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">([</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">out_neighbours</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">x</span> <span class="p">])</span>
     <span class="c">## isouter = lambda x: x.out_degree()==0</span>
     <span class="n">outer_vertices</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">vertices</span><span class="p">()</span> <span class="k">if</span> <span class="n">isouter</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">]</span>
@@ -1196,7 +1193,7 @@
     <span class="k">return</span> <span class="n">pos</span><span class="p">,</span> <span class="n">pin</span>
 
 </div>
-<div class="viewcode-block" id="articulation_bfs"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.articulation_bfs">[docs]</a><span class="k">def</span> <span class="nf">articulation_bfs</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">arts</span><span class="p">):</span>
+<div class="viewcode-block" id="articulation_bfs"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.articulation_bfs">[docs]</a><span class="k">def</span> <span class="nf">articulation_bfs</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">arts</span><span class="p">):</span>
     <span class="n">isouter</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="p">[</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">out_neighbours</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">x</span> <span class="p">]</span>
     <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">root</span><span class="p">))</span>
@@ -1217,7 +1214,7 @@
     <span class="n">traverse</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">leaves</span> <span class="p">]</span>
 </div>
-<div class="viewcode-block" id="bicomp_tree"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.bicomp_tree">[docs]</a><span class="k">def</span> <span class="nf">bicomp_tree</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">rootv</span><span class="p">,</span> <span class="n">arts</span><span class="p">,</span> <span class="n">traversed</span><span class="p">):</span>
+<div class="viewcode-block" id="bicomp_tree"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.bicomp_tree">[docs]</a><span class="k">def</span> <span class="nf">bicomp_tree</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">rootv</span><span class="p">,</span> <span class="n">arts</span><span class="p">,</span> <span class="n">traversed</span><span class="p">):</span>
     <span class="s">&quot;generate tree of biconnected components of DAG&quot;</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">Node</span><span class="p">()</span>
     <span class="n">leaf_verts</span> <span class="o">=</span> <span class="n">articulation_bfs</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">rootv</span><span class="p">,</span> <span class="n">arts</span><span class="p">)</span>
@@ -1231,7 +1228,7 @@
         <span class="n">r</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">bicomp_tree2</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">arts</span><span class="p">,</span> <span class="n">traversed</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">r</span>
 </div>
-<div class="viewcode-block" id="lineage"><a class="viewcode-back" href="../../ivy.treegraph.html#ivy.treegraph.lineage">[docs]</a><span class="k">def</span> <span class="nf">lineage</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<div class="viewcode-block" id="lineage"><a class="viewcode-back" href="../../ivy.html#ivy.treegraph.lineage">[docs]</a><span class="k">def</span> <span class="nf">lineage</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
     <span class="n">taxid</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&#39;taxid&#39;</span><span class="p">]</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
     <span class="k">yield</span> <span class="n">v</span><span class="p">,</span> <span class="n">taxid</span><span class="p">[</span><span class="n">v</span><span class="p">],</span> <span class="n">name</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
@@ -1268,9 +1265,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>

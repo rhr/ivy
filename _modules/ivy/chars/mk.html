@@ -47,8 +47,11 @@
           <div class="body" role="main">
             
   <h1>Source code for ivy.chars.mk</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">types</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">ivy.chars.expokit</span> <span class="kn">import</span> <span class="n">cyexpokit</span>
@@ -57,8 +60,10 @@
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
 <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">binom</span>
 <span class="kn">import</span> <span class="nn">nlopt</span>
-
-<span class="c"># TODO: rehaul character format</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">StringTypes</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span> <span class="c"># Python 2</span>
+<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="c"># Python 3</span>
+    <span class="n">StringTypes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
 <div class="viewcode-block" id="mk"><a class="viewcode-back" href="../../../ivy.chars.mk.html#ivy.chars.mk.mk">[docs]</a><span class="k">def</span> <span class="nf">mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span><span class="n">returnPi</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -73,8 +78,10 @@
 <span class="sd">    Args:</span>
 <span class="sd">        tree (Node): Root node of a tree. All branch lengths must be</span>
 <span class="sd">          greater than 0 (except root)</span>
-<span class="sd">        chars (list): List of character states corresponding to leaf nodes in</span>
-<span class="sd">          preoder sequence. Character states must be numbered 0,1,2,...</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
+
+<span class="sd">          Can also be a list with tip states in preorder sequence</span>
 <span class="sd">        Q (np.array): Instantaneous rate matrix</span>
 <span class="sd">        p (np.array): Optional pre-allocated p matrix</span>
 <span class="sd">        pi (str or np.array): Option to weight the root node by given values.</span>
@@ -93,17 +100,20 @@
 <span class="sd">        ar (dict): Dict of pre-allocated arrays to improve</span>
 <span class="sd">          speed by avoiding creating and destroying new arrays</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">ar</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="c"># Creating arrays to be used later</span>
         <span class="n">ar</span> <span class="o">=</span> <span class="n">create_mk_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">)</span>
     <span class="n">cyexpokit</span><span class="o">.</span><span class="n">dexpm_tree_preallocated_p_log</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">],</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">])</span> <span class="c"># This changes p in place</span>
     <span class="c"># Calculating the likelihoods for each node in post-order sequence</span>
-    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">cy_mk_log</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">],</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;tmp_ar&quot;</span><span class="p">])</span>
+    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">cy_mk_log</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">],</span> <span class="n">nchar</span><span class="p">,</span> <span class="n">ar</span><span class="p">[</span><span class="s">&quot;tmp_ar&quot;</span><span class="p">],</span><span class="n">ar</span><span class="p">[</span><span class="s">&quot;intnode_list&quot;</span><span class="p">],</span>
+                        <span class="n">ar</span><span class="p">[</span><span class="s">&quot;child_ar&quot;</span><span class="p">])</span>
     <span class="c"># The last row of nodelist contains the likelihood values at the root</span>
 
     <span class="c"># Applying the correct root prior</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span> <span class="o">==</span> <span class="n">nchar</span><span class="p">,</span> <span class="s">&quot;length of given pi does not match Q dimensions&quot;</span>
         <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">pi</span><span class="p">))</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;&lt;type &#39;numpy.ndarray&#39;&gt;&quot;</span><span class="p">,</span><span class="s">&quot;&lt;class &#39;numpy.ndarray&#39;&gt;&quot;</span><span class="p">],</span> <span class="s">&quot;pi must be str or numpy array&quot;</span>
         <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">pi</span><span class="p">),</span> <span class="mi">1</span><span class="p">),</span> <span class="s">&quot;values of given pi must sum to 1&quot;</span>
@@ -136,6 +146,10 @@
 
 <span class="sd">    Nodelist = edgelist of nodes in postorder sequence</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">:</span>
+        <span class="n">n</span><span class="o">.</span><span class="n">cladesize</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isroot</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
     <span class="n">nt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">())</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
@@ -169,15 +183,26 @@
     <span class="n">treelen</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span> <span class="n">n</span><span class="o">.</span><span class="n">length</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rootpath</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">length</span><span class="p">]</span><span class="o">+</span><span class="p">[</span>
                    <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">length</span><span class="p">])</span>
     <span class="n">upperbound</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">())</span><span class="o">/</span><span class="n">treelen</span>
-    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)</span>
+    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">))</span>
     <span class="n">tmp_ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nchar</span><span class="p">)</span>
+
+    <span class="n">max_children</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">)</span>
+    <span class="n">child_ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">tree</span><span class="o">.</span><span class="n">cladesize</span><span class="p">,</span><span class="n">max_children</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="c"># List of children per node for cython function</span>
+    <span class="n">child_ar</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">intnode_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nodelist</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">nchar</span><span class="p">])),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="c"># Internal node list for cython function</span>
+    <span class="k">for</span> <span class="n">intnode</span> <span class="ow">in</span> <span class="n">intnode_list</span><span class="p">:</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">nodelist</span><span class="p">[:,</span><span class="n">nchar</span><span class="p">]</span><span class="o">==</span><span class="n">intnode</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">child_ar</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">intnode</span><span class="p">)][:</span><span class="nb">len</span><span class="p">(</span><span class="n">children</span><span class="p">)]</span> <span class="o">=</span> <span class="n">children</span>
+
     <span class="c"># Giving internal function access to these arrays.</span>
        <span class="c"># Warning: can be tricky</span>
        <span class="c"># Need to make sure old values</span>
        <span class="c"># Aren&#39;t accidentally re-used</span>
     <span class="n">var</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;Q&quot;</span><span class="p">:</span> <span class="n">Q</span><span class="p">,</span> <span class="s">&quot;p&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s">&quot;t&quot;</span><span class="p">:</span><span class="n">t</span><span class="p">,</span> <span class="s">&quot;nodelist&quot;</span><span class="p">:</span><span class="n">nodelist</span><span class="p">,</span> <span class="s">&quot;charlist&quot;</span><span class="p">:</span><span class="n">charlist</span><span class="p">,</span>
            <span class="s">&quot;nodelistOrig&quot;</span><span class="p">:</span><span class="n">nodelistOrig</span><span class="p">,</span> <span class="s">&quot;upperbound&quot;</span><span class="p">:</span><span class="n">upperbound</span><span class="p">,</span>
-           <span class="s">&quot;root_priors&quot;</span><span class="p">:</span><span class="n">rootpriors</span><span class="p">,</span> <span class="s">&quot;nullval&quot;</span><span class="p">:</span><span class="n">nullval</span><span class="p">,</span> <span class="s">&quot;tmp_ar&quot;</span><span class="p">:</span><span class="n">tmp_ar</span><span class="p">}</span>
+           <span class="s">&quot;root_priors&quot;</span><span class="p">:</span><span class="n">rootpriors</span><span class="p">,</span> <span class="s">&quot;nullval&quot;</span><span class="p">:</span><span class="n">nullval</span><span class="p">,</span> <span class="s">&quot;tmp_ar&quot;</span><span class="p">:</span><span class="n">tmp_ar</span><span class="p">,</span>
+           <span class="s">&quot;intnode_list&quot;</span><span class="p">:</span><span class="n">intnode_list</span><span class="p">,</span> <span class="s">&quot;child_ar&quot;</span><span class="p">:</span><span class="n">child_ar</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">var</span>
 
 </div>
@@ -193,8 +218,10 @@
 <span class="sd">    Args:</span>
 <span class="sd">        tree (Node): Root node of a tree. All branch lengths must be</span>
 <span class="sd">          greater than 0 (except root)</span>
-<span class="sd">        chars (list): List of character states corresponding to leaf nodes in</span>
-<span class="sd">          preoder sequence. Character states must be numbered 0,1,2,...</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
+
+<span class="sd">          Can also be a list with tip states in preorder sequence</span>
 <span class="sd">        Qtype (str): What type of Q matrix to use. Either ER (equal rates),</span>
 <span class="sd">          Sym (symmetric rates), or ARD (All rates different).</span>
 <span class="sd">        pi (str): Either &quot;Equal&quot;, &quot;Equilibrium&quot;, or &quot;Fitzjohn&quot;. How to weight</span>
@@ -205,13 +232,15 @@
 <span class="sd">        function: Function accepting a list of parameters and returning</span>
 <span class="sd">          log-likelihood. To be optmimized with NLOPT</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="k">if</span> <span class="n">findmin</span><span class="p">:</span>
         <span class="n">nullval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">nullval</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
     <span class="n">nt</span> <span class="o">=</span>  <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">descendants</span><span class="p">())</span>
-    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)</span>
+    <span class="n">charlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">))</span>
     <span class="c"># Giving internal function access to these arrays.</span>
        <span class="c"># Warning: can be tricky</span>
        <span class="c"># Need to make sure old values</span>
@@ -242,7 +271,7 @@
             <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">tril_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">,</span> <span class="n">k</span><span class="o">=-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Qparams</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">):]</span>
             <span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">nchar</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;Q&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="s">&quot;Qtype must be one of: ER, Sym, ARD&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Qtype must be one of: ER, Sym, ARD&quot;</span><span class="p">)</span>
         <span class="c"># Resetting the values in these arrays</span>
         <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelist&quot;</span><span class="p">],</span> <span class="n">var</span><span class="p">[</span><span class="s">&quot;nodelistOrig&quot;</span><span class="p">])</span>
         <span class="n">var</span><span class="p">[</span><span class="s">&quot;root_priors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
@@ -268,8 +297,10 @@
 <span class="sd">    Args:</span>
 <span class="sd">        tree (Node): Root node of a tree. All branch lengths must be</span>
 <span class="sd">          greater than 0 (except root)</span>
-<span class="sd">        chars (list): List of character states corresponding to leaf nodes in</span>
-<span class="sd">          preoder sequence. Character states must be numbered 0,1,2,...</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
+
+<span class="sd">          Can also be a list with tip states in preorder sequence</span>
 <span class="sd">        pi (str): Either &quot;Equal&quot; or &quot;Fitzjohn&quot;. How to weight values at root</span>
 <span class="sd">          node. Defaults to &quot;Equal&quot;</span>
 
@@ -278,6 +309,8 @@
 <span class="sd">          at the root.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
     <span class="c"># Initial value arbitrary</span>
     <span class="n">x0</span> <span class="o">=</span> <span class="p">[</span><span class="o">.</span><span class="mi">5</span><span class="p">]</span> <span class="c"># Starting value for our equal rates model</span>
@@ -308,8 +341,10 @@
 <span class="sd">    Args:</span>
 <span class="sd">        tree (Node): Root node of a tree. All branch lengths must be</span>
 <span class="sd">          greater than 0 (except root)</span>
-<span class="sd">        chars (list): List of character states corresponding to leaf nodes in</span>
-<span class="sd">          preoder sequence. Character states must be numbered 0,1,2,...</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
+
+<span class="sd">          Can also be a list with tip states in preorder sequence</span>
 <span class="sd">        pi (str): Either &quot;Equal&quot; or &quot;Fitzjohn&quot;. How to weight values at root</span>
 <span class="sd">          node. Defaults to &quot;Equal&quot;</span>
 <span class="sd">          Method &quot;Fitzjohn&quot; is currently untested</span>
@@ -320,7 +355,8 @@
 
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
     <span class="c"># Number of params equal to binom(nchar, 2)</span>
     <span class="c"># Initial values arbitrary</span>
@@ -355,8 +391,10 @@
 <span class="sd">    Args:</span>
 <span class="sd">        tree (Node): Root node of a tree. All branch lengths must be</span>
 <span class="sd">          greater than 0 (except root)</span>
-<span class="sd">        chars (list): List of character states corresponding to leaf nodes in</span>
-<span class="sd">          preoder sequence. Character states must be numbered 0,1,2,...</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
+
+<span class="sd">          Can also be a list with tip states in preorder sequence</span>
 <span class="sd">        pi (str): Either &quot;Equal&quot; or &quot;Fitzjohn&quot;. How to weight values at root</span>
 <span class="sd">          node. Defaults to &quot;Equal&quot;</span>
 <span class="sd">          Method &quot;Fitzjohn&quot; is currently untested</span>
@@ -366,6 +404,8 @@
 <span class="sd">          at the root.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="c"># Number of parameters equal to k^2 - k</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
     <span class="n">x0</span> <span class="o">=</span> <span class="p">[</span><span class="o">.</span><span class="mi">5</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">nchar</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">nchar</span><span class="p">)</span>
@@ -397,8 +437,10 @@
 <span class="sd">    Args:</span>
 <span class="sd">        tree (Node): Root node of a tree. All branch lengths must be</span>
 <span class="sd">          greater than 0 (except root)</span>
-<span class="sd">        chars (list): List of character states corresponding to leaf nodes in</span>
-<span class="sd">          preoder sequence. Character states must be in the form of 0,1,2,...</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
+
+<span class="sd">          Can also be a list with tip states in preorder sequence</span>
 <span class="sd">        pi (str): Either &quot;Equal&quot;, &quot;Equilibrium&quot;, or &quot;Fitzjohn&quot;. How to weight</span>
 <span class="sd">          values at root node. Defaults to &quot;Equal&quot;</span>
 <span class="sd">          Method &quot;Fitzjohn&quot; is not thouroughly tested, use with caution</span>
@@ -414,9 +456,11 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="k">assert</span> <span class="n">pi</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="s">&quot;Fitzjohn&quot;</span><span class="p">,</span> <span class="s">&quot;Equilibrium&quot;</span><span class="p">],</span> <span class="s">&quot;Pi must be one of: &#39;Equal&#39;, &#39;Fitzjohn&#39;, &#39;Equilibrium&#39;&quot;</span>
 
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">Q</span> <span class="o">==</span> <span class="s">&quot;Equal&quot;</span><span class="p">:</span>
             <span class="n">q</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">piRates</span><span class="p">,</span><span class="n">rootLiks</span> <span class="o">=</span> <span class="n">fitMkER</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="n">pi</span><span class="p">)</span>
 

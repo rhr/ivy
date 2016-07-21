@@ -60,7 +60,7 @@
 <span id="ivy-chars-recon-module"></span><h1>ivy.chars.recon module<a class="headerlink" href="#module-ivy.chars.recon" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="ivy.chars.recon.anc_recon_cat">
-<code class="descclassname">ivy.chars.recon.</code><code class="descname">anc_recon_cat</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>p=None</em>, <em>pi='Equal'</em>, <em>ars=None</em>, <em>nregime=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/recon.html#anc_recon_cat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.recon.anc_recon_cat" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.recon.</code><code class="descname">anc_recon_cat</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>Q</em>, <em>p=None</em>, <em>pi=u'Equal'</em>, <em>ars=None</em>, <em>nregime=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/recon.html#anc_recon_cat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.recon.anc_recon_cat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given tree, character states at tips, and transition matrix perform
 ancestor reconstruction for a discrete character.</p>
 <p>Perform downpass using mk function, then perform uppass.</p>
@@ -72,8 +72,10 @@ ancestor reconstruction for a discrete character.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be numbered 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</li>
 <li><strong>p</strong> (<em>np.array</em>) &#8211; 3-D array of dimensions branch_number * nchar * nchar.
 Optional. Pre-allocated space for efficient calculations</li>
@@ -143,7 +145,10 @@ states at the tips.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of tree</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of characters in preorder sequence</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 </ul>
 </td>
 </tr>
@@ -162,6 +167,19 @@ states at the tips.</p>
 <code class="descclassname">ivy.chars.recon.</code><code class="descname">pscore</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/recon.html#pscore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.recon.pscore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the minimum number of changes needed by parsimony to observe
 given data on the tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of the tree</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>

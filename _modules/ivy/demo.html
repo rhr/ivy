@@ -47,6 +47,8 @@
           <div class="body" role="main">
             
   <h1>Source code for ivy.demo</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">IPython.lib.demo</span> <span class="kn">import</span> <span class="n">IPythonDemo</span><span class="p">,</span> <span class="n">ClearIPDemo</span>
 <span class="c">## from IPython.genutils import Term</span>
@@ -69,11 +71,11 @@
                 <span class="n">sleep</span><span class="p">(</span><span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="mf">0.1</span><span class="o">*</span><span class="n">r</span><span class="p">)</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">cout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_blocks_colored</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_blocks_colored</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="nb">file</span><span class="o">=</span><span class="n">cout</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;Hit &lt;Enter&gt;, then type %next to proceed or %back to go back one step.&quot;</span>
-        <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">cout</span><span class="p">,</span> <span class="n">s</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">cout</span><span class="p">)</span>
         <span class="n">cout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
     
 </div></div>

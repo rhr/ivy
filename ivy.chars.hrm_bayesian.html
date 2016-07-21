@@ -94,7 +94,7 @@
 
 <dl class="function">
 <dt id="ivy.chars.hrm_bayesian.ShiftedGamma">
-<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">ShiftedGamma</code><span class="sig-paren">(</span><em>shape</em>, <em>shift=1</em>, <em>name='ShiftedGamma'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#ShiftedGamma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.ShiftedGamma" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">ShiftedGamma</code><span class="sig-paren">(</span><em>shape</em>, <em>shift=1</em>, <em>name=u'ShiftedGamma'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#ShiftedGamma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.ShiftedGamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gamma distribution that has been shifted by some constant.</p>
 </dd></dl>
 
@@ -136,7 +136,7 @@ slow, medium, fast, etc. rates. The first is always 0</li>
 
 <dl class="function">
 <dt id="ivy.chars.hrm_bayesian.hrm_allmodels_bayes">
-<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">hrm_allmodels_bayes</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>nparam</em>, <em>modseed</em>, <em>pi='Equal'</em>, <em>dbname=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#hrm_allmodels_bayes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.hrm_allmodels_bayes" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">hrm_allmodels_bayes</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>nparam</em>, <em>modseed</em>, <em>pi=u'Equal'</em>, <em>dbname=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#hrm_allmodels_bayes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.hrm_allmodels_bayes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use an MCMC chain to fit a hrm model with a limited number of parameters.</p>
 <p>The chain will step through different models, placing a prior on simpler
 models</p>
@@ -147,8 +147,10 @@ models</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
-preoder sequence. Character states must be in the form of 0,1,2,...</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
 <li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of regimes</li>
 <li><strong>nparam</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of unique parameters to allow in a model</li>
 <li><strong>modseed</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) &#8211; Starting model for the MCMC chain. A tuple of ints.
@@ -156,8 +158,6 @@ Must be a valid model or adjacent to at least one valid model.</li>
 <li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
 values at root node. Defaults to &#8220;Equal&#8221;
 Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
-<li><strong>mod_graph</strong> (<em>Graph</em>) &#8211; Nx graph of all possible models. Optional, if not
-provided will generate graph, which may be time-consuming</li>
 </ul>
 </td>
 </tr>
@@ -172,40 +172,20 @@ provided will generate graph, which may be time-consuming</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="ivy.chars.hrm_bayesian.make_model_graph">
-<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">make_model_graph</code><span class="sig-paren">(</span><em>unique_mods</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#make_model_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.make_model_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create graph of models where each model is adjacent to all other models
-that differ from it by one parameter</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unique_mods</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of models (must be tuples). Identical to output
-of unique_models</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Nx graph of all models</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Graph</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
 <dt id="ivy.chars.hrm_bayesian.make_qmat_stoch">
-<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">make_qmat_stoch</code><span class="sig-paren">(</span><em>nobschar</em>, <em>nregime</em>, <em>nparam</em>, <em>mod_order_list</em>, <em>modseed</em>, <em>name='qmat_stoch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#make_qmat_stoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.make_qmat_stoch" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">make_qmat_stoch</code><span class="sig-paren">(</span><em>nobschar</em>, <em>nregime</em>, <em>nparam</em>, <em>mod_order_list</em>, <em>modseed</em>, <em>name=u'qmat_stoch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#make_qmat_stoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.make_qmat_stoch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a stochastic to use for a model-changing step</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.chars.hrm_bayesian.make_qmat_stoch_mk">
-<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">make_qmat_stoch_mk</code><span class="sig-paren">(</span><em>all_mods</em>, <em>name='qmat_stoch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#make_qmat_stoch_mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.make_qmat_stoch_mk" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">make_qmat_stoch_mk</code><span class="sig-paren">(</span><em>all_mods</em>, <em>name=u'qmat_stoch'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#make_qmat_stoch_mk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.make_qmat_stoch_mk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stochastic for use in model-changing step</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="ivy.chars.hrm_bayesian.mk_allmodels_bayes">
-<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">mk_allmodels_bayes</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nparam</em>, <em>pi='Equal'</em>, <em>dbname=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#mk_allmodels_bayes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.mk_allmodels_bayes" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ivy.chars.hrm_bayesian.</code><code class="descname">mk_allmodels_bayes</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nparam</em>, <em>pi=u'Equal'</em>, <em>dbname=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm_bayesian.html#mk_allmodels_bayes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm_bayesian.mk_allmodels_bayes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit an mk model with nparam parameters distributed about the Q matrix.</p>
 </dd></dl>
 

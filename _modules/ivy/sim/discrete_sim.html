@@ -47,6 +47,8 @@
           <div class="body" role="main">
             
   <h1>Source code for ivy.sim.discrete_sim</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
 <span class="kn">import</span> <span class="nn">ivy</span>
 <span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="kn">import</span> <span class="n">mk</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
@@ -65,6 +67,7 @@
 <span class="sd">        Q (np.array): Instantaneous rate matrix</span>
 <span class="sd">        anc (int): Root state. Optional. If None, root state is chosen</span>
 <span class="sd">          from stationary distrubution of Q matrix</span>
+<span class="sd">        rseed (int): Random seed to be passed to np.random. Optional</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        Node: Copy of tree with each node containing its simulated</span>
 <span class="sd">          state and the character history of its subtending branch.</span>
@@ -79,7 +82,7 @@
     <span class="c">####################################</span>
     <span class="k">if</span> <span class="n">anc</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="c"># Randomly pick ancestral state from stationary distribution</span>
-        <span class="n">anc</span> <span class="o">=</span> <span class="n">rv_discrete</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">),</span><span class="n">mk</span><span class="o">.</span><span class="n">qsd</span><span class="p">(</span><span class="n">Q</span><span class="p">)))</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span>
+        <span class="n">anc</span> <span class="o">=</span> <span class="n">rv_discrete</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)),</span><span class="n">mk</span><span class="o">.</span><span class="n">qsd</span><span class="p">(</span><span class="n">Q</span><span class="p">)))</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span>
     <span class="n">simtree</span><span class="o">.</span><span class="n">sim_char</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">simtree</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">anc</span>
     <span class="n">simtree</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_hist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -102,7 +105,7 @@
                 <span class="k">if</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="n">node</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
                     <span class="k">break</span>
                 <span class="n">vals</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">Q</span><span class="p">[</span><span class="n">prevstate</span><span class="p">][:</span><span class="n">prevstate</span><span class="p">],</span><span class="n">Q</span><span class="p">[</span><span class="n">prevstate</span><span class="p">][</span><span class="n">prevstate</span><span class="o">+</span><span class="mi">1</span><span class="p">:]))</span>
-                <span class="n">newstate</span> <span class="o">=</span> <span class="n">rv_discrete</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)[:</span><span class="n">prevstate</span><span class="p">]</span> <span class="o">+</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">)[</span><span class="n">prevstate</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span>
+                <span class="n">newstate</span> <span class="o">=</span> <span class="n">rv_discrete</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">))[:</span><span class="n">prevstate</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">))[</span><span class="n">prevstate</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span>
                                     <span class="n">vals</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">vals</span><span class="p">)))</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span>
                 <span class="n">node</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_hist&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">newstate</span><span class="p">,</span><span class="n">dt</span><span class="p">))</span>
                 <span class="n">node</span><span class="o">.</span><span class="n">sim_char</span><span class="p">[</span><span class="s">&quot;sim_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newstate</span>
