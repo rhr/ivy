@@ -539,7 +539,7 @@ class Mk_mr_tests(unittest.TestCase):
 
         switches = np.array([200, 300])
         lengths = np.array([.3,1.2])
-        cy_l = f(np.array([0.01,0.061457,1.497611]), switches, lengths,debug=True)
+        cy_l = f(np.array([0.01,0.061457,1.497611]), switches, lengths)
 
         f2 = cyexpokit.make_mklnl_func(tree, data, 2, 3, qidx)
         true_L = f2(np.array([0.01,0.061457,1.497611]), switches, lengths)
