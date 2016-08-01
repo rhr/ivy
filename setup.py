@@ -36,7 +36,7 @@ else:
    ]
 print("RUNNING MAKE")
 path = "ivy/chars/expokit"
-subprocess.Popen(["make -f"],stdout=subprocess.PIPE,cwd=path)
+subprocess.Popen(["make","-f"],stdout=subprocess.PIPE,cwd=path)
 
 packages = [
     "ivy", "ivy.vis", "ivy.chars", "ivy.chars.expokit", "ivy.sim", "ivy.chars.cy_tree"
