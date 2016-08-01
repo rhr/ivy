@@ -16,7 +16,6 @@ version = datetime.date.today().isoformat().replace("-","")
 #version = "0.2" # 2010-12-09
 import sys
 import os
-print("CURRENT PATH", os.path.abspath(os.path.dirname(sys.argv[0])))
 
 # Cython extensions
 
@@ -36,7 +35,8 @@ else:
    ]
 print("RUNNING MAKE")
 path = "ivy/chars/expokit"
-subprocess.Popen(["make","-B"],stdout=subprocess.PIPE,cwd=path)
+proc = subprocess.Popen(["make","-B"],stdout=subprocess.PIPE,cwd=path)
+proc.wait()
 
 packages = [
     "ivy", "ivy.vis", "ivy.chars", "ivy.chars.expokit", "ivy.sim", "ivy.chars.cy_tree"
