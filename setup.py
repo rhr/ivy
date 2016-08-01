@@ -2,6 +2,7 @@ from distutils.core import setup, Extension
 import datetime
 from distutils.command.build_py import build_py
 from distutils.command.build_scripts import build_scripts
+import subprocess
 
 
 try:
@@ -13,7 +14,9 @@ else:
 
 version = datetime.date.today().isoformat().replace("-","")
 #version = "0.2" # 2010-12-09
-
+import sys
+import os
+print("CURRENT PATH", os.path.abspath(os.path.dirname(sys.argv[0])))
 
 # Cython extensions
 
@@ -31,8 +34,9 @@ else:
    ext_modules += [
        Extension("ivy.chars.expokit.cyexpokit", [ "ivy/chars/expokit/cyexpokit.c" ])
    ]
-
-
+print("RUNNING MAKE")
+path = "ivy/chars/expokit"
+subprocess.Popen(["make"],stdout=subprocess.PIPE,cwd=path)
 
 packages = [
     "ivy", "ivy.vis", "ivy.chars", "ivy.chars.expokit", "ivy.sim", "ivy.chars.cy_tree"
@@ -46,7 +50,6 @@ desc = "An interactive visual shell for phylogenetics"
 package_data = {
     '': ["*.data", "*.txt", "*.nex", "*"]
     }
-
 setup(name="ivy-phylo",
       version=version,
       description=desc,
