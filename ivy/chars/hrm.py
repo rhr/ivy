@@ -451,6 +451,57 @@ def fit_hrm_qidx(tree, chars, nregime, qidx, pi="Equal",
     q = np.asarray(mk_func.q)[0]
     return {"Log-likelihood":-1*float(logli), "Q":q}
 
+def fit_hrm_randstartingpoints(tree,chars,nregime,nstart=10,pi="Equal",constraints="Rate",
+                               Qtype="ARD",orderedRegimes=True):
+    """
+    Fit a hidden-rates mk model to a given tree and list of characters, and
+    number of regumes. Return fitted ARD Q matrix and calculated likelihood.
+    Run nstart times, each with different randomized starting values,
+    and return the highest likelihood
+
+    Args:
+        tree (Node): Root node of a tree. All branch lengths must be
+          greater than 0 (except root)
+        chars (dict): Dict mapping character states to tip labels.
+          Character states should be coded 0,1,2...
+
+          Can also be a list with tip states in preorder sequence
+        nregime (int): Number of hidden rates per character
+        nstart (int): Number of times to run likelihood fit
+        pi (str): Either "Equal", "Equilibrium", or "Fitzjohn". How to weight
+          values at root node. Defaults to "Equal"
+          Method "Fitzjohn" is not thouroughly tested, use with caution
+        orderedRegimes (bool): Whether or not to constrain regime transitions
+          to only occur between adjacent regimes
+    Returns:
+        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
+    """
+    bestli = -np.inf
+    if type(chars) == dict:
+        nobschar = len(set(chars.values()))
+    else:
+        nobschar = len(set(chars))
+    if Qtype=="ARD":
+        if orderedRegimes:
+            nparam = ((nobschar**2-nobschar)*nregime) + (nregime-1)*2*nobschar
+        else:
+            nparam = ((nobschar**2-nobschar)*nregime + (nregime**2-nregime)*nobschar)
+    else:
+        nparam = nregime+1
+
+    for _ in range(nstart):
+        while 1:
+            startingvals = np.random.uniform(0,1,nparam)
+            out = fit_hrm(tree,chars,nregime,pi,constraints,Qtype,orderedRegimes,startingvals=startingvals)
+            if out["Log-likelihood"] != -np.inf:
+                break
+        if out["Log-likelihood"] > bestli:
+            bestli = out["Log-likelihood"]
+            best = out
+
+    return best
+
+
 def fit_hrm(tree, chars, nregime, pi="Equal", constraints="Rate", Qtype="ARD",
             orderedRegimes=True, startingvals=None):
     """

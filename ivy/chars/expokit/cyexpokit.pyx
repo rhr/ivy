@@ -333,7 +333,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     f.switch_q_tracker = switch_q_tracker
     return f
 
-@cython.boundscheck(False)
+@cython.boundscheck(False) 
 def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx,findmin=False):
     cdef int nobschar = k/nq
     cdef list nodes = list(root.iternodes())
@@ -385,8 +385,7 @@ def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx,findmin=Fal
             params = [0.2,0.6]; qidx = [[0,0,1,0],[0,1,0,1]]
         """
         cdef Py_ssize_t r, a, b, c, d, si
-        # switches *= 2 # The corresponding ni of a node in the bisected tree
-        #               # is 2x the original ni
+
         cdef double x = 0
         for r in range(qidx.shape[0]):
             a = qidx[r,0]
