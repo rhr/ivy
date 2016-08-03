@@ -58,6 +58,16 @@ def hrm_mk(tree, chars, Q, nregime, pi="Equal",returnPi=False,
           node weighting
         ar (dict): Dict of pre-allocated arrays to improve
           speed by avoiding creating and destroying new arrays
+    Returns:
+        float: Log-likelihood of model
+    Examples:
+        from ivy.examples import primates,primate_data
+        Q = np.array([[-0.11,0.1  ,0.01 ,0    ],
+                      [0.1  ,-0.11,0.0  ,0.01 ],
+                      [0.01 ,0.0  ,-0.51,0.5  ],
+                      [0.0  ,0.01 ,0.5  ,-0.51]])
+        hrm_mk(primates,primate_data,Q,nregime=2)
+
     """
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
@@ -424,7 +434,7 @@ def fit_hrm_qidx(tree, chars, nregime, qidx, pi="Equal",
         orderedRegimes (bool): Whether or not to constrain regime transitions
           to only occur between adjacent regimes
     Returns:
-        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
+        dict: Dict of fitted Q matrix (a np array) and log-likelihood value
     """
     if type(chars) == dict:
         data = chars

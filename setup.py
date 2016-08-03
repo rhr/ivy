@@ -33,10 +33,6 @@ else:
    ext_modules += [
        Extension("ivy.chars.expokit.cyexpokit", [ "ivy/chars/expokit/cyexpokit.c" ])
    ]
-print("RUNNING MAKE")
-path = "ivy/chars/expokit"
-proc = subprocess.Popen(["make","-B"],stdout=subprocess.PIPE,cwd=path)
-proc.wait()
 
 packages = [
     "ivy", "ivy.vis", "ivy.chars", "ivy.chars.expokit", "ivy.sim", "ivy.chars.cy_tree"

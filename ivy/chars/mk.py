@@ -50,6 +50,13 @@ def mk(tree, chars, Q, p=None, pi="Equal",returnPi=False, ar=None):
           node weighting
         ar (dict): Dict of pre-allocated arrays to improve
           speed by avoiding creating and destroying new arrays
+    Returns:
+        float: log-likelihood of model
+    Examples:
+        from ivy.examples import primates, primate_data
+        Q = np.array([[-0.1,0.1],[0.1,-0.1]])
+        mk(primates,primate_data,Q)
+
     """
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
@@ -405,7 +412,12 @@ def fit_Mk(tree, chars, Q = "Equal", pi = "Equal"):
           "ARD": All rates different
 
     Returns:
-        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value
+        dict: Log-likelihood, fitted Q matrix, root prior, root likelihood
+
+    Examples:
+        from ivy.examples import primates, primate_data
+        primate_eq = fit_Mk(primates,primate_data,Q="Equal")
+        primate_ARD = fit_Mk(primates, primate_data,Q="ARD")
     """
     if type(chars) == dict:
         chars = [chars[l] for l in [n.label for n in tree.leaves()]]
