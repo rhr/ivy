@@ -35,7 +35,7 @@ else:
    ]
 
 packages = [
-    "ivy", "ivy.vis", "ivy.chars", "ivy.chars.expokit", "ivy.sim", "ivy.chars.cy_tree"
+    "ivy", "ivy.vis", "ivy.chars", "ivy.chars.expokit", "ivy.sim", "ivy.chars.cy_tree","ivy.chars.sse"
     ]
 #packages=find_packages(exclude=["contrib","db"])
 
