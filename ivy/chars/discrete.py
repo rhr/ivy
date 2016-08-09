@@ -78,7 +78,7 @@ def monotypic_clade_size(tree, chars):
     state.
     """
     if type(chars) == dict:
-        chars = [chars[l] for l in [n.label for n in tree.leaves()]]    
+        chars = [chars[l] for l in [n.label for n in tree.leaves()]]
     if len(set(chars)) == 1:
         return [len(chars)]
     chardict = {t:chars[i] for i,t in enumerate(tree.leaves())}
@@ -106,3 +106,24 @@ def monotypic_clade_size(tree, chars):
 
 def is_monotypic(node, chardict):
     return len(set([chardict[i] for i in node.leaves()])) == 1
+
+
+
+def sse_get_lambda(params,i,j,k,nstate):
+    if j>k:
+        return 0
+    else:
+        return(params[i*sum(range(nstate+1)) + j*nstate + k - sum(range(j+1))])
+
+def sse_get_mu(params,i,nstate):
+    start = sum(range(nstate+1))*nstate
+    return(params[start+i])
+
+def sse_get_qij(params,i,j,nstate):
+    start = sum(range(nstate+1))*nstate+nstate
+    if i==j:
+        return 0
+    elif i > j:
+        return(params[start+(i*nstate)-i + j])
+    else:
+        return(params[start+(i*nstate)-i + j -1])
