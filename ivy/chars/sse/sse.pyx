@@ -134,9 +134,9 @@ def integrate_classe(double[:] params, double t1, double[:] li, double[:] E):
     sys.dimension = ndim
     sys.params = <void *>&params[0]
 
-    cdef double hstart = 1e-6 # initial step size
+    cdef double hstart = 1e-8 # initial step size
     # keep the local error on each step within:
-    cdef double epsabs = 1e-8 # absolute error
+    cdef double epsabs = 1e-13 # absolute error
     cdef double epsrel = 0.0  # relative error
 
     cdef gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(
@@ -181,12 +181,13 @@ def bisse_odeiv(root,data,params,condition_on_surv=True):
         fraclnl[0] = fraclnl[0] / sum(rootp * np.array([lambda0,lambda1]) * (1-E[0])**2)
     return np.log(np.sum(fraclnl[0])/2)
 
-def classe_likelihood(root,data,nparam,double [:] params,condition_on_surv=True):
+def classe_likelihood(root,data,nstate,double [:] params,condition_on_surv=True):
     """
     The likelihood function for a classe model. This is where the main calculations
     for classe and all of its derivative models take place.
     """
-    cdef int k = int(nparam)
+    np.set_printoptions(precision=5)
+    cdef int k = int(nstate)
     rootp = np.array([1.0/k]*k)
     nnode = len(root)
     fraclnl = np.zeros([nnode,k])
@@ -207,8 +208,8 @@ def classe_likelihood(root,data,nparam,double [:] params,condition_on_surv=True)
         for i in range(k):
             surv[i] = np.sum(params[1+i*sum(range(k+1)):1+(i+1)*sum(range(k+1))])
         fraclnl[0] = fraclnl[0] / sum(rootp * surv * (1-E[0])**2)
-
-    return np.log(np.sum(fraclnl[0])/2)
+    print(fraclnl[0])
+    return np.log(np.sum(fraclnl[0]*rootp))
 
 
 cdef float classe_node_calculation(params,i,DN,DM,nstate):
@@ -217,34 +218,3 @@ cdef float classe_node_calculation(params,i,DN,DM,nstate):
         for k in range(nstate):
             lsum += get_lambda_gil(params,i,j,k,nstate)*(DN[j]*DM[k] + DN[k]*DM[j])
     return 0.5*lsum
-
-
-
-def classe_odeiv_2state(root,data,params,condition_on_surv=True):
-    pars_in_order = ["lambda000","lambda001","lambda011","lambda111","lambda101","lambda100",
-                     "mu0","mu1","q01","q10"]
-    anagenic_pars = np.array([params[x] for x in pars_in_order])
-    cdef int k = 2
-    rootp = np.array([0.5,0.5])
-    nnode = len(root)
-    fraclnl = np.zeros([nnode,k])
-    for node in root.leaves():
-        fraclnl[node.ni,data[node.label]] = 1.0
-    E = np.zeros([nnode,k])
-    for node in root.postiter():
-        if not node.isleaf:
-            childN = node.children[0]
-            childM = node.children[1]
-            DN = integrate_classe(anagenic_pars,childN.length,fraclnl[childN.ni],E[childN.ni])
-            DM = integrate_classe(anagenic_pars,childM.length,fraclnl[childM.ni],E[childM.ni])
-            fraclnl[node.ni,0] = 0.5*(params["lambda000"]*(DN[0]*DM[0]+DN[0]*DM[0]) +
-                                      params["lambda001"]*(DN[0]*DM[1]+DN[1]*DM[0]) +
-                                      params["lambda011"]*(DN[1]*DM[1]+DN[1]*DM[1]))
-            fraclnl[node.ni,1] = 0.5*(params["lambda100"]*(DN[0]*DM[0]+DN[0]*DM[0]) +
-                                      params["lambda101"]*(DN[0]*DM[1]+DN[1]*DM[0]) +
-                                      params["lambda111"]*(DN[1]*DM[1]+DN[1]*DM[1]))
-            E[node.ni,0] = DN[2]
-            E[node.ni,1] = DN[3]
-    if condition_on_surv:
-        fraclnl[0] = fraclnl[0] / sum(rootp * np.array([params["lambda000"]+params["lambda001"]+params["lambda011"],params["lambda111"]+params["lambda100"]+params["lambda101"]]) * (1-E[0])**2)
-    return np.log(np.sum(fraclnl[0])/2)
