@@ -41,12 +41,12 @@ cdef int classe(double t, double y[], double f[], void *params) nogil:
     cdef float q,l,temp1,temp2
 
     for i in range(nstate):
-        lambda_ijk = 1e-15
-        q_ij = 1e-15
-        q_ij_dj = 1e-15
-        q_ij_ej = 1e-15
-        lambda_ijk_dj_ek = 1e-15
-        lambda_ijk_ej_ek = 1e-15
+        lambda_ijk = 0
+        q_ij = 0
+        q_ij_dj = 0
+        q_ij_ej = 0
+        lambda_ijk_dj_ek = 0
+        lambda_ijk_ej_ek = 0
         for j in range(nstate):
             q = get_qij(P,i,j,nstate)
             q_ij += q
@@ -55,11 +55,11 @@ cdef int classe(double t, double y[], double f[], void *params) nogil:
             for k in range(nstate):
                 l = get_lambda(P,i,j,k,nstate)
                 lambda_ijk += l
-                lambda_ijk_dj_ek += l*(y[j]*y[nstate+j] + y[k]*y[nstate+k])
+                lambda_ijk_dj_ek += l*(y[j]*y[nstate+k] + y[k]*y[nstate+j])
                 lambda_ijk_ej_ek += l*y[nstate+j]*y[nstate+k]
 
         f[i] = -(lambda_ijk + q_ij + get_mu(P,i,nstate))*y[i] + q_ij_dj + lambda_ijk_dj_ek
-        f[nstate+i] = -(lambda_ijk + q_ij + get_mu(P,i,nstate))*y[nstate+i] + q_ij_ej + lambda_ijk_ej_ek
+        f[nstate+i] = -(lambda_ijk + q_ij + get_mu(P,i,nstate))*y[nstate+i] + q_ij_ej + get_mu(P,i,nstate) + lambda_ijk_ej_ek
     return GSL_SUCCESS
 
 
@@ -110,7 +110,7 @@ def integrate_bisse(double[:] params, double t1, double[:] li, double[:] E):
 
     cdef double hstart = 1e-6 # initial step size
     # keep the local error on each step within:
-    cdef double epsabs = 1e-8 # absolute error
+    cdef double epsabs = 1e-15 # absolute error
     cdef double epsrel = 0.0  # relative error
 
     cdef gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(
@@ -136,7 +136,7 @@ def integrate_classe(double[:] params, double t1, double[:] li, double[:] E):
 
     cdef double hstart = 1e-8 # initial step size
     # keep the local error on each step within:
-    cdef double epsabs = 1e-13 # absolute error
+    cdef double epsabs = 1e-12 # absolute error
     cdef double epsrel = 0.0  # relative error
 
     cdef gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(
@@ -186,7 +186,6 @@ def classe_likelihood(root,data,nstate,double [:] params,condition_on_surv=True)
     The likelihood function for a classe model. This is where the main calculations
     for classe and all of its derivative models take place.
     """
-    np.set_printoptions(precision=5)
     cdef int k = int(nstate)
     rootp = np.array([1.0/k]*k)
     nnode = len(root)
@@ -208,7 +207,6 @@ def classe_likelihood(root,data,nstate,double [:] params,condition_on_surv=True)
         for i in range(k):
             surv[i] = np.sum(params[1+i*sum(range(k+1)):1+(i+1)*sum(range(k+1))])
         fraclnl[0] = fraclnl[0] / sum(rootp * surv * (1-E[0])**2)
-    print(fraclnl[0])
     return np.log(np.sum(fraclnl[0]*rootp))
 
 

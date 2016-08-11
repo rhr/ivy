@@ -34,90 +34,92 @@ class sse_methods(unittest.TestCase):
         calc_lik = sse.bisse_odeiv(root,data,params,condition_on_surv=True)
         true_lik = -5.007626
         self.assertTrue(np.isclose(calc_lik,true_lik,atol=1e-7))
-    # def test_classe_threetip_twostate(self):
-    #     root = self.threetiptree
-    #     data = self.threetipdata
-    #     lambdaparams = np.array([[[0.3,0.1  ],
-    #                               [0  , 0.01]],
-    #
-    #                              [[0.01,0.1],
-    #                               [0   ,0.2]]])
-    #     params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
-    #     calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
-    #     true_lik_ncos = -5.962547
-    #
-    #     calc_lik_cos = sse.classe_likelihood(root,data,2,params,True)
-    #     true_lik_cos = -4.912378
-    #     self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
-    #     self.assertTrue(np.isclose(calc_lik_cos,true_lik_cos,atol=1e-1))
+    def test_classe_threetip_twostate(self):
+        root = self.threetiptree
+        data = self.threetipdata
+        lambdaparams = np.array([[[0.3,0.1  ],
+                                  [0  , 0.01]],
 
-    # def test_classe_threetip_threestate(self):
-    #     root = self.threetiptree
-    #     data = self.threetipdata
-    #
-    #     params = np.array([3,0.3,0.1,0.7,0.01,0.8,0.05,0.01,0.1,0.9,0.2,0.004,0.3,0.3,0.11,0.14,0.15,0.17,0.19,0.01,0.01,0.1,0.2,0.4,0.1,0.01,0.7,0.6])
-    #     calc_lik_ncos = sse.classe_likelihood(root,data,3,params,False)
-    #     true_lik_ncos = -9.6298
-    #
-    #     calc_lik_cos = sse.classe_likelihood(root,data,3,params,True)
-    #     true_lik_cos = -10.00689
-    #     self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1))
-    #     self.assertTrue(np.isclose(calc_lik_cos,true_lik_cos,atol=1))
+                                 [[0.01,0.1],
+                                  [0   ,0.2]]])
+        params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
+        calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
+        true_lik_ncos = -5.962547
 
-    # def test_classe_20tip2state(self):
-    #     root = self.twentytiptree
-    #     data = self.twentytipdata
-    #     params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
-    #     calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
-    #     print(calc_lik_ncos)
-    #     true_lik_ncos = -86.35204
+        calc_lik_cos = sse.classe_likelihood(root,data,2,params,True)
+        true_lik_cos = -4.912378
+        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-2))
+        self.assertTrue(np.isclose(calc_lik_cos,true_lik_cos,atol=1e-2))
 
-    # def test_classe_15tip2state(self):
-        # root = self.fifteentiptree
-        # data = self.fifteentipdata
-        # params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
-        # calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
-        # print(calc_lik_ncos)
-        # true_lik_ncos = -70.93033
+    def test_classe_threetip_threestate(self):
+        root = self.threetiptree
+        data = self.threetipdata
+
+        params = np.array([3,0.3,0.1,0.7,0.01,0.8,0.05,0.01,0.1,0.9,0.2,0.004,0.3,0.3,0.11,0.14,0.15,0.17,0.19,0.01,0.01,0.1,0.2,0.4,0.1,0.01,0.7,0.6])
+        calc_lik_ncos = sse.classe_likelihood(root,data,3,params,False)
+        true_lik_ncos = -9.6298
+
+        calc_lik_cos = sse.classe_likelihood(root,data,3,params,True)
+        true_lik_cos = -10.00689
+        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1))
+        self.assertTrue(np.isclose(calc_lik_cos,true_lik_cos,atol=1))
+
+    def test_classe_20tip2state(self):
+        root = self.twentytiptree
+        data = self.twentytipdata
+        params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
+        calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
+        true_lik_ncos = -86.35204
+        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-2))
+
+    def test_classe_15tip2state(self):
+        root = self.fifteentiptree
+        data = self.fifteentipdata
+        params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
+        calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
+        true_lik_ncos = -70.93033
+        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
 
     def test_classe_12tip2state(self):
         root = self.twelvetiptree
         data = self.twelvetipdata
         params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
         calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
-        print(calc_lik_ncos)
         true_lik_ncos = -51.62024
 
-    # def test_classe_5tip2state(self):
-    #     root = self.fivetiptree
-    #     data = self.fivetipdata
-    #     params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
-    #     calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
-    #     print(calc_lik_ncos)
-    #     true_lik_ncos = -25.0577
+        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
 
-    # def test_classe_10tip2state(self):
-    #     root = self.tentiptree
-    #     data = self.tentipdata
-    #     params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
-    #     calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
-    #     print(calc_lik_ncos)
-    #     true_lik_ncos = -41.65519
+    def test_classe_5tip2state(self):
+        root = self.fivetiptree
+        data = self.fivetipdata
+        params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
+        calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
+        true_lik_ncos = -25.0577
+        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
 
-#     def test_classe_100tip_2state(self):
-#         root = self.hundredtiptree
-#         data = self.hundredtipdata
-#
-#         params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
-#         calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
-#         print(calc_lik_ncos)
-#         true_lik_ncos = -452.8292
-#
-# #        calc_lik_cos = sse.classe_likelihood(root,data,2,params,True)
-# #        print(calc_lik_cos)
-# #        true_lik_cos = -451.7423
-# #        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
-# #        self.assertTrue(np.isclose(calc_lik_cos,true_lik_cos,atol=1e-1))
+    def test_classe_10tip2state(self):
+        root = self.tentiptree
+        data = self.tentipdata
+        params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
+        calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
+        true_lik_ncos = -41.65519
+        print(calc_lik_ncos)
+        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
+
+    def test_classe_100tip_2state(self):
+        root = self.hundredtiptree
+        data = self.hundredtipdata
+
+        params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
+        calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
+        print(calc_lik_ncos)
+        true_lik_ncos = -452.8292
+
+#        calc_lik_cos = sse.classe_likelihood(root,data,2,params,True)
+#        print(calc_lik_cos)
+#        true_lik_cos = -451.7423
+#        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
+#        self.assertTrue(np.isclose(calc_lik_cos,true_lik_cos,atol=1e-1))
 class sse_calculations(unittest.TestCase):
     def setUp(self):
         self.params2state = ["lambda000","lambda001","lambda011","lambda100","lambda101","lambda111","mu0","mu1","q01","q10"]
