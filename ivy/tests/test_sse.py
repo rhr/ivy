@@ -103,7 +103,6 @@ class sse_methods(unittest.TestCase):
         params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
         calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
         true_lik_ncos = -41.65519
-        print(calc_lik_ncos)
         self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
 
     def test_classe_100tip_2state(self):
@@ -112,13 +111,12 @@ class sse_methods(unittest.TestCase):
 
         params = np.array([2,0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
         calc_lik_ncos = sse.classe_likelihood(root,data,2,params,False)
-        print(calc_lik_ncos)
         true_lik_ncos = -452.8292
 
 #        calc_lik_cos = sse.classe_likelihood(root,data,2,params,True)
 #        print(calc_lik_cos)
 #        true_lik_cos = -451.7423
-#        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
+        self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
 #        self.assertTrue(np.isclose(calc_lik_cos,true_lik_cos,atol=1e-1))
 class sse_calculations(unittest.TestCase):
     def setUp(self):
