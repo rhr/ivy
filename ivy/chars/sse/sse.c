@@ -3354,22 +3354,22 @@ static PyObject *__pyx_pf_3sse_integrate_bisse(CYTHON_UNUSED PyObject *__pyx_sel
  * 
  *     cdef double hstart = 1e-6 # initial step size             # <<<<<<<<<<<<<<
  *     # keep the local error on each step within:
- *     cdef double epsabs = 1e-12 # absolute error
+ *     cdef double epsabs = 1e-15 # absolute error
  */
   __pyx_v_hstart = 1e-6;
 
   /* "sse.pyx":113
  *     cdef double hstart = 1e-6 # initial step size
  *     # keep the local error on each step within:
- *     cdef double epsabs = 1e-12 # absolute error             # <<<<<<<<<<<<<<
+ *     cdef double epsabs = 1e-15 # absolute error             # <<<<<<<<<<<<<<
  *     cdef double epsrel = 0.0  # relative error
  * 
  */
-  __pyx_v_epsabs = 1e-12;
+  __pyx_v_epsabs = 1e-15;
 
   /* "sse.pyx":114
  *     # keep the local error on each step within:
- *     cdef double epsabs = 1e-12 # absolute error
+ *     cdef double epsabs = 1e-15 # absolute error
  *     cdef double epsrel = 0.0  # relative error             # <<<<<<<<<<<<<<
  * 
  *     cdef gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(

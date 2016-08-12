@@ -110,7 +110,7 @@ def integrate_bisse(double[:] params, double t1, double[:] li, double[:] E):
 
     cdef double hstart = 1e-6 # initial step size
     # keep the local error on each step within:
-    cdef double epsabs = 1e-12 # absolute error
+    cdef double epsabs = 1e-15 # absolute error
     cdef double epsrel = 0.0  # relative error
 
     cdef gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(
