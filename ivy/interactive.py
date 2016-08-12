@@ -98,6 +98,7 @@ def __node_completer(self, event):
 try:
     ## import IPython
     IP = get_ipython() #IPython.ipapi.get()
+    IP.magic('matplotlib')
     if IP:
         #IP.expose_magic("maketree", __maketree)
         IP.define_magic("maketree", __maketree)
