@@ -6,6 +6,7 @@ from __future__ import print_function
 from cython_gsl cimport *
 import numpy as np
 cimport numpy as np
+from libc.math cimport exp, log
 
 
 cdef int bisse(double t, double y[], double f[], void *params) nogil:
@@ -38,7 +39,7 @@ cdef int classe(double t, double y[], double f[], void *params) nogil:
     cdef float lambda_ijk_dj_ek
     cdef float lambda_ijk_ej_ek
 
-    cdef float q,l,temp1,temp2
+    cdef float q,l
 
     for i in range(nstate):
         lambda_ijk = 0
@@ -100,7 +101,7 @@ cdef int sum_range_int(long n) nogil:
     return out
 
 
-def integrate_bisse(double[:] params, double t1, double[:] li, double[:] E):
+cdef integrate_bisse(double[:] params, double t1, double[:] li, double[:] E):
     cdef int ndim = 4
     cdef gsl_odeiv2_system sys
 
@@ -181,33 +182,131 @@ def bisse_odeiv(root,data,params,condition_on_surv=True):
         fraclnl[0] = fraclnl[0] / sum(rootp * np.array([lambda0,lambda1]) * (1-E[0])**2)
     return np.log(np.sum(fraclnl[0])/2)
 
-def classe_likelihood(root,data,nstate,double [:] params,condition_on_surv=True):
+
+def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given=None):
+    """
+    Create a classe likelihood function to be optimized with nlopt or used
+    in a Bayesian analysis
+
+    Args:
+        root (Node): Root of tree to perform the analysis on. MUST BE BIFURCATING
+        data (dict): Dictionary mapping node tip labels to character states.
+          Character states must be represented by ints starting at index 0.
+        nstate (int): Number of states. Can be more than the number of
+          states indicated by data. Defaults to number of states in data.
+        condition_on_surv (bool): Whether to condition the likelihood on the
+          survival of the clades and speciation of subtending clade. See Nee et al. 1994.
+        pi (str): Behavior at the root. Defaults to "Equal". Possible values:
+          Equal: Flat prior weighting all states equally
+          Equilibrium: Weight by equilibrium distribution of model (Maddison et al. 2007)
+          Fitzjohn: Weight states by relative probability of observing data (Fitzjohn et al 2009)
+          Given: Weight by given pi values.
+        pi_given (np.array): If pi = "Given", use this as the weighting at the root.
+          Must sum to 1.
+    Returns:
+        function: Function that takes an array of parameters as input.
+    """
+    cdef int k # Number of states
+    if nstate is None:
+        k = len(set(data.values))
+    else:
+        k = int(nstate)
+    cdef int nnode = len(root) # Number of nodes
+    cdef list nodes = list(root.iternodes()) # List of nodes
+    cdef double[:,:] D_lnl = np.zeros([nnode,k]) # Likelihood array of diversification rates
+    cdef double[:,:] E_lnl = np.zeros([nnode,k]) # Likelihood array of extinction rates
+    for leaf in root.leaves():
+        D_lnl[leaf.ni,data[leaf.label]] = 1.0
+    cdef double[:] logcomp = np.zeros([nnode]) # Log-compensation values to prevent underflow
+    cdef double[:,:] D_lnl_copy = D_lnl.copy() # Copy to refresh values between calls
+
+    cdef Py_ssize_t [:] postorder = np.array([n.ni for n in root.postiter() if not n.isleaf],dtype=np.intp) # Array of node indices in postorder sequence
+    cdef double [:] t = np.array([n.length for n in root],dtype=np.double) # branch lengths
+
+    cdef Py_ssize_t[:,:] children = np.zeros([nnode,2],dtype=np.intp)
+    for i in range(len(postorder)):
+        for j, child in enumerate(nodes[postorder[i]].children):
+            children[i,j] = nodes.index(child)
+
+
+    cdef int nparam = sum_range_int(k+1)*k + k**2
+    cdef double [:] ode_params = np.zeros([nparam+1]) # The parameter array given to the integration function also has to contain the number of states, so it's one longer.
+    ode_params[0] = np.double(k)
+    cdef rootp = np.zeros([k])
+    if pi == "Given":
+        rootp[:] = pi_given[:]
+    elif pi == "Equal":
+        rootp[:] = 1.0/k
+    # TODO: other root likelihoods
+    cdef double[:] tmp = np.zeros([k])
+    cdef double[:] surv = np.empty(k) # store calculations for conditioning on survival
+
+    def f(np.ndarray[dtype=np.double_t,ndim=1] params, grad=None):
+        """
+        params takes on a very specific form: first all lambda values are listed
+        in order of 000, 001, 011, 100, 101, 111 etc, then all mu values are listed,
+        then all q values are listed in the form 01, 10, etc.
+
+        grad=None exists for compatibility with nlopt.
+        """
+        cdef Py_ssize_t i,j
+        D_lnl[:] = D_lnl_copy[:]
+        for i in range(1,ode_params.shape[0]):
+            ode_params[i] = params[i-1] # Fill in parameter array
+
+        # Perform the likelihood calculation
+        classe_likelihood(D_lnl,E_lnl,t,postorder,children,k,logcomp,ode_params)
+
+
+        if condition_on_surv:
+            for i in range(k):
+                surv[i] = np.sum(params[i*sum(range(k+1)):(i+1)*sum(range(k+1))])
+                tmp[i] = (1.0-E_lnl[0,i])**2
+            for i in range(k):
+                D_lnl[0,i] = D_lnl[0,i] / sum(rootp * surv * tmp)
+        return np.log(np.sum(D_lnl[0]*rootp)) + np.sum(logcomp)
+    f.D_lnl = D_lnl
+    f.E_lnl = E_lnl
+    f.D_lnl_copy = D_lnl_copy
+    f.postorder = postorder
+    f.children = children
+    f.t = t
+    f.logcomp = logcomp
+    f.surv = surv
+    f.tmp = tmp
+    return f
+
+cdef classe_likelihood(double[:,:] D_lnl,
+                      double[:,:] E_lnl,
+                      double[:] t,
+                      Py_ssize_t[:] postorder,
+                      Py_ssize_t[:,:] children,
+                      Py_ssize_t k,
+                      double[:] logcomp,
+                      double [:] params,
+                      ):
     """
     The likelihood function for a classe model. This is where the main calculations
     for classe and all of its derivative models take place.
     """
-    cdef int k = int(nstate)
-    rootp = np.array([1.0/k]*k)
-    nnode = len(root)
-    fraclnl = np.zeros([nnode,k])
-    for node in root.leaves():
-        fraclnl[node.ni,data[node.label]] = 1.0
-    E = np.zeros([nnode,k])
-    for node in root.postiter():
-        if not node.isleaf:
-            childN = node.children[0]
-            childM = node.children[1]
-            DN = integrate_classe(params,childN.length,fraclnl[childN.ni],E[childN.ni])
-            DM = integrate_classe(params,childM.length,fraclnl[childM.ni],E[childM.ni])
-            for i in range(k):
-                fraclnl[node.ni,i] = classe_node_calculation(params,i,DN,DM,k)
-                E[node.ni,i] = DN[k+i]
-    if condition_on_surv:
-        surv = np.empty(k)
-        for i in range(k):
-            surv[i] = np.sum(params[1+i*sum(range(k+1)):1+(i+1)*sum(range(k+1))])
-        fraclnl[0] = fraclnl[0] / sum(rootp * surv * (1-E[0])**2)
-    return np.log(np.sum(fraclnl[0]*rootp))
+    cdef int i,j
+    cdef double z
+
+    for i in range(postorder.shape[0]):
+        parent = postorder[i]
+
+        childN = children[i,0]
+        childM = children[i,1]
+        DN = integrate_classe(params,t[childN],D_lnl[childN],E_lnl[childN])
+        DM = integrate_classe(params,t[childM],D_lnl[childM],E_lnl[childM])
+        for state in range(k):
+            D_lnl[parent,state] = classe_node_calculation(params,state,DN,DM,k)
+            E_lnl[parent,state] = DN[k+state]
+        z = np.sum(D_lnl[parent])
+        logcomp[parent] = np.log(z)
+        for state in range(k):
+            D_lnl[parent,state] /= z
+
 
 
 cdef float classe_node_calculation(params,i,DN,DM,nstate):
