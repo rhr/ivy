@@ -7,7 +7,7 @@ from cython_gsl cimport *
 import numpy as np
 cimport numpy as np
 from libc.math cimport exp, log
-
+import cython
 
 cdef int bisse(double t, double y[], double f[], void *params) nogil:
     cdef double * P = <double *>params
@@ -25,6 +25,7 @@ cdef int bisse(double t, double y[], double f[], void *params) nogil:
     f[3] = mu1-(mu1+q10+lambda1)*E1 + q10*E0 + lambda1*E1**2
     return GSL_SUCCESS
 
+@cython.boundscheck(False)
 cdef int classe(double t, double y[], double f[], void *params) nogil:
     # Classe integration based on formulae from Goldberg & Igic 2012
     # doi:10.1111/j.1558-5646.2012.01730.x
@@ -64,25 +65,26 @@ cdef int classe(double t, double y[], double f[], void *params) nogil:
     return GSL_SUCCESS
 
 
+@cython.boundscheck(False)
 cdef float get_lambda(double * params, int i, int j, int k, int nstate) nogil:
     # unpack lambda param from parameter array
     if j>k:
         return 0
     else:
         return(params[1+i*sum_range_int(nstate+1) + j*nstate + k - sum_range_int(j+1)])
-
+@cython.boundscheck(False)
 cdef float get_lambda_gil(double[:] params,int i, int j, int k, int nstate):
     if j>k:
         return 0
     else:
         return(params[1+i*sum(range(nstate+1)) + j*nstate + k - sum(range(j+1))])
-
+@cython.boundscheck(False)
 cdef float get_mu(double * params, int i, int nstate) nogil:
     # unpack mu param from parameter array
     cdef int start = sum_range_int(nstate+1)*nstate
     return(params[1+start+i])
 
-
+@cython.boundscheck(False)
 cdef float get_qij(double * params,int i,int j,int nstate) nogil:
     # unpack q param from parameter array
     cdef int start = sum_range_int(nstate+1)*nstate+nstate
@@ -92,7 +94,7 @@ cdef float get_qij(double * params,int i,int j,int nstate) nogil:
         return(params[1+start+(i*nstate)-i + j])
     else:
         return(params[1+start+(i*nstate)-i + j - 1])
-
+@cython.boundscheck(False)
 cdef int sum_range_int(long n) nogil:
     cdef int out = 0
     cdef int i
@@ -111,7 +113,7 @@ cdef integrate_bisse(double[:] params, double t1, double[:] li, double[:] E):
 
     cdef double hstart = 1e-6 # initial step size
     # keep the local error on each step within:
-    cdef double epsabs = 1e-15 # absolute error
+    cdef double epsabs = 1e-12 # absolute error
     cdef double epsrel = 0.0  # relative error
 
     cdef gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(
@@ -126,7 +128,8 @@ cdef integrate_bisse(double[:] params, double t1, double[:] li, double[:] E):
     gsl_odeiv2_driver_free(d)
     return y
 
-def integrate_classe(double[:] params, double t1, double[:] li, double[:] E):
+@cython.boundscheck(False)
+cdef void integrate_classe(double[:] params, double t1, double[:] li, double[:] E, double[:] y):
     cdef int nstate = int(params[0])
     cdef int ndim = nstate*2
     cdef gsl_odeiv2_system sys
@@ -137,14 +140,13 @@ def integrate_classe(double[:] params, double t1, double[:] li, double[:] E):
 
     cdef double hstart = 1e-8 # initial step size
     # keep the local error on each step within:
-    cdef double epsabs = 1e-12 # absolute error
+    cdef double epsabs = 1e-10 # absolute error
     cdef double epsrel = 0.0  # relative error
 
     cdef gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new(
         &sys, gsl_odeiv2_step_rkf45, hstart, epsabs, epsrel)
     cdef int i
     cdef double t
-    cdef double[:] y = np.empty(ndim, dtype=np.double)
     t = 0.0
     for i in range(nstate):
         y[i] = li[i]
@@ -152,7 +154,7 @@ def integrate_classe(double[:] params, double t1, double[:] li, double[:] E):
     cdef int status
     status = gsl_odeiv2_driver_apply(d, &t, t1, &y[0])
     gsl_odeiv2_driver_free(d)
-    return y
+    # Results stored in y array
 
 def bisse_odeiv(root,data,params,condition_on_surv=True):
     cdef double lambda0 = params[0]
@@ -180,9 +182,9 @@ def bisse_odeiv(root,data,params,condition_on_surv=True):
             E[node.ni,1] = DN[3]
     if condition_on_surv:
         fraclnl[0] = fraclnl[0] / sum(rootp * np.array([lambda0,lambda1]) * (1-E[0])**2)
-    return np.log(np.sum(fraclnl[0])/2)
+    return log(np.sum(fraclnl[0])/2)
 
-
+@cython.boundscheck(False)
 def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given=None):
     """
     Create a classe likelihood function to be optimized with nlopt or used
@@ -240,7 +242,9 @@ def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given
     # TODO: other root likelihoods
     cdef double[:] tmp = np.zeros([k])
     cdef double[:] surv = np.empty(k) # store calculations for conditioning on survival
-
+    cdef double[:] y = np.empty([k*2])
+    cdef double[:] DN = np.zeros([k*2])
+    cdef double[:] DM = np.zeros([k*2])
     def f(np.ndarray[dtype=np.double_t,ndim=1] params, grad=None):
         """
         params takes on a very specific form: first all lambda values are listed
@@ -250,21 +254,23 @@ def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given
         grad=None exists for compatibility with nlopt.
         """
         cdef Py_ssize_t i,j
+        cdef int nlam = sum_range_int(k+1)
+
         D_lnl[:] = D_lnl_copy[:]
         for i in range(1,ode_params.shape[0]):
             ode_params[i] = params[i-1] # Fill in parameter array
 
         # Perform the likelihood calculation
-        classe_likelihood(D_lnl,E_lnl,t,postorder,children,k,logcomp,ode_params)
+        classe_likelihood(D_lnl,E_lnl,t,postorder,children,k,logcomp,ode_params,y,DN,DM)
 
 
         if condition_on_surv:
             for i in range(k):
-                surv[i] = np.sum(params[i*sum(range(k+1)):(i+1)*sum(range(k+1))])
+                surv[i] = c_sum(ode_params[1+i*nlam:1+(i+1)*nlam],nlam)
                 tmp[i] = (1.0-E_lnl[0,i])**2
             for i in range(k):
-                D_lnl[0,i] = D_lnl[0,i] / sum(rootp * surv * tmp)
-        return np.log(np.sum(D_lnl[0]*rootp)) + np.sum(logcomp)
+                D_lnl[0,i] = D_lnl[0,i] / c_sum(rootp * surv * tmp, k)
+        return log(c_sum(D_lnl[0]*rootp,k)) + c_sum(logcomp,nnode)
     f.D_lnl = D_lnl
     f.E_lnl = E_lnl
     f.D_lnl_copy = D_lnl_copy
@@ -274,9 +280,20 @@ def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given
     f.logcomp = logcomp
     f.surv = surv
     f.tmp = tmp
+    f.y = y
+    f.DN = DN
+    f.DM = DM
     return f
+@cython.boundscheck(False)
+cdef double c_sum(double[:] x, Py_ssize_t l) nogil:
+    cdef Py_ssize_t i
+    cdef double out = 0.0
+    for i in range(l):
+        out += x[i]
+    return(out)
 
-cdef classe_likelihood(double[:,:] D_lnl,
+@cython.boundscheck(False)
+cdef void classe_likelihood(double[:,:] D_lnl,
                       double[:,:] E_lnl,
                       double[:] t,
                       Py_ssize_t[:] postorder,
@@ -284,34 +301,136 @@ cdef classe_likelihood(double[:,:] D_lnl,
                       Py_ssize_t k,
                       double[:] logcomp,
                       double [:] params,
+                      double [:] y,
+                      double [:] DN,
+                      double [:] DM,
                       ):
     """
     The likelihood function for a classe model. This is where the main calculations
     for classe and all of its derivative models take place.
     """
-    cdef int i,j
+    cdef Py_ssize_t i,j,childN, childM, state, parent
     cdef double z
+
 
     for i in range(postorder.shape[0]):
         parent = postorder[i]
 
         childN = children[i,0]
         childM = children[i,1]
-        DN = integrate_classe(params,t[childN],D_lnl[childN],E_lnl[childN])
-        DM = integrate_classe(params,t[childM],D_lnl[childM],E_lnl[childM])
+        integrate_classe(params,t[childN],D_lnl[childN],E_lnl[childN],y)
+        DN[:] = y[:]
+        integrate_classe(params,t[childM],D_lnl[childM],E_lnl[childM],y)
+        DM[:] = y[:]
         for state in range(k):
             D_lnl[parent,state] = classe_node_calculation(params,state,DN,DM,k)
             E_lnl[parent,state] = DN[k+state]
-        z = np.sum(D_lnl[parent])
-        logcomp[parent] = np.log(z)
+        z = c_sum(D_lnl[parent],k)
+        logcomp[parent] = log(z)
         for state in range(k):
             D_lnl[parent,state] /= z
 
 
-
-cdef float classe_node_calculation(params,i,DN,DM,nstate):
+@cython.boundscheck(False)
+cdef float classe_node_calculation(double [:] params,Py_ssize_t i,double[:] DN,double[:] DM, Py_ssize_t nstate):
     cdef float lsum = 0.0
+    cdef Py_ssize_t j,k
     for j in range(nstate):
         for k in range(nstate):
             lsum += get_lambda_gil(params,i,j,k,nstate)*(DN[j]*DM[k] + DN[k]*DM[j])
     return 0.5*lsum
+
+
+
+def param_dict_to_list(paramdict):
+    """
+    Take human-readable lambda, mu, and q params and translate them into param
+    array for likelihood function
+
+    Args:
+      paramdict (dict): dict containing the following arrays:
+        "lambda": A k x k x k array. The first dimension corresponds
+          to the state of the parent, the second dimension corresponds to
+          the state of the first child, and the third dimension corresponds to the
+          state of the second child. Any value where the index of the first child
+          is higher than that of the second is ignored.
+          Example:lambda0 = np.array([[0.3,0.1],
+                                      [0.0,0.01]])
+                  lambda1 = np.array([[0.01,0.1],
+                                      [0.0,0.2]])
+                  paramdict["lambda"] = np.array([lambda0,lambda1])
+        "mu": A 1 dimensional array of length k. Contains the extinction rates
+          for each state.
+          Example: paramdict["mu"] = np.array([0.01,0.01])
+        "q": A k x k array. The row number corresponds to the rootward state
+          and the column number corresponds to the tipward state. Diagonal
+          values are ignored.
+          Example: paramdict["q"] = np.array([[0,0.2],
+                                             [0.1,0]])
+          (0.2 is the rate from 0 to 1)
+
+    """
+    lambda_ar = paramdict["lambda"]
+    mu_ar = paramdict["mu"]
+    q_ar = paramdict["q"]
+
+    k = mu_ar.shape[0]
+    nparam = sum(range(k+1))*k + k**2
+    params = np.zeros([nparam])
+
+    # Lambda params
+    count = 0
+    while count < sum(range(k+1))*k:
+        for i in range(k):
+            for j in range(k):
+                for l in range(k):
+                    if not j>l:
+                        params[count] = lambda_ar[i,j,l]
+                        count+=1
+    # Mu params
+    params[count:count+k] = mu_ar
+    count += k
+    # Q params
+    while count < nparam:
+        for i in range(k):
+            for j in range(k):
+                if i!=j:
+                    params[count] = q_ar[i,j]
+                    count += 1
+    return params
+
+def param_list_to_dict(params,k):
+    """
+    Take param array and translate it to human-readable format
+    Args:
+       params (np.array): Array of parameters as fitted by fit_classe
+       k (int): Number of character states
+    Returns:
+       dict: parameters sorted into a human-readable format. See param_dict_to_list
+       for details.
+    """
+    lambda_ar = np.zeros([k,k,k])
+    mu_ar = np.zeros([k])
+    q_ar = np.zeros([k,k])
+    nparam = len(params)
+    # Lambda params
+    count = 0
+    while count < sum(range(k+1))*k:
+        for i in range(k):
+            for j in range(k):
+                for l in range(k):
+                    if not j>l:
+                        lambda_ar[i,j,l] = params[count]
+                        count+=1
+    # mu params
+    mu_ar[:] = params[count:count+k]
+    count += k
+
+    # Q params
+    while count < nparam:
+        for i in range(k):
+            for j in range(k):
+                if i!=j:
+                    q_ar[i,j] = params[count]
+                    count += 1
+    return({"q":q_ar,"mu":mu_ar,"lambda":lambda_ar})

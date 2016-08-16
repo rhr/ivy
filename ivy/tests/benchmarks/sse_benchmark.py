@@ -18,6 +18,8 @@ params = np.array([0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
 import line_profiler
 
 f = sse.make_classe(root,data,2,True,pi="Equal")
+%timeit f(params)
+
 profile = line_profiler.LineProfiler(f,sse.classe_node_calculation)
 profile.runcall(f,params)
 profile.print_stats()

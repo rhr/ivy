@@ -96,10 +96,13 @@ class sse_methods(unittest.TestCase):
     #     params = np.array([0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
     #     f = sse.make_classe(root,data,2,True,pi="Equal")
     #     opt = nlopt.opt(nlopt.LN_SBPLX,10)
-    #     opt.set_min_objective(f)
+    #     opt.set_max_objective(f)
     #     opt.set_lower_bounds(0)
     #     optim = opt.optimize(params)
-    #     print(optim)
+    #
+    #     r_optim = [1.068944e-01, 2.988239e-08, 7.893486e-02, 9.706393e-06, 3.305960e-07, 6.974496e-02, 4.384240e-02, 3.603397e-08, 5.317747e-06, 1.539999e-01]
+    #     self.assertTrue(np.isclose(optim,r_optim,atol=0.1).all())
+
 class sse_calculations(unittest.TestCase):
     def setUp(self):
         self.params2state = ["lambda000","lambda001","lambda011","lambda100","lambda101","lambda111","mu0","mu1","q01","q10"]
@@ -230,8 +233,59 @@ class sse_calculations(unittest.TestCase):
         self.assertEquals(q20,"q20")
         self.assertEquals(q21,"q21")
         self.assertEquals(q22,0)
+    def test_processparams_2state(self):
+        lambda0 = np.array([[0.3,0.1],
+                            [0.0,0.01]])
+        lambda1 = np.array([[0.01,0.1],
+                            [0.0,0.2]])
+        lambdas = np.array([lambda0,lambda1])
 
+        mus = np.array([0.01,0.01])
+        q = np.array([[0,0.2],
+                      [0.1,0]])
 
+        paramdict = {"lambda":lambdas,"mu":mus,"q":q}
+        out = sse.param_dict_to_list(paramdict)
+        true_params = np.array([0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
+
+        self.assertTrue((out==true_params).all())
+    def test_prettyparams_2state(self):
+        lambda0 = np.array([[0.3,0.1],
+                            [0.0,0.01]])
+        lambda1 = np.array([[0.01,0.1],
+                            [0.0,0.2]])
+        lambdas = np.array([lambda0,lambda1])
+
+        mus = np.array([0.01,0.01])
+        q = np.array([[0,0.2],
+                      [0.1,0]])
+
+        trueparamdict = {"lambda":lambdas,"mu":mus,"q":q}
+        params=np.array([0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
+        out = sse.param_list_to_dict(params,2)
+        self.assertTrue(all([np.isclose(out[x],trueparamdict[x]).all() for x in out.keys()]))
+    def test_processparams_3state(self):
+        lambda0 = np.array([[0.3,0.1,0.7],
+                            [0.0,0.01,0.8],
+                            [0,0,0.05]])
+        lambda1 =np.array([[0.01,0.1,0.9],
+                            [0.0,0.2,0.004],
+                            [0,0,0.3]])
+        lambda2 =np.array([[0.3,0.11,0.14],
+                            [0.0,0.15,0.17],
+                            [0,0,0.19]])
+        lambdas = np.array([lambda0,lambda1,lambda2])
+
+        mus = np.array([0.01,0.01,0.1])
+        q = np.array([[0.0,0.2,0.4],
+                      [0.1,0.0,0.01],
+                      [0.7,0.6,0.00]])
+
+        paramdict = {"lambda":lambdas,"mu":mus,"q":q}
+        out = sse.param_dict_to_list(paramdict)
+        true_params = np.array([0.3,0.1,0.7,0.01,0.8,0.05,0.01,0.1,0.9,0.2,0.004,0.3,0.3,0.11,0.14,0.15,0.17,0.19,0.01,0.01,0.1,0.2,0.4,0.1,0.01,0.7,0.6])
+
+        self.assertTrue((out==true_params).all())
 
 if __name__=="__main__":
     unittest.main()
