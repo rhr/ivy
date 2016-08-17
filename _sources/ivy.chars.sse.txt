@@ -1,0 +1,30 @@
+ivy.chars.sse package
+=====================
+
+Submodules
+----------
+
+ivy.chars.sse.setup module
+--------------------------
+
+.. automodule:: ivy.chars.sse.setup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ivy.chars.sse.sse module
+------------------------
+
+.. automodule:: ivy.chars.sse.sse
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: ivy.chars.sse
+    :members:
+    :undoc-members:
+    :show-inheritance:

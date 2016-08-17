@@ -65,7 +65,7 @@
 <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="c"># Python 3</span>
     <span class="n">StringTypes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
-<div class="viewcode-block" id="mk"><a class="viewcode-back" href="../../../ivy.chars.mk.html#ivy.chars.mk.mk">[docs]</a><span class="k">def</span> <span class="nf">mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span><span class="n">returnPi</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="mk"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk.mk">[docs]</a><span class="k">def</span> <span class="nf">mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span><span class="n">returnPi</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit mk model and return likelihood for the root node of a tree given a list of characters</span>
 <span class="sd">    and a Q matrix</span>
@@ -99,6 +99,13 @@
 <span class="sd">          node weighting</span>
 <span class="sd">        ar (dict): Dict of pre-allocated arrays to improve</span>
 <span class="sd">          speed by avoiding creating and destroying new arrays</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        float: log-likelihood of model</span>
+<span class="sd">    Examples:</span>
+<span class="sd">        from ivy.examples import primates, primate_data</span>
+<span class="sd">        Q = np.array([[-0.1,0.1],[0.1,-0.1]])</span>
+<span class="sd">        mk(primates,primate_data,Q)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
@@ -140,7 +147,7 @@
         <span class="k">return</span> <span class="n">logli</span>
 
 </div>
-<div class="viewcode-block" id="create_mk_ar"><a class="viewcode-back" href="../../../ivy.chars.mk.html#ivy.chars.mk.create_mk_ar">[docs]</a><span class="k">def</span> <span class="nf">create_mk_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="create_mk_ar"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk.create_mk_ar">[docs]</a><span class="k">def</span> <span class="nf">create_mk_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create preallocated arrays. For use in mk function</span>
 
@@ -206,7 +213,7 @@
     <span class="k">return</span> <span class="n">var</span>
 
 </div>
-<div class="viewcode-block" id="create_likelihood_function_mk"><a class="viewcode-back" href="../../../ivy.chars.mk.html#ivy.chars.mk.create_likelihood_function_mk">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="create_likelihood_function_mk"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk.create_likelihood_function_mk">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
                                   <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a function that takes values for Q and returns likelihood.</span>
@@ -287,7 +294,7 @@
     <span class="k">return</span> <span class="n">likelihood_function</span>
 
 </div>
-<div class="viewcode-block" id="fitMkER"><a class="viewcode-back" href="../../../ivy.chars.mk.html#ivy.chars.mk.fitMkER">[docs]</a><span class="k">def</span> <span class="nf">fitMkER</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="fitMkER"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk.fitMkER">[docs]</a><span class="k">def</span> <span class="nf">fitMkER</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimate parameter of an equal-rate Q matrix</span>
 <span class="sd">    Return log-likelihood of mk equation using fitted Q</span>
@@ -331,7 +338,7 @@
 
     <span class="k">return</span> <span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">mk_func</span><span class="p">(</span><span class="n">optim</span><span class="p">),</span> <span class="n">piRates</span><span class="p">,</span> <span class="n">rootLiks</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="fitMkSym"><a class="viewcode-back" href="../../../ivy.chars.mk.html#ivy.chars.mk.fitMkSym">[docs]</a><span class="k">def</span> <span class="nf">fitMkSym</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="fitMkSym"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk.fitMkSym">[docs]</a><span class="k">def</span> <span class="nf">fitMkSym</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimate parameter of a symmetrical-rate Q matrix</span>
 <span class="sd">    Return log-likelihood of mk equation using fitted Q</span>
@@ -381,7 +388,7 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">mk_func</span><span class="p">(</span><span class="n">optim</span><span class="p">),</span> <span class="n">piRates</span><span class="p">,</span> <span class="n">rootLiks</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="fitMkARD"><a class="viewcode-back" href="../../../ivy.chars.mk.html#ivy.chars.mk.fitMkARD">[docs]</a><span class="k">def</span> <span class="nf">fitMkARD</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="fitMkARD"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk.fitMkARD">[docs]</a><span class="k">def</span> <span class="nf">fitMkARD</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimate parameters of an all-rates-different Q matrix</span>
 <span class="sd">    Return log-likelihood of mk equation using fitted Q</span>
@@ -429,7 +436,7 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">mk_func</span><span class="p">(</span><span class="n">optim</span><span class="p">),</span> <span class="n">piRates</span><span class="p">,</span> <span class="n">rootLiks</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="fit_Mk"><a class="viewcode-back" href="../../../ivy.chars.mk.html#ivy.chars.mk.fit_Mk">[docs]</a><span class="k">def</span> <span class="nf">fit_Mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span> <span class="o">=</span> <span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">pi</span> <span class="o">=</span> <span class="s">&quot;Equal&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="fit_Mk"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk.fit_Mk">[docs]</a><span class="k">def</span> <span class="nf">fit_Mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span> <span class="o">=</span> <span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">pi</span> <span class="o">=</span> <span class="s">&quot;Equal&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit an mk model to a given tree and list of characters. Return fitted</span>
 <span class="sd">    Q matrix and calculated likelihood.</span>
@@ -454,7 +461,12 @@
 <span class="sd">          &quot;ARD&quot;: All rates different</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value</span>
+<span class="sd">        dict: Log-likelihood, fitted Q matrix, root prior, root likelihood</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        from ivy.examples import primates, primate_data</span>
+<span class="sd">        primate_eq = fit_Mk(primates,primate_data,Q=&quot;Equal&quot;)</span>
+<span class="sd">        primate_ARD = fit_Mk(primates, primate_data,Q=&quot;ARD&quot;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
@@ -484,7 +496,7 @@
 
         <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s">&quot;Q&quot;</span><span class="p">,</span> <span class="s">&quot;Log-likelihood&quot;</span><span class="p">,</span><span class="s">&quot;pi&quot;</span><span class="p">,</span><span class="s">&quot;rootLiks&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">q</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">piRates</span><span class="p">,</span><span class="n">rootLiks</span><span class="p">])}</span>
 </div>
-<div class="viewcode-block" id="qsd"><a class="viewcode-back" href="../../../ivy.chars.mk.html#ivy.chars.mk.qsd">[docs]</a><span class="k">def</span> <span class="nf">qsd</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
+<div class="viewcode-block" id="qsd"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk.qsd">[docs]</a><span class="k">def</span> <span class="nf">qsd</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate stationary distribution of Q, assuming each state</span>
 <span class="sd">    has the same diversification rate.</span>

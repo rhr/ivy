@@ -57,7 +57,7 @@
 
 <span class="kn">from</span> <span class="nn">.storage</span> <span class="kn">import</span> <span class="n">Storage</span>
 
-<div class="viewcode-block" id="autocollapse_info"><a class="viewcode-back" href="../../ivy.autocollapse.html#ivy.autocollapse.autocollapse_info">[docs]</a><span class="k">def</span> <span class="nf">autocollapse_info</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">collapsed</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="p">{}):</span>
+<div class="viewcode-block" id="autocollapse_info"><a class="viewcode-back" href="../../ivy.html#ivy.autocollapse.autocollapse_info">[docs]</a><span class="k">def</span> <span class="nf">autocollapse_info</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">collapsed</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="p">{}):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    gather information to determine if a node should be collapsed</span>
 
@@ -98,7 +98,7 @@
     <span class="n">s</span><span class="o">.</span><span class="n">ntips_visible</span> <span class="o">=</span> <span class="n">ntips_visible</span>
     <span class="k">return</span> <span class="n">info</span>
 </div>
-<div class="viewcode-block" id="autocollapse"><a class="viewcode-back" href="../../ivy.autocollapse.html#ivy.autocollapse.autocollapse">[docs]</a><span class="k">def</span> <span class="nf">autocollapse</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">collapsed</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">keep_visible</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">max_visible</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+<div class="viewcode-block" id="autocollapse"><a class="viewcode-back" href="../../ivy.html#ivy.autocollapse.autocollapse">[docs]</a><span class="k">def</span> <span class="nf">autocollapse</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">collapsed</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">keep_visible</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">max_visible</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    traverse a tree and find nodes that should be collapsed in order</span>
 <span class="sd">    to satify *max_visible*</span>

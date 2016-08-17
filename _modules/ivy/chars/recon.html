@@ -62,7 +62,7 @@
 <span class="sd">Ancestor state reconstruction</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="anc_recon_cat"><a class="viewcode-back" href="../../../ivy.chars.recon.html#ivy.chars.recon.anc_recon_cat">[docs]</a><span class="k">def</span> <span class="nf">anc_recon_cat</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">ars</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="anc_recon_cat"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.anc_recon_cat">[docs]</a><span class="k">def</span> <span class="nf">anc_recon_cat</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">ars</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given tree, character states at tips, and transition matrix perform</span>
 <span class="sd">    ancestor reconstruction for a discrete character.</span>
@@ -123,7 +123,20 @@
 
     <span class="k">return</span> <span class="n">ars</span><span class="p">[</span><span class="s">&quot;marginal_nl&quot;</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="create_ancrecon_ars"><a class="viewcode-back" href="../../../ivy.chars.recon.html#ivy.chars.recon.create_ancrecon_ars">[docs]</a><span class="k">def</span> <span class="nf">create_ancrecon_ars</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="anc_recon_mkmr"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.anc_recon_mkmr">[docs]</a><span class="k">def</span> <span class="nf">anc_recon_mkmr</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">chars</span><span class="p">,</span><span class="n">Q</span><span class="p">,</span><span class="n">switchpoint</span><span class="p">):</span>
+    <span class="n">nregime</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">root_copy</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root_copy</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s">&quot;cached&quot;</span><span class="p">]</span><span class="o">=</span><span class="bp">False</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">bisect_branch</span><span class="p">(</span><span class="mf">1e-15</span><span class="p">,</span><span class="n">reindex</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">root_copy</span><span class="o">.</span><span class="n">reindex</span><span class="p">()</span>
+    <span class="n">root_copy</span><span class="o">.</span><span class="n">set_iternode_cache</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root_copy</span><span class="o">.</span><span class="n">iternodes</span><span class="p">():</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s">&quot;cached&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
+    <span class="n">ars</span> <span class="o">=</span> <span class="n">create_ancrecon_ars</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="create_ancrecon_ars"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.create_ancrecon_ars">[docs]</a><span class="k">def</span> <span class="nf">create_ancrecon_ars</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create nodelists. For use in recon function</span>
 
@@ -193,9 +206,8 @@
     <span class="n">ar_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span><span class="n">ar</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span><span class="n">ar</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">ar_list</span><span class="p">)}</span>
 
     <span class="k">return</span> <span class="n">ar_dict</span>
-
 </div>
-<div class="viewcode-block" id="parsimony_recon"><a class="viewcode-back" href="../../../ivy.chars.recon.html#ivy.chars.recon.parsimony_recon">[docs]</a><span class="k">def</span> <span class="nf">parsimony_recon</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
+<div class="viewcode-block" id="parsimony_recon"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.parsimony_recon">[docs]</a><span class="k">def</span> <span class="nf">parsimony_recon</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Use parsimony to reconstruct the minimum number of changes needed to observe</span>
 <span class="sd">    states at the tips.</span>
@@ -218,7 +230,7 @@
     <span class="k">return</span> <span class="n">rec</span>
 
 </div>
-<div class="viewcode-block" id="pscore"><a class="viewcode-back" href="../../../ivy.chars.recon.html#ivy.chars.recon.pscore">[docs]</a><span class="k">def</span> <span class="nf">pscore</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
+<div class="viewcode-block" id="pscore"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.pscore">[docs]</a><span class="k">def</span> <span class="nf">pscore</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the minimum number of changes needed by parsimony to observe</span>
 <span class="sd">    given data on the tree</span>
@@ -241,7 +253,7 @@
     <span class="k">return</span> <span class="n">minp</span>
 
 </div>
-<div class="viewcode-block" id="get_childstates"><a class="viewcode-back" href="../../../ivy.chars.recon.html#ivy.chars.recon.get_childstates">[docs]</a><span class="k">def</span> <span class="nf">get_childstates</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">precon</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
+<div class="viewcode-block" id="get_childstates"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.get_childstates">[docs]</a><span class="k">def</span> <span class="nf">get_childstates</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">precon</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For use in pscore function</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -256,7 +268,7 @@
     <span class="k">return</span> <span class="n">chstates</span>
 
 </div>
-<div class="viewcode-block" id="average_nchanges"><a class="viewcode-back" href="../../../ivy.chars.recon.html#ivy.chars.recon.average_nchanges">[docs]</a><span class="k">def</span> <span class="nf">average_nchanges</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">pa</span><span class="p">):</span>
+<div class="viewcode-block" id="average_nchanges"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.average_nchanges">[docs]</a><span class="k">def</span> <span class="nf">average_nchanges</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">pa</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For use in pscore function</span>
 <span class="sd">    &quot;&quot;&quot;</span>

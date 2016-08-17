@@ -5,3 +5,4 @@ ivy
    :maxdepth: 4
 
    ivy
+   setup

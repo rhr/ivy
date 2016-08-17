@@ -55,11 +55,11 @@
 <span class="n">CLOCKWISE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 <span class="n">COUNTERCLOCKWISE</span> <span class="o">=</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="Coordinates"><a class="viewcode-back" href="../../ivy.layout_polar.html#ivy.layout_polar.Coordinates">[docs]</a><span class="k">class</span> <span class="nc">Coordinates</span><span class="p">:</span>
+<div class="viewcode-block" id="Coordinates"><a class="viewcode-back" href="../../ivy.html#ivy.layout_polar.Coordinates">[docs]</a><span class="k">class</span> <span class="nc">Coordinates</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="smooth_xpos"><a class="viewcode-back" href="../../ivy.layout_polar.html#ivy.layout_polar.smooth_xpos">[docs]</a><span class="k">def</span> <span class="nf">smooth_xpos</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">n2coords</span><span class="p">):</span>
+<div class="viewcode-block" id="smooth_xpos"><a class="viewcode-back" href="../../ivy.html#ivy.layout_polar.smooth_xpos">[docs]</a><span class="k">def</span> <span class="nf">smooth_xpos</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">n2coords</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isleaf</span><span class="p">:</span>
         <span class="n">children</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span>
         <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
@@ -72,7 +72,7 @@
 
     <span class="c">#print &quot;scaled&quot;, node.label, node.x, node.y</span>
 </div>
-<div class="viewcode-block" id="depth_length_preorder_traversal"><a class="viewcode-back" href="../../ivy.layout_polar.html#ivy.layout_polar.depth_length_preorder_traversal">[docs]</a><span class="k">def</span> <span class="nf">depth_length_preorder_traversal</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">n2coords</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="depth_length_preorder_traversal"><a class="viewcode-back" href="../../ivy.html#ivy.layout_polar.depth_length_preorder_traversal">[docs]</a><span class="k">def</span> <span class="nf">depth_length_preorder_traversal</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">n2coords</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate node depth (root = depth 0) and length to root</span>
 
@@ -107,7 +107,7 @@
 
     <span class="k">return</span> <span class="n">n2coords</span>
 </div>
-<div class="viewcode-block" id="calc_node_positions"><a class="viewcode-back" href="../../ivy.layout_polar.html#ivy.layout_polar.calc_node_positions">[docs]</a><span class="k">def</span> <span class="nf">calc_node_positions</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pole</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+<div class="viewcode-block" id="calc_node_positions"><a class="viewcode-back" href="../../ivy.html#ivy.layout_polar.calc_node_positions">[docs]</a><span class="k">def</span> <span class="nf">calc_node_positions</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pole</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                         <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                         <span class="n">direction</span><span class="o">=</span><span class="n">COUNTERCLOCKWISE</span><span class="p">,</span>
                         <span class="n">scaled</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">n2coords</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -193,7 +193,7 @@
 
     <span class="k">return</span> <span class="n">n2coords</span>
 </div>
-<div class="viewcode-block" id="test"><a class="viewcode-back" href="../../ivy.layout_polar.html#ivy.layout_polar.test">[docs]</a><span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
+<div class="viewcode-block" id="test"><a class="viewcode-back" href="../../ivy.html#ivy.layout_polar.test">[docs]</a><span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">newick</span>
     <span class="n">node</span> <span class="o">=</span> <span class="n">newick</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s">&quot;(a:3,(b:2,(c:4,d:5):1,(e:3,(f:1,g:1):2):2):2);&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">iternodes</span><span class="p">()):</span>

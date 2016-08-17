@@ -63,7 +63,7 @@
 
 <span class="n">email</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
 
-<div class="viewcode-block" id="batch"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.batch">[docs]</a><span class="k">def</span> <span class="nf">batch</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+<div class="viewcode-block" id="batch"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.batch">[docs]</a><span class="k">def</span> <span class="nf">batch</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Take an iterable and return it in chunks (sub-iterables)</span>
 
@@ -77,7 +77,7 @@
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">zip_longest</span><span class="p">(</span><span class="n">fillvalue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="k">yield</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="extract_gbac"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.extract_gbac">[docs]</a><span class="k">def</span> <span class="nf">extract_gbac</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_gbac"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.extract_gbac">[docs]</a><span class="k">def</span> <span class="nf">extract_gbac</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract genbank accession</span>
 
@@ -91,7 +91,7 @@
     <span class="c"># RR: This also returns various other strings that match the pattern (eg.</span>
     <span class="c"># protein ids)</span>
 </div>
-<div class="viewcode-block" id="extract_gene"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.extract_gene">[docs]</a><span class="k">def</span> <span class="nf">extract_gene</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">gene</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_gene"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.extract_gene">[docs]</a><span class="k">def</span> <span class="nf">extract_gene</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">gene</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    RR: Not sure what format seq should be in -CZ</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -109,7 +109,7 @@
                         <span class="n">loc</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">location</span>
                         <span class="k">return</span> <span class="n">seq</span><span class="p">[</span><span class="n">loc</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">position</span><span class="o">-</span><span class="mi">10</span><span class="p">:</span><span class="n">loc</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">position</span><span class="o">+</span><span class="mi">10</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="gi2webenv"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.gi2webenv">[docs]</a><span class="k">def</span> <span class="nf">gi2webenv</span><span class="p">(</span><span class="n">gilist</span><span class="p">):</span>
+<div class="viewcode-block" id="gi2webenv"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.gi2webenv">[docs]</a><span class="k">def</span> <span class="nf">gi2webenv</span><span class="p">(</span><span class="n">gilist</span><span class="p">):</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">esearch</span><span class="p">(</span>
         <span class="n">db</span><span class="o">=</span><span class="s">&quot;nucleotide&quot;</span><span class="p">,</span> <span class="n">term</span><span class="o">=</span><span class="s">&quot; OR &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gilist</span><span class="p">),</span> <span class="n">usehistory</span><span class="o">=</span><span class="s">&quot;y&quot;</span><span class="p">,</span>
         <span class="n">retmax</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">gilist</span><span class="p">)</span>
@@ -117,7 +117,7 @@
     <span class="n">d</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;WebEnv&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;QueryKey&quot;</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="gi2tax"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.gi2tax">[docs]</a><span class="k">def</span> <span class="nf">gi2tax</span><span class="p">(</span><span class="n">gi</span><span class="p">):</span>
+<div class="viewcode-block" id="gi2tax"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.gi2tax">[docs]</a><span class="k">def</span> <span class="nf">gi2tax</span><span class="p">(</span><span class="n">gi</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">email</span>
     <span class="k">assert</span> <span class="n">email</span><span class="p">,</span> <span class="s">&quot;set email!&quot;</span>
     <span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
@@ -131,7 +131,7 @@
     <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">r</span>
 </div>
-<div class="viewcode-block" id="ac2gi"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.ac2gi">[docs]</a><span class="k">def</span> <span class="nf">ac2gi</span><span class="p">(</span><span class="n">ac</span><span class="p">):</span>
+<div class="viewcode-block" id="ac2gi"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.ac2gi">[docs]</a><span class="k">def</span> <span class="nf">ac2gi</span><span class="p">(</span><span class="n">ac</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">email</span>
     <span class="k">assert</span> <span class="n">email</span><span class="p">,</span> <span class="s">&quot;set email!&quot;</span>
     <span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
@@ -140,7 +140,7 @@
     <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">d</span>
 </div>
-<div class="viewcode-block" id="fetch_aclist"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.fetch_aclist">[docs]</a><span class="k">def</span> <span class="nf">fetch_aclist</span><span class="p">(</span><span class="n">aclist</span><span class="p">,</span> <span class="n">batchsize</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+<div class="viewcode-block" id="fetch_aclist"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.fetch_aclist">[docs]</a><span class="k">def</span> <span class="nf">fetch_aclist</span><span class="p">(</span><span class="n">aclist</span><span class="p">,</span> <span class="n">batchsize</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">email</span>
     <span class="k">assert</span> <span class="n">email</span><span class="p">,</span> <span class="s">&quot;set email!&quot;</span>
     <span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
@@ -170,7 +170,7 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;fetched </span><span class="si">%s</span><span class="s"> sequences&#39;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">results</span>
 </div>
-<div class="viewcode-block" id="fetch_gilist"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.fetch_gilist">[docs]</a><span class="k">def</span> <span class="nf">fetch_gilist</span><span class="p">(</span><span class="n">gilist</span><span class="p">,</span> <span class="n">batchsize</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+<div class="viewcode-block" id="fetch_gilist"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.fetch_gilist">[docs]</a><span class="k">def</span> <span class="nf">fetch_gilist</span><span class="p">(</span><span class="n">gilist</span><span class="p">,</span> <span class="n">batchsize</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">email</span>
     <span class="k">assert</span> <span class="n">email</span><span class="p">,</span> <span class="s">&quot;set email!&quot;</span>
     <span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
@@ -194,11 +194,11 @@
         <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">results</span>
 </div>
-<div class="viewcode-block" id="organism_id"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.organism_id">[docs]</a><span class="k">def</span> <span class="nf">organism_id</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="organism_id"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.organism_id">[docs]</a><span class="k">def</span> <span class="nf">organism_id</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="n">org</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;organism&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">org</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span><span class="s">&#39;_&#39;</span><span class="p">),</span> <span class="n">s</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 </div>
-<div class="viewcode-block" id="fetchseq"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.fetchseq">[docs]</a><span class="k">def</span> <span class="nf">fetchseq</span><span class="p">(</span><span class="n">gi</span><span class="p">):</span>
+<div class="viewcode-block" id="fetchseq"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.fetchseq">[docs]</a><span class="k">def</span> <span class="nf">fetchseq</span><span class="p">(</span><span class="n">gi</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">email</span>
     <span class="k">assert</span> <span class="n">email</span><span class="p">,</span> <span class="s">&quot;set email!&quot;</span>
     <span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
@@ -207,7 +207,7 @@
     <span class="n">s</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">organism_id</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">s</span>
 </div>
-<div class="viewcode-block" id="create_fastas"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.create_fastas">[docs]</a><span class="k">def</span> <span class="nf">create_fastas</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+<div class="viewcode-block" id="create_fastas"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.create_fastas">[docs]</a><span class="k">def</span> <span class="nf">create_fastas</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
     <span class="n">fastas</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([</span> <span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="nb">file</span><span class="p">(</span><span class="n">g</span><span class="o">+</span><span class="s">&quot;.fasta&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genes</span> <span class="p">])</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">seqs</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
         <span class="k">for</span> <span class="n">gene</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="n">seqs</span><span class="p">):</span>
@@ -225,7 +225,7 @@
 
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">fastas</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span> <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="merge_fastas"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.merge_fastas">[docs]</a><span class="k">def</span> <span class="nf">merge_fastas</span><span class="p">(</span><span class="n">fnames</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;merged&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="merge_fastas"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.merge_fastas">[docs]</a><span class="k">def</span> <span class="nf">merge_fastas</span><span class="p">(</span><span class="n">fnames</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;merged&quot;</span><span class="p">):</span>
     <span class="n">outfile</span> <span class="o">=</span> <span class="nb">file</span><span class="p">(</span><span class="n">name</span><span class="o">+</span><span class="s">&quot;.phy&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
     <span class="n">gene2len</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
@@ -260,7 +260,7 @@
         <span class="n">i</span> <span class="o">+=</span> <span class="n">n</span>
     <span class="n">parts</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="blast_closest"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.blast_closest">[docs]</a><span class="k">def</span> <span class="nf">blast_closest</span><span class="p">(</span><span class="n">fasta</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<div class="viewcode-block" id="blast_closest"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.blast_closest">[docs]</a><span class="k">def</span> <span class="nf">blast_closest</span><span class="p">(</span><span class="n">fasta</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">NCBIWWW</span><span class="o">.</span><span class="n">qblast</span><span class="p">(</span><span class="s">&quot;blastn&quot;</span><span class="p">,</span> <span class="s">&quot;nr&quot;</span><span class="p">,</span> <span class="n">fasta</span><span class="p">,</span> <span class="n">expect</span><span class="o">=</span><span class="n">e</span><span class="p">,</span> <span class="n">hitlist_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">rec</span> <span class="o">=</span> <span class="n">NCBIXML</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">descriptions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -272,7 +272,7 @@
     <span class="n">result</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;|&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">result</span>
 </div>
-<div class="viewcode-block" id="blast"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.blast">[docs]</a><span class="k">def</span> <span class="nf">blast</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">entrez_query</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="blast"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.blast">[docs]</a><span class="k">def</span> <span class="nf">blast</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">entrez_query</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">NCBIWWW</span><span class="o">.</span><span class="n">qblast</span><span class="p">(</span><span class="s">&quot;blastn&quot;</span><span class="p">,</span> <span class="s">&quot;nr&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">expect</span><span class="o">=</span><span class="n">e</span><span class="p">,</span> <span class="n">hitlist_size</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
                        <span class="n">entrez_query</span><span class="o">=</span><span class="n">entrez_query</span><span class="p">)</span>
     <span class="n">recs</span> <span class="o">=</span> <span class="n">NCBIXML</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -288,20 +288,20 @@
     <span class="c">##     v.append(result)</span>
     <span class="c">## return v</span>
 </div>
-<div class="viewcode-block" id="start_codons"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.start_codons">[docs]</a><span class="k">def</span> <span class="nf">start_codons</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+<div class="viewcode-block" id="start_codons"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.start_codons">[docs]</a><span class="k">def</span> <span class="nf">start_codons</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
     <span class="n">i</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;ATG&#39;</span><span class="p">)</span>
     <span class="k">while</span> <span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">i</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;ATG&#39;</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="search_taxonomy"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.search_taxonomy">[docs]</a><span class="k">def</span> <span class="nf">search_taxonomy</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
+<div class="viewcode-block" id="search_taxonomy"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.search_taxonomy">[docs]</a><span class="k">def</span> <span class="nf">search_taxonomy</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">email</span>
     <span class="k">assert</span> <span class="n">email</span><span class="p">,</span> <span class="s">&quot;set email!&quot;</span>
     <span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">esearch</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="s">&quot;taxonomy&quot;</span><span class="p">,</span> <span class="n">term</span><span class="o">=</span><span class="n">q</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">h</span><span class="p">)[</span><span class="s">&#39;IdList&#39;</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="fetchtax"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.fetchtax">[docs]</a><span class="k">def</span> <span class="nf">fetchtax</span><span class="p">(</span><span class="n">taxid</span><span class="p">):</span>
+<div class="viewcode-block" id="fetchtax"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.fetchtax">[docs]</a><span class="k">def</span> <span class="nf">fetchtax</span><span class="p">(</span><span class="n">taxid</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">email</span>
     <span class="k">assert</span> <span class="n">email</span><span class="p">,</span> <span class="s">&quot;set email!&quot;</span>
     <span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
@@ -311,14 +311,14 @@
 </div>
 <span class="n">__FIRST</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;[^-]&#39;</span><span class="p">)</span>
 <span class="n">__LAST</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;[-]*$&#39;</span><span class="p">)</span>
-<div class="viewcode-block" id="trimpos"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.trimpos">[docs]</a><span class="k">def</span> <span class="nf">trimpos</span><span class="p">(</span><span class="n">rec</span><span class="p">):</span>
+<div class="viewcode-block" id="trimpos"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.trimpos">[docs]</a><span class="k">def</span> <span class="nf">trimpos</span><span class="p">(</span><span class="n">rec</span><span class="p">):</span>
     <span class="s">&#39;return the positions of the first and last ungapped base&#39;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">seq</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span>
     <span class="n">first</span> <span class="o">=</span> <span class="n">__FIRST</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
     <span class="n">last</span> <span class="o">=</span> <span class="n">__LAST</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="fetch_DNA_seqs"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.fetch_DNA_seqs">[docs]</a><span class="k">def</span> <span class="nf">fetch_DNA_seqs</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">maxn</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">batchsize</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+<div class="viewcode-block" id="fetch_DNA_seqs"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.fetch_DNA_seqs">[docs]</a><span class="k">def</span> <span class="nf">fetch_DNA_seqs</span><span class="p">(</span><span class="n">terms</span><span class="p">,</span> <span class="n">maxn</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">batchsize</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    terms: sequence of search terms, quoted appropriately, with Entrez</span>
 <span class="sd">           specifiers, e.g. [&#39;&quot;Mus musculus&quot;[organism]&#39;]</span>
@@ -350,7 +350,7 @@
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;...done&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">seqs</span>
 </div>
-<div class="viewcode-block" id="seqrec_taxid"><a class="viewcode-back" href="../../ivy.genbank.html#ivy.genbank.seqrec_taxid">[docs]</a><span class="k">def</span> <span class="nf">seqrec_taxid</span><span class="p">(</span><span class="n">seqrec</span><span class="p">):</span>
+<div class="viewcode-block" id="seqrec_taxid"><a class="viewcode-back" href="../../ivy.html#ivy.genbank.seqrec_taxid">[docs]</a><span class="k">def</span> <span class="nf">seqrec_taxid</span><span class="p">(</span><span class="n">seqrec</span><span class="p">):</span>
     <span class="s">&quot;extract the NCBI taxon id from a sequence record&quot;</span>
     <span class="k">for</span> <span class="n">ft</span> <span class="ow">in</span> <span class="n">seqrec</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ft</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s">&#39;source&#39;</span><span class="p">:</span>

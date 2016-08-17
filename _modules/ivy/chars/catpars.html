@@ -53,17 +53,17 @@
 <span class="kn">import</span> <span class="nn">numpy</span>
 
 
-<div class="viewcode-block" id="default_costmatrix"><a class="viewcode-back" href="../../../ivy.chars.catpars.html#ivy.chars.catpars.default_costmatrix">[docs]</a><span class="k">def</span> <span class="nf">default_costmatrix</span><span class="p">(</span><span class="n">numstates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">int</span><span class="p">):</span>
+<div class="viewcode-block" id="default_costmatrix"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.catpars.default_costmatrix">[docs]</a><span class="k">def</span> <span class="nf">default_costmatrix</span><span class="p">(</span><span class="n">numstates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">int</span><span class="p">):</span>
     <span class="s">&quot;a square array with zeroes along the diagonal, ones elsewhere&quot;</span>
     <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">numstates</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="minstates"><a class="viewcode-back" href="../../../ivy.chars.catpars.html#ivy.chars.catpars.minstates">[docs]</a><span class="k">def</span> <span class="nf">minstates</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+<div class="viewcode-block" id="minstates"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.catpars.minstates">[docs]</a><span class="k">def</span> <span class="nf">minstates</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
     <span class="s">&quot;return the indices of v that equal the minimum&quot;</span>
     <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
 
 </div>
-<div class="viewcode-block" id="downpass"><a class="viewcode-back" href="../../../ivy.chars.catpars.html#ivy.chars.catpars.downpass">[docs]</a><span class="k">def</span> <span class="nf">downpass</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">,</span> <span class="n">chardata</span><span class="p">,</span> <span class="n">node2dpv</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="downpass"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.catpars.downpass">[docs]</a><span class="k">def</span> <span class="nf">downpass</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">,</span> <span class="n">chardata</span><span class="p">,</span> <span class="n">node2dpv</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">node2dpv</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">node2dpv</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -89,7 +89,7 @@
     <span class="k">return</span> <span class="n">node2dpv</span>
 
 </div>
-<div class="viewcode-block" id="uppass"><a class="viewcode-back" href="../../../ivy.chars.catpars.html#ivy.chars.catpars.uppass">[docs]</a><span class="k">def</span> <span class="nf">uppass</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">,</span> <span class="n">node2dpv</span><span class="p">,</span> <span class="n">node2upm</span><span class="o">=</span><span class="p">{},</span>
+<div class="viewcode-block" id="uppass"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.catpars.uppass">[docs]</a><span class="k">def</span> <span class="nf">uppass</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">,</span> <span class="n">node2dpv</span><span class="p">,</span> <span class="n">node2upm</span><span class="o">=</span><span class="p">{},</span>
            <span class="n">node2ancstates</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="n">parent</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isleaf</span><span class="p">:</span>
@@ -131,7 +131,7 @@
     <span class="k">return</span> <span class="n">node2ancstates</span>
 
 </div>
-<div class="viewcode-block" id="ancstates"><a class="viewcode-back" href="../../../ivy.chars.catpars.html#ivy.chars.catpars.ancstates">[docs]</a><span class="k">def</span> <span class="nf">ancstates</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chardata</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">):</span>
+<div class="viewcode-block" id="ancstates"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.catpars.ancstates">[docs]</a><span class="k">def</span> <span class="nf">ancstates</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chardata</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return parsimony ancestral states</span>
 
@@ -166,7 +166,7 @@
     <span class="k">return</span> <span class="n">node2deltr</span>
 
 
-<div class="viewcode-block" id="binary_deltran"><a class="viewcode-back" href="../../../ivy.chars.catpars.html#ivy.chars.catpars.binary_deltran">[docs]</a><span class="k">def</span> <span class="nf">binary_deltran</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chardata</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">):</span>
+<div class="viewcode-block" id="binary_deltran"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.catpars.binary_deltran">[docs]</a><span class="k">def</span> <span class="nf">binary_deltran</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chardata</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">):</span>
     <span class="n">states</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stepmatrix</span><span class="p">)))</span>
     <span class="n">node2dpv</span> <span class="o">=</span> <span class="n">downpass</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">,</span> <span class="n">chardata</span><span class="p">)</span>
     <span class="n">node2deltr</span> <span class="o">=</span> <span class="n">_bindeltran</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">,</span> <span class="n">node2dpv</span><span class="p">)</span>

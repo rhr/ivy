@@ -79,7 +79,7 @@
 <span class="sd">Functions for fitting an HRM model</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="hrm_mk"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.hrm_mk">[docs]</a><span class="k">def</span> <span class="nf">hrm_mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span><span class="n">returnPi</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<div class="viewcode-block" id="hrm_mk"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.hrm_mk">[docs]</a><span class="k">def</span> <span class="nf">hrm_mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span><span class="n">returnPi</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
           <span class="n">ar</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return log-likelihood of hidden-rates-markov mk model as described in</span>
@@ -107,6 +107,16 @@
 <span class="sd">          node weighting</span>
 <span class="sd">        ar (dict): Dict of pre-allocated arrays to improve</span>
 <span class="sd">          speed by avoiding creating and destroying new arrays</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Log-likelihood of model</span>
+<span class="sd">    Examples:</span>
+<span class="sd">        from ivy.examples import primates,primate_data</span>
+<span class="sd">        Q = np.array([[-0.11,0.1  ,0.01 ,0    ],</span>
+<span class="sd">                      [0.1  ,-0.11,0.0  ,0.01 ],</span>
+<span class="sd">                      [0.01 ,0.0  ,-0.51,0.5  ],</span>
+<span class="sd">                      [0.0  ,0.01 ,0.5  ,-0.51]])</span>
+<span class="sd">        hrm_mk(primates,primate_data,Q,nregime=2)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
@@ -170,7 +180,7 @@
     <span class="k">return</span> <span class="n">Q</span>
 
 
-<div class="viewcode-block" id="fill_Q_matrix"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fill_Q_matrix">[docs]</a><span class="k">def</span> <span class="nf">fill_Q_matrix</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">wrparams</span><span class="p">,</span> <span class="n">brparams</span><span class="p">,</span> <span class="n">Qtype</span><span class="o">=</span><span class="s">&quot;ARD&quot;</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">orderedRegimes</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="fill_Q_matrix"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fill_Q_matrix">[docs]</a><span class="k">def</span> <span class="nf">fill_Q_matrix</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">wrparams</span><span class="p">,</span> <span class="n">brparams</span><span class="p">,</span> <span class="n">Qtype</span><span class="o">=</span><span class="s">&quot;ARD&quot;</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">orderedRegimes</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fill a Q matrix with nchar*nregime rows and cols with values from Qparams</span>
 
@@ -262,7 +272,7 @@
         <span class="k">return</span> <span class="n">Q</span>
 
 </div>
-<div class="viewcode-block" id="create_hrm_ar"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.create_hrm_ar">[docs]</a><span class="k">def</span> <span class="nf">create_hrm_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="create_hrm_ar"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.create_hrm_ar">[docs]</a><span class="k">def</span> <span class="nf">create_hrm_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create arrays to be used in hrm likelihood function</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -331,7 +341,7 @@
     <span class="k">return</span> <span class="n">var</span>
 
 </div>
-<div class="viewcode-block" id="create_likelihood_function_hrm_mk_MLE"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.create_likelihood_function_hrm_mk_MLE">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_hrm_mk_MLE</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="create_likelihood_function_hrm_mk_MLE"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.create_likelihood_function_hrm_mk_MLE">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_hrm_mk_MLE</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
                                   <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">constraints</span> <span class="o">=</span> <span class="s">&quot;Rate&quot;</span><span class="p">,</span>
                                   <span class="n">orderedRegimes</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -431,7 +441,7 @@
     <span class="k">return</span> <span class="n">likelihood_function</span>
 
 </div>
-<div class="viewcode-block" id="any_equal"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.any_equal">[docs]</a><span class="k">def</span> <span class="nf">any_equal</span><span class="p">(</span><span class="n">ar</span><span class="p">):</span>
+<div class="viewcode-block" id="any_equal"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.any_equal">[docs]</a><span class="k">def</span> <span class="nf">any_equal</span><span class="p">(</span><span class="n">ar</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a 3-D matrix, test if any of the sub-matrices are equal.</span>
 <span class="sd">    For use in evaluating symmetric constraint in hrm likelihood function</span>
@@ -443,7 +453,7 @@
     <span class="k">return</span> <span class="bp">False</span>
 
 </div>
-<div class="viewcode-block" id="extract_regimes"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.extract_regimes">[docs]</a><span class="k">def</span> <span class="nf">extract_regimes</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_regimes"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.extract_regimes">[docs]</a><span class="k">def</span> <span class="nf">extract_regimes</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a HRM Q matrix,extract the within-regime transitions</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -454,7 +464,7 @@
         <span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">)]</span><span class="o">=</span><span class="bp">False</span>
         <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">Q</span><span class="p">[</span><span class="n">subQ</span><span class="p">,</span> <span class="n">subQ</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">out</span></div>
-<div class="viewcode-block" id="fit_hrm_qidx"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fit_hrm_qidx">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_qidx</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">qidx</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="fit_hrm_qidx"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fit_hrm_qidx">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_qidx</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">qidx</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
                   <span class="n">orderedRegimes</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">startingvals</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit a hidden-rates mk model to a given tree and list of characters, and</span>
@@ -473,7 +483,7 @@
 <span class="sd">        orderedRegimes (bool): Whether or not to constrain regime transitions</span>
 <span class="sd">          to only occur between adjacent regimes</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value</span>
+<span class="sd">        dict: Dict of fitted Q matrix (a np array) and log-likelihood value</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">chars</span>
@@ -500,7 +510,58 @@
     <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mk_func</span><span class="o">.</span><span class="n">q</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">{</span><span class="s">&quot;Log-likelihood&quot;</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">logli</span><span class="p">),</span> <span class="s">&quot;Q&quot;</span><span class="p">:</span><span class="n">q</span><span class="p">}</span>
 </div>
-<div class="viewcode-block" id="fit_hrm"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fit_hrm">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="s">&quot;Rate&quot;</span><span class="p">,</span> <span class="n">Qtype</span><span class="o">=</span><span class="s">&quot;ARD&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="fit_hrm_randstartingpoints"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fit_hrm_randstartingpoints">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_randstartingpoints</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">nstart</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span><span class="n">constraints</span><span class="o">=</span><span class="s">&quot;Rate&quot;</span><span class="p">,</span>
+                               <span class="n">Qtype</span><span class="o">=</span><span class="s">&quot;ARD&quot;</span><span class="p">,</span><span class="n">orderedRegimes</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit a hidden-rates mk model to a given tree and list of characters, and</span>
+<span class="sd">    number of regumes. Return fitted ARD Q matrix and calculated likelihood.</span>
+<span class="sd">    Run nstart times, each with different randomized starting values,</span>
+<span class="sd">    and return the highest likelihood</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tree (Node): Root node of a tree. All branch lengths must be</span>
+<span class="sd">          greater than 0 (except root)</span>
+<span class="sd">        chars (dict): Dict mapping character states to tip labels.</span>
+<span class="sd">          Character states should be coded 0,1,2...</span>
+
+<span class="sd">          Can also be a list with tip states in preorder sequence</span>
+<span class="sd">        nregime (int): Number of hidden rates per character</span>
+<span class="sd">        nstart (int): Number of times to run likelihood fit</span>
+<span class="sd">        pi (str): Either &quot;Equal&quot;, &quot;Equilibrium&quot;, or &quot;Fitzjohn&quot;. How to weight</span>
+<span class="sd">          values at root node. Defaults to &quot;Equal&quot;</span>
+<span class="sd">          Method &quot;Fitzjohn&quot; is not thouroughly tested, use with caution</span>
+<span class="sd">        orderedRegimes (bool): Whether or not to constrain regime transitions</span>
+<span class="sd">          to only occur between adjacent regimes</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: Tuple of fitted Q matrix (a np array) and log-likelihood value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bestli</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">nobschar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nobschar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">Qtype</span><span class="o">==</span><span class="s">&quot;ARD&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">orderedRegimes</span><span class="p">:</span>
+            <span class="n">nparam</span> <span class="o">=</span> <span class="p">((</span><span class="n">nobschar</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nobschar</span><span class="p">)</span><span class="o">*</span><span class="n">nregime</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">nobschar</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nparam</span> <span class="o">=</span> <span class="p">((</span><span class="n">nobschar</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nobschar</span><span class="p">)</span><span class="o">*</span><span class="n">nregime</span> <span class="o">+</span> <span class="p">(</span><span class="n">nregime</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">nregime</span><span class="p">)</span><span class="o">*</span><span class="n">nobschar</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nparam</span> <span class="o">=</span> <span class="n">nregime</span><span class="o">+</span><span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nstart</span><span class="p">):</span>
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">startingvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">nparam</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">fit_hrm</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">pi</span><span class="p">,</span><span class="n">constraints</span><span class="p">,</span><span class="n">Qtype</span><span class="p">,</span><span class="n">orderedRegimes</span><span class="p">,</span><span class="n">startingvals</span><span class="o">=</span><span class="n">startingvals</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">out</span><span class="p">[</span><span class="s">&quot;Log-likelihood&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">out</span><span class="p">[</span><span class="s">&quot;Log-likelihood&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">bestli</span><span class="p">:</span>
+            <span class="n">bestli</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s">&quot;Log-likelihood&quot;</span><span class="p">]</span>
+            <span class="n">best</span> <span class="o">=</span> <span class="n">out</span>
+
+    <span class="k">return</span> <span class="n">best</span>
+
+</div>
+<div class="viewcode-block" id="fit_hrm"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fit_hrm">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="s">&quot;Rate&quot;</span><span class="p">,</span> <span class="n">Qtype</span><span class="o">=</span><span class="s">&quot;ARD&quot;</span><span class="p">,</span>
             <span class="n">orderedRegimes</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">startingvals</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit a hidden-rates mk model to a given tree and list of characters, and</span>
@@ -537,7 +598,7 @@
     <span class="k">return</span> <span class="p">{</span><span class="s">&quot;Q&quot;</span><span class="p">:</span><span class="n">Q</span><span class="p">,</span> <span class="s">&quot;Log-likelihood&quot;</span><span class="p">:</span><span class="n">logli</span><span class="p">,</span><span class="s">&quot;rootLiks&quot;</span><span class="p">:</span><span class="n">rootLiks</span><span class="p">}</span>
 
 </div>
-<div class="viewcode-block" id="fit_hrm_mkARD"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fit_hrm_mkARD">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_mkARD</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="s">&quot;Rate&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="fit_hrm_mkARD"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fit_hrm_mkARD">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_mkARD</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="s">&quot;Rate&quot;</span><span class="p">,</span>
                   <span class="n">orderedRegimes</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">startingvals</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit a hidden-rates mk model to a given tree and list of characters, and</span>
@@ -586,7 +647,7 @@
     <span class="n">piRates</span> <span class="o">=</span> <span class="n">hrm_mk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="n">pi</span><span class="p">,</span> <span class="n">returnPi</span><span class="o">=</span><span class="bp">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">mk_func</span><span class="p">(</span><span class="n">optim</span><span class="p">,</span> <span class="bp">None</span><span class="p">)),</span> <span class="n">piRates</span><span class="p">,</span> <span class="n">mk_func</span><span class="p">,</span> <span class="n">optim</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="fit_hrm_mkSimple"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fit_hrm_mkSimple">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_mkSimple</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">orderedRegimes</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<div class="viewcode-block" id="fit_hrm_mkSimple"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fit_hrm_mkSimple">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_mkSimple</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">orderedRegimes</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
                      <span class="n">startingvals</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit a hidden-rates mk model to a given tree and list of characters, and</span>
@@ -626,7 +687,7 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">mk_func</span><span class="p">(</span><span class="n">optim</span><span class="p">,</span> <span class="bp">None</span><span class="p">)),</span> <span class="n">piRates</span><span class="p">,</span> <span class="n">mk_func</span><span class="p">,</span> <span class="n">optim</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="make_regime_type_combos"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.make_regime_type_combos">[docs]</a><span class="k">def</span> <span class="nf">make_regime_type_combos</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">nparams</span><span class="p">):</span>
+<div class="viewcode-block" id="make_regime_type_combos"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.make_regime_type_combos">[docs]</a><span class="k">def</span> <span class="nf">make_regime_type_combos</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">nparams</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create regime combinations for a binary character</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -639,7 +700,7 @@
     <span class="k">return</span> <span class="n">regimePairs</span>
 
 </div>
-<div class="viewcode-block" id="remove_redundant_regimes"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.remove_redundant_regimes">[docs]</a><span class="k">def</span> <span class="nf">remove_redundant_regimes</span><span class="p">(</span><span class="n">regimePairs</span><span class="p">):</span>
+<div class="viewcode-block" id="remove_redundant_regimes"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.remove_redundant_regimes">[docs]</a><span class="k">def</span> <span class="nf">remove_redundant_regimes</span><span class="p">(</span><span class="n">regimePairs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove redundant regime pairs (eg (1,1),(2,2) and (2,2),(3,3) are</span>
 <span class="sd">    redundant and only one should be kept)</span>
@@ -648,7 +709,7 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">regimePairs</span><span class="p">[</span><span class="n">regimePairs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">regime_identities</span><span class="p">)]</span>
 
 </div>
-<div class="viewcode-block" id="make_identity_regime"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.make_identity_regime">[docs]</a><span class="k">def</span> <span class="nf">make_identity_regime</span><span class="p">(</span><span class="n">regimePair</span><span class="p">):</span>
+<div class="viewcode-block" id="make_identity_regime"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.make_identity_regime">[docs]</a><span class="k">def</span> <span class="nf">make_identity_regime</span><span class="p">(</span><span class="n">regimePair</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given one regime pair, reduce it to its identity (eg (2,2),(3,3) becomes</span>
 <span class="sd">    (1,1),(2,2)</span>
@@ -663,7 +724,7 @@
     <span class="k">return</span> <span class="n">identity_regime</span>
 
 </div>
-<div class="viewcode-block" id="optimize_regime"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.optimize_regime">[docs]</a><span class="k">def</span> <span class="nf">optimize_regime</span><span class="p">(</span><span class="n">comb</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">chars</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nparams</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+<div class="viewcode-block" id="optimize_regime"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.optimize_regime">[docs]</a><span class="k">def</span> <span class="nf">optimize_regime</span><span class="p">(</span><span class="n">comb</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">chars</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nparams</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                     <span class="n">pi</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">br_variable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">out_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Top-level function for optimizing hrm distinct-regime model in parallel.</span>
@@ -688,7 +749,7 @@
     <span class="k">return</span> <span class="n">comb</span><span class="p">,</span><span class="n">lik</span><span class="p">,</span><span class="n">Q</span>
 
 </div>
-<div class="viewcode-block" id="fit_hrm_distinct_regimes"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fit_hrm_distinct_regimes">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_distinct_regimes</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">nparams</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">br_variable</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<div class="viewcode-block" id="fit_hrm_distinct_regimes"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fit_hrm_distinct_regimes">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_distinct_regimes</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">nparams</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">br_variable</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
                              <span class="n">parallel</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">ncores</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">out_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit hrm with distinct regime types given number of regimes and</span>
@@ -756,7 +817,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="n">r</span><span class="p">:(</span><span class="n">liks</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Qs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">regime_combinations</span><span class="p">)}</span>
 
 </div>
-<div class="viewcode-block" id="fill_Q_layout"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fill_Q_layout">[docs]</a><span class="k">def</span> <span class="nf">fill_Q_layout</span><span class="p">(</span><span class="n">regimetype</span><span class="p">,</span> <span class="n">Qparams</span><span class="p">):</span>
+<div class="viewcode-block" id="fill_Q_layout"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fill_Q_layout">[docs]</a><span class="k">def</span> <span class="nf">fill_Q_layout</span><span class="p">(</span><span class="n">regimetype</span><span class="p">,</span> <span class="n">Qparams</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fill a single regime matrix based on the regime type and the given</span>
 <span class="sd">    parameters.</span>
@@ -766,7 +827,7 @@
     <span class="k">return</span> <span class="n">Q</span>
 
 </div>
-<div class="viewcode-block" id="hrm_disctinct_regimes_likelihoodfunc"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.hrm_disctinct_regimes_likelihoodfunc">[docs]</a><span class="k">def</span> <span class="nf">hrm_disctinct_regimes_likelihoodfunc</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">regimetypes</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">br_variable</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="hrm_disctinct_regimes_likelihoodfunc"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.hrm_disctinct_regimes_likelihoodfunc">[docs]</a><span class="k">def</span> <span class="nf">hrm_disctinct_regimes_likelihoodfunc</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">regimetypes</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">br_variable</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="n">nregime</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">regimetypes</span><span class="p">)</span>
@@ -822,7 +883,7 @@
     <span class="k">return</span> <span class="n">likelihood_function</span>
 
 </div>
-<div class="viewcode-block" id="fill_distinct_regime_Q"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fill_distinct_regime_Q">[docs]</a><span class="k">def</span> <span class="nf">fill_distinct_regime_Q</span><span class="p">(</span><span class="n">regimetypes</span><span class="p">,</span> <span class="n">Qparams</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span> <span class="n">nobschar</span><span class="p">,</span> <span class="n">Q</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">Q_layout</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">br_variable</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="fill_distinct_regime_Q"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fill_distinct_regime_Q">[docs]</a><span class="k">def</span> <span class="nf">fill_distinct_regime_Q</span><span class="p">(</span><span class="n">regimetypes</span><span class="p">,</span> <span class="n">Qparams</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span> <span class="n">nobschar</span><span class="p">,</span> <span class="n">Q</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">Q_layout</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">br_variable</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="n">returnQ</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="k">if</span> <span class="n">Q</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">returnQ</span> <span class="o">=</span> <span class="bp">True</span>
@@ -847,7 +908,7 @@
     <span class="k">if</span> <span class="n">returnQ</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Q</span>
 </div>
-<div class="viewcode-block" id="fit_hrm_model"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fit_hrm_model">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_model</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">initialvals</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="fit_hrm_model"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fit_hrm_model">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_model</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">initialvals</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit parameters for a single model specified by the user</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -878,7 +939,7 @@
 
     <span class="k">return</span> <span class="n">Q</span><span class="p">,</span> <span class="n">lik</span>
 </div>
-<div class="viewcode-block" id="fill_model_Q"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fill_model_Q">[docs]</a><span class="k">def</span> <span class="nf">fill_model_Q</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
+<div class="viewcode-block" id="fill_model_Q"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fill_model_Q">[docs]</a><span class="k">def</span> <span class="nf">fill_model_Q</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fill Q matrix given model and parameters.</span>
 
@@ -916,7 +977,7 @@
     <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
 
 </div>
-<div class="viewcode-block" id="fit_hrm_model_likelihood"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.fit_hrm_model_likelihood">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_model_likelihood</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="fit_hrm_model_likelihood"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.fit_hrm_model_likelihood">[docs]</a><span class="k">def</span> <span class="nf">fit_hrm_model_likelihood</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Likelihood function for fitting user-specified model</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -966,7 +1027,7 @@
     <span class="k">return</span> <span class="n">likelihood_function</span>
 
 </div>
-<div class="viewcode-block" id="cluster_models"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.cluster_models">[docs]</a><span class="k">def</span> <span class="nf">cluster_models</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="cluster_models"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.cluster_models">[docs]</a><span class="k">def</span> <span class="nf">cluster_models</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given an MLE Q, return candidate models with more parsimonious</span>
 <span class="sd">    parameter set by merging similar parameters</span>
@@ -989,14 +1050,14 @@
     <span class="k">return</span> <span class="n">alt_mods</span>
 
 </div>
-<div class="viewcode-block" id="AIC"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.AIC">[docs]</a><span class="k">def</span> <span class="nf">AIC</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+<div class="viewcode-block" id="AIC"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.AIC">[docs]</a><span class="k">def</span> <span class="nf">AIC</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Akaike information criterion</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mi">2</span><span class="o">*</span><span class="n">k</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">l</span>
 
 </div>
-<div class="viewcode-block" id="pairwise_merge"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.pairwise_merge">[docs]</a><span class="k">def</span> <span class="nf">pairwise_merge</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="pairwise_merge"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.pairwise_merge">[docs]</a><span class="k">def</span> <span class="nf">pairwise_merge</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given an MLE Q, merge similar parameters pairwise to find more</span>
 <span class="sd">    parsimonious models</span>
@@ -1079,7 +1140,7 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">prev_mod</span><span class="p">,</span> <span class="n">re_optim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">re_optim</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
 
 </div>
-<div class="viewcode-block" id="extract_Qparams"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.extract_Qparams">[docs]</a><span class="k">def</span> <span class="nf">extract_Qparams</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">nregime</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_Qparams"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.extract_Qparams">[docs]</a><span class="k">def</span> <span class="nf">extract_Qparams</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">nregime</span><span class="p">):</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">nobschar</span> <span class="o">=</span> <span class="n">nchar</span><span class="o">/</span><span class="n">nregime</span>
 
@@ -1105,7 +1166,7 @@
     <span class="k">return</span> <span class="n">Qparams</span>
 
 </div>
-<div class="viewcode-block" id="format_mod"><a class="viewcode-back" href="../../../ivy.chars.hrm.html#ivy.chars.hrm.format_mod">[docs]</a><span class="k">def</span> <span class="nf">format_mod</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">nobschar</span><span class="p">):</span>
+<div class="viewcode-block" id="format_mod"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.hrm.format_mod">[docs]</a><span class="k">def</span> <span class="nf">format_mod</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">nobschar</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert flattened model to formatted model for use in</span>
 <span class="sd">    fill_model_Q</span>

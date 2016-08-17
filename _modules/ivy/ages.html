@@ -53,7 +53,7 @@
 <span class="sd">The function of interest is `ages2lengths`</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
-<div class="viewcode-block" id="ages2lengths"><a class="viewcode-back" href="../../ivy.ages.html#ivy.ages.ages2lengths">[docs]</a><span class="k">def</span> <span class="nf">ages2lengths</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node_ages</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">{}):</span>
+<div class="viewcode-block" id="ages2lengths"><a class="viewcode-back" href="../../ivy.html#ivy.ages.ages2lengths">[docs]</a><span class="k">def</span> <span class="nf">ages2lengths</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node_ages</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">{}):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert node ages to branch lengths</span>
 
@@ -71,7 +71,7 @@
             <span class="n">results</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">parent_age</span> <span class="o">-</span> <span class="n">age</span>
     <span class="k">return</span> <span class="n">results</span>
 </div>
-<div class="viewcode-block" id="min_ages"><a class="viewcode-back" href="../../ivy.ages.html#ivy.ages.min_ages">[docs]</a><span class="k">def</span> <span class="nf">min_ages</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">leaf_ages</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">{}):</span>
+<div class="viewcode-block" id="min_ages"><a class="viewcode-back" href="../../ivy.html#ivy.ages.min_ages">[docs]</a><span class="k">def</span> <span class="nf">min_ages</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">leaf_ages</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">{}):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate minimum ages given fixed ages in leaf_ages</span>
 
@@ -94,7 +94,7 @@
     <span class="n">results</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">results</span>
 </div>
-<div class="viewcode-block" id="smooth"><a class="viewcode-back" href="../../ivy.ages.html#ivy.ages.smooth">[docs]</a><span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node_ages</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">{}):</span>
+<div class="viewcode-block" id="smooth"><a class="viewcode-back" href="../../ivy.html#ivy.ages.smooth">[docs]</a><span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node_ages</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">{}):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    adjust ages of internal nodes by smoothing</span>
 <span class="sd">    &quot;&quot;&quot;</span>

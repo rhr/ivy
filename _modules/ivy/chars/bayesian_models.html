@@ -66,7 +66,7 @@
 <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s">&quot;warn&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="create_mk_model"><a class="viewcode-back" href="../../../ivy.chars.bayesian_models.html#ivy.chars.bayesian_models.create_mk_model">[docs]</a><span class="k">def</span> <span class="nf">create_mk_model</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="p">):</span>
+<div class="viewcode-block" id="create_mk_model"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.create_mk_model">[docs]</a><span class="k">def</span> <span class="nf">create_mk_model</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create model objects to be passed to pymc.MCMC</span>
 
@@ -112,7 +112,7 @@
     <span class="k">return</span> <span class="nb">locals</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="fit_mk_bayes"><a class="viewcode-back" href="../../../ivy.chars.bayesian_models.html#ivy.chars.bayesian_models.fit_mk_bayes">[docs]</a><span class="k">def</span> <span class="nf">fit_mk_bayes</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="fit_mk_bayes"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.fit_mk_bayes">[docs]</a><span class="k">def</span> <span class="nf">fit_mk_bayes</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit an mk model to a given tree and list of characters. Return</span>
 <span class="sd">    posterior distributions of Q parameters and MAP estimate of Q matrix</span>
@@ -164,7 +164,7 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">mc</span><span class="p">,</span> <span class="n">mp</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="create_multi_mk_model"><a class="viewcode-back" href="../../../ivy.chars.bayesian_models.html#ivy.chars.bayesian_models.create_multi_mk_model">[docs]</a><span class="k">def</span> <span class="nf">create_multi_mk_model</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<div class="viewcode-block" id="create_multi_mk_model"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.create_multi_mk_model">[docs]</a><span class="k">def</span> <span class="nf">create_multi_mk_model</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create an mk model with multiple regimes to be sampled from with MCMC.</span>
 
@@ -251,7 +251,7 @@
     <span class="k">return</span> <span class="nb">locals</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="nshifts"><a class="viewcode-back" href="../../../ivy.chars.bayesian_models.html#ivy.chars.bayesian_models.nshifts">[docs]</a><span class="k">def</span> <span class="nf">nshifts</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="nshifts"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.nshifts">[docs]</a><span class="k">def</span> <span class="nf">nshifts</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The number of regime shifts, given indices of regimes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -271,7 +271,7 @@
         <span class="k">return</span> <span class="n">n</span>
 
 </div>
-<div class="viewcode-block" id="get_indices"><a class="viewcode-back" href="../../../ivy.chars.bayesian_models.html#ivy.chars.bayesian_models.get_indices">[docs]</a><span class="k">def</span> <span class="nf">get_indices</span><span class="p">(</span><span class="n">list_of_lists</span><span class="p">):</span>
+<div class="viewcode-block" id="get_indices"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.get_indices">[docs]</a><span class="k">def</span> <span class="nf">get_indices</span><span class="p">(</span><span class="n">list_of_lists</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get indices given list of nodes in regimes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -283,7 +283,7 @@
     <span class="k">return</span> <span class="n">indices</span>
 
 </div>
-<div class="viewcode-block" id="mk_results"><a class="viewcode-back" href="../../../ivy.chars.bayesian_models.html#ivy.chars.bayesian_models.mk_results">[docs]</a><span class="k">def</span> <span class="nf">mk_results</span><span class="p">(</span><span class="n">mcmc_obj</span><span class="p">):</span>
+<div class="viewcode-block" id="mk_results"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.mk_results">[docs]</a><span class="k">def</span> <span class="nf">mk_results</span><span class="p">(</span><span class="n">mcmc_obj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create summary graphs and statistics for an mk model</span>
 
@@ -327,7 +327,7 @@
     <span class="k">return</span> <span class="p">{</span><span class="s">&quot;traces&quot;</span><span class="p">:</span><span class="n">traces</span><span class="p">,</span> <span class="s">&quot;hists&quot;</span><span class="p">:</span><span class="n">hists</span><span class="p">,</span> <span class="s">&quot;traceplots&quot;</span><span class="p">:</span><span class="n">traceplots</span><span class="p">,</span> <span class="s">&quot;summary&quot;</span><span class="p">:</span><span class="n">summary</span><span class="p">}</span>
 
 </div>
-<div class="viewcode-block" id="hrm_bayesian"><a class="viewcode-back" href="../../../ivy.chars.bayesian_models.html#ivy.chars.bayesian_models.hrm_bayesian">[docs]</a><span class="k">def</span> <span class="nf">hrm_bayesian</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Fitzjohn&quot;</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="s">&quot;Rate&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="hrm_bayesian"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.hrm_bayesian">[docs]</a><span class="k">def</span> <span class="nf">hrm_bayesian</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Fitzjohn&quot;</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="s">&quot;Rate&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a hidden rates model for pymc to be sampled from.</span>
 
@@ -583,7 +583,7 @@
     <span class="k">return</span> <span class="p">[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="p">[[</span><span class="n">diags</span><span class="p">]</span> <span class="o">+</span> <span class="n">corner_indices</span> <span class="o">+</span> <span class="n">rshift_indices</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sub</span> <span class="p">]</span>
 
 
-<div class="viewcode-block" id="valid_indices"><a class="viewcode-back" href="../../../ivy.chars.bayesian_models.html#ivy.chars.bayesian_models.valid_indices">[docs]</a><span class="k">def</span> <span class="nf">valid_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="valid_indices"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.valid_indices">[docs]</a><span class="k">def</span> <span class="nf">valid_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return only the valid indices for the given subarray</span>
 <span class="sd">    &quot;&quot;&quot;</span>

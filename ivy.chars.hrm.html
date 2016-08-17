@@ -392,6 +392,44 @@ to only occur between adjacent regimes</li>
 </ul>
 </td>
 </tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Dict of fitted Q matrix (a np array) and log-likelihood value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.hrm.fit_hrm_randstartingpoints">
+<code class="descclassname">ivy.chars.hrm.</code><code class="descname">fit_hrm_randstartingpoints</code><span class="sig-paren">(</span><em>tree</em>, <em>chars</em>, <em>nregime</em>, <em>nstart=10</em>, <em>pi=u'Equal'</em>, <em>constraints=u'Rate'</em>, <em>Qtype=u'ARD'</em>, <em>orderedRegimes=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/hrm.html#fit_hrm_randstartingpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.hrm.fit_hrm_randstartingpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a hidden-rates mk model to a given tree and list of characters, and
+number of regumes. Return fitted ARD Q matrix and calculated likelihood.
+Run nstart times, each with different randomized starting values,
+and return the highest likelihood</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+greater than 0 (except root)</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of hidden rates per character</li>
+<li><strong>nstart</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of times to run likelihood fit</li>
+<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+values at root node. Defaults to &#8220;Equal&#8221;
+Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
+<li><strong>orderedRegimes</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not to constrain regime transitions
+to only occur between adjacent regimes</li>
+</ul>
+</td>
+</tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple of fitted Q matrix (a np array) and log-likelihood value</p>
 </td>
 </tr>
@@ -423,7 +461,7 @@ Beaulieu et al. 2013</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
 <li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
@@ -453,8 +491,22 @@ speed by avoiding creating and destroying new arrays</li>
 </ul>
 </td>
 </tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Log-likelihood of model</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<p>from ivy.examples import primates,primate_data
+Q = np.array([[-0.11,0.1  ,0.01 ,0    ],</p>
+<blockquote>
+<div>[0.1  ,-0.11,0.0  ,0.01 ],
+[0.01 ,0.0  ,-0.51,0.5  ],
+[0.0  ,0.01 ,0.5  ,-0.51]])</div></blockquote>
+<p>hrm_mk(primates,primate_data,Q,nregime=2)</p>
 </dd></dl>
 
 <dl class="function">

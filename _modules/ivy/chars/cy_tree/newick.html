@@ -6,38 +6,38 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ivy.newick &mdash; ivy 0.1 documentation</title>
+    <title>ivy.chars.cy_tree.newick &mdash; ivy 0.1 documentation</title>
     
-    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
+        URL_ROOT:    '../../../../',
         VERSION:     '0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="ivy 0.1 documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" /> 
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
+          <a href="../../../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
+          <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -46,22 +46,18 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <h1>Source code for ivy.newick</h1><div class="highlight"><pre>
+  <h1>Source code for ivy.chars.cy_tree.newick</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Parse newick strings.</span>
 
 <span class="sd">The function of interest is `parse`, which returns the root node of</span>
 <span class="sd">the parsed tree.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
-
 <span class="kn">import</span> <span class="nn">string</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">shlex</span><span class="o">,</span> <span class="nn">types</span><span class="o">,</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">import</span> <span class="nn">ivy.nexus</span>
-<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">import</span> <span class="nn">nexus</span>
+<span class="kn">from</span> <span class="nn">cStringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
-
-
 
 <span class="c">## def read(s):</span>
 <span class="c">##     try:</span>
@@ -76,11 +72,11 @@
 <span class="n">LABELCHARS</span> <span class="o">=</span> <span class="s">&#39;-.|/?#&amp;&#39;</span>
 <span class="n">META</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;([^,=\s]+)\s*=\s*(\{[^=}]*\}|&quot;[^&quot;]*&quot;|[^,]+)?&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="add_label_chars"><a class="viewcode-back" href="../../ivy.html#ivy.newick.add_label_chars">[docs]</a><span class="k">def</span> <span class="nf">add_label_chars</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
+<div class="viewcode-block" id="add_label_chars"><a class="viewcode-back" href="../../../../ivy.chars.cy_tree.html#ivy.chars.cy_tree.newick.add_label_chars">[docs]</a><span class="k">def</span> <span class="nf">add_label_chars</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">LABELCHARS</span>
     <span class="n">LABELCHARS</span> <span class="o">+=</span> <span class="n">chars</span>
 </div>
-<div class="viewcode-block" id="Tokenizer"><a class="viewcode-back" href="../../ivy.html#ivy.newick.Tokenizer">[docs]</a><span class="k">class</span> <span class="nc">Tokenizer</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">shlex</span><span class="p">):</span>
+<div class="viewcode-block" id="Tokenizer"><a class="viewcode-back" href="../../../../ivy.chars.cy_tree.html#ivy.chars.cy_tree.newick.Tokenizer">[docs]</a><span class="k">class</span> <span class="nc">Tokenizer</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">shlex</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Provides tokens for parsing newick strings.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">infile</span><span class="p">):</span>
         <span class="k">global</span> <span class="n">LABELCHARS</span>
@@ -89,7 +85,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">wordchars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wordchars</span><span class="o">+</span><span class="n">LABELCHARS</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">quotes</span> <span class="o">=</span> <span class="s">&quot;&#39;&quot;</span>
 
-<div class="viewcode-block" id="Tokenizer.parse_embedded_comment"><a class="viewcode-back" href="../../ivy.html#ivy.newick.Tokenizer.parse_embedded_comment">[docs]</a>    <span class="k">def</span> <span class="nf">parse_embedded_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tokenizer.parse_embedded_comment"><a class="viewcode-back" href="../../../../ivy.chars.cy_tree.html#ivy.chars.cy_tree.newick.Tokenizer.parse_embedded_comment">[docs]</a>    <span class="k">def</span> <span class="nf">parse_embedded_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whitespace</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">whitespace</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
         <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
@@ -108,27 +104,21 @@
         <span class="k">return</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="c">## print &quot;comment:&quot;, v</span>
 </div></div>
-<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../../ivy.html#ivy.newick.parse">[docs]</a><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ttable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">treename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../../../../ivy.chars.cy_tree.html#ivy.chars.cy_tree.newick.parse">[docs]</a><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ttable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">treename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse a newick string.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        data: Any file-like object that can be coerced into shlex, or</span>
-<span class="sd">          a string (converted to StringIO)</span>
-<span class="sd">        ttable (dict): Mapping of node labels in the newick string</span>
-<span class="sd">          to other values.</span>
+<span class="sd">    *data* is any file-like object that can be coerced into shlex, or</span>
+<span class="sd">    a string (converted to StringIO)</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        Node: The root node.</span>
+<span class="sd">    *ttable* is a dictionary mapping node labels in the newick string</span>
+<span class="sd">     to other values.</span>
+
+<span class="sd">    Returns: the root node.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">.tree</span> <span class="kn">import</span> <span class="n">Node</span>
+    <span class="kn">from</span> <span class="nn">cy_tree</span> <span class="kn">import</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Tree</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">StringTypes</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span> <span class="c"># Python 2</span>
-    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="c"># Python 3</span>
-        <span class="n">StringTypes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">StringTypes</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="n">start_pos</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
@@ -145,7 +135,6 @@
     <span class="n">pi</span> <span class="o">=</span> <span class="mi">0</span> <span class="c"># postorder sequence</span>
     <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">token</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">get_token</span><span class="p">()</span>
-        <span class="c">#print token,</span>
         <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s">&#39;;&#39;</span> <span class="ow">or</span> <span class="n">token</span> <span class="o">==</span> <span class="n">tokens</span><span class="o">.</span><span class="n">eof</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">lp</span> <span class="o">==</span> <span class="n">rp</span><span class="p">,</span> \
                    <span class="s">&quot;unbalanced parentheses in tree description: (</span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">)&quot;</span> \
@@ -157,24 +146,20 @@
             <span class="n">lp</span> <span class="o">=</span> <span class="n">lp</span><span class="o">+</span><span class="mi">1</span>
             <span class="n">newnode</span> <span class="o">=</span> <span class="n">Node</span><span class="p">()</span>
             <span class="n">newnode</span><span class="o">.</span><span class="n">ni</span> <span class="o">=</span> <span class="n">ni</span><span class="p">;</span> <span class="n">ni</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">newnode</span><span class="o">.</span><span class="n">isleaf</span> <span class="o">=</span> <span class="bp">False</span>
-            <span class="n">newnode</span><span class="o">.</span><span class="n">ii</span> <span class="o">=</span> <span class="n">ii</span><span class="p">;</span> <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c">## newnode.isleaf = False</span>
             <span class="n">newnode</span><span class="o">.</span><span class="n">treename</span> <span class="o">=</span> <span class="n">treename</span>
             <span class="k">if</span> <span class="n">node</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-                    <span class="n">newnode</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span><span class="o">+</span><span class="mi">1</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">newnode</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="o">+</span><span class="mi">1</span>
-                <span class="n">node</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="n">reindex</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span> <span class="n">newnode</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span><span class="o">+</span><span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span> <span class="n">newnode</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="o">+</span><span class="mi">1</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">newnode</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">newnode</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">newnode</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">newnode</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="mi">2</span>
             <span class="n">newnode</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">left</span><span class="o">+</span><span class="mi">1</span>
             <span class="n">node</span> <span class="o">=</span> <span class="n">newnode</span>
 
         <span class="k">elif</span> <span class="n">token</span> <span class="o">==</span> <span class="s">&#39;)&#39;</span><span class="p">:</span>
             <span class="n">rp</span> <span class="o">=</span> <span class="n">rp</span><span class="o">+</span><span class="mi">1</span>
             <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span>
-            <span class="n">node</span><span class="o">.</span><span class="n">pi</span> <span class="o">=</span> <span class="n">pi</span><span class="p">;</span> <span class="n">pi</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
                 <span class="n">node</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span> <span class="o">+</span> <span class="mi">1</span>
 
@@ -193,10 +178,11 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">token</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span> <span class="n">brlen</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;invalid literal for branch length, &quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="p">(</span><span class="s">&quot;invalid literal for branch length, &quot;</span>
                                        <span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">token</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;unexpected end-of-file (expecting branch length)&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="s">&#39;NewickError&#39;</span><span class="p">,</span> \
+                      <span class="s">&#39;unexpected end-of-file (expecting branch length)&#39;</span>
 
             <span class="n">node</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">brlen</span>
         <span class="c"># comment</span>
@@ -206,6 +192,7 @@
                 <span class="c"># metadata</span>
                 <span class="n">meta</span> <span class="o">=</span> <span class="n">META</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">comment</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
                 <span class="k">if</span> <span class="n">meta</span><span class="p">:</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{}</span>
                     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
                         <span class="n">v</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;{&#39;</span><span class="p">,</span><span class="s">&#39;(&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;}&#39;</span><span class="p">,</span><span class="s">&#39;)&#39;</span><span class="p">))</span>
                         <span class="n">node</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
@@ -223,17 +210,13 @@
                         <span class="n">token</span> <span class="o">=</span> <span class="n">ttoken</span>
                 <span class="n">newnode</span> <span class="o">=</span> <span class="n">Node</span><span class="p">()</span>
                 <span class="n">newnode</span><span class="o">.</span><span class="n">ni</span> <span class="o">=</span> <span class="n">ni</span><span class="p">;</span> <span class="n">ni</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">newnode</span><span class="o">.</span><span class="n">pi</span> <span class="o">=</span> <span class="n">pi</span><span class="p">;</span> <span class="n">pi</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">newnode</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">newnode</span><span class="o">.</span><span class="n">isleaf</span> <span class="o">=</span> <span class="bp">True</span>
-                <span class="n">newnode</span><span class="o">.</span><span class="n">li</span> <span class="o">=</span> <span class="n">li</span><span class="p">;</span> <span class="n">li</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-                    <span class="n">newnode</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span><span class="o">+</span><span class="mi">1</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">newnode</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="o">+</span><span class="mi">1</span>
+                <span class="c">## newnode.isleaf = True</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span> <span class="n">newnode</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span><span class="o">+</span><span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span> <span class="n">newnode</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="o">+</span><span class="mi">1</span>
                 <span class="n">newnode</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">left</span><span class="o">+</span><span class="mi">1</span>
                 <span class="n">newnode</span><span class="o">.</span><span class="n">treename</span> <span class="o">=</span> <span class="n">treename</span>
-                <span class="n">node</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="n">reindex</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">newnode</span><span class="p">)</span>
                 <span class="n">node</span> <span class="o">=</span> <span class="n">newnode</span>
             <span class="k">else</span><span class="p">:</span> <span class="c"># label</span>
                 <span class="k">if</span> <span class="n">ttable</span><span class="p">:</span>
@@ -242,56 +225,10 @@
                     <span class="n">node</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">token</span>
 
         <span class="n">previous</span> <span class="o">=</span> <span class="n">token</span>
-    <span class="n">node</span><span class="o">.</span><span class="n">isroot</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="c">## node.isroot = True</span>
     <span class="k">return</span> <span class="n">node</span>
-
-<span class="c">## def string(node, length_fmt=&quot;:%s&quot;, end=True, newline=True):</span>
-<span class="c">##     &quot;Recursively create a newick string from node.&quot;</span>
-<span class="c">##     if not node.isleaf:</span>
-<span class="c">##         node_str = &quot;(%s)%s&quot; % \</span>
-<span class="c">##                    (&quot;,&quot;.join([ string(child, length_fmt, False, newline) \</span>
-<span class="c">##                                for child in node.children ]),</span>
-<span class="c">##                     node.label or &quot;&quot;</span>
-<span class="c">##                     )</span>
-<span class="c">##     else:</span>
-<span class="c">##         node_str = &quot;%s&quot; % node.label</span>
-
-<span class="c">##     if node.length is not None:</span>
-<span class="c">##         length_str = length_fmt % node.length</span>
-<span class="c">##     else:</span>
-<span class="c">##         length_str = &quot;&quot;</span>
-
-<span class="c">##     semicolon = &quot;&quot;</span>
-<span class="c">##     if end:</span>
-<span class="c">##         if not newline:</span>
-<span class="c">##             semicolon = &quot;;&quot;</span>
-<span class="c">##         else:</span>
-<span class="c">##             semicolon = &quot;;\n&quot;</span>
-<span class="c">##     s = &quot;%s%s%s&quot; % (node_str, length_str, semicolon)</span>
-<span class="c">##     return s</span>
-
-<span class="c">## def from_nexus(infile, bufsize=None):</span>
-<span class="c">##     bufsize = bufsize or 1024*5000</span>
-<span class="c">##     TTABLE = re.compile(r&#39;\btranslate\s+([^;]+);&#39;, re.I | re.M)</span>
-<span class="c">##     TREE = re.compile(r&#39;\btree\s+([_.\w]+)\s*=[^(]+(\([^;]+;)&#39;, re.I | re.M)</span>
-<span class="c">##     s = infile.read(bufsize)</span>
-<span class="c">##     ttable = TTABLE.findall(s) or None</span>
-<span class="c">##     if ttable:</span>
-<span class="c">##         items = [ shlex.split(line) for line in ttable[0].split(&quot;,&quot;) ]</span>
-<span class="c">##         ttable = dict([ (k, v.replace(&quot; &quot;, &quot;_&quot;)) for k, v in items ])</span>
-<span class="c">##     trees = TREE.findall(s)</span>
-<span class="c">##     ## for i, t in enumerate(trees):</span>
-<span class="c">##     ##     t = list(t)</span>
-<span class="c">##     ##     if ttable:</span>
-<span class="c">##     ##         t[1] = &quot;&quot;.join(</span>
-<span class="c">##     ##             [ ttable.get(x, &quot;_&quot;.join(x.split()).replace(&quot;&#39;&quot;, &quot;&quot;))</span>
-<span class="c">##     ##               for x in shlex.shlex(t[1]) ]</span>
-<span class="c">##     ##             )</span>
-<span class="c">##     ##     trees[i] = t</span>
-<span class="c">##     ## return trees</span>
-<span class="c">##     return ttable, trees</span>
 </div>
-<div class="viewcode-block" id="parse_ampersand_comment"><a class="viewcode-back" href="../../ivy.html#ivy.newick.parse_ampersand_comment">[docs]</a><span class="k">def</span> <span class="nf">parse_ampersand_comment</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="parse_ampersand_comment"><a class="viewcode-back" href="../../../../ivy.chars.cy_tree.html#ivy.chars.cy_tree.newick.parse_ampersand_comment">[docs]</a><span class="k">def</span> <span class="nf">parse_ampersand_comment</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">pyparsing</span>
     <span class="n">pyparsing</span><span class="o">.</span><span class="n">ParserElement</span><span class="o">.</span><span class="n">enablePackrat</span><span class="p">()</span>
     <span class="kn">from</span> <span class="nn">pyparsing</span> <span class="kn">import</span> <span class="n">Word</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">QuotedString</span><span class="p">,</span> <span class="n">CaselessKeyword</span><span class="p">,</span> \
@@ -315,12 +252,12 @@
             <span class="k">try</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">asList</span><span class="p">()))</span>
+            <span class="k">try</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">asList</span><span class="p">())</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="k">pass</span>
         <span class="n">d</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">d</span>
 </div>
-<div class="viewcode-block" id="nexus_iter"><a class="viewcode-back" href="../../ivy.html#ivy.newick.nexus_iter">[docs]</a><span class="k">def</span> <span class="nf">nexus_iter</span><span class="p">(</span><span class="n">infile</span><span class="p">):</span>
+<div class="viewcode-block" id="nexus_iter"><a class="viewcode-back" href="../../../../ivy.chars.cy_tree.html#ivy.chars.cy_tree.newick.nexus_iter">[docs]</a><span class="k">def</span> <span class="nf">nexus_iter</span><span class="p">(</span><span class="n">infile</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">pyparsing</span>
     <span class="n">pyparsing</span><span class="o">.</span><span class="n">ParserElement</span><span class="o">.</span><span class="n">enablePackrat</span><span class="p">()</span>
     <span class="kn">from</span> <span class="nn">pyparsing</span> <span class="kn">import</span> <span class="n">Word</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">QuotedString</span><span class="p">,</span> <span class="n">CaselessKeyword</span><span class="p">,</span> \
@@ -367,7 +304,7 @@
     <span class="n">f</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">takewhile</span><span class="p">(</span><span class="n">not_end</span><span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">dropwhile</span><span class="p">(</span><span class="n">not_begin</span><span class="p">,</span> <span class="n">infile</span><span class="p">))</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">next</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">s</span> <span class="o">!=</span> <span class="s">&quot;begin trees;&quot;</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Expecting &#39;begin trees;&#39;, got </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">s</span><span class="p">)</span>
+        <span class="k">print</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Expecting &#39;begin trees;&#39;, got </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">s</span>
         <span class="k">raise</span> <span class="ne">StopIteration</span>
     <span class="n">ttable</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
@@ -376,7 +313,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span> <span class="k">continue</span>
         <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;translate&quot;</span><span class="p">:</span>
             <span class="n">ttable</span> <span class="o">=</span> <span class="n">parse_ttable</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;ttable: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">ttable</span><span class="p">))</span>
+            <span class="k">print</span> <span class="s">&quot;ttable: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">ttable</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s">&#39;tree&#39;</span><span class="p">:</span>
             <span class="n">match</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
             <span class="k">yield</span> <span class="n">nexus</span><span class="o">.</span><span class="n">Newick</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">ttable</span><span class="p">)</span>
@@ -388,15 +325,15 @@
 <span class="c">##             r = parse(rec.newick, ttable=rec.ttable)</span>
 <span class="c">##             for x in r: print x, x.comments</span>
 </div>
-<div class="viewcode-block" id="test_parse_comment"><a class="viewcode-back" href="../../ivy.html#ivy.newick.test_parse_comment">[docs]</a><span class="k">def</span> <span class="nf">test_parse_comment</span><span class="p">():</span>
+<div class="viewcode-block" id="test_parse_comment"><a class="viewcode-back" href="../../../../ivy.chars.cy_tree.html#ivy.chars.cy_tree.newick.test_parse_comment">[docs]</a><span class="k">def</span> <span class="nf">test_parse_comment</span><span class="p">():</span>
     <span class="n">v</span> <span class="o">=</span> <span class="p">((</span><span class="s">&quot;height_median=1.1368683772161603E-13,height=9.188229043880098E-14,&quot;</span>
           <span class="s">&quot;height_95%_HPD={5.6843418860808015E-14,1.7053025658242404E-13},&quot;</span>
           <span class="s">&quot;height_range={0.0,2.8421709430404007E-13}&quot;</span><span class="p">),</span>
          <span class="s">&quot;R&quot;</span><span class="p">,</span> <span class="s">&quot;lnP=-154.27154502342688,lnP=-24657.14341301901&quot;</span><span class="p">,</span>
          <span class="s">&#39;states=&quot;T-lateral&quot;&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;input:&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">parse_ampersand_comment</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span></div>
+        <span class="k">print</span> <span class="s">&quot;input:&quot;</span><span class="p">,</span> <span class="n">s</span>
+        <span class="k">print</span> <span class="nb">dict</span><span class="p">(</span><span class="n">parse_ampersand_comment</span><span class="p">(</span><span class="n">s</span><span class="p">))</span></div>
 </pre></div>
 
           </div>
@@ -406,7 +343,7 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <form class="search" action="../../search.html" method="get">
+    <form class="search" action="../../../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
@@ -425,13 +362,13 @@
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
+          <a href="../../../../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
+          <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">ivy 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

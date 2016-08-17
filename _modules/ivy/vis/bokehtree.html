@@ -65,7 +65,7 @@
     <span class="n">StringTypes</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span> <span class="c"># Python 2</span>
 <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="c"># Python 3</span>
     <span class="n">StringTypes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-<div class="viewcode-block" id="BokehTree"><a class="viewcode-back" href="../../../ivy.vis.bokehtree.html#ivy.vis.bokehtree.BokehTree">[docs]</a><span class="k">class</span> <span class="nc">BokehTree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="BokehTree"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.bokehtree.BokehTree">[docs]</a><span class="k">class</span> <span class="nc">BokehTree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">scaled</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">nodelabels</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
 				 <span class="n">tiplabels</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">showplot</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">hover</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
@@ -97,7 +97,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">scaled</span> <span class="o">=</span> <span class="n">scaled</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">hover</span> <span class="o">=</span> <span class="n">hover</span>
 
-<div class="viewcode-block" id="BokehTree.set_root"><a class="viewcode-back" href="../../../ivy.vis.bokehtree.html#ivy.vis.bokehtree.BokehTree.set_root">[docs]</a>	<span class="k">def</span> <span class="nf">set_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
+<div class="viewcode-block" id="BokehTree.set_root"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.bokehtree.BokehTree.set_root">[docs]</a>	<span class="k">def</span> <span class="nf">set_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		This method sets root, leaves, and nleaves.</span>
 <span class="sd">		Detects if tree is scaled or not.</span>
@@ -112,7 +112,7 @@
 				<span class="bp">self</span><span class="o">.</span><span class="n">scaled</span><span class="o">=</span><span class="bp">False</span><span class="p">;</span> <span class="k">break</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="BokehTree.layout"><a class="viewcode-back" href="../../../ivy.vis.bokehtree.html#ivy.vis.bokehtree.BokehTree.layout">[docs]</a>	<span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BokehTree.layout"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.bokehtree.BokehTree.layout">[docs]</a>	<span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		This method calculates the coordinates of the nodes</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -126,11 +126,11 @@
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">sv</span>
 </div>
-<div class="viewcode-block" id="BokehTree.makehovertool"><a class="viewcode-back" href="../../../ivy.vis.bokehtree.html#ivy.vis.bokehtree.BokehTree.makehovertool">[docs]</a>	<span class="k">def</span> <span class="nf">makehovertool</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BokehTree.makehovertool"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.bokehtree.BokehTree.makehovertool">[docs]</a>	<span class="k">def</span> <span class="nf">makehovertool</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">hovertool</span> <span class="o">=</span> <span class="n">HoverTool</span><span class="p">(</span><span class="n">tooltips</span><span class="o">=</span><span class="p">[(</span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="s">&quot;@desc&quot;</span><span class="p">)])</span>
 
 </div>
-<div class="viewcode-block" id="BokehTree.connectors"><a class="viewcode-back" href="../../../ivy.vis.bokehtree.html#ivy.vis.bokehtree.BokehTree.connectors">[docs]</a>	<span class="k">def</span> <span class="nf">connectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BokehTree.connectors"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.bokehtree.BokehTree.connectors">[docs]</a>	<span class="k">def</span> <span class="nf">connectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		This method draws branches between nodes</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -160,7 +160,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">multi_line</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xLineCoords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yLineCoords</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="BokehTree.drawlabels"><a class="viewcode-back" href="../../../ivy.vis.bokehtree.html#ivy.vis.bokehtree.BokehTree.drawlabels">[docs]</a>	<span class="k">def</span> <span class="nf">drawlabels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BokehTree.drawlabels"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.bokehtree.BokehTree.drawlabels">[docs]</a>	<span class="k">def</span> <span class="nf">drawlabels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		This method draws labels for tips and internal nodes</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -180,7 +180,7 @@
 						   <span class="p">[</span> <span class="n">k</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">clades</span><span class="p">()</span> <span class="p">],</span>
 						   <span class="n">text_baseline</span> <span class="o">=</span> <span class="s">&quot;middle&quot;</span><span class="p">,</span> <span class="n">text_font_size</span> <span class="o">=</span> <span class="s">&quot;8pt&quot;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="BokehTree.drawtree"><a class="viewcode-back" href="../../../ivy.vis.bokehtree.html#ivy.vis.bokehtree.BokehTree.drawtree">[docs]</a>	<span class="k">def</span> <span class="nf">drawtree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">showplot</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="BokehTree.drawtree"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.bokehtree.BokehTree.drawtree">[docs]</a>	<span class="k">def</span> <span class="nf">drawtree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">showplot</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		This method sets the output file and creates the figure</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -222,7 +222,7 @@
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">showplot</span><span class="p">:</span>
 			<span class="n">show</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">)</span> <span class="c"># Creating the plot</span>
 </div>
-<div class="viewcode-block" id="BokehTree.highlight"><a class="viewcode-back" href="../../../ivy.vis.bokehtree.html#ivy.vis.bokehtree.BokehTree.highlight">[docs]</a>	<span class="k">def</span> <span class="nf">highlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">&quot;red&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<div class="viewcode-block" id="BokehTree.highlight"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.bokehtree.BokehTree.highlight">[docs]</a>	<span class="k">def</span> <span class="nf">highlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">&quot;red&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Highlight selected clade(s)</span>
 

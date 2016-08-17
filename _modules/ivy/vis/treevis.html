@@ -95,7 +95,7 @@
     <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 
 <span class="n">_tango</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">tango</span><span class="p">()</span>
-<div class="viewcode-block" id="TreeFigure"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure">[docs]</a><span class="k">class</span> <span class="nc">TreeFigure</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure">[docs]</a><span class="k">class</span> <span class="nc">TreeFigure</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    mpl Figure for plotting trees.</span>
 
@@ -180,7 +180,7 @@
         <span class="c">#if self.tree.interactive:</span>
         <span class="c">#    self.figure.canvas.callbacks.connect(&quot;scroll_event&quot;, self.redraw(True))</span>
 
-<div class="viewcode-block" id="TreeFigure.initialize_subplots"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.initialize_subplots">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_subplots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overview</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">leaf_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<div class="viewcode-block" id="TreeFigure.initialize_subplots"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.initialize_subplots">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_subplots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overview</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">leaf_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">branch_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize treeplot (a matplotlib.axes.Axes) and add it to the figure.</span>
@@ -256,9 +256,9 @@
                         <span class="n">__set_selected_nodes</span><span class="p">,</span>
                         <span class="n">__del_selected_nodes</span><span class="p">)</span>
 
-<div class="viewcode-block" id="TreeFigure.on_nodes_selected"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.on_nodes_selected">[docs]</a>    <span class="k">def</span> <span class="nf">on_nodes_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">treeplot</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.on_nodes_selected"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.on_nodes_selected">[docs]</a>    <span class="k">def</span> <span class="nf">on_nodes_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">treeplot</span><span class="p">):</span>
         <span class="k">pass</span></div>
-<div class="viewcode-block" id="TreeFigure.select_nodes"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.select_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">select_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.select_nodes"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.select_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">select_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select nodes on the plot</span>
 
@@ -275,7 +275,7 @@
     <span class="k">def</span> <span class="nf">axes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span>
 
-<div class="viewcode-block" id="TreeFigure.picked"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.picked">[docs]</a>    <span class="k">def</span> <span class="nf">picked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.picked"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.picked">[docs]</a>    <span class="k">def</span> <span class="nf">picked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">mouseevent</span><span class="o">.</span><span class="n">button</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">artist</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
@@ -285,20 +285,20 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.ladderize"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.ladderize">[docs]</a>    <span class="k">def</span> <span class="nf">ladderize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rev</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.ladderize"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.ladderize">[docs]</a>    <span class="k">def</span> <span class="nf">ladderize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rev</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Ladderize and redraw the tree</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">ladderize</span><span class="p">(</span><span class="n">rev</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.show"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.show"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the figure in a new window</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.set_positions"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.set_positions">[docs]</a>    <span class="k">def</span> <span class="nf">set_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.set_positions"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.set_positions">[docs]</a>    <span class="k">def</span> <span class="nf">set_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">overview</span>
         <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span>
         <span class="n">height</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">-</span><span class="n">p</span><span class="o">.</span><span class="n">xoffset</span><span class="p">()</span>
@@ -318,7 +318,7 @@
             <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">p</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">left</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">xoffset</span><span class="p">(),</span> <span class="n">w</span><span class="p">,</span> <span class="n">height</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div>
-<div class="viewcode-block" id="TreeFigure.redraw"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keeptemp</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.redraw"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keeptemp</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Replot the figure and overview</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -345,7 +345,7 @@
         <span class="n">matplotlib</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="TreeFigure.find"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.find">[docs]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.find"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.find">[docs]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find nodes</span>
 
@@ -356,14 +356,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.home"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.home"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return plot to initial size and location.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overview</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">overview</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.zoom_clade"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.zoom_clade">[docs]</a>    <span class="k">def</span> <span class="nf">zoom_clade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.zoom_clade"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.zoom_clade">[docs]</a>    <span class="k">def</span> <span class="nf">zoom_clade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Zoom to fit a node *x* and all its descendants in the view.</span>
 
@@ -374,18 +374,18 @@
             <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">zoom_clade</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.zoom"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.zoom">[docs]</a>    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.zoom"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.zoom">[docs]</a>    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Zoom both axes by *factor* (relative display size).&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">factor</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span></div>
-<div class="viewcode-block" id="TreeFigure.zx"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.zx">[docs]</a>    <span class="k">def</span> <span class="nf">zx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.zx"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.zx">[docs]</a>    <span class="k">def</span> <span class="nf">zx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Zoom x axis by *factor*.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">factor</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.zy"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.zy">[docs]</a>    <span class="k">def</span> <span class="nf">zy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.zy"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.zy">[docs]</a>    <span class="k">def</span> <span class="nf">zy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Zoom y axis by *factor*.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span></div>
-<div class="viewcode-block" id="TreeFigure.toggle_overview"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.toggle_overview">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_overview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.toggle_overview"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.toggle_overview">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_overview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Toggle overview</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -403,7 +403,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">overview</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">overview_width</span> <span class="o">=</span> <span class="mf">0.001</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_positions</span><span class="p">()</span></div>
-<div class="viewcode-block" id="TreeFigure.hardcopy"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.hardcopy">[docs]</a>    <span class="k">def</span> <span class="nf">hardcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">relwidth</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">leafpad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.hardcopy"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.hardcopy">[docs]</a>    <span class="k">def</span> <span class="nf">hardcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">relwidth</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">leafpad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">relwidth</span><span class="p">:</span>
             <span class="n">bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">get_tightbbox</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">get_renderer</span><span class="p">())</span>
             <span class="n">relwidth</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">width</span><span class="o">/</span><span class="n">bbox</span><span class="o">.</span><span class="n">height</span>
@@ -420,7 +420,7 @@
     <span class="c">##################################</span>
     <span class="c"># Layer API</span>
     <span class="c">##################################</span></div>
-<div class="viewcode-block" id="TreeFigure.add_layer"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.add_layer">[docs]</a>    <span class="k">def</span> <span class="nf">add_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.add_layer"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.add_layer">[docs]</a>    <span class="k">def</span> <span class="nf">add_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a new layer. New layers include:</span>
 
@@ -450,7 +450,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ovlayers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">=</span><span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">overview</span><span class="p">,</span>
                                                   <span class="n">vis</span><span class="o">=</span><span class="n">vis</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">overview</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-<div class="viewcode-block" id="TreeFigure.remove_layer"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.remove_layer">[docs]</a>    <span class="k">def</span> <span class="nf">remove_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.remove_layer"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.remove_layer">[docs]</a>    <span class="k">def</span> <span class="nf">remove_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove a layer by name.</span>
 
@@ -464,7 +464,7 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span></div>
-<div class="viewcode-block" id="TreeFigure.toggle_layer"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.toggle_layer">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.toggle_layer"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.toggle_layer">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set a layer to be visible/invisible (but still stored in self.layers)</span>
 
@@ -483,7 +483,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">ovlayers</span><span class="p">[</span><span class="n">layername</span><span class="p">]</span><span class="o">.</span><span class="n">keywords</span><span class="p">[</span><span class="s">&quot;vis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vis</span>
             <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">redraw</span><span class="p">(</span><span class="n">keeptemp</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></div>
-<div class="viewcode-block" id="TreeFigure.reorder_layers"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.reorder_layers">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neworder</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.reorder_layers"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.reorder_layers">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neworder</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reorder layers and redraw figure</span>
 
@@ -507,19 +507,19 @@
     <span class="c"># Convenience functions</span>
     <span class="c">############################</span>
 </div>
-<div class="viewcode-block" id="TreeFigure.toggle_branchlabels"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.toggle_branchlabels">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_branchlabels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.toggle_branchlabels"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.toggle_branchlabels">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_branchlabels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Toggle visibility of branchlabels</span>
 <span class="sd">        (equivalent to toggle_layer(&quot;branchlabels&quot;))</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">toggle_layer</span><span class="p">(</span><span class="s">&quot;branchlabels&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span></div>
-<div class="viewcode-block" id="TreeFigure.toggle_leaflabels"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.toggle_leaflabels">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_leaflabels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.toggle_leaflabels"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.toggle_leaflabels">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_leaflabels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Toggle visibility of leafabels</span>
 <span class="sd">        (equivalent to self.toggle_layer(&quot;leaflabels&quot;))</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">toggle_layer</span><span class="p">(</span><span class="s">&quot;leaflabels&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span></div>
-<div class="viewcode-block" id="TreeFigure.highlight"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.highlight">[docs]</a>    <span class="k">def</span> <span class="nf">highlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.highlight"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.highlight">[docs]</a>    <span class="k">def</span> <span class="nf">highlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience function for highlighting nodes</span>
 
@@ -530,7 +530,7 @@
 <span class="sd">            vis (bool): Whether or not the object is visible. Defaults to true</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_layer</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">add_highlight</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-<div class="viewcode-block" id="TreeFigure.cbar"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.cbar">[docs]</a>    <span class="k">def</span> <span class="nf">cbar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.cbar"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.cbar">[docs]</a>    <span class="k">def</span> <span class="nf">cbar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience function for adding clade bar along y axis</span>
 
@@ -556,7 +556,7 @@
 <span class="sd">              of the MRCA of ``nodes``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_layer</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">add_cbar</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-<div class="viewcode-block" id="TreeFigure.tipstates"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.TreeFigure.tipstates">[docs]</a>    <span class="k">def</span> <span class="nf">tipstates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">colors</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TreeFigure.tipstates"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.TreeFigure.tipstates">[docs]</a>    <span class="k">def</span> <span class="nf">tipstates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">colors</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience function for drawing color-coded circles at tips indicating</span>
 <span class="sd">        character states.</span>
@@ -574,7 +574,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_layer</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">add_tipstates</span><span class="p">,</span><span class="n">chars</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </div></div>
-<div class="viewcode-block" id="Tree"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree">[docs]</a><span class="k">class</span> <span class="nc">Tree</span><span class="p">(</span><span class="n">Axes</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree">[docs]</a><span class="k">class</span> <span class="nc">Tree</span><span class="p">(</span><span class="n">Axes</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Subclass for rendering trees</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -633,7 +633,7 @@
         <span class="c">#if self.interactive:</span>
         <span class="c">#    self.callbacks.connect(&quot;ylim_changed&quot;, testprint)</span>
 
-<div class="viewcode-block" id="Tree.p2y"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.p2y">[docs]</a>    <span class="k">def</span> <span class="nf">p2y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.p2y"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.p2y">[docs]</a>    <span class="k">def</span> <span class="nf">p2y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="s">&quot;Convert a single display point to y-units&quot;</span>
         <span class="n">transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transData</span><span class="o">.</span><span class="n">inverted</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span>
         <span class="k">return</span> <span class="n">transform</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">transform</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span></div>
@@ -653,18 +653,18 @@
         <span class="n">transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transData</span><span class="o">.</span><span class="n">inverted</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span>
         <span class="k">return</span> <span class="n">transform</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">transform</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Tree.xoffset"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.xoffset">[docs]</a>    <span class="k">def</span> <span class="nf">xoffset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.xoffset"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.xoffset">[docs]</a>    <span class="k">def</span> <span class="nf">xoffset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Space below x axis to show tick labels.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaled</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xoffset_value</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">0</span></div>
-<div class="viewcode-block" id="Tree.set_scaled"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.set_scaled">[docs]</a>    <span class="k">def</span> <span class="nf">set_scaled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaled</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.set_scaled"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.set_scaled">[docs]</a>    <span class="k">def</span> <span class="nf">set_scaled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaled</span><span class="p">):</span>
         <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaled</span> <span class="o">!=</span> <span class="n">scaled</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scaled</span> <span class="o">=</span> <span class="n">scaled</span>
         <span class="k">return</span> <span class="n">flag</span>
 </div>
-<div class="viewcode-block" id="Tree.circle_selected_nodes"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.circle_selected_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">circle_selected_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;green&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.circle_selected_nodes"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.circle_selected_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">circle_selected_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;green&quot;</span><span class="p">):</span>
         <span class="n">xlim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
         <span class="n">ylim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
         <span class="n">get</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n2c</span><span class="o">.</span><span class="n">get</span>
@@ -678,7 +678,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Tree.select_nodes"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.select_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">select_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.select_nodes"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.select_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">select_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__selected_circled_patch</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
@@ -699,7 +699,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">selected_nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Tree.rectselect"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.rectselect">[docs]</a>    <span class="k">def</span> <span class="nf">rectselect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e0</span><span class="p">,</span> <span class="n">e1</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.rectselect"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.rectselect">[docs]</a>    <span class="k">def</span> <span class="nf">rectselect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e0</span><span class="p">,</span> <span class="n">e1</span><span class="p">):</span>
         <span class="n">xlim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
         <span class="n">ylim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
         <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -718,11 +718,11 @@
         <span class="c">##         print &quot; &quot;, n</span>
 
 </div>
-<div class="viewcode-block" id="Tree.picked"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.picked">[docs]</a>    <span class="k">def</span> <span class="nf">picked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.picked"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.picked">[docs]</a>    <span class="k">def</span> <span class="nf">picked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;app&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">picked</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Tree.window2data"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.window2data">[docs]</a>    <span class="k">def</span> <span class="nf">window2data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expandx</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">expandy</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.window2data"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.window2data">[docs]</a>    <span class="k">def</span> <span class="nf">window2data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expandx</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">expandy</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        return the data coordinates ((x0, y0),(x1, y1)) of the plot</span>
 <span class="sd">        window, expanded by relative units of window size</span>
@@ -730,7 +730,7 @@
         <span class="n">bb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window_extent</span><span class="p">()</span>
         <span class="n">bbx</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">expanded</span><span class="p">(</span><span class="n">expandx</span><span class="p">,</span> <span class="n">expandy</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transData</span><span class="o">.</span><span class="n">inverted</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">bbx</span><span class="o">.</span><span class="n">get_points</span><span class="p">())</span></div>
-<div class="viewcode-block" id="Tree.get_visible_nodes"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.get_visible_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_visible_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labeled_only</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.get_visible_nodes"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.get_visible_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_visible_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labeled_only</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="c">## transform = self.transData.inverted().transform</span>
         <span class="c">## bb = self.get_window_extent()</span>
         <span class="c">## bbx = bb.expanded(1.1,1.1)</span>
@@ -745,7 +745,7 @@
         <span class="k">for</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">):</span>
             <span class="k">yield</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Tree.zoom_cxy"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.zoom_cxy">[docs]</a>    <span class="k">def</span> <span class="nf">zoom_cxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.zoom_cxy"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.zoom_cxy">[docs]</a>    <span class="k">def</span> <span class="nf">zoom_cxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Zoom the x and y axes in by the specified proportion of the</span>
 <span class="sd">        current view, with a fixed data point (cx, cy)</span>
@@ -767,7 +767,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_labels</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span> <span class="c"># Added draw_idle</span>
 </div>
-<div class="viewcode-block" id="Tree.zoom"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.zoom">[docs]</a>    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.zoom"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.zoom">[docs]</a>    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Zoom the x and y axes in by the specified proportion of the</span>
 <span class="sd">        current view.</span>
@@ -788,7 +788,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_labels</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span> <span class="c"># Added draw_idle</span>
 </div>
-<div class="viewcode-block" id="Tree.center_y"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.center_y">[docs]</a>    <span class="k">def</span> <span class="nf">center_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.center_y"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.center_y">[docs]</a>    <span class="k">def</span> <span class="nf">center_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Center the y-axis of the canvas on the given y value</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -798,7 +798,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">adjust_xspine</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_labels</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Tree.center_x"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.center_x">[docs]</a>    <span class="k">def</span> <span class="nf">center_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.center_x"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.center_x">[docs]</a>    <span class="k">def</span> <span class="nf">center_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Center the x-axis of the canvas on the given x value</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -808,7 +808,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">xoff</span><span class="p">,</span> <span class="n">x</span><span class="o">+</span><span class="n">xoff</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adjust_xspine</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Tree.center_node"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.center_node">[docs]</a>    <span class="k">def</span> <span class="nf">center_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.center_node"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.center_node">[docs]</a>    <span class="k">def</span> <span class="nf">center_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Center the canvas on the given node</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -819,7 +819,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">center_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_labels</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Tree.find"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.find">[docs]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.find"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.find">[docs]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find node(s) matching pattern s and zoom to node(s)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -828,7 +828,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">zoom_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">draw_labels</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Tree.zoom_nodes"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.zoom_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">zoom_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mf">1.2</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.zoom_nodes"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.zoom_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">zoom_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mf">1.2</span><span class="p">):</span>
         <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">();</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
         <span class="n">y0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y0</span><span class="p">);</span> <span class="n">y1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span>
 
@@ -855,7 +855,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_labels</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Tree.zoom_clade"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.zoom_clade">[docs]</a>    <span class="k">def</span> <span class="nf">zoom_clade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anc</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mf">1.2</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.zoom_clade"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.zoom_clade">[docs]</a>    <span class="k">def</span> <span class="nf">zoom_clade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anc</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mf">1.2</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">anc</span><span class="o">.</span><span class="n">isleaf</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">center_node</span><span class="p">(</span><span class="n">anc</span><span class="p">)</span>
 
@@ -864,12 +864,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_labels</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span> <span class="c"># Added draw_idle</span>
 </div>
-<div class="viewcode-block" id="Tree.ypp"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.ypp">[docs]</a>    <span class="k">def</span> <span class="nf">ypp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.ypp"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.ypp">[docs]</a>    <span class="k">def</span> <span class="nf">ypp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
         <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transData</span><span class="o">.</span><span class="n">transform</span><span class="p">(((</span><span class="mi">0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y1</span><span class="p">)))[:,</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">y1</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">p1</span><span class="o">-</span><span class="n">p0</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Tree.redraw"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">home</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.redraw"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">home</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Replot the tree</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -886,7 +886,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">*</span><span class="n">ylim</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="Tree.set_name"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.set_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.set_name"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.set_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">at</span> <span class="o">=</span> <span class="n">AnchoredText</span><span class="p">(</span>
@@ -914,7 +914,7 @@
         <span class="c">##                   edgecolor=color or self.branch_color)]</span>
 
 
-<div class="viewcode-block" id="Tree.layout"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.layout"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get coordinates of nodes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -928,7 +928,7 @@
             <span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">sv</span><span class="c">#numpy.array(sv)</span>
 </div>
-<div class="viewcode-block" id="Tree.set_root"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.set_root">[docs]</a>    <span class="k">def</span> <span class="nf">set_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.set_root"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.set_root">[docs]</a>    <span class="k">def</span> <span class="nf">set_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">root</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">leaves</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nleaves</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
@@ -939,7 +939,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">scaled</span><span class="o">=</span><span class="bp">False</span><span class="p">;</span> <span class="k">break</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Tree.plot_tree"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.plot_tree">[docs]</a>    <span class="k">def</span> <span class="nf">plot_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.plot_tree"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.plot_tree">[docs]</a>    <span class="k">def</span> <span class="nf">plot_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Draw branches</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -965,7 +965,7 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 </div>
-<div class="viewcode-block" id="Tree.clade_dimensions"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.clade_dimensions">[docs]</a>    <span class="k">def</span> <span class="nf">clade_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.clade_dimensions"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.clade_dimensions">[docs]</a>    <span class="k">def</span> <span class="nf">clade_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">n2c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n2c</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">def</span> <span class="nf">recurse</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n2c</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
@@ -987,7 +987,7 @@
         <span class="n">recurse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">n2c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span>
 </div>
-<div class="viewcode-block" id="Tree.clade_height_pixels"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.clade_height_pixels">[docs]</a>    <span class="k">def</span> <span class="nf">clade_height_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.clade_height_pixels"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.clade_height_pixels">[docs]</a>    <span class="k">def</span> <span class="nf">clade_height_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ypp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ypp</span><span class="p">()</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clade_dimensions</span><span class="p">()</span>
         <span class="n">h</span> <span class="o">=</span> <span class="p">{}</span>
@@ -995,7 +995,7 @@
             <span class="n">h</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">y1</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span><span class="o">/</span><span class="n">ypp</span>
         <span class="k">return</span> <span class="n">h</span>
 </div>
-<div class="viewcode-block" id="Tree.create_branch_artists"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.create_branch_artists">[docs]</a>    <span class="k">def</span> <span class="nf">create_branch_artists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.create_branch_artists"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.create_branch_artists">[docs]</a>    <span class="k">def</span> <span class="nf">create_branch_artists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Use MPL Paths to draw branches</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1012,7 +1012,7 @@
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">branchpatch</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Tree.adjust_xspine"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.adjust_xspine">[docs]</a>    <span class="k">def</span> <span class="nf">adjust_xspine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.adjust_xspine"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.adjust_xspine">[docs]</a>    <span class="k">def</span> <span class="nf">adjust_xspine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">v</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n2c</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="p">])</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_bounds</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -1022,7 +1022,7 @@
             <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="n">t</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Tree.mark_named"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.mark_named">[docs]</a>    <span class="k">def</span> <span class="nf">mark_named</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.mark_named"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.mark_named">[docs]</a>    <span class="k">def</span> <span class="nf">mark_named</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mark_named</span><span class="p">:</span>
             <span class="n">n2c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n2c</span>
             <span class="n">cv</span> <span class="o">=</span> <span class="p">[</span> <span class="n">c</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">n2c</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span><span class="p">)</span> <span class="p">]</span>
@@ -1031,7 +1031,7 @@
             <span class="k">if</span> <span class="n">x</span> <span class="ow">and</span> <span class="n">y</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;black&#39;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Tree.home"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.home"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">td</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transData</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">td</span><span class="o">.</span><span class="n">inverted</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span>
         <span class="n">xmax</span> <span class="o">=</span> <span class="n">xmin</span> <span class="o">=</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ymin</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1055,7 +1055,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_labels</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span> <span class="c"># Warning: Had to add this line for this to work. Still don&#39;t know why.</span>
 </div>
-<div class="viewcode-block" id="Tree.scroll"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.scroll">[docs]</a>    <span class="k">def</span> <span class="nf">scroll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.scroll"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.scroll">[docs]</a>    <span class="k">def</span> <span class="nf">scroll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
         <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
         <span class="n">xd</span> <span class="o">=</span> <span class="p">(</span><span class="n">x1</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span><span class="o">*</span><span class="n">x</span>
@@ -1065,7 +1065,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">adjust_xspine</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_labels</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Tree.leaf_pixelsep"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.leaf_pixelsep">[docs]</a>    <span class="k">def</span> <span class="nf">leaf_pixelsep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.leaf_pixelsep"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.leaf_pixelsep">[docs]</a>    <span class="k">def</span> <span class="nf">leaf_pixelsep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
         <span class="n">y0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span>
         <span class="n">y1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nleaves</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span>
@@ -1074,7 +1074,7 @@
         <span class="n">height</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="o">*</span><span class="nb">reversed</span><span class="p">(</span><span class="n">display_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]))</span>
         <span class="n">pixelsep</span> <span class="o">=</span> <span class="n">height</span><span class="o">/</span><span class="p">((</span><span class="n">y1</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">leaf_hsep</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pixelsep</span></div>
-<div class="viewcode-block" id="Tree.draw_labels"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.draw_labels">[docs]</a>    <span class="k">def</span> <span class="nf">draw_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.draw_labels"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.draw_labels">[docs]</a>    <span class="k">def</span> <span class="nf">draw_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s">&quot;leaflabels&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keywords</span><span class="p">[</span><span class="s">&quot;vis&quot;</span><span class="p">]:</span>
             <span class="p">[</span> <span class="n">l</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node2label</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="p">]</span>
             <span class="n">fs</span> <span class="o">=</span> <span class="mi">10</span>
@@ -1138,7 +1138,7 @@
                     <span class="n">t</span> <span class="o">=</span> <span class="n">n2l</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
                     <span class="n">t</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
                     <span class="n">t</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="n">fs</span><span class="p">)</span></div>
-<div class="viewcode-block" id="Tree.hardcopy"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.Tree.hardcopy">[docs]</a>    <span class="k">def</span> <span class="nf">hardcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relwidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">leafpad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">):</span>
+<div class="viewcode-block" id="Tree.hardcopy"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.Tree.hardcopy">[docs]</a>    <span class="k">def</span> <span class="nf">hardcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relwidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">leafpad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">):</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">HC</span><span class="o">.</span><span class="n">TreeFigure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">relwidth</span><span class="o">=</span><span class="n">relwidth</span><span class="p">,</span> <span class="n">leafpad</span><span class="o">=</span><span class="n">leafpad</span><span class="p">,</span>
                           <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                           <span class="n">leaf_fontsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">leaf_fontsize</span><span class="p">,</span>
@@ -1153,14 +1153,14 @@
                           <span class="n">plottype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">plottype</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">p</span>
 </div></div>
-<div class="viewcode-block" id="RadialTree"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.RadialTree">[docs]</a><span class="k">class</span> <span class="nc">RadialTree</span><span class="p">(</span><span class="n">Tree</span><span class="p">):</span>
+<div class="viewcode-block" id="RadialTree"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.RadialTree">[docs]</a><span class="k">class</span> <span class="nc">RadialTree</span><span class="p">(</span><span class="n">Tree</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Matplotlib axes subclass for rendering radial trees</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fig</span><span class="p">,</span><span class="n">rect</span><span class="p">,</span><span class="n">tf</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">Tree</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fig</span><span class="p">,</span><span class="n">rect</span><span class="p">,</span><span class="n">tf</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">&quot;equal&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="RadialTree.layout"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.RadialTree.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RadialTree.layout"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.RadialTree.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">..layout_polar</span> <span class="kn">import</span> <span class="n">calc_node_positions</span>
         <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
         <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;end&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="bp">None</span>
@@ -1208,7 +1208,7 @@
         <span class="k">return</span> <span class="n">verts</span><span class="p">,</span> <span class="n">codes</span>
 
 </div>
-<div class="viewcode-block" id="OverviewTree"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.OverviewTree">[docs]</a><span class="k">class</span> <span class="nc">OverviewTree</span><span class="p">(</span><span class="n">Tree</span><span class="p">):</span>
+<div class="viewcode-block" id="OverviewTree"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.OverviewTree">[docs]</a><span class="k">class</span> <span class="nc">OverviewTree</span><span class="p">(</span><span class="n">Tree</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s">&quot;leaflabels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s">&quot;branchlabels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
@@ -1218,7 +1218,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_overview_rect</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plottype</span><span class="o">=</span><span class="s">&quot;overview&quot;</span>
 
-<div class="viewcode-block" id="OverviewTree.home"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.OverviewTree.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OverviewTree.home"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.OverviewTree.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">td</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transData</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">td</span><span class="o">.</span><span class="n">inverted</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span>
         <span class="n">xmax</span> <span class="o">=</span> <span class="n">xmin</span> <span class="o">=</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ymin</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1240,7 +1240,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">adjust_xspine</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span> <span class="c"># Warning: Had to add this line for this to work. Still don&#39;t know why.</span>
 </div>
-<div class="viewcode-block" id="OverviewTree.rectselect"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.OverviewTree.rectselect">[docs]</a>    <span class="k">def</span> <span class="nf">rectselect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e0</span><span class="p">,</span> <span class="n">e1</span><span class="p">):</span>
+<div class="viewcode-block" id="OverviewTree.rectselect"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.OverviewTree.rectselect">[docs]</a>    <span class="k">def</span> <span class="nf">rectselect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e0</span><span class="p">,</span> <span class="n">e1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Zoom to the selected region</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1257,10 +1257,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="OverviewTree.set_target"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.OverviewTree.set_target">[docs]</a>    <span class="k">def</span> <span class="nf">set_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+<div class="viewcode-block" id="OverviewTree.set_target"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.OverviewTree.set_target">[docs]</a>    <span class="k">def</span> <span class="nf">set_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
 </div>
-<div class="viewcode-block" id="OverviewTree.add_overview_rect"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.OverviewTree.add_overview_rect">[docs]</a>    <span class="k">def</span> <span class="nf">add_overview_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OverviewTree.add_overview_rect"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.OverviewTree.add_overview_rect">[docs]</a>    <span class="k">def</span> <span class="nf">add_overview_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">rect</span> <span class="o">=</span> <span class="n">UpdatingRect</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s">&#39;black&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">&#39;red&#39;</span><span class="p">)</span>
         <span class="n">rect</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
         <span class="n">rect</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span>
@@ -1271,17 +1271,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;xlim_changed&#39;</span><span class="p">,</span> <span class="n">rect</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;ylim_changed&#39;</span><span class="p">,</span> <span class="n">rect</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="OverviewTree.redraw"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.OverviewTree.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OverviewTree.redraw"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.OverviewTree.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">Tree</span><span class="o">.</span><span class="n">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_overview_rect</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div>
-<div class="viewcode-block" id="OverviewTree.redraw_keeptemp"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.OverviewTree.redraw_keeptemp">[docs]</a>    <span class="k">def</span> <span class="nf">redraw_keeptemp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OverviewTree.redraw_keeptemp"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.OverviewTree.redraw_keeptemp">[docs]</a>    <span class="k">def</span> <span class="nf">redraw_keeptemp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">Tree</span><span class="o">.</span><span class="n">redraw_keeptemp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_overview_rect</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 
 <span class="c"># TODO: facing plots</span></div></div>
-<div class="viewcode-block" id="MultiTreeFigure"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.MultiTreeFigure">[docs]</a><span class="k">class</span> <span class="nc">MultiTreeFigure</span><span class="p">(</span><span class="n">TreeFigure</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTreeFigure"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.MultiTreeFigure">[docs]</a><span class="k">class</span> <span class="nc">MultiTreeFigure</span><span class="p">(</span><span class="n">TreeFigure</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for drawing multiple trees in one figure</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1311,7 +1311,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">support</span><span class="o">=</span><span class="n">support</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="n">scaled</span><span class="p">,</span>
                      <span class="n">branchlabels</span><span class="o">=</span><span class="n">branchlabels</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MultiTreeFigure.add"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.MultiTreeFigure.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">support</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<div class="viewcode-block" id="MultiTreeFigure.add"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.MultiTreeFigure.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">support</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
             <span class="n">branchlabels</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">leaflabels</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add tree to existing figure</span>
@@ -1342,19 +1342,19 @@
         <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">name2plot</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name2plot</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span></div>
-<div class="viewcode-block" id="MultiTreeFigure.show"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.MultiTreeFigure.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTreeFigure.show"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.MultiTreeFigure.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="MultiTreeFigure.redraw"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.MultiTreeFigure.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTreeFigure.redraw"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.MultiTreeFigure.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">:</span>
             <span class="n">p</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="MultiTreeFigure.ladderize"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.MultiTreeFigure.ladderize">[docs]</a>    <span class="k">def</span> <span class="nf">ladderize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTreeFigure.ladderize"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.MultiTreeFigure.ladderize">[docs]</a>    <span class="k">def</span> <span class="nf">ladderize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
             <span class="n">n</span><span class="o">.</span><span class="n">ladderize</span><span class="p">(</span><span class="n">reverse</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span></div>
-<div class="viewcode-block" id="MultiTreeFigure.home"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.MultiTreeFigure.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTreeFigure.home"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.MultiTreeFigure.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
         <span class="c">## global IP</span>
         <span class="c">## if IP:</span>
@@ -1373,17 +1373,17 @@
         <span class="c">##         self.redraw()</span>
         <span class="c">##     IP.expose_magic(&quot;redraw&quot;, f)</span>
         <span class="k">return</span> <span class="n">p</span></div>
-<div class="viewcode-block" id="MultiTreeFigure.on_nodes_selected"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.MultiTreeFigure.on_nodes_selected">[docs]</a>    <span class="k">def</span> <span class="nf">on_nodes_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">treeplot</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTreeFigure.on_nodes_selected"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.MultiTreeFigure.on_nodes_selected">[docs]</a>    <span class="k">def</span> <span class="nf">on_nodes_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">treeplot</span><span class="p">):</span>
         <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="MultiTreeFigure.clear"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.MultiTreeFigure.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTreeFigure.clear"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.MultiTreeFigure.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name2plot</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">highlighted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">divs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="MultiTreeFigure.picked"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.MultiTreeFigure.picked">[docs]</a>    <span class="k">def</span> <span class="nf">picked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTreeFigure.picked"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.MultiTreeFigure.picked">[docs]</a>    <span class="k">def</span> <span class="nf">picked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">mouseevent</span><span class="o">.</span><span class="n">button</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
                 <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">artist</span><span class="o">.</span><span class="n">get_text</span><span class="p">())</span>
@@ -1391,7 +1391,7 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="MultiTreeFigure.getplot"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.MultiTreeFigure.getplot">[docs]</a>    <span class="k">def</span> <span class="nf">getplot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTreeFigure.getplot"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.MultiTreeFigure.getplot">[docs]</a>    <span class="k">def</span> <span class="nf">getplot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="n">p</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -1399,7 +1399,7 @@
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name2plot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </div></div>
-<div class="viewcode-block" id="UpdatingRect"><a class="viewcode-back" href="../../../ivy.vis.treevis.html#ivy.vis.treevis.UpdatingRect">[docs]</a><span class="k">class</span> <span class="nc">UpdatingRect</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">):</span> <span class="c"># Used in overview plot</span>
+<div class="viewcode-block" id="UpdatingRect"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.treevis.UpdatingRect">[docs]</a><span class="k">class</span> <span class="nc">UpdatingRect</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">):</span> <span class="c"># Used in overview plot</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_bounds</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="o">.</span><span class="n">viewLim</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span>
         <span class="n">p</span><span class="o">.</span><span class="n">draw_labels</span><span class="p">()</span>

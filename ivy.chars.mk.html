@@ -225,14 +225,18 @@ Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple of fitted Q matrix (a np array) and log-likelihood value</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Log-likelihood, fitted Q matrix, root prior, root likelihood</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)">tuple</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<p>from ivy.examples import primates, primate_data
+primate_eq = fit_Mk(primates,primate_data,Q=&#8221;Equal&#8221;)
+primate_ARD = fit_Mk(primates, primate_data,Q=&#8221;ARD&#8221;)</p>
 </dd></dl>
 
 <dl class="function">
@@ -247,7 +251,7 @@ into mk, which fits an mk model.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
 <li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
@@ -276,8 +280,18 @@ speed by avoiding creating and destroying new arrays</li>
 </ul>
 </td>
 </tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">log-likelihood of model</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<p>from ivy.examples import primates, primate_data
+Q = np.array([[-0.1,0.1],[0.1,-0.1]])
+mk(primates,primate_data,Q)</p>
 </dd></dl>
 
 <dl class="function">

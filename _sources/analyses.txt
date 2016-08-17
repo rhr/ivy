@@ -200,6 +200,8 @@ and the weighting at the root node.
 
 Let's take a look at the results
 
+.. sourcecode:: ipython
+
     In [*]: print mk_results["Q"]
     [[-0.01246449  0.01246449]
      [ 0.09898439 -0.09898439]]
@@ -210,11 +212,15 @@ where i is the row and j is the column. Recall that in this dataset, character
 rate from woody to herbacious is higher than the transition from
 herbacious to woody.
 
+.. sourcecode:: ipython
+
     In [*]: print mk_results["Log-likelihood"]
     -11.3009106093
 
 Next is the log-likelihood. This is the log-likelihood of the data using
 the fitted model
+
+.. sourcecode:: ipython
 
     In [*]: print mk_results["pi"]
     {0: 0.088591248260230959, 1: 0.9114087517397691}
@@ -412,36 +418,9 @@ context using pymc
 
     In [*]: import ivy
     In [*]: from ivy.chars import mk_mr
-    In [*]: tree = ivy.tree.read("hrm_600tips.newick")
-    In [*]: chars = [0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1,
-                    0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0,
-                    0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1,
-                    1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0,
-                    0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-                    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
-                    0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                    1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
-                    1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,
-                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0,
-                    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
-                    1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0]
+    In [*]: from ivy import examples
+    In [*]: tree = examples.simtree_600
+    In [*]: chars = examples.simchar_600
 
     In [*]: data = dict(zip([n.label for n in tree.leaves()],chars))
 
@@ -498,3 +477,168 @@ was reconstructed at.
 
 .. image:: _images/mkmr_1.png
     :width: 700
+
+
+Classe
+------
+
+The ClaSSE model is implemented in ``ivy``. Using ``ivy``'s ClaSSE implementation,
+you can fit ClaSSE, along with all of its derivatives like GeoSSE, to your data.
+
+We will demonstrate fitting a fully-parameterized 2-state ClaSSE model to some
+data, then fitting a 3-state ClaSSE model that has been parameterized to be
+identical to GeoSSE.
+
+.. sourcecode:: ipython
+
+    In [*]: import ivy
+    In [*]: from ivy.chars.sse import sse
+    In [*]: from ivy import examples
+    In [*]: root = examples.simtree_600
+    In [*]: data = examples.simdata_600
+
+Maximum likelihood ClaSSE
+~~~~~~~~~~~~~~~~~~~~~~~~
+Fitting a model is relatively straightforward with ``fit_classe``.
+This implementation is reasonably fast but still may take a little while.
+
+.. sourcecode:: ipython
+
+    In [*]: mle_classe = sse.fit_classe(root,data)
+    In [*]: print(mle_classe["lnl"])
+    -1287.64633207
+    In [*]: print(mle_classe["fit"])
+    {'mu': array([  1.23669910e-06,   3.76398510e-05]),
+     'q': array([[ 0.        ,  0.05008601],
+                [ 0.08421281,  0.        ]]),
+     'lambda': array([[[  4.18641344e-01,   1.48737218e-08],
+                      [  0.00000000e+00,   4.33500041e-03]],
+
+                     [[  2.98016896e-08,   0.00000000e+00],
+                      [  0.00000000e+00,   5.08865803e-01]]])}
+
+The output is a dictionary containing the maximum log-likelihood and a
+dictionary containing the parameters.
+
+The structure of the parameter dictionary is as follows: the dictionary contains
+three arrays; "lambda", "mu", and "q".
+
+The lambda array is a three-dimensional array that corresponds to the speciation rates. The first dimension
+corresponds to the parent's state, the second to the first child's state, and
+the third to the second child's state. Thus, lambda[0,0,1] corresponds
+to the speciation rate where the parent is in state 0, the first child is
+in state 0, and the second child is in state 1. As in diversitree,
+any lambda values where the first child has a higher state than the second
+child (e.g. lambda[0,1,0]) is set to 0.
+
+The q array is a two-dimensional array that corresponds to the rates of character change. The first dimension corresponds
+to the rootward state and the second dimension corresponds to the tipward state.
+q[0,1] corresponds to the transition rate from 0 to 1. The diagonals are set
+to zero.
+
+The mu array is a one-dimensional array. It corresponds to the extinction rate
+of each state. mu[0] corresponds to the extinction rate of state 0.
+
+Maximum likelihood GeoSSE
+~~~~~~~~~~~~~~~~~~~~~~~~
+``ivy``'s implementation of ClaSSE allows for flexible model specification.
+You can extend ClaSSE through the use of the ``pidx`` parameter. Here we will
+demonstrate how you can constrain a ClaSSE model in ``ivy`` to be a GeoSSE
+model.
+
+The ``pidx`` parameter is a dictionary of arrays. It is similar to the parameter
+output of ``fit_classe``. Each cell of each array corresponds to a parameter of the model.
+With the exception of 0, each integer in the array corresponds to a unique
+parameter. In this case, both lambda[0,0,1] and lambda[1,1,1] share the integer 1,
+meaning they are constrained to be identical. The order of the integers has no meaning;
+the parameter denoted by 2 is not enforced to be greater than the parameter denoted
+by 1. Any cell that has a 0 in it is constrained to be 0. Any parameters
+not used by the model (e.g. lambda[0,1,0] or q[1,1]) are ignored.
+
+.. sourcecode:: ipython
+
+    In [*]: import numpy as np
+    In [*]: lambdaidx = np.array([[[0,1,2],
+                                   [0,0,3],
+                                   [0,0,0]],
+                                  [[0,0,0],
+                                   [0,1,0],
+                                   [0,0,0]],
+                                  [[0,0,0],
+                                   [0,0,0],
+                                   [0,0,2]]])
+    In [*]: muidx = np.array([0,4,5])
+    In [*]: qidx = np.array([[0,5,4],
+                             [6,0,0],
+                             [7,0,0]])
+    In [*]: pidx = {"lambda":lambdaidx,"mu":muidx,"q":qidx}
+
+Now that we have our ``pidx`` array, we can use it in ``fit_classe``. This
+is an optional parameter: if it is not given, the function defaults to a
+fully-parameterized "all-rates-different" model.
+
+.. sourcecode:: ipython
+
+    In [*]: mle_geosse = sse.fit_classe(root,data,nstate=3,pidx=pidx)
+
+Creating a likelihood function
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If instead of finding the best-fit values for a ClaSSE model, you want
+to create a likelihood function to find the likelihood values of parameters
+directly, or to use in a Bayesian context, you can use the ``make_classe``
+function.
+
+.. sourcecode:: ipython
+
+    In [*]: f = sse.make_classe(root,data)
+
+    Create a classe likelihood function to be optimized with nlopt or used
+    in a Bayesian analysis
+
+Here is a full explanation of the ``fit_classe`` function::
+    
+    Args:
+        root (Node): Root of tree to perform the analysis on. MUST BE BIFURCATING
+        data (dict): Dictionary mapping node tip labels to character states.
+          Character states must be represented by ints starting at index 0.
+        nstate (int): Number of states. Can be more than the number of
+          states indicated by data. Optional, defaults to number of states in data.
+        pidx (dict): Dictionary of parameter indices. Each integer in the
+          array, with the exception of 0, corresponds to a unique paramter
+          in the parameter array that is given to the likelihood function.
+          0 indicates that the value for that parameter is 0.0.
+          Any indices in the array that are not "legal" (for example, lambda value 010 or
+          q value 00) are ignored.
+
+          Optional. If not given, defaults to an "all-rates-different"
+          configuration.
+          Dictionary items are:
+          "lambda": k x k x k array of indices indicating lambda values.
+                    The first dimension corresponds to the parent state,
+                    the second to the first child's state, and the third
+                    to the second child's state.
+                    Example:
+                    np.array([[[1,2],
+                               [0,3]],
+                              [[4,5],
+                               [0,6]]])
+          "mu": k-length 1-dimensional array containing mu indices.
+                Example:
+                np.array([7,8])
+          "q": k x k array of indices indicating q values. The first
+               dimension corresponds to the rootward state and the second
+               dimension corresponds to the tipward state.
+               Examaple:
+               np.array([[0,9],
+                         [10,0]])
+        condition_on_surv (bool): Whether to condition the likelihood on the
+          survival of the clades and speciation of subtending clade. See Nee et al. 1994.
+        pi (str): Behavior at the root. Defaults to "Equal". Possible values:
+          Equal: Flat prior weighting all states equally
+          Fitzjohn: Weight states by relative probability of observing data (Fitzjohn et al 2009)
+          Given: Weight by given pi values.
+        pi_given (np.array): If pi = "Given", use this as the weighting at the root.
+          Must sum to 1.
+        startingvals (np.array): Starting values for the optimization. Optional, defaults to 0.01 for all values.
+    Returns:
+        function: Function that takes an array of parameters as input.

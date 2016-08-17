@@ -95,7 +95,7 @@
 <span class="kn">import</span> <span class="nn">platform</span><span class="o">,</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">call</span><span class="p">,</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span>
 
-<div class="viewcode-block" id="winGetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.winGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">winGetClipboard</span><span class="p">():</span>
+<div class="viewcode-block" id="winGetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.winGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">winGetClipboard</span><span class="p">():</span>
     <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">user32</span><span class="o">.</span><span class="n">OpenClipboard</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">pcontents</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">user32</span><span class="o">.</span><span class="n">GetClipboardData</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c"># 1 is CF_TEXT</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">pcontents</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
@@ -103,7 +103,7 @@
     <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">user32</span><span class="o">.</span><span class="n">CloseClipboard</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">data</span>
 </div>
-<div class="viewcode-block" id="winSetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.winSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">winSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="winSetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.winSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">winSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="n">GMEM_DDESHARE</span> <span class="o">=</span> <span class="mh">0x2000</span>
     <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">user32</span><span class="o">.</span><span class="n">OpenClipboard</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -125,7 +125,7 @@
     <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">user32</span><span class="o">.</span><span class="n">SetClipboardData</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">hCd</span><span class="p">)</span>
     <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">user32</span><span class="o">.</span><span class="n">CloseClipboard</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="macSetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.macSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">macSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="macSetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.macSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">macSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s">&#39;pbcopy&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
@@ -135,29 +135,29 @@
         <span class="c"># works on Python 2 (bytes() only takes one argument)</span>
         <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="macGetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.macGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">macGetClipboard</span><span class="p">():</span>
+<div class="viewcode-block" id="macGetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.macGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">macGetClipboard</span><span class="p">():</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s">&#39;pbpaste&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">])</span>
     <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
     <span class="k">return</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="gtkGetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.gtkGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">gtkGetClipboard</span><span class="p">():</span>
+<div class="viewcode-block" id="gtkGetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.gtkGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">gtkGetClipboard</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Clipboard</span><span class="p">()</span><span class="o">.</span><span class="n">wait_for_text</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="gtkSetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.gtkSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">gtkSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="gtkSetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.gtkSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">gtkSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">cb</span>
     <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="n">cb</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Clipboard</span><span class="p">()</span>
     <span class="n">cb</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="n">cb</span><span class="o">.</span><span class="n">store</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="qtGetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.qtGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">qtGetClipboard</span><span class="p">():</span>
+<div class="viewcode-block" id="qtGetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.qtGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">qtGetClipboard</span><span class="p">():</span>
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
 </div>
-<div class="viewcode-block" id="qtSetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.qtSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">qtSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="qtSetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.qtSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">qtSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="n">cb</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="xclipSetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.xclipSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">xclipSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="xclipSetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.xclipSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">xclipSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s">&#39;xclip&#39;</span><span class="p">,</span> <span class="s">&#39;-selection&#39;</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c"># works on Python 3 (bytes() requires an encoding)</span>
@@ -166,12 +166,12 @@
         <span class="c"># works on Python 2 (bytes() only takes one argument)</span>
         <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="xclipGetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.xclipGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">xclipGetClipboard</span><span class="p">():</span>
+<div class="viewcode-block" id="xclipGetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.xclipGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">xclipGetClipboard</span><span class="p">():</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s">&#39;xclip&#39;</span><span class="p">,</span> <span class="s">&#39;-selection&#39;</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">,</span> <span class="s">&#39;-o&#39;</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
     <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
     <span class="k">return</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="xselSetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.xselSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">xselSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="xselSetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.xselSetClipboard">[docs]</a><span class="k">def</span> <span class="nf">xselSetClipboard</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s">&#39;xsel&#39;</span><span class="p">,</span> <span class="s">&#39;-i&#39;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c"># works on Python 3 (bytes() requires an encoding)</span>
@@ -181,7 +181,7 @@
         <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
 
 </div>
-<div class="viewcode-block" id="xselGetClipboard"><a class="viewcode-back" href="../../ivy.pyperclip.html#ivy.pyperclip.xselGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">xselGetClipboard</span><span class="p">():</span>
+<div class="viewcode-block" id="xselGetClipboard"><a class="viewcode-back" href="../../ivy.html#ivy.pyperclip.xselGetClipboard">[docs]</a><span class="k">def</span> <span class="nf">xselGetClipboard</span><span class="p">():</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s">&#39;xsel&#39;</span><span class="p">,</span> <span class="s">&#39;-o&#39;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
     <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
     <span class="k">return</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span>

@@ -75,7 +75,7 @@
 
 
 
-<div class="viewcode-block" id="mk_mr_midbranch"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.mk_mr_midbranch">[docs]</a><span class="k">def</span> <span class="nf">mk_mr_midbranch</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qs</span><span class="p">,</span> <span class="n">switchpoint</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">returnPi</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<div class="viewcode-block" id="mk_mr_midbranch"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.mk_mr_midbranch">[docs]</a><span class="k">def</span> <span class="nf">mk_mr_midbranch</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qs</span><span class="p">,</span> <span class="n">switchpoint</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">returnPi</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
                      <span class="n">ar</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate likelhiood of mk model with BAMM-like multiple regimes</span>
@@ -220,7 +220,7 @@
         <span class="k">return</span> <span class="n">logli</span>
 
 </div>
-<div class="viewcode-block" id="create_mkmr_ar"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.create_mkmr_ar">[docs]</a><span class="k">def</span> <span class="nf">create_mkmr_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="create_mkmr_ar"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.create_mkmr_ar">[docs]</a><span class="k">def</span> <span class="nf">create_mkmr_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create preallocated arrays. For use in mk function</span>
 
@@ -271,7 +271,7 @@
            <span class="s">&quot;root_priors&quot;</span><span class="p">:</span><span class="n">rootpriors</span><span class="p">,</span> <span class="s">&quot;nullval&quot;</span><span class="p">:</span><span class="n">nullval</span><span class="p">,</span> <span class="s">&quot;tmp_ar&quot;</span><span class="p">:</span><span class="n">tmp_ar</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">var</span>
 </div>
-<div class="viewcode-block" id="create_mkmr_mb_ar"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.create_mkmr_mb_ar">[docs]</a><span class="k">def</span> <span class="nf">create_mkmr_mb_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="create_mkmr_mb_ar"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.create_mkmr_mb_ar">[docs]</a><span class="k">def</span> <span class="nf">create_mkmr_mb_ar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Preallocated arrays for midbranch mk_mr</span>
 
@@ -378,7 +378,7 @@
     <span class="k">return</span> <span class="n">var</span>
 
 </div>
-<div class="viewcode-block" id="create_likelihood_function_multimk"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.create_likelihood_function_multimk">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_multimk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="create_likelihood_function_multimk"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.create_likelihood_function_multimk">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_multimk</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
                                   <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
@@ -439,7 +439,7 @@
 
     <span class="k">return</span> <span class="n">likelihood_function</span>
 </div>
-<div class="viewcode-block" id="lf_mk_mr_midbranch"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.lf_mk_mr_midbranch">[docs]</a><span class="k">def</span> <span class="nf">lf_mk_mr_midbranch</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="lf_mk_mr_midbranch"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.lf_mk_mr_midbranch">[docs]</a><span class="k">def</span> <span class="nf">lf_mk_mr_midbranch</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
                                   <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
 
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
@@ -497,7 +497,7 @@
 
     <span class="k">return</span> <span class="n">likelihood_function</span>
 </div>
-<div class="viewcode-block" id="create_likelihood_function_multimk_mods"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.create_likelihood_function_multimk_mods">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_multimk_mods</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="create_likelihood_function_multimk_mods"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.create_likelihood_function_multimk_mods">[docs]</a><span class="k">def</span> <span class="nf">create_likelihood_function_multimk_mods</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
                                   <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">orderedparams</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a likelihood function for testing the parameter values of user-</span>
@@ -553,7 +553,7 @@
 
     <span class="k">return</span> <span class="n">likelihood_function</span>
 </div>
-<div class="viewcode-block" id="lf_mk_mr_midbranch_mods"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.lf_mk_mr_midbranch_mods">[docs]</a><span class="k">def</span> <span class="nf">lf_mk_mr_midbranch_mods</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="lf_mk_mr_midbranch_mods"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.lf_mk_mr_midbranch_mods">[docs]</a><span class="k">def</span> <span class="nf">lf_mk_mr_midbranch_mods</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span>
                                   <span class="n">findmin</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">orderedparams</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a likelihood function for testing the parameter values of user-</span>
@@ -604,7 +604,7 @@
 
     <span class="k">return</span> <span class="n">likelihood_function</span>
 </div>
-<div class="viewcode-block" id="fill_model_mr_Q"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.fill_model_mr_Q">[docs]</a><span class="k">def</span> <span class="nf">fill_model_mr_Q</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
+<div class="viewcode-block" id="fill_model_mr_Q"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.fill_model_mr_Q">[docs]</a><span class="k">def</span> <span class="nf">fill_model_mr_Q</span><span class="p">(</span><span class="n">Qparams</span><span class="p">,</span> <span class="n">mods</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fill a Q-matrix with Qparams corresponding to the model.</span>
 
@@ -626,7 +626,7 @@
         <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">regime</span><span class="p">],</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">regime</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="c"># Filling diagonals</span>
 
 </div>
-<div class="viewcode-block" id="locs_from_switchpoint"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.locs_from_switchpoint">[docs]</a><span class="k">def</span> <span class="nf">locs_from_switchpoint</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">switches</span><span class="p">,</span> <span class="n">locs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="locs_from_switchpoint"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.locs_from_switchpoint">[docs]</a><span class="k">def</span> <span class="nf">locs_from_switchpoint</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">switches</span><span class="p">,</span> <span class="n">locs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a tree and a list of nodes to be switchpoints, return an</span>
 <span class="sd">    array of all node indices in one regime vs the other</span>
@@ -676,7 +676,7 @@
     <span class="k">if</span> <span class="n">out</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">locs</span>
 </div>
-<div class="viewcode-block" id="inds_from_switchpoint_cython"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.inds_from_switchpoint_cython">[docs]</a><span class="k">def</span> <span class="nf">inds_from_switchpoint_cython</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">switches_ni</span><span class="p">,</span> <span class="n">ar</span><span class="p">,</span><span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="inds_from_switchpoint_cython"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.inds_from_switchpoint_cython">[docs]</a><span class="k">def</span> <span class="nf">inds_from_switchpoint_cython</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">switches_ni</span><span class="p">,</span> <span class="n">ar</span><span class="p">,</span><span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="n">nr</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">switches_ni</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
 
     <span class="n">switches_ni_c</span> <span class="o">=</span> <span class="n">switches_ni</span><span class="p">[:]</span>
@@ -690,13 +690,13 @@
                 <span class="n">ar</span><span class="p">[</span><span class="s">&quot;inds&quot;</span><span class="p">][</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">switches_key</span><span class="p">[</span><span class="n">nr</span><span class="o">-</span><span class="n">i</span><span class="p">]</span>
 
 </div>
-<div class="viewcode-block" id="ModelOrderMetropolis"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.ModelOrderMetropolis">[docs]</a><span class="k">class</span> <span class="nc">ModelOrderMetropolis</span><span class="p">(</span><span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelOrderMetropolis"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.ModelOrderMetropolis">[docs]</a><span class="k">class</span> <span class="nc">ModelOrderMetropolis</span><span class="p">(</span><span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Custom step method for model order</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic</span><span class="p">):</span>
         <span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">proposal_distribution</span><span class="o">=</span><span class="s">&quot;prior&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="ModelOrderMetropolis.propose"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.ModelOrderMetropolis.propose">[docs]</a>    <span class="k">def</span> <span class="nf">propose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelOrderMetropolis.propose"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.ModelOrderMetropolis.propose">[docs]</a>    <span class="k">def</span> <span class="nf">propose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cur_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span>
         <span class="n">indexes_to_swap</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cur_order</span><span class="p">)),</span><span class="mi">2</span><span class="p">)</span>
 
@@ -705,14 +705,14 @@
         <span class="n">new_order</span><span class="p">[</span><span class="n">indexes_to_swap</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">new_order</span><span class="p">[</span><span class="n">indexes_to_swap</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">new_order</span><span class="p">[</span><span class="n">indexes_to_swap</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">new_order</span><span class="p">[</span><span class="n">indexes_to_swap</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">new_order</span></div>
-<div class="viewcode-block" id="ModelOrderMetropolis.reject"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.ModelOrderMetropolis.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelOrderMetropolis.reject"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.ModelOrderMetropolis.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rejected</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">last_value</span></div>
-<div class="viewcode-block" id="ModelOrderMetropolis.competence"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.ModelOrderMetropolis.competence">[docs]</a>    <span class="k">def</span> <span class="nf">competence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelOrderMetropolis.competence"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.ModelOrderMetropolis.competence">[docs]</a>    <span class="k">def</span> <span class="nf">competence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">0</span>
 
 </div></div>
-<div class="viewcode-block" id="SwitchpointMetropolis"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis">[docs]</a><span class="k">class</span> <span class="nc">SwitchpointMetropolis</span><span class="p">(</span><span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="p">):</span>
+<div class="viewcode-block" id="SwitchpointMetropolis"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.SwitchpointMetropolis">[docs]</a><span class="k">class</span> <span class="nc">SwitchpointMetropolis</span><span class="p">(</span><span class="n">pymc</span><span class="o">.</span><span class="n">Metropolis</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Custom step algorithm for selecting a new switchpoint</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -723,7 +723,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">seg_map</span> <span class="o">=</span> <span class="n">seg_map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stepsize</span> <span class="o">=</span> <span class="n">stepsize</span> <span class="o">*</span> <span class="n">root_to_tip_length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seg_size</span> <span class="o">=</span> <span class="n">seglen</span> <span class="o">*</span> <span class="n">root_to_tip_length</span>
-<div class="viewcode-block" id="SwitchpointMetropolis.propose"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis.propose">[docs]</a>    <span class="k">def</span> <span class="nf">propose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SwitchpointMetropolis.propose"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.SwitchpointMetropolis.propose">[docs]</a>    <span class="k">def</span> <span class="nf">propose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># Following BAMM, switchpoint movements can be either global or</span>
         <span class="c"># local, with global switch happening 1/10 times</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
@@ -731,24 +731,24 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">local_step</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="SwitchpointMetropolis.local_step"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis.local_step">[docs]</a>    <span class="k">def</span> <span class="nf">local_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SwitchpointMetropolis.local_step"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.SwitchpointMetropolis.local_step">[docs]</a>    <span class="k">def</span> <span class="nf">local_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">prev_location</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span>
 
         <span class="n">new_location</span> <span class="o">=</span> <span class="n">cyexpokit</span><span class="o">.</span><span class="n">local_step</span><span class="p">(</span><span class="n">prev_location</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">stepsize</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">seg_size</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">adaptive_scale_factor</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">new_location</span>
 </div>
-<div class="viewcode-block" id="SwitchpointMetropolis.global_step"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis.global_step">[docs]</a>    <span class="k">def</span> <span class="nf">global_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SwitchpointMetropolis.global_step"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.SwitchpointMetropolis.global_step">[docs]</a>    <span class="k">def</span> <span class="nf">global_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">cyexpokit</span><span class="o">.</span><span class="n">random_tree_location</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seg_map</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="SwitchpointMetropolis.reject"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SwitchpointMetropolis.reject"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.SwitchpointMetropolis.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rejected</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">last_value</span></div>
-<div class="viewcode-block" id="SwitchpointMetropolis.competence"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.SwitchpointMetropolis.competence">[docs]</a>    <span class="k">def</span> <span class="nf">competence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SwitchpointMetropolis.competence"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.SwitchpointMetropolis.competence">[docs]</a>    <span class="k">def</span> <span class="nf">competence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">0</span>
 
 </div></div>
-<div class="viewcode-block" id="round_step_size"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.round_step_size">[docs]</a><span class="k">def</span> <span class="nf">round_step_size</span><span class="p">(</span><span class="n">step_size</span><span class="p">,</span> <span class="n">seg_size</span><span class="p">):</span>
+<div class="viewcode-block" id="round_step_size"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.round_step_size">[docs]</a><span class="k">def</span> <span class="nf">round_step_size</span><span class="p">(</span><span class="n">step_size</span><span class="p">,</span> <span class="n">seg_size</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Round step_size to the nearest segment</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -757,7 +757,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">step_size</span> <span class="o">-</span> <span class="p">(</span><span class="n">step_size</span><span class="o">%</span><span class="n">seg_size</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-15</span>
 </div>
-<div class="viewcode-block" id="tree_map"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.tree_map">[docs]</a><span class="k">def</span> <span class="nf">tree_map</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">seglen</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
+<div class="viewcode-block" id="tree_map"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.tree_map">[docs]</a><span class="k">def</span> <span class="nf">tree_map</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">seglen</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make a map of the tree cut into segments of size (seglen*root_to_tip_length)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -773,7 +773,7 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg_map</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="random_tree_location"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.random_tree_location">[docs]</a><span class="k">def</span> <span class="nf">random_tree_location</span><span class="p">(</span><span class="n">seg_map</span><span class="p">):</span>
+<div class="viewcode-block" id="random_tree_location"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.random_tree_location">[docs]</a><span class="k">def</span> <span class="nf">random_tree_location</span><span class="p">(</span><span class="n">seg_map</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Select random location on tree with uniform probability</span>
 
@@ -785,7 +785,7 @@
     <span class="k">return</span> <span class="n">seg_map</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
 </div>
-<div class="viewcode-block" id="make_switchpoint_stoch"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.make_switchpoint_stoch">[docs]</a><span class="k">def</span> <span class="nf">make_switchpoint_stoch</span><span class="p">(</span><span class="n">seg_map</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s">&quot;switch&quot;</span><span class="p">)):</span>
+<div class="viewcode-block" id="make_switchpoint_stoch"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.make_switchpoint_stoch">[docs]</a><span class="k">def</span> <span class="nf">make_switchpoint_stoch</span><span class="p">(</span><span class="n">seg_map</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s">&quot;switch&quot;</span><span class="p">)):</span>
     <span class="n">startingval</span> <span class="o">=</span> <span class="n">cyexpokit</span><span class="o">.</span><span class="n">random_tree_location</span><span class="p">(</span><span class="n">seg_map</span><span class="p">)</span>
     <span class="nd">@pymc.stochastic</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">switchpoint_stoch</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">startingval</span><span class="p">):</span>
@@ -793,14 +793,14 @@
         <span class="k">return</span> <span class="mi">0</span>
     <span class="k">return</span> <span class="n">switchpoint_stoch</span>
 </div>
-<div class="viewcode-block" id="make_modelorder_stoch"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.make_modelorder_stoch">[docs]</a><span class="k">def</span> <span class="nf">make_modelorder_stoch</span><span class="p">(</span><span class="n">mods</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s">&quot;modorder&quot;</span><span class="p">)):</span>
+<div class="viewcode-block" id="make_modelorder_stoch"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.make_modelorder_stoch">[docs]</a><span class="k">def</span> <span class="nf">make_modelorder_stoch</span><span class="p">(</span><span class="n">mods</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s">&quot;modorder&quot;</span><span class="p">)):</span>
     <span class="n">startingval</span> <span class="o">=</span> <span class="n">mods</span>
     <span class="nd">@pymc.stochastic</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">modelorder_stoch</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">startingval</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">0</span>
     <span class="k">return</span> <span class="n">modelorder_stoch</span>
 </div>
-<div class="viewcode-block" id="mk_multi_bayes"><a class="viewcode-back" href="../../../ivy.chars.mk_mr.html#ivy.chars.mk_mr.mk_multi_bayes">[docs]</a><span class="k">def</span> <span class="nf">mk_multi_bayes</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">qidx</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span> <span class="p">,</span><span class="n">seglen</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span><span class="n">stepsize</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+<div class="viewcode-block" id="mk_multi_bayes"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.mk_mr.mk_multi_bayes">[docs]</a><span class="k">def</span> <span class="nf">mk_multi_bayes</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">qidx</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span> <span class="p">,</span><span class="n">seglen</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span><span class="n">stepsize</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a Bayesian multi-mk model. User specifies which regime models</span>
 <span class="sd">    to use and the Bayesian model finds the switchpoints.</span>
@@ -827,7 +827,7 @@
 <span class="sd">                                            [0,1,0,1]]</span>
 <span class="sd">           NOTE:</span>
 <span class="sd">             The qidx corresponding to the first q matrix (first column 0)</span>
-<span class="sd">             is always the root regime                               </span>
+<span class="sd">             is always the root regime</span>
 <span class="sd">        pi (str or np.array): Option to weight the root node by given values.</span>
 <span class="sd">           Either a string containing the method or an array</span>
 <span class="sd">           of weights. Weights should be given in order.</span>
@@ -855,7 +855,6 @@
     <span class="c"># Preparations</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
     <span class="n">nparam</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">n</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">qidx</span><span class="p">]))</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;preparations complete&quot;</span><span class="p">)</span>
     <span class="c"># This model has 2 components: Q parameters and switchpoints</span>
     <span class="c"># They are combined in a custom likelihood function</span>
     <span class="c">###########################################################################</span>
@@ -864,11 +863,9 @@
     <span class="c"># Modeling the movement of the regime shift(s) is the tricky part</span>
     <span class="c"># Regime shifts will only be allowed to happen at a node</span>
     <span class="n">seg_map</span> <span class="o">=</span> <span class="n">tree_map</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">seglen</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;segmap complete&quot;</span><span class="p">)</span>
     <span class="n">switch</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">regime</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">switch</span><span class="p">[</span><span class="n">regime</span><span class="p">]</span><span class="o">=</span> <span class="n">make_switchpoint_stoch</span><span class="p">(</span><span class="n">seg_map</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s">&quot;switch_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">regime</span><span class="p">)))</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;switchpoints complete&quot;</span><span class="p">)</span>
     <span class="c">###########################################################################</span>
     <span class="c"># Qparams:</span>
     <span class="c">###########################################################################</span>
@@ -876,7 +873,6 @@
     <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nparam</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparam</span><span class="p">):</span>
          <span class="n">Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s">&quot;Qparam_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.1</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Qparams complete&quot;</span><span class="p">)</span>
 
 
     <span class="c">###########################################################################</span>
@@ -884,7 +880,6 @@
     <span class="c">###########################################################################</span>
     <span class="c"># The likelihood function</span>
     <span class="n">l</span> <span class="o">=</span> <span class="n">cyexpokit</span><span class="o">.</span><span class="n">make_mklnl_func</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span><span class="n">nchar</span><span class="p">,</span><span class="n">nregime</span><span class="p">,</span><span class="n">qidx</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;likelihood function complete&quot;</span><span class="p">)</span>
 
     <span class="nd">@pymc.deterministic</span>
     <span class="k">def</span> <span class="nf">likelihood</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">switch</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;likelihood&quot;</span><span class="p">):</span>
@@ -898,10 +893,8 @@
             <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
 
     <span class="n">mod</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">MCMC</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;model created&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">switch</span><span class="p">:</span>
         <span class="n">mod</span><span class="o">.</span><span class="n">use_step_method</span><span class="p">(</span><span class="n">SwitchpointMetropolis</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">tree</span><span class="p">,</span> <span class="n">seg_map</span><span class="p">,</span><span class="n">stepsize</span><span class="o">=</span><span class="n">stepsize</span><span class="p">,</span><span class="n">seglen</span><span class="o">=</span><span class="n">seglen</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;step methods used&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">mod</span></div>
 </pre></div>
 

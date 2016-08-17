@@ -4,10 +4,22 @@ ivy.chars.expokit package
 Submodules
 ----------
 
-.. toctree::
+ivy.chars.expokit.cyexpokit module
+----------------------------------
 
-   ivy.chars.expokit.cyexpokit
-   ivy.chars.expokit.setup
+.. automodule:: ivy.chars.expokit.cyexpokit
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ivy.chars.expokit.setup module
+------------------------------
+
+.. automodule:: ivy.chars.expokit.setup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

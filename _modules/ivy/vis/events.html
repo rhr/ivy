@@ -92,19 +92,19 @@
 
 <span class="n">_tango</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">tango</span><span class="p">()</span>
 
-<div class="viewcode-block" id="axes_enter"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.axes_enter">[docs]</a><span class="k">def</span> <span class="nf">axes_enter</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="axes_enter"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.axes_enter">[docs]</a><span class="k">def</span> <span class="nf">axes_enter</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">inaxes</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">_active</span> <span class="o">=</span> <span class="bp">True</span>
 </div>
-<div class="viewcode-block" id="axes_leave"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.axes_leave">[docs]</a><span class="k">def</span> <span class="nf">axes_leave</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="axes_leave"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.axes_leave">[docs]</a><span class="k">def</span> <span class="nf">axes_leave</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">inaxes</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">_active</span> <span class="o">=</span> <span class="bp">False</span>
 </div>
-<div class="viewcode-block" id="onselect"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.onselect">[docs]</a><span class="k">def</span> <span class="nf">onselect</span><span class="p">(</span><span class="n">estart</span><span class="p">,</span> <span class="n">estop</span><span class="p">):</span>
+<div class="viewcode-block" id="onselect"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.onselect">[docs]</a><span class="k">def</span> <span class="nf">onselect</span><span class="p">(</span><span class="n">estart</span><span class="p">,</span> <span class="n">estop</span><span class="p">):</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">estart</span><span class="o">.</span><span class="n">button</span>
     <span class="c">## print b, estart.key</span>
 </div>
-<div class="viewcode-block" id="onkeypress"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.onkeypress">[docs]</a><span class="k">def</span> <span class="nf">onkeypress</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="onkeypress"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.onkeypress">[docs]</a><span class="k">def</span> <span class="nf">onkeypress</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">inaxes</span>
     <span class="n">k</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">key</span>
     <span class="k">if</span> <span class="n">ax</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;t&#39;</span><span class="p">:</span>
@@ -128,7 +128,7 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.1</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span> <span class="c"># Had to add these lines, still don&#39;t know why</span>
 </div>
-<div class="viewcode-block" id="ondrag"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.ondrag">[docs]</a><span class="k">def</span> <span class="nf">ondrag</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="ondrag"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.ondrag">[docs]</a><span class="k">def</span> <span class="nf">ondrag</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">inaxes</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">ax</span><span class="o">.</span><span class="n">plottype</span><span class="o">==</span><span class="s">&quot;overview&quot;</span><span class="p">:</span>
@@ -162,7 +162,7 @@
                                      <span class="c"># why my re-written code needs this</span>
                                      <span class="c"># line but the original doesn&#39;t.</span>
 </div>
-<div class="viewcode-block" id="onbuttonrelease"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.onbuttonrelease">[docs]</a><span class="k">def</span> <span class="nf">onbuttonrelease</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="onbuttonrelease"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.onbuttonrelease">[docs]</a><span class="k">def</span> <span class="nf">onbuttonrelease</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">inaxes</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">ax</span><span class="o">.</span><span class="n">plottype</span><span class="o">==</span><span class="s">&quot;overview&quot;</span><span class="p">:</span>
@@ -174,7 +174,7 @@
         <span class="c">## print &quot;pan end&quot;</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">pan_start</span> <span class="o">=</span> <span class="bp">None</span>
 </div>
-<div class="viewcode-block" id="onpick"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.onpick">[docs]</a><span class="k">def</span> <span class="nf">onpick</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="onpick"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.onpick">[docs]</a><span class="k">def</span> <span class="nf">onpick</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">mouseevent</span><span class="o">.</span><span class="n">inaxes</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">ax</span><span class="o">.</span><span class="n">plottype</span><span class="o">==</span><span class="s">&quot;overview&quot;</span><span class="p">:</span>
@@ -184,7 +184,7 @@
     <span class="k">if</span> <span class="n">ax</span><span class="p">:</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">picked</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="onscroll"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.onscroll">[docs]</a><span class="k">def</span> <span class="nf">onscroll</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="onscroll"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.onscroll">[docs]</a><span class="k">def</span> <span class="nf">onscroll</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">inaxes</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">ax</span><span class="o">.</span><span class="n">plottype</span><span class="o">==</span><span class="s">&quot;overview&quot;</span><span class="p">:</span>
@@ -219,7 +219,7 @@
         <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="onclick"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.onclick">[docs]</a><span class="k">def</span> <span class="nf">onclick</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="onclick"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.onclick">[docs]</a><span class="k">def</span> <span class="nf">onclick</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">inaxes</span>
     <span class="c"># if ax and e.button==1 and hasattr(ax, &quot;zoomrect&quot;) and ax.zoomrect:</span>
     <span class="c">#     # overview clicked; reposition zoomrect</span>
@@ -243,14 +243,14 @@
         <span class="c">## print &quot;pan start&quot;, (e.xdata, e.ydata)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">pan_start</span> <span class="o">=</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">ydata</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="UpdatingRect"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.UpdatingRect">[docs]</a><span class="k">class</span> <span class="nc">UpdatingRect</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">):</span>
+<div class="viewcode-block" id="UpdatingRect"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.UpdatingRect">[docs]</a><span class="k">class</span> <span class="nc">UpdatingRect</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_bounds</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="o">.</span><span class="n">viewLim</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span>
         <span class="n">p</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 
 
 </div>
-<div class="viewcode-block" id="connect_events"><a class="viewcode-back" href="../../../ivy.vis.events.html#ivy.vis.events.connect_events">[docs]</a><span class="k">def</span> <span class="nf">connect_events</span><span class="p">(</span><span class="n">canvas</span><span class="p">):</span>
+<div class="viewcode-block" id="connect_events"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.events.connect_events">[docs]</a><span class="k">def</span> <span class="nf">connect_events</span><span class="p">(</span><span class="n">canvas</span><span class="p">):</span>
     <span class="n">mpl_connect</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span>
     <span class="n">mpl_connect</span><span class="p">(</span><span class="s">&quot;button_press_event&quot;</span><span class="p">,</span> <span class="n">onclick</span><span class="p">)</span>
     <span class="n">mpl_connect</span><span class="p">(</span><span class="s">&quot;button_release_event&quot;</span><span class="p">,</span> <span class="n">onbuttonrelease</span><span class="p">)</span>

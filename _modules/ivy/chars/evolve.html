@@ -52,7 +52,7 @@
 <span class="sd">Functions for evolving traits and trees.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
-<div class="viewcode-block" id="brownian"><a class="viewcode-back" href="../../../ivy.chars.evolve.html#ivy.chars.evolve.brownian">[docs]</a><span class="k">def</span> <span class="nf">brownian</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">{}):</span>
+<div class="viewcode-block" id="brownian"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.evolve.brownian">[docs]</a><span class="k">def</span> <span class="nf">brownian</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">{}):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Recursively evolve a trait by Brownian motion up from the node</span>
 <span class="sd">    *root*.</span>
@@ -72,7 +72,7 @@
         <span class="n">brownian</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">random_step</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">values</span>
 </div>
-<div class="viewcode-block" id="test_brownian"><a class="viewcode-back" href="../../../ivy.chars.evolve.html#ivy.chars.evolve.test_brownian">[docs]</a><span class="k">def</span> <span class="nf">test_brownian</span><span class="p">():</span>
+<div class="viewcode-block" id="test_brownian"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.evolve.test_brownian">[docs]</a><span class="k">def</span> <span class="nf">test_brownian</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evolve a trait up an example tree of primates:.</span>
 

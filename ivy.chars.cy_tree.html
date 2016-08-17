@@ -1,0 +1,456 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ivy.chars.cy_tree package &mdash; ivy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
+    <link rel="up" title="ivy.chars package" href="ivy.chars.html" />
+    <link rel="next" title="ivy.chars.expokit package" href="ivy.chars.expokit.html" />
+    <link rel="prev" title="ivy.chars package" href="ivy.chars.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.expokit.html" title="ivy.chars.expokit package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.html" title="ivy.chars package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.chars.html" accesskey="U">ivy.chars package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ivy-chars-cy-tree-package">
+<h1>ivy.chars.cy_tree package<a class="headerlink" href="#ivy-chars-cy-tree-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ivy.chars.cy_tree.cy_tree">
+<span id="ivy-chars-cy-tree-cy-tree-module"></span><h2>ivy.chars.cy_tree.cy_tree module<a class="headerlink" href="#module-ivy.chars.cy_tree.cy_tree" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ivy.chars.cy_tree.cy_tree.Node">
+<em class="property">class </em><code class="descclassname">ivy.chars.cy_tree.cy_tree.</code><code class="descname">Node</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Node in a rooted, potentially multifurcating tree.</p>
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.__iter__">
+<code class="descname">__iter__</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.__iter__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.add_child">
+<code class="descname">add_child</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.add_child" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.bft">
+<code class="descname">bft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.bft" title="Permalink to this definition">¶</a></dt>
+<dd><p>breadth-first traversal of descendants</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.children">
+<code class="descname">children</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.children" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.isleaf">
+<code class="descname">isleaf</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.isleaf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.isroot">
+<code class="descname">isroot</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.isroot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.iterchildren">
+<code class="descname">iterchildren</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.iterchildren" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.iternodes">
+<code class="descname">iternodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.iternodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>iterate (preorder) over nodes descendant from self - including self</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.label">
+<code class="descname">label</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.leaves">
+<code class="descname">leaves</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.leaves" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.left">
+<code class="descname">left</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.leftchild">
+<code class="descname">leftchild</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.leftchild" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.leftsib">
+<code class="descname">leftsib</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.leftsib" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.length">
+<code class="descname">length</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.nchildren">
+<code class="descname">nchildren</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.nchildren" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.ni">
+<code class="descname">ni</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.ni" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.parent">
+<code class="descname">parent</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.postiter">
+<code class="descname">postiter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.postiter" title="Permalink to this definition">¶</a></dt>
+<dd><p>iterate (postorder) over nodes descendant from self - including self</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.prune">
+<code class="descname">prune</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.prune" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.right">
+<code class="descname">right</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.rightsib">
+<code class="descname">rightsib</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.rightsib" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Node.treename">
+<code class="descname">treename</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Node.treename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree">
+<em class="property">class </em><code class="descclassname">ivy.chars.cy_tree.cy_tree.</code><code class="descname">Tree</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Convenience class for creating/storing node relationships and values
+as arrays.</p>
+<dl class="method">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.index">
+<code class="descname">index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>call on __cinit__, or when topology changes but no. nodes is the same</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.label">
+<code class="descname">label</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.leftchild">
+<code class="descname">leftchild</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.leftchild" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.length">
+<code class="descname">length</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.nchildren">
+<code class="descname">nchildren</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.nchildren" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.nleaves">
+<code class="descname">nleaves</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.nleaves" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.nnodes">
+<code class="descname">nnodes</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.nnodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.parent">
+<code class="descname">parent</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.postorder">
+<code class="descname">postorder</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.postorder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.rightsib">
+<code class="descname">rightsib</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.rightsib" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.root">
+<code class="descname">root</code><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.root" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.chars.cy_tree.cy_tree.Tree.rootpathlen">
+<code class="descname">rootpathlen</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.Tree.rootpathlen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.cy_tree.cladesizes1">
+<code class="descclassname">ivy.chars.cy_tree.cy_tree.</code><code class="descname">cladesizes1</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.cladesizes1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.cy_tree.cladesizes2">
+<code class="descclassname">ivy.chars.cy_tree.cy_tree.</code><code class="descname">cladesizes2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.cladesizes2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.cy_tree.cladesizes3">
+<code class="descclassname">ivy.chars.cy_tree.cy_tree.</code><code class="descname">cladesizes3</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.cladesizes3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.cy_tree.cladesizes4">
+<code class="descclassname">ivy.chars.cy_tree.cy_tree.</code><code class="descname">cladesizes4</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.cladesizes4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.cy_tree.tree_from_ivy">
+<code class="descclassname">ivy.chars.cy_tree.cy_tree.</code><code class="descname">tree_from_ivy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ivy.chars.cy_tree.cy_tree.tree_from_ivy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert ivy Node to cython Tree</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ivy.chars.cy_tree.newick">
+<span id="ivy-chars-cy-tree-newick-module"></span><h2>ivy.chars.cy_tree.newick module<a class="headerlink" href="#module-ivy.chars.cy_tree.newick" title="Permalink to this headline">¶</a></h2>
+<p>Parse newick strings.</p>
+<p>The function of interest is <cite>parse</cite>, which returns the root node of
+the parsed tree.</p>
+<dl class="class">
+<dt id="ivy.chars.cy_tree.newick.Tokenizer">
+<em class="property">class </em><code class="descclassname">ivy.chars.cy_tree.newick.</code><code class="descname">Tokenizer</code><span class="sig-paren">(</span><em>infile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/newick.html#Tokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.newick.Tokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/shlex.html#shlex.shlex" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">shlex.shlex</span></code></a></p>
+<p>Provides tokens for parsing newick strings.</p>
+<dl class="method">
+<dt id="ivy.chars.cy_tree.newick.Tokenizer.parse_embedded_comment">
+<code class="descname">parse_embedded_comment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/newick.html#Tokenizer.parse_embedded_comment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.newick.Tokenizer.parse_embedded_comment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.newick.add_label_chars">
+<code class="descclassname">ivy.chars.cy_tree.newick.</code><code class="descname">add_label_chars</code><span class="sig-paren">(</span><em>chars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/newick.html#add_label_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.newick.add_label_chars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.newick.nexus_iter">
+<code class="descclassname">ivy.chars.cy_tree.newick.</code><code class="descname">nexus_iter</code><span class="sig-paren">(</span><em>infile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/newick.html#nexus_iter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.newick.nexus_iter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.newick.parse">
+<code class="descclassname">ivy.chars.cy_tree.newick.</code><code class="descname">parse</code><span class="sig-paren">(</span><em>data</em>, <em>ttable=None</em>, <em>treename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/newick.html#parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.newick.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a newick string.</p>
+<p><em>data</em> is any file-like object that can be coerced into shlex, or
+a string (converted to StringIO)</p>
+<dl class="docutils">
+<dt><em>ttable</em> is a dictionary mapping node labels in the newick string</dt>
+<dd>to other values.</dd>
+</dl>
+<p>Returns: the root node.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.newick.parse_ampersand_comment">
+<code class="descclassname">ivy.chars.cy_tree.newick.</code><code class="descname">parse_ampersand_comment</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/newick.html#parse_ampersand_comment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.newick.parse_ampersand_comment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.newick.test_parse_comment">
+<code class="descclassname">ivy.chars.cy_tree.newick.</code><code class="descname">test_parse_comment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/newick.html#test_parse_comment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.newick.test_parse_comment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ivy.chars.cy_tree.nexus">
+<span id="ivy-chars-cy-tree-nexus-module"></span><h2>ivy.chars.cy_tree.nexus module<a class="headerlink" href="#module-ivy.chars.cy_tree.nexus" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ivy.chars.cy_tree.nexus.Newick">
+<em class="property">class </em><code class="descclassname">ivy.chars.cy_tree.nexus.</code><code class="descname">Newick</code><span class="sig-paren">(</span><em>parse_results=None</em>, <em>ttable={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/nexus.html#Newick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.nexus.Newick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>convenience class for storing the results of a newick tree
+record from a nexus file, as parsed by newick.nexus_iter</p>
+<dl class="method">
+<dt id="ivy.chars.cy_tree.nexus.Newick.parse">
+<code class="descname">parse</code><span class="sig-paren">(</span><em>newick=&lt;module 'ivy.chars.cy_tree.newick' from '/home/cziegler/mypy/local/lib/python2.7/site-packages/ivy/chars/cy_tree/newick.pyc'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/nexus.html#Newick.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.nexus.Newick.parse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.chars.cy_tree.nexus.Newick.populate">
+<code class="descname">populate</code><span class="sig-paren">(</span><em>parse_results</em>, <em>ttable={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/nexus.html#Newick.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.nexus.Newick.populate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.nexus.fetchaln">
+<code class="descclassname">ivy.chars.cy_tree.nexus.</code><code class="descname">fetchaln</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/nexus.html#fetchaln"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.nexus.fetchaln" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.nexus.parse_treesblock">
+<code class="descclassname">ivy.chars.cy_tree.nexus.</code><code class="descname">parse_treesblock</code><span class="sig-paren">(</span><em>infile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/nexus.html#parse_treesblock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.nexus.parse_treesblock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.chars.cy_tree.nexus.split_blocks">
+<code class="descclassname">ivy.chars.cy_tree.nexus.</code><code class="descname">split_blocks</code><span class="sig-paren">(</span><em>infile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/chars/cy_tree/nexus.html#split_blocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.chars.cy_tree.nexus.split_blocks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="ivy-chars-cy-tree-setup-module">
+<h2>ivy.chars.cy_tree.setup module<a class="headerlink" href="#ivy-chars-cy-tree-setup-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ivy.chars.cy_tree.test">
+<span id="ivy-chars-cy-tree-test-module"></span><h2>ivy.chars.cy_tree.test module<a class="headerlink" href="#module-ivy.chars.cy_tree.test" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ivy.chars.cy_tree">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ivy.chars.cy_tree" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ivy.chars.cy_tree package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-ivy.chars.cy_tree.cy_tree">ivy.chars.cy_tree.cy_tree module</a></li>
+<li><a class="reference internal" href="#module-ivy.chars.cy_tree.newick">ivy.chars.cy_tree.newick module</a></li>
+<li><a class="reference internal" href="#module-ivy.chars.cy_tree.nexus">ivy.chars.cy_tree.nexus module</a></li>
+<li><a class="reference internal" href="#ivy-chars-cy-tree-setup-module">ivy.chars.cy_tree.setup module</a></li>
+<li><a class="reference internal" href="#module-ivy.chars.cy_tree.test">ivy.chars.cy_tree.test module</a></li>
+<li><a class="reference internal" href="#module-ivy.chars.cy_tree">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ivy.chars.html"
+                        title="previous chapter">ivy.chars package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ivy.chars.expokit.html"
+                        title="next chapter">ivy.chars.expokit package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ivy.chars.cy_tree.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.expokit.html" title="ivy.chars.expokit package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ivy.chars.html" title="ivy.chars package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="ivy.chars.html" >ivy.chars package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, RR, CZ.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

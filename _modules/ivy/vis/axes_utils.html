@@ -51,7 +51,7 @@
 
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">transforms</span><span class="p">,</span> <span class="n">pyplot</span>
 
-<div class="viewcode-block" id="iter_bboxes"><a class="viewcode-back" href="../../../ivy.vis.axes_utils.html#ivy.vis.axes_utils.iter_bboxes">[docs]</a><span class="k">def</span> <span class="nf">iter_bboxes</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+<div class="viewcode-block" id="iter_bboxes"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.axes_utils.iter_bboxes">[docs]</a><span class="k">def</span> <span class="nf">iter_bboxes</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;artists&quot;</span><span class="p">,</span> <span class="s">&quot;collections&quot;</span><span class="p">,</span> <span class="s">&quot;patches&quot;</span><span class="p">,</span> <span class="s">&quot;texts&quot;</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">get_visible</span><span class="p">():</span>
@@ -60,7 +60,7 @@
                 <span class="k">except</span><span class="p">:</span>
                     <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="artist_data_extents"><a class="viewcode-back" href="../../../ivy.vis.axes_utils.html#ivy.vis.axes_utils.artist_data_extents">[docs]</a><span class="k">def</span> <span class="nf">artist_data_extents</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+<div class="viewcode-block" id="artist_data_extents"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.axes_utils.artist_data_extents">[docs]</a><span class="k">def</span> <span class="nf">artist_data_extents</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
     <span class="n">v</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iter_bboxes</span><span class="p">(</span><span class="n">axes</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
         <span class="n">b</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
@@ -71,7 +71,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">unit</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="adjust_limits"><a class="viewcode-back" href="../../../ivy.vis.axes_utils.html#ivy.vis.axes_utils.adjust_limits">[docs]</a><span class="k">def</span> <span class="nf">adjust_limits</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+<div class="viewcode-block" id="adjust_limits"><a class="viewcode-back" href="../../../ivy.vis.html#ivy.vis.axes_utils.adjust_limits">[docs]</a><span class="k">def</span> <span class="nf">adjust_limits</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
     <span class="n">v</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">n2c</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="n">vx</span> <span class="o">=</span> <span class="p">[</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">v</span> <span class="p">];</span> <span class="n">vy</span> <span class="o">=</span> <span class="p">[</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">v</span> <span class="p">]</span>
     <span class="n">bd</span> <span class="o">=</span> <span class="n">artist_data_extents</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>

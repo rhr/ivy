@@ -50,7 +50,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 
-<div class="viewcode-block" id="finditer"><a class="viewcode-back" href="../../ivy.sequtil.html#ivy.sequtil.finditer">[docs]</a><span class="k">def</span> <span class="nf">finditer</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">substr</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="finditer"><a class="viewcode-back" href="../../ivy.html#ivy.sequtil.finditer">[docs]</a><span class="k">def</span> <span class="nf">finditer</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">substr</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find substrings within a sequence</span>
 
@@ -67,7 +67,7 @@
         <span class="k">yield</span> <span class="n">i</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">substr</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="n">N</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="gapidx"><a class="viewcode-back" href="../../ivy.sequtil.html#ivy.sequtil.gapidx">[docs]</a><span class="k">def</span> <span class="nf">gapidx</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">gapchar</span><span class="o">=</span><span class="s">&#39;-&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="gapidx"><a class="viewcode-back" href="../../ivy.html#ivy.sequtil.gapidx">[docs]</a><span class="k">def</span> <span class="nf">gapidx</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">gapchar</span><span class="o">=</span><span class="s">&#39;-&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For a sequence with gaps, calculate site positions without gaps</span>
 
@@ -84,7 +84,7 @@
     <span class="n">nongap</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[</span><span class="n">a</span> <span class="o">!=</span> <span class="n">gapchar</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nongap</span><span class="p">)),</span> <span class="n">nongap</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="find_stop_codons"><a class="viewcode-back" href="../../ivy.sequtil.html#ivy.sequtil.find_stop_codons">[docs]</a><span class="k">def</span> <span class="nf">find_stop_codons</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="find_stop_codons"><a class="viewcode-back" href="../../ivy.html#ivy.sequtil.find_stop_codons">[docs]</a><span class="k">def</span> <span class="nf">find_stop_codons</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find stop codons within sequence (in reading frame)</span>
 

@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ivy 0.1 documentation" href="index.html" />
     <link rel="up" title="ivy package" href="ivy.html" />
-    <link rel="next" title="ivy.sim.discrete_sim module" href="ivy.sim.discrete_sim.html" />
-    <link rel="prev" title="ivy.chars.recon module" href="ivy.chars.recon.html" /> 
+    <link rel="next" title="ivy.vis package" href="ivy.vis.html" />
+    <link rel="prev" title="ivy.chars.sse package" href="ivy.chars.sse.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -39,10 +39,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ivy.sim.discrete_sim.html" title="ivy.sim.discrete_sim module"
+          <a href="ivy.vis.html" title="ivy.vis package"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="ivy.chars.recon.html" title="ivy.chars.recon module"
+          <a href="ivy.chars.sse.html" title="ivy.chars.sse package"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
@@ -59,11 +59,37 @@
 <h1>ivy.sim package<a class="headerlink" href="#ivy-sim-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ivy.sim.discrete_sim.html">ivy.sim.discrete_sim module</a></li>
-</ul>
 </div>
+<div class="section" id="module-ivy.sim.discrete_sim">
+<span id="ivy-sim-discrete-sim-module"></span><h2>ivy.sim.discrete_sim module<a class="headerlink" href="#module-ivy.sim.discrete_sim" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="ivy.sim.discrete_sim.sim_discrete">
+<code class="descclassname">ivy.sim.discrete_sim.</code><code class="descname">sim_discrete</code><span class="sig-paren">(</span><em>tree</em>, <em>Q</em>, <em>anc=None</em>, <em>charname=None</em>, <em>rseed=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/sim/discrete_sim.html#sim_discrete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.sim.discrete_sim.sim_discrete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate discrete character on a tree given transition rate matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of tree.</li>
+<li><strong>Q</strong> (<em>np.array</em>) &#8211; Instantaneous rate matrix</li>
+<li><strong>anc</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Root state. Optional. If None, root state is chosen
+from stationary distrubution of Q matrix</li>
+<li><strong>rseed</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Random seed to be passed to np.random. Optional</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Copy of tree with each node containing its simulated
+state and the character history of its subtending branch.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="ivy.html#ivy.tree.Node" title="ivy.tree.Node">Node</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="module-ivy.sim">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ivy.sim" title="Permalink to this headline">¶</a></h2>
@@ -80,17 +106,18 @@
   <ul>
 <li><a class="reference internal" href="#">ivy.sim package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-ivy.sim.discrete_sim">ivy.sim.discrete_sim module</a></li>
 <li><a class="reference internal" href="#module-ivy.sim">Module contents</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="ivy.chars.recon.html"
-                        title="previous chapter">ivy.chars.recon module</a></p>
+  <p class="topless"><a href="ivy.chars.sse.html"
+                        title="previous chapter">ivy.chars.sse package</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="ivy.sim.discrete_sim.html"
-                        title="next chapter">ivy.sim.discrete_sim module</a></p>
+  <p class="topless"><a href="ivy.vis.html"
+                        title="next chapter">ivy.vis package</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -125,10 +152,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ivy.sim.discrete_sim.html" title="ivy.sim.discrete_sim module"
+          <a href="ivy.vis.html" title="ivy.vis package"
              >next</a> |</li>
         <li class="right" >
-          <a href="ivy.chars.recon.html" title="ivy.chars.recon module"
+          <a href="ivy.chars.sse.html" title="ivy.chars.sse package"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>

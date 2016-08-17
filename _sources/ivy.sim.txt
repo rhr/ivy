@@ -4,9 +4,14 @@ ivy.sim package
 Submodules
 ----------
 
-.. toctree::
+ivy.sim.discrete_sim module
+---------------------------
 
-   ivy.sim.discrete_sim
+.. automodule:: ivy.sim.discrete_sim
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

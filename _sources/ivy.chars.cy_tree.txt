@@ -1,0 +1,54 @@
+ivy.chars.cy_tree package
+=========================
+
+Submodules
+----------
+
+ivy.chars.cy_tree.cy_tree module
+--------------------------------
+
+.. automodule:: ivy.chars.cy_tree.cy_tree
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ivy.chars.cy_tree.newick module
+-------------------------------
+
+.. automodule:: ivy.chars.cy_tree.newick
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ivy.chars.cy_tree.nexus module
+------------------------------
+
+.. automodule:: ivy.chars.cy_tree.nexus
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ivy.chars.cy_tree.setup module
+------------------------------
+
+.. automodule:: ivy.chars.cy_tree.setup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ivy.chars.cy_tree.test module
+-----------------------------
+
+.. automodule:: ivy.chars.cy_tree.test
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: ivy.chars.cy_tree
+    :members:
+    :undoc-members:
+    :show-inheritance:

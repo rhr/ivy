@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ivy 0.1 documentation" href="index.html" />
     <link rel="up" title="ivy package" href="ivy.html" />
-    <link rel="next" title="ivy.vis.alignment module" href="ivy.vis.alignment.html" />
-    <link rel="prev" title="ivy.sim.discrete_sim module" href="ivy.sim.discrete_sim.html" /> 
+    <link rel="next" title="setup module" href="setup.html" />
+    <link rel="prev" title="ivy.sim package" href="ivy.sim.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -39,10 +39,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ivy.vis.alignment.html" title="ivy.vis.alignment module"
+          <a href="setup.html" title="setup module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="ivy.sim.discrete_sim.html" title="ivy.sim.discrete_sim module"
+          <a href="ivy.sim.html" title="ivy.sim package"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
@@ -59,19 +59,1475 @@
 <h1>ivy.vis package<a class="headerlink" href="#ivy-vis-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ivy.vis.alignment.html">ivy.vis.alignment module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ivy.vis.axes_utils.html">ivy.vis.axes_utils module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ivy.vis.bokehtree.html">ivy.vis.bokehtree module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ivy.vis.colors.html">ivy.vis.colors module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ivy.vis.events.html">ivy.vis.events module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ivy.vis.hardcopy.html">ivy.vis.hardcopy module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ivy.vis.layers.html">ivy.vis.layers module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ivy.vis.matplot.html">ivy.vis.matplot module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ivy.vis.treevis.html">ivy.vis.treevis module</a></li>
-</ul>
 </div>
+<div class="section" id="module-ivy.vis.alignment">
+<span id="ivy-vis-alignment-module"></span><h2>ivy.vis.alignment module<a class="headerlink" href="#module-ivy.vis.alignment" title="Permalink to this headline">¶</a></h2>
+<p>interactive viewers for trees, etc. using matplotlib</p>
+<dl class="class">
+<dt id="ivy.vis.alignment.Alignment">
+<em class="property">class </em><code class="descclassname">ivy.vis.alignment.</code><code class="descname">Alignment</code><span class="sig-paren">(</span><em>fig</em>, <em>rect</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes._axes.Axes</span></code></p>
+<p>matplotlib.axes.Axes subclass for rendering sequence alignments.</p>
+<dl class="method">
+<dt id="ivy.vis.alignment.Alignment.center_x">
+<code class="descname">center_x</code><span class="sig-paren">(</span><em>x</em>, <em>offset=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment.center_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment.center_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.Alignment.center_y">
+<code class="descname">center_y</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment.center_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment.center_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.Alignment.extract_selected">
+<code class="descname">extract_selected</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment.extract_selected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment.extract_selected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.Alignment.highlight_find">
+<code class="descname">highlight_find</code><span class="sig-paren">(</span><em>substr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment.highlight_find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment.highlight_find" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.Alignment.home">
+<code class="descname">home</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment.home"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment.home" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.Alignment.plot_aln">
+<code class="descname">plot_aln</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment.plot_aln"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment.plot_aln" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.Alignment.scroll">
+<code class="descname">scroll</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment.scroll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment.scroll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.Alignment.select_rectangle">
+<code class="descname">select_rectangle</code><span class="sig-paren">(</span><em>e0</em>, <em>e1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment.select_rectangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment.select_rectangle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.Alignment.zoom">
+<code class="descname">zoom</code><span class="sig-paren">(</span><em>x=0.1</em>, <em>y=0.1</em>, <em>cx=None</em>, <em>cy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment.zoom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment.zoom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom the x and y axes in by the specified proportion of the
+current view.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.Alignment.zoom_cxy">
+<code class="descname">zoom_cxy</code><span class="sig-paren">(</span><em>x=0.1</em>, <em>y=0.1</em>, <em>cx=None</em>, <em>cy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#Alignment.zoom_cxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.Alignment.zoom_cxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom the x and y axes in by the specified proportion of the
+current view, with a fixed data point (cx, cy)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.vis.alignment.AlignmentFigure">
+<em class="property">class </em><code class="descclassname">ivy.vis.alignment.</code><code class="descname">AlignmentFigure</code><span class="sig-paren">(</span><em>aln</em>, <em>name=None</em>, <em>div=0.25</em>, <em>overview=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="staticmethod">
+<dt id="ivy.vis.alignment.AlignmentFigure.axes_enter">
+<em class="property">static </em><code class="descname">axes_enter</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.axes_enter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.axes_enter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.vis.alignment.AlignmentFigure.axes_leave">
+<em class="property">static </em><code class="descname">axes_leave</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.axes_leave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.axes_leave" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.AlignmentFigure.connect_events">
+<code class="descname">connect_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.connect_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.connect_events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.AlignmentFigure.initialize_subplots">
+<code class="descname">initialize_subplots</code><span class="sig-paren">(</span><em>overview=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.initialize_subplots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.initialize_subplots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.vis.alignment.AlignmentFigure.onbuttonrelease">
+<em class="property">static </em><code class="descname">onbuttonrelease</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.onbuttonrelease"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.onbuttonrelease" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.vis.alignment.AlignmentFigure.onclick">
+<em class="property">static </em><code class="descname">onclick</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.onclick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.onclick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.vis.alignment.AlignmentFigure.ondrag">
+<em class="property">static </em><code class="descname">ondrag</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.ondrag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.ondrag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.vis.alignment.AlignmentFigure.onkeypress">
+<em class="property">static </em><code class="descname">onkeypress</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.onkeypress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.onkeypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.vis.alignment.AlignmentFigure.onpick">
+<em class="property">static </em><code class="descname">onpick</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.onpick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.onpick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.vis.alignment.AlignmentFigure.onscroll">
+<em class="property">static </em><code class="descname">onscroll</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.onscroll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.onscroll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="ivy.vis.alignment.AlignmentFigure.onselect">
+<em class="property">static </em><code class="descname">onselect</code><span class="sig-paren">(</span><em>estart</em>, <em>estop</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.onselect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.onselect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.vis.alignment.AlignmentFigure.selected">
+<code class="descname">selected</code><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.selected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.AlignmentFigure.show">
+<code class="descname">show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.show" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.alignment.AlignmentFigure.zoom">
+<code class="descname">zoom</code><span class="sig-paren">(</span><em>factor=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#AlignmentFigure.zoom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.AlignmentFigure.zoom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom both axes by <em>factor</em> (relative display size).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.vis.alignment.UpdatingRect">
+<em class="property">class </em><code class="descclassname">ivy.vis.alignment.</code><code class="descname">UpdatingRect</code><span class="sig-paren">(</span><em>xy</em>, <em>width</em>, <em>height</em>, <em>angle=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/alignment.html#UpdatingRect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.alignment.UpdatingRect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.patches.Rectangle</span></code></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ivy.vis.axes_utils">
+<span id="ivy-vis-axes-utils-module"></span><h2>ivy.vis.axes_utils module<a class="headerlink" href="#module-ivy.vis.axes_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="ivy.vis.axes_utils.adjust_limits">
+<code class="descclassname">ivy.vis.axes_utils.</code><code class="descname">adjust_limits</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/axes_utils.html#adjust_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.axes_utils.adjust_limits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.axes_utils.artist_data_extents">
+<code class="descclassname">ivy.vis.axes_utils.</code><code class="descname">artist_data_extents</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/axes_utils.html#artist_data_extents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.axes_utils.artist_data_extents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.axes_utils.iter_bboxes">
+<code class="descclassname">ivy.vis.axes_utils.</code><code class="descname">iter_bboxes</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/axes_utils.html#iter_bboxes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.axes_utils.iter_bboxes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ivy.vis.bokehtree">
+<span id="ivy-vis-bokehtree-module"></span><h2>ivy.vis.bokehtree module<a class="headerlink" href="#module-ivy.vis.bokehtree" title="Permalink to this headline">¶</a></h2>
+<p>Viewer for trees using Bokeh</p>
+<dl class="class">
+<dt id="ivy.vis.bokehtree.BokehTree">
+<em class="property">class </em><code class="descclassname">ivy.vis.bokehtree.</code><code class="descname">BokehTree</code><span class="sig-paren">(</span><em>root</em>, <em>scaled=True</em>, <em>nodelabels=True</em>, <em>tiplabels=True</em>, <em>showplot=True</em>, <em>hover=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.connectors">
+<code class="descname">connectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.connectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.connectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method draws branches between nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.drawlabels">
+<code class="descname">drawlabels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.drawlabels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.drawlabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method draws labels for tips and internal nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.drawtree">
+<code class="descname">drawtree</code><span class="sig-paren">(</span><em>showplot=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.drawtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.drawtree" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method sets the output file and creates the figure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.highlight">
+<code class="descname">highlight</code><span class="sig-paren">(</span><em>x=None</em>, <em>color=u'red'</em>, <em>width=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.highlight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highlight selected clade(s)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; <p>A str or list of strs or node or list of nodes.
+color (str): The color of the highlighted nodes. Optional,</p>
+<blockquote>
+<div>defaults to red</div></blockquote>
+<dl class="docutils">
+<dt>width (int): The width of the highlighted branches. Optional,</dt>
+<dd>defaults to 3.</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.layout">
+<code class="descname">layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method calculates the coordinates of the nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.makehovertool">
+<code class="descname">makehovertool</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.makehovertool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.makehovertool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.bokehtree.BokehTree.set_root">
+<code class="descname">set_root</code><span class="sig-paren">(</span><em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/bokehtree.html#BokehTree.set_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.bokehtree.BokehTree.set_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method sets root, leaves, and nleaves.
+Detects if tree is scaled or not.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ivy.vis.colors">
+<span id="ivy-vis-colors-module"></span><h2>ivy.vis.colors module<a class="headerlink" href="#module-ivy.vis.colors" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="ivy.vis.colors.tango">
+<code class="descclassname">ivy.vis.colors.</code><code class="descname">tango</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/colors.html#tango"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.colors.tango" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ivy.vis.events">
+<span id="ivy-vis-events-module"></span><h2>ivy.vis.events module<a class="headerlink" href="#module-ivy.vis.events" title="Permalink to this headline">¶</a></h2>
+<p>Events for tree figures</p>
+<dl class="class">
+<dt id="ivy.vis.events.UpdatingRect">
+<em class="property">class </em><code class="descclassname">ivy.vis.events.</code><code class="descname">UpdatingRect</code><span class="sig-paren">(</span><em>xy</em>, <em>width</em>, <em>height</em>, <em>angle=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#UpdatingRect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.UpdatingRect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.patches.Rectangle</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.axes_enter">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">axes_enter</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#axes_enter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.axes_enter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.axes_leave">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">axes_leave</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#axes_leave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.axes_leave" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.connect_events">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">connect_events</code><span class="sig-paren">(</span><em>canvas</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#connect_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.connect_events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onbuttonrelease">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onbuttonrelease</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onbuttonrelease"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onbuttonrelease" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onclick">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onclick</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onclick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onclick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.ondrag">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">ondrag</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#ondrag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.ondrag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onkeypress">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onkeypress</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onkeypress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onkeypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onpick">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onpick</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onpick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onpick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onscroll">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onscroll</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onscroll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onscroll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.events.onselect">
+<code class="descclassname">ivy.vis.events.</code><code class="descname">onselect</code><span class="sig-paren">(</span><em>estart</em>, <em>estop</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/events.html#onselect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.events.onselect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ivy.vis.hardcopy">
+<span id="ivy-vis-hardcopy-module"></span><h2>ivy.vis.hardcopy module<a class="headerlink" href="#module-ivy.vis.hardcopy" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ivy.vis.hardcopy.TreeFigure">
+<em class="property">class </em><code class="descclassname">ivy.vis.hardcopy.</code><code class="descname">TreeFigure</code><span class="sig-paren">(</span><em>root</em>, <em>relwidth=0.5</em>, <em>leafpad=1.5</em>, <em>name=None</em>, <em>support=70.0</em>, <em>scaled=True</em>, <em>mark_named=True</em>, <em>leaf_fontsize=10</em>, <em>branch_fontsize=10</em>, <em>branch_width=1</em>, <em>branch_color=u'black'</em>, <em>highlight_support=True</em>, <em>branchlabels=True</em>, <em>leaflabels=True</em>, <em>layers=[]</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>height=None</em>, <em>width=None</em>, <em>plottype=u'phylogram'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="ivy.vis.hardcopy.TreeFigure.autoheight">
+<code class="descname">autoheight</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.autoheight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.autoheight" title="Permalink to this definition">¶</a></dt>
+<dd><p>adjust figure height to show all leaf labels</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.vis.hardcopy.TreeFigure.detail">
+<code class="descname">detail</code><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.detail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.hardcopy.TreeFigure.home">
+<code class="descname">home</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.home"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.home" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.hardcopy.TreeFigure.render_multipage">
+<code class="descname">render_multipage</code><span class="sig-paren">(</span><em>outfile, pagesize=[8.5, 11.0], dims=None, border=0.393701, landscape=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.render_multipage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.render_multipage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a multi-page PDF document where the figure is cut into
+multiple pages. Used for printing large figures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outfile</strong> (<a class="reference external" href="https://docs.python.org/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The path to the output file.</li>
+<li><strong>pagesize</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; Two floats. Page size of each individual page
+in inches. Defaults to 8.5 x 11.0.</li>
+<li><strong>dims</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; Two floats. The dimensions of the final figure in
+inches. Defaults to the original size of the figure.</li>
+<li><strong>border</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The amount of overlap (in inches) between each page
+to make taping them together easier. Defaults to 0.393701 (1 cm)</li>
+<li><strong>landscape</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not each page will be in landscape
+orientation. Defaults to false.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.hardcopy.TreeFigure.savefig">
+<code class="descname">savefig</code><span class="sig-paren">(</span><em>fname</em>, <em>format=u'pdf'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.savefig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.savefig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.hardcopy.TreeFigure.set_relative_width">
+<code class="descname">set_relative_width</code><span class="sig-paren">(</span><em>relwidth</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/hardcopy.html#TreeFigure.set_relative_width"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.hardcopy.TreeFigure.set_relative_width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ivy.vis.layers">
+<span id="ivy-vis-layers-module"></span><h2>ivy.vis.layers module<a class="headerlink" href="#module-ivy.vis.layers" title="Permalink to this headline">¶</a></h2>
+<p>Layer functions to add to a tree plot with the addlayer method</p>
+<dl class="function">
+<dt id="ivy.vis.layers.add_ancestor_noderecon">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_ancestor_noderecon</code><span class="sig-paren">(</span><em>treeplot</em>, <em>internal_vals</em>, <em>vis=True</em>, <em>colors=None</em>, <em>nregime=None</em>, <em>size=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_ancestor_noderecon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_ancestor_noderecon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add piecharts at each node based on probability vector</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>internal_vals</strong> &#8211; <dl class="docutils">
+<dt>Array of dimensions [nchar+2, nnodes]. Identical to the</dt>
+<dd>format returned by anc_recon_cat</dd>
+</dl>
+<p>colors: List of length = nchar. The colors for each character. Optional.
+nregime: Number of regimes. If given and colors = None, function will
+automatically color-code characters by regime. (NOT IMPLEMENTED)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_ancrecon">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_ancrecon</code><span class="sig-paren">(</span><em>treeplot</em>, <em>liks</em>, <em>vis=True</em>, <em>width=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_ancrecon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_ancrecon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot ancestor reconstruction for a binary mk model</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_ancrecon_hrm">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_ancrecon_hrm</code><span class="sig-paren">(</span><em>treeplot</em>, <em>liks</em>, <em>vis=True</em>, <em>width=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_ancrecon_hrm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_ancrecon_hrm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Color branches on tree based on likelihood of being in a state
+based on ancestral state reconstruction of a two-character, two-regime
+hrm model.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_branchstates">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_branchstates</code><span class="sig-paren">(</span><em>treeplot</em>, <em>vis=True</em>, <em>colors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_branchstates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_branchstates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add simulated branch states.</p>
+<p>Treeplot must have simulated states as attributes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_cbar">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_cbar</code><span class="sig-paren">(</span><em>treeplot</em>, <em>nodes</em>, <em>vis=True</em>, <em>color=None</em>, <em>label=None</em>, <em>x=None</em>, <em>width=8</em>, <em>xoff=10</em>, <em>showlabel=True</em>, <em>mrca=True</em>, <em>leaf_valign=u'center'</em>, <em>leaf_halign=u'left'</em>, <em>leaf_fontsize=10</em>, <em>leaf_offset=4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_cbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_cbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a &#8216;clade&#8217; bar (i.e., along the y-axis) indicating a
+clade.  <em>nodes</em> are assumed to be one or more nodes in the
+tree.  If just one, it should be the internal node
+representing the clade of interest; otherwise, the clade of
+interest is the most recent common ancestor of the specified
+nodes.  <em>label</em> is an optional string to be drawn next to the
+bar, <em>offset</em> by the specified number of display units.  If
+<em>label</em> is <code class="docutils literal"><span class="pre">None</span></code> then the clade&#8217;s label is used instead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nodes</strong> &#8211; Node or list of nodes or string or list of strings.</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Color of the bar. Optional, defaults to None.
+If None, will cycle through a color palette</li>
+<li><strong>label</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Optional label for bar. If None, the clade&#8217;s
+label is used instead. Defaults to None.</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Width of bar</li>
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Distance from tip of tree to bar. Optional,
+if None, calculated based on leaf labels.</li>
+<li><strong>xoff</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Offset from label to bar</li>
+<li><strong>showlabel</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not to draw the label</li>
+<li><strong>mrca</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether to draw the bar encompassing all descendants
+of the MRCA of <code class="docutils literal"><span class="pre">nodes</span></code></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_circles">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_circles</code><span class="sig-paren">(</span><em>treeplot</em>, <em>nodes</em>, <em>colors=u'g'</em>, <em>size=15</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>vis=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_circles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_circles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw circles on plot at nodes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nodes</strong> &#8211; A node object or list of Node objects or label or list of labels</li>
+<li><strong>colors</strong> &#8211; Str or list of strs. Colors of the circles. Optional,
+defaults to &#8216;g&#8217; (green)</li>
+<li><strong>size</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Size of the circles. Optional, defaults to 15</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; X and Y offset. Optional, defaults to 0.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_circles_branches">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_circles_branches</code><span class="sig-paren">(</span><em>treeplot</em>, <em>nodes</em>, <em>distances</em>, <em>colors=u'g'</em>, <em>size=15</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>vis=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_circles_branches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_circles_branches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw circles on branches</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nodes</strong> &#8211; A node object or list of Node objects or label or list of labels</li>
+<li><strong>distances</strong> &#8211; Float or list of floats indicating the distance from the
+<strong>parent</strong> node the branch should be drawn on.</li>
+<li><strong>colors</strong> &#8211; Str or list of strs. Colors of the circles. Optional,
+defaults to &#8216;g&#8217; (green)</li>
+<li><strong>size</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Size of the circles. Optional, defaults to 15</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; X and Y offset. Optional, defaults to 0.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_highlight">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_highlight</code><span class="sig-paren">(</span><em>treeplot</em>, <em>x=None</em>, <em>vis=True</em>, <em>width=5</em>, <em>color=u'red'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_highlight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highlight nodes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> &#8211; Str or list of Strs or Node or list of Nodes</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Width of highlighted lines. Defaults to 5</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Color of highlighted lines. Defaults to red</li>
+<li><strong>vis</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not the object is visible. Defaults to true</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_hrm_hiddenstate_recon">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_hrm_hiddenstate_recon</code><span class="sig-paren">(</span><em>treeplot</em>, <em>liks</em>, <em>nregime</em>, <em>vis=True</em>, <em>width=2</em>, <em>colors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_hrm_hiddenstate_recon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_hrm_hiddenstate_recon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Color branches based on likelihood of being in hidden states.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>liks</strong> (<em>np.array</em>) &#8211; The output of anc_recon run as a hidden-rates reconstruction.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_image">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_image</code><span class="sig-paren">(</span><em>treeplot</em>, <em>x</em>, <em>imgfiles</em>, <em>maxdim=100</em>, <em>border=0</em>, <em>xoff=4</em>, <em>yoff=4</em>, <em>halign=0.0</em>, <em>valign=0.5</em>, <em>xycoords=u'data'</em>, <em>boxcoords=u'offset points'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add images to a plot at the given nodes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> &#8211; Node/label or list of nodes/labels.</li>
+<li><strong>imgfiles</strong> &#8211; String or list of strings of image files</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">x and imgfiles must be the same length</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_label">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_label</code><span class="sig-paren">(</span><em>treeplot</em>, <em>labeltype</em>, <em>vis=True</em>, <em>leaf_offset=4</em>, <em>leaf_valign=u'center'</em>, <em>leaf_halign=u'left'</em>, <em>leaf_fontsize=10</em>, <em>branch_offset=-5</em>, <em>branch_valign=u'center'</em>, <em>branch_halign=u'right'</em>, <em>fontsize=u'10'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add text labels to tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>treeplot</strong> &#8211; treeplot (fig.tree)</li>
+<li><strong>labeltype</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; &#8220;leaf&#8221; or &#8220;branch&#8221;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_legend">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_legend</code><span class="sig-paren">(</span><em>treeplot</em>, <em>colors</em>, <em>labels</em>, <em>shape=u'rectangle'</em>, <em>loc=u'upper left'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_legend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_legend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add legend mapping colors/shapes to labels</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>colors</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of colors</li>
+<li><strong>labels</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of labels</li>
+<li><strong>shape</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Shape of label icon. Either rectangle or circle</li>
+<li><strong>loc</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Location of label. Defaults to upper left</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_mkmr_heatmap">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_mkmr_heatmap</code><span class="sig-paren">(</span><em>treeplot</em>, <em>locations</em>, <em>vis=True</em>, <em>seglen=0.02</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_mkmr_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_mkmr_heatmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Heatmap that shows which portions of the tree are most likely
+to contain a switchpoint</p>
+<p>To be used with the output from mk_multi_bayes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>locations</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of lists containing node and distance.
+The output from the switchpoint stochastic of mk_multi_bayes.</li>
+<li><strong>seglen</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The size of segments to break the tree into.
+MUST BE the same as the seglen used in mk_multi_bayes.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_node_heatmap">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_node_heatmap</code><span class="sig-paren">(</span><em>treeplot</em>, <em>nodelist</em>, <em>vis=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_node_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_node_heatmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot circles on nodes with colors indicating how frequently each node
+appears in nodelist. For use with plotting potential regime
+shift locations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nodelist</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; list of node objects. Repeats allowed (and expected)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_phylorate">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_phylorate</code><span class="sig-paren">(</span><em>treeplot</em>, <em>rates</em>, <em>nodeidx</em>, <em>vis=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_phylorate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_phylorate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add phylorate plot generated from data analyzed with BAMM
+(<a class="reference external" href="http://bamm-project.org/introduction.html">http://bamm-project.org/introduction.html</a>)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rates</strong> (<a class="reference external" href="https://docs.python.org/library/array.html#module-array" title="(in Python v2.7)"><em>array</em></a>) &#8211; Array of rates along branches
+created by r_funcs.phylorate</li>
+<li><strong>nodeidx</strong> (<a class="reference external" href="https://docs.python.org/library/array.html#module-array" title="(in Python v2.7)"><em>array</em></a>) &#8211; Array of node indices matching rates (also created
+by r_funcs.phylorate)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Ladderizing the tree can cause incorrect assignment of Ape node index
+numbers. To prevent this, call this function or root.ape_node_idx()
+before ladderizing the tree to assign correct Ape node index numbers.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_pie">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_pie</code><span class="sig-paren">(</span><em>treeplot</em>, <em>node</em>, <em>values</em>, <em>colors=None</em>, <em>size=16</em>, <em>norm=True</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>halign=0.5</em>, <em>valign=0.5</em>, <em>xycoords=u'data'</em>, <em>boxcoords=u'offset points'</em>, <em>vis=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_pie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_pie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a pie chart</p>
+<p>Args:
+node (Node): A single Node object or node label
+values (list): A list of floats.
+colors (list): A list of strings to pull colors from. Optional.
+size (float): Diameter of the pie chart
+norm (bool): Whether or not to normalize the values so they</p>
+<blockquote>
+<div>add up to 360</div></blockquote>
+<p>xoff, yoff (float): X and Y offset. Optional, defaults to 0
+halign, valign (float): Horizontal and vertical alignment within</p>
+<blockquote>
+<div>box. Optional, defaults to 0.5</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_squares">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_squares</code><span class="sig-paren">(</span><em>treeplot</em>, <em>nodes</em>, <em>colors=u'r'</em>, <em>size=15</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>alpha=1.0</em>, <em>vis=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_squares"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_squares" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a square at given node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>p</strong> &#8211; A node or list of nodes or string or list of strings</li>
+<li><strong>colors</strong> &#8211; Str or list of strs. Colors of squares to be drawn.
+Optional, defaults to &#8216;r&#8217; (red)</li>
+<li><strong>size</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Size of the squares. Optional, defaults to 15</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; Offset for x and y dimensions. Optional,
+defaults to 0.</li>
+<li><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; between 0 and 1. Alpha transparency of squares.
+Optional, defaults to 1 (fully opaque)</li>
+<li><strong>zorder</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The drawing order. Higher numbers appear on top
+of lower numbers. Optional, defaults to 1000.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_text">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_text</code><span class="sig-paren">(</span><em>treeplot</em>, <em>x</em>, <em>y</em>, <em>s</em>, <em>color=u'black'</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>valign=u'center'</em>, <em>halign=u'left'</em>, <em>fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add text to the plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>y</strong> (<em>x,</em>) &#8211; x and y coordinates to place the text</li>
+<li><strong>s</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The text to write</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The color of the text. Optional, defaults to &#8220;black&#8221;</li>
+<li><strong>yoff</strong> (<em>xoff,</em>) &#8211; x and y offset</li>
+<li><strong>valign</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Vertical alignment. Can be: &#8216;center&#8217;, &#8216;top&#8217;,
+&#8216;bottom&#8217;, or &#8216;baseline&#8217;. Defaults to &#8216;center&#8217;.</li>
+<li><strong>halign</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Horizontal alignment. Can be: &#8216;center&#8217;, &#8216;right&#8217;,
+or &#8216;left&#8217;. Defaults to &#8216;left&#8217;</li>
+<li><strong>fontsize</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Font size. Optional, defaults to 10</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_tipstates">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_tipstates</code><span class="sig-paren">(</span><em>treeplot</em>, <em>chars</em>, <em>nodes=None</em>, <em>colors=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_tipstates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_tipstates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.add_tree_heatmap">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">add_tree_heatmap</code><span class="sig-paren">(</span><em>treeplot</em>, <em>locations</em>, <em>vis=True</em>, <em>color=(1</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#add_tree_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.add_tree_heatmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot how often tree coordinates appear in locations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>locations</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of tuples where first item is node, second
+item is how far from the node&#8217;s parent the location is.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.color_blender_1">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">color_blender_1</code><span class="sig-paren">(</span><em>value</em>, <em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#color_blender_1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.color_blender_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smooth transition between two values</p>
+<p>value (float): Percentage along color map
+start: starting value of color map
+end: ending value of color map</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.color_map">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">color_map</code><span class="sig-paren">(</span><em>value</em>, <em>col1</em>, <em>col2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#color_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.color_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return RGB for value based on minimum and maximum colors</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.colorbar_legend">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">colorbar_legend</code><span class="sig-paren">(</span><em>ax</em>, <em>values</em>, <em>cmap</em>, <em>vis=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#colorbar_legend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.colorbar_legend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a vertical colorbar legend to a plot</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.gradient_segment_horz">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">gradient_segment_horz</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>c1</em>, <em>c2</em>, <em>width=4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#gradient_segment_horz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.gradient_segment_horz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a horizontal segment that is filled with a gradient</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>p1</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) &#8211; XY coordinates of first point</li>
+<li><strong>p2</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) &#8211; XY coordinates of second point <em>Y coord must be same as p1</em></li>
+<li><strong>c1</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) &#8211; RGB of color at point 1</li>
+<li><strong>c2</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) &#8211; RGB of color at point 2</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of segs and colors to be added to a LineCollection</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.twoS_colormaker">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">twoS_colormaker</code><span class="sig-paren">(</span><em>lik</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#twoS_colormaker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.twoS_colormaker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given node likelihood, return approrpiate color</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.twoS_twoR_colormaker">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">twoS_twoR_colormaker</code><span class="sig-paren">(</span><em>lik</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#twoS_twoR_colormaker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.twoS_twoR_colormaker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given node likelihood, return appropriate color</p>
+<p>State 0 corresponds to red, state 1 corresponds to blue
+Regime 1 corresponds to grey, regime 2 corresponds to highly saturated</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ivy.vis.layers.xy">
+<code class="descclassname">ivy.vis.layers.</code><code class="descname">xy</code><span class="sig-paren">(</span><em>plot</em>, <em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/layers.html#xy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.layers.xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get xy coordinates of a node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot</strong> (<em>TreeSubplot</em>) &#8211; treeplot</li>
+<li><strong>p</strong> &#8211; node or node label (or list of nodes/node labels)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="ivy-vis-matplot-module">
+<h2>ivy.vis.matplot module<a class="headerlink" href="#ivy-vis-matplot-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ivy.vis.tree">
+<span id="ivy-vis-tree-module"></span><h2>ivy.vis.tree module<a class="headerlink" href="#module-ivy.vis.tree" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ivy.vis.treevis">
+<span id="ivy-vis-treevis-module"></span><h2>ivy.vis.treevis module<a class="headerlink" href="#module-ivy.vis.treevis" title="Permalink to this headline">¶</a></h2>
+<p>interactive viewers for trees, etc. using matplotlib</p>
+<p>Re-written to have a layer-based API</p>
+<dl class="class">
+<dt id="ivy.vis.treevis.MultiTreeFigure">
+<em class="property">class </em><code class="descclassname">ivy.vis.treevis.</code><code class="descname">MultiTreeFigure</code><span class="sig-paren">(</span><em>trees=None</em>, <em>name=None</em>, <em>support=70</em>, <em>scaled=True</em>, <em>branchlabels=False</em>, <em>radial=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#MultiTreeFigure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.MultiTreeFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ivy.vis.treevis.TreeFigure" title="ivy.vis.treevis.TreeFigure"><code class="xref py py-class docutils literal"><span class="pre">ivy.vis.treevis.TreeFigure</span></code></a></p>
+<p>Class for drawing multiple trees in one figure</p>
+<dl class="method">
+<dt id="ivy.vis.treevis.MultiTreeFigure.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>data</em>, <em>name=None</em>, <em>support=70</em>, <em>scaled=True</em>, <em>branchlabels=False</em>, <em>leaflabels=True</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#MultiTreeFigure.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.MultiTreeFigure.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add tree to existing figure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.MultiTreeFigure.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#MultiTreeFigure.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.MultiTreeFigure.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.MultiTreeFigure.getplot">
+<code class="descname">getplot</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#MultiTreeFigure.getplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.MultiTreeFigure.getplot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.MultiTreeFigure.home">
+<code class="descname">home</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#MultiTreeFigure.home"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.MultiTreeFigure.home" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.MultiTreeFigure.ladderize">
+<code class="descname">ladderize</code><span class="sig-paren">(</span><em>reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#MultiTreeFigure.ladderize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.MultiTreeFigure.ladderize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.MultiTreeFigure.on_nodes_selected">
+<code class="descname">on_nodes_selected</code><span class="sig-paren">(</span><em>treeplot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#MultiTreeFigure.on_nodes_selected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.MultiTreeFigure.on_nodes_selected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.MultiTreeFigure.picked">
+<code class="descname">picked</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#MultiTreeFigure.picked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.MultiTreeFigure.picked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.MultiTreeFigure.redraw">
+<code class="descname">redraw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#MultiTreeFigure.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.MultiTreeFigure.redraw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.MultiTreeFigure.show">
+<code class="descname">show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#MultiTreeFigure.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.MultiTreeFigure.show" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.vis.treevis.OverviewTree">
+<em class="property">class </em><code class="descclassname">ivy.vis.treevis.</code><code class="descname">OverviewTree</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#OverviewTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.OverviewTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ivy.vis.treevis.Tree" title="ivy.vis.treevis.Tree"><code class="xref py py-class docutils literal"><span class="pre">ivy.vis.treevis.Tree</span></code></a></p>
+<dl class="method">
+<dt id="ivy.vis.treevis.OverviewTree.add_overview_rect">
+<code class="descname">add_overview_rect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#OverviewTree.add_overview_rect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.OverviewTree.add_overview_rect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.OverviewTree.home">
+<code class="descname">home</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#OverviewTree.home"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.OverviewTree.home" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.OverviewTree.rectselect">
+<code class="descname">rectselect</code><span class="sig-paren">(</span><em>e0</em>, <em>e1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#OverviewTree.rectselect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.OverviewTree.rectselect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom to the selected region</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.OverviewTree.redraw">
+<code class="descname">redraw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#OverviewTree.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.OverviewTree.redraw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.OverviewTree.redraw_keeptemp">
+<code class="descname">redraw_keeptemp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#OverviewTree.redraw_keeptemp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.OverviewTree.redraw_keeptemp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.OverviewTree.set_target">
+<code class="descname">set_target</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#OverviewTree.set_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.OverviewTree.set_target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.vis.treevis.RadialTree">
+<em class="property">class </em><code class="descclassname">ivy.vis.treevis.</code><code class="descname">RadialTree</code><span class="sig-paren">(</span><em>fig</em>, <em>rect</em>, <em>tf=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#RadialTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.RadialTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ivy.vis.treevis.Tree" title="ivy.vis.treevis.Tree"><code class="xref py py-class docutils literal"><span class="pre">ivy.vis.treevis.Tree</span></code></a></p>
+<p>Matplotlib axes subclass for rendering radial trees</p>
+<dl class="method">
+<dt id="ivy.vis.treevis.RadialTree.layout">
+<code class="descname">layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#RadialTree.layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.RadialTree.layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.vis.treevis.Tree">
+<em class="property">class </em><code class="descclassname">ivy.vis.treevis.</code><code class="descname">Tree</code><span class="sig-paren">(</span><em>fig</em>, <em>rect</em>, <em>tf=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes._axes.Axes</span></code></p>
+<p>Subclass for rendering trees</p>
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.adjust_xspine">
+<code class="descname">adjust_xspine</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.adjust_xspine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.adjust_xspine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.center_node">
+<code class="descname">center_node</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.center_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.center_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Center the canvas on the given node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.center_x">
+<code class="descname">center_x</code><span class="sig-paren">(</span><em>x</em>, <em>offset=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.center_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.center_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Center the x-axis of the canvas on the given x value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.center_y">
+<code class="descname">center_y</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.center_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.center_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Center the y-axis of the canvas on the given y value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.circle_selected_nodes">
+<code class="descname">circle_selected_nodes</code><span class="sig-paren">(</span><em>color=u'green'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.circle_selected_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.circle_selected_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.clade_dimensions">
+<code class="descname">clade_dimensions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.clade_dimensions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.clade_dimensions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.clade_height_pixels">
+<code class="descname">clade_height_pixels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.clade_height_pixels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.clade_height_pixels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.create_branch_artists">
+<code class="descname">create_branch_artists</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.create_branch_artists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.create_branch_artists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use MPL Paths to draw branches</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.draw_labels">
+<code class="descname">draw_labels</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.draw_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.draw_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.find">
+<code class="descname">find</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find node(s) matching pattern s and zoom to node(s)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.get_visible_nodes">
+<code class="descname">get_visible_nodes</code><span class="sig-paren">(</span><em>labeled_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.get_visible_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.get_visible_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.hardcopy">
+<code class="descname">hardcopy</code><span class="sig-paren">(</span><em>relwidth=0.5</em>, <em>leafpad=1.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.hardcopy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.hardcopy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.home">
+<code class="descname">home</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.home"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.home" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.layout">
+<code class="descname">layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get coordinates of nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.leaf_pixelsep">
+<code class="descname">leaf_pixelsep</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.leaf_pixelsep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.leaf_pixelsep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.mark_named">
+<code class="descname">mark_named</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.mark_named"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.mark_named" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.p2y">
+<code class="descname">p2y</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.p2y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.p2y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a single display point to y-units</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.picked">
+<code class="descname">picked</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.picked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.picked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.plot_tree">
+<code class="descname">plot_tree</code><span class="sig-paren">(</span><em>root=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.plot_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.plot_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw branches</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.rectselect">
+<code class="descname">rectselect</code><span class="sig-paren">(</span><em>e0</em>, <em>e1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.rectselect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.rectselect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.redraw">
+<code class="descname">redraw</code><span class="sig-paren">(</span><em>home=False</em>, <em>layout=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.redraw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replot the tree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.scroll">
+<code class="descname">scroll</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.scroll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.scroll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.select_nodes">
+<code class="descname">select_nodes</code><span class="sig-paren">(</span><em>nodes=None</em>, <em>add=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.select_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.select_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.set_name">
+<code class="descname">set_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.set_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.set_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.set_root">
+<code class="descname">set_root</code><span class="sig-paren">(</span><em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.set_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.set_root" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.set_scaled">
+<code class="descname">set_scaled</code><span class="sig-paren">(</span><em>scaled</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.set_scaled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.set_scaled" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.window2data">
+<code class="descname">window2data</code><span class="sig-paren">(</span><em>expandx=1.0</em>, <em>expandy=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.window2data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.window2data" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the data coordinates ((x0, y0),(x1, y1)) of the plot
+window, expanded by relative units of window size</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.xoffset">
+<code class="descname">xoffset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.xoffset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.xoffset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Space below x axis to show tick labels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.ypp">
+<code class="descname">ypp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.ypp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.ypp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.zoom">
+<code class="descname">zoom</code><span class="sig-paren">(</span><em>x=0.1</em>, <em>y=0.1</em>, <em>cx=None</em>, <em>cy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.zoom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.zoom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom the x and y axes in by the specified proportion of the
+current view.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.zoom_clade">
+<code class="descname">zoom_clade</code><span class="sig-paren">(</span><em>anc</em>, <em>border=1.2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.zoom_clade"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.zoom_clade" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.zoom_cxy">
+<code class="descname">zoom_cxy</code><span class="sig-paren">(</span><em>x=0.1</em>, <em>y=0.1</em>, <em>cx=None</em>, <em>cy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.zoom_cxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.zoom_cxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom the x and y axes in by the specified proportion of the
+current view, with a fixed data point (cx, cy)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.Tree.zoom_nodes">
+<code class="descname">zoom_nodes</code><span class="sig-paren">(</span><em>nodes</em>, <em>border=1.2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#Tree.zoom_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.Tree.zoom_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.vis.treevis.TreeFigure">
+<em class="property">class </em><code class="descclassname">ivy.vis.treevis.</code><code class="descname">TreeFigure</code><span class="sig-paren">(</span><em>data</em>, <em>name=None</em>, <em>scaled=True</em>, <em>div=0.25</em>, <em>branchlabels=True</em>, <em>leaflabels=True</em>, <em>xoff=0</em>, <em>yoff=0</em>, <em>mark_named=True</em>, <em>overview=True</em>, <em>interactive=True</em>, <em>radial=False</em>, <em>leaf_fontsize=10</em>, <em>branch_fontsize=10</em>, <em>direction=u'rightwards'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>mpl Figure for plotting trees.</p>
+<dl class="docutils">
+<dt>Holds references to all layers:</dt>
+<dd><ul class="first simple">
+<li>Tree (the base layer: the Axes which all other layers are drawn on)</li>
+<li>Node labels</li>
+<li>Tip labels</li>
+<li>Overview</li>
+<li>Decorators</li>
+<li>Etc.</li>
+</ul>
+<p class="last">The navigation toolbar at the bottom is provided by matplotlib</p>
+</dd>
+</dl>
+<p>(<a class="reference external" href="http://matplotlib.sf.net/users/navigation_toolbar.html">http://matplotlib.sf.net/users/navigation_toolbar.html</a>).  Its
+pan/zoom button and zoom-rectangle button provide different modes
+of mouse interaction with the figure.  When neither of these
+buttons are checked, the default mouse bindings are as follows:</p>
+<ul class="simple">
+<li>button 1 drag: select nodes - retrieve by calling fig.selected</li>
+<li>button 3 drag: pan view</li>
+<li>scroll up/down: zoom in/out</li>
+<li>scroll up/down with Control key: zoom y-axis</li>
+<li>scroll up/down with Shift key: zoom x-axis</li>
+<li>scroll up/down with &#8216;d&#8217; key: pan view up/down</li>
+<li>scroll up/down with &#8216;e&#8217; key: pan view left/right</li>
+<li>click on overview will center the detail pane on that region</li>
+</ul>
+<p>Default keybindings:</p>
+<ul class="simple">
+<li>t: zoom out to full extent</li>
+<li>+/-: zoom in/out</li>
+</ul>
+<p>Useful attributes and methods (assume an instance named <em>fig</em>):</p>
+<ul class="simple">
+<li>fig.root - the root node (see [Node methods])</li>
+<li>fig.highlight(s) - highlight and trace nodes with substring <em>s</em></li>
+<li>fig.zoom_clade(anc) - zoom to view node <em>anc</em> and all its descendants</li>
+<li>fig.toggle_overview() - toggle visibility of the overview pane</li>
+<li>fig.toggle_branchlabels() - ditto for branch labels</li>
+<li>fig.toggle_leaflabels() - ditto for leaf labels</li>
+<li>fig.decorate(func) - decorate the tree with a function (see
+<span class="xref std std-ref">decorating TreeFigures</span>)</li>
+</ul>
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.add_layer">
+<code class="descname">add_layer</code><span class="sig-paren">(</span><em>func</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.add_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.add_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new layer. New layers include:</p>
+<ul class="simple">
+<li>Labels</li>
+<li>Overview</li>
+<li>Dataplot</li>
+<li>Decorations</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>func</strong> (<em>function</em>) &#8211; Function that takes a TreePlot (self.tree)
+as input and returns (and draws) an Artist</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><strong>store</strong> (<em>str</em>) &#8211;
+Name of layer. If given, the layer is stored in
+self.layers and called upon every redraw</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.vis.treevis.TreeFigure.axes">
+<code class="descname">axes</code><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.axes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.cbar">
+<code class="descname">cbar</code><span class="sig-paren">(</span><em>nodes</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.cbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.cbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function for adding clade bar along y axis</p>
+<p>Draw a &#8216;clade&#8217; bar (i.e., along the y-axis) indicating a
+clade.  <em>nodes</em> are assumed to be one or more nodes in the
+tree.  If just one, it should be the internal node
+representing the clade of interest; otherwise, the clade of
+interest is the most recent common ancestor of the specified
+nodes.  <em>label</em> is an optional string to be drawn next to the
+bar, <em>offset</em> by the specified number of display units.  If
+<em>label</em> is <code class="docutils literal"><span class="pre">None</span></code> then the clade&#8217;s label is used instead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nodes</strong> &#8211; Node or list of nodes or string or list of strings.</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Color of the bar. Optional, defaults to None.
+If None, will cycle through a color palette</li>
+<li><strong>label</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Optional label for bar. If None, the clade&#8217;s
+label is used instead. Defaults to None.</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Width of bar</li>
+<li><strong>xoff</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Offset from label to bar</li>
+<li><strong>showlabel</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not to draw the label</li>
+<li><strong>mrca</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether to draw the bar encompassing all descendants
+of the MRCA of <code class="docutils literal"><span class="pre">nodes</span></code></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.find">
+<code class="descname">find</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find nodes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; String to search</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of node objects found with the Node findall() method</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)">list</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.hardcopy">
+<code class="descname">hardcopy</code><span class="sig-paren">(</span><em>fname=None</em>, <em>relwidth=None</em>, <em>leafpad=1.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.hardcopy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.hardcopy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.highlight">
+<code class="descname">highlight</code><span class="sig-paren">(</span><em>x</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.highlight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function for highlighting nodes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> &#8211; Str or list of Strs or Node or list of Nodes</li>
+<li><strong>width</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Width of highlighted lines. Defaults to 5</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Color of highlighted lines. Defaults to red</li>
+<li><strong>vis</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether or not the object is visible. Defaults to true</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.home">
+<code class="descname">home</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.home"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.home" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return plot to initial size and location.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.initialize_subplots">
+<code class="descname">initialize_subplots</code><span class="sig-paren">(</span><em>overview=True</em>, <em>leaf_fontsize=10</em>, <em>branch_fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.initialize_subplots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.initialize_subplots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize treeplot (a matplotlib.axes.Axes) and add it to the figure.
+Also initialize overview. If overview=False, toggle off overview.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.ladderize">
+<code class="descname">ladderize</code><span class="sig-paren">(</span><em>rev=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.ladderize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.ladderize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ladderize and redraw the tree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.on_nodes_selected">
+<code class="descname">on_nodes_selected</code><span class="sig-paren">(</span><em>treeplot</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.on_nodes_selected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.on_nodes_selected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.picked">
+<code class="descname">picked</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.picked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.picked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.redraw">
+<code class="descname">redraw</code><span class="sig-paren">(</span><em>keeptemp=False</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.redraw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replot the figure and overview</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.remove_layer">
+<code class="descname">remove_layer</code><span class="sig-paren">(</span><em>layername</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.remove_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.remove_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a layer by name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layername</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Name of the layer to remove. See all layers
+with self.layers</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.reorder_layers">
+<code class="descname">reorder_layers</code><span class="sig-paren">(</span><em>neworder</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.reorder_layers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.reorder_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorder layers and redraw figure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>neworder</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; New order of layers. Must include all layers
+currently in the figure. See all layers with <cite>fig.layers</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.select_nodes">
+<code class="descname">select_nodes</code><span class="sig-paren">(</span><em>nodes=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.select_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.select_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select nodes on the plot</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nodes</strong> &#8211; A node or list of ndoes</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If only one node is given, all of the node&#8217;s ancestors are
+also selected. If a list of nodes is given (even if it has only
+one node), only the given node(s) are selected.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ivy.vis.treevis.TreeFigure.selected">
+<code class="descname">selected</code><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.selected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.set_positions">
+<code class="descname">set_positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.set_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.set_positions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.show">
+<code class="descname">show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the figure in a new window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.tipstates">
+<code class="descname">tipstates</code><span class="sig-paren">(</span><em>chars</em>, <em>nodes=None</em>, <em>colors=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.tipstates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.tipstates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function for drawing color-coded circles at tips indicating
+character states.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+Character states should be coded 0,1,2...</p>
+<p>Can also be a list with tip states in preorder sequence</p>
+</li>
+<li><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of nodes or node labels. Optional, defaults
+to all tip labels in preorder sequence</li>
+<li><strong>colors</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of strs of the same length as the number
+of unique characters. Optional, defaults to tango colorscheme</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.toggle_branchlabels">
+<code class="descname">toggle_branchlabels</code><span class="sig-paren">(</span><em>val=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.toggle_branchlabels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.toggle_branchlabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle visibility of branchlabels
+(equivalent to toggle_layer(&#8220;branchlabels&#8221;))</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.toggle_layer">
+<code class="descname">toggle_layer</code><span class="sig-paren">(</span><em>layername</em>, <em>val=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.toggle_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.toggle_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a layer to be visible/invisible (but still stored in self.layers)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layername</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Name of the layer to toggle. See all layers with
+self.layers.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.toggle_leaflabels">
+<code class="descname">toggle_leaflabels</code><span class="sig-paren">(</span><em>val=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.toggle_leaflabels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.toggle_leaflabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle visibility of leafabels
+(equivalent to self.toggle_layer(&#8220;leaflabels&#8221;))</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.toggle_overview">
+<code class="descname">toggle_overview</code><span class="sig-paren">(</span><em>val=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.toggle_overview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.toggle_overview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle overview</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.zoom">
+<code class="descname">zoom</code><span class="sig-paren">(</span><em>factor=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.zoom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.zoom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom both axes by <em>factor</em> (relative display size).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.zoom_clade">
+<code class="descname">zoom_clade</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.zoom_clade"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.zoom_clade" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom to fit a node <em>x</em> and all its descendants in the view.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> &#8211; Node or str that matches the label of a node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.zx">
+<code class="descname">zx</code><span class="sig-paren">(</span><em>factor=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.zx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.zx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom x axis by <em>factor</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ivy.vis.treevis.TreeFigure.zy">
+<code class="descname">zy</code><span class="sig-paren">(</span><em>factor=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#TreeFigure.zy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.TreeFigure.zy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom y axis by <em>factor</em>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ivy.vis.treevis.UpdatingRect">
+<em class="property">class </em><code class="descclassname">ivy.vis.treevis.</code><code class="descname">UpdatingRect</code><span class="sig-paren">(</span><em>xy</em>, <em>width</em>, <em>height</em>, <em>angle=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ivy/vis/treevis.html#UpdatingRect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ivy.vis.treevis.UpdatingRect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.patches.Rectangle</span></code></p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-ivy.vis">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ivy.vis" title="Permalink to this headline">¶</a></h2>
@@ -88,17 +1544,27 @@
   <ul>
 <li><a class="reference internal" href="#">ivy.vis package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-ivy.vis.alignment">ivy.vis.alignment module</a></li>
+<li><a class="reference internal" href="#module-ivy.vis.axes_utils">ivy.vis.axes_utils module</a></li>
+<li><a class="reference internal" href="#module-ivy.vis.bokehtree">ivy.vis.bokehtree module</a></li>
+<li><a class="reference internal" href="#module-ivy.vis.colors">ivy.vis.colors module</a></li>
+<li><a class="reference internal" href="#module-ivy.vis.events">ivy.vis.events module</a></li>
+<li><a class="reference internal" href="#module-ivy.vis.hardcopy">ivy.vis.hardcopy module</a></li>
+<li><a class="reference internal" href="#module-ivy.vis.layers">ivy.vis.layers module</a></li>
+<li><a class="reference internal" href="#ivy-vis-matplot-module">ivy.vis.matplot module</a></li>
+<li><a class="reference internal" href="#module-ivy.vis.tree">ivy.vis.tree module</a></li>
+<li><a class="reference internal" href="#module-ivy.vis.treevis">ivy.vis.treevis module</a></li>
 <li><a class="reference internal" href="#module-ivy.vis">Module contents</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="ivy.sim.discrete_sim.html"
-                        title="previous chapter">ivy.sim.discrete_sim module</a></p>
+  <p class="topless"><a href="ivy.sim.html"
+                        title="previous chapter">ivy.sim package</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="ivy.vis.alignment.html"
-                        title="next chapter">ivy.vis.alignment module</a></p>
+  <p class="topless"><a href="setup.html"
+                        title="next chapter">setup module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -133,10 +1599,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ivy.vis.alignment.html" title="ivy.vis.alignment module"
+          <a href="setup.html" title="setup module"
              >next</a> |</li>
         <li class="right" >
-          <a href="ivy.sim.discrete_sim.html" title="ivy.sim.discrete_sim module"
+          <a href="ivy.sim.html" title="ivy.sim package"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
