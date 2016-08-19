@@ -23,10 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
-    <link rel="up" title="ivy.chars package" href="ivy.chars.html" />
-    <link rel="next" title="ivy.chars.mk module" href="ivy.chars.mk.html" />
-    <link rel="prev" title="ivy.chars.hrm module" href="ivy.chars.hrm.html" /> 
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -38,16 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.mk.html" title="ivy.chars.mk module"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.hrm.html" title="ivy.chars.hrm module"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
-          <li class="nav-item nav-item-3"><a href="ivy.chars.html" accesskey="U">ivy.chars package</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -107,7 +95,7 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mod</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; <p>List of tuples. Code for the mode used. The first nregime
+<li><strong>mod</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; <p>List of tuples. Code for the mode used. The first nregime
 tuples correspond to the within-regime transition rates for each
 regime. The last tuple corresponds to the between-regime transition
 rates. Ex. [(1, 2), (3, 4), (5, 6, 7, 8)] corresponds to a
@@ -118,7 +106,7 @@ matrix of:</p>
 [7,-,-,3]
 [-,8,4,-]</div></blockquote>
 </li>
-<li><strong>Qparams</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of floats corresponding to the values for
+<li><strong>Qparams</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of floats corresponding to the values for
 slow, medium, fast, etc. rates. The first is always 0</li>
 <li><strong>Q</strong> (<em>np.array</em>) &#8211; Pre-allocated Q matrix</li>
 </ul>
@@ -147,15 +135,15 @@ models</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
 Character states should be coded 0,1,2...</p>
 <p>Can also be a list with tip states in preorder sequence</p>
 </li>
-<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of regimes</li>
-<li><strong>nparam</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of unique parameters to allow in a model</li>
-<li><strong>modseed</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) &#8211; Starting model for the MCMC chain. A tuple of ints.
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of regimes</li>
+<li><strong>nparam</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of unique parameters to allow in a model</li>
+<li><strong>modseed</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) &#8211; Starting model for the MCMC chain. A tuple of ints.
 Must be a valid model or adjacent to at least one valid model.</li>
-<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
 values at root node. Defaults to &#8220;Equal&#8221;
 Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
 </ul>
@@ -212,17 +200,21 @@ with nparam + 0.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>nchar</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of observed characters</li>
-<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of regimes in model</li>
-<li><strong>nparam</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of unique parameters in model (not including 0)</li>
+<li><strong>nchar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of observed characters</li>
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of regimes in model</li>
+<li><strong>nparam</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of unique parameters in model (not including 0)</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of all unique models. Each item contains a tuple of the
-within-regime parameters and a tuple of the between-regime parameters.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>List of all unique models. Each item contains a tuple of the</dt>
+<dd><p class="first last">within-regime parameters and a tuple of the between-regime parameters.</p>
+</dd>
+</dl>
+</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)">list</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#list" title="(in Python v2.7)">list</a></p>
 </td>
 </tr>
 </tbody>
@@ -237,12 +229,6 @@ within-regime parameters and a tuple of the between-regime parameters.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="ivy.chars.hrm.html"
-                        title="previous chapter">ivy.chars.hrm module</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="ivy.chars.mk.html"
-                        title="next chapter">ivy.chars.mk module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -253,14 +239,11 @@ within-regime parameters and a tuple of the between-regime parameters.</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -276,21 +259,12 @@ within-regime parameters and a tuple of the between-regime parameters.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.mk.html" title="ivy.chars.mk module"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.hrm.html" title="ivy.chars.hrm module"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
-          <li class="nav-item nav-item-3"><a href="ivy.chars.html" >ivy.chars package</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, RR, CZ.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

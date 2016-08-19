@@ -47,18 +47,18 @@
           <div class="body" role="main">
             
   <h1>Source code for ivy.chars.discrete</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">random</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
-<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">binom</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">special</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">minimize</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">binom</span>
 
-<span class="kn">from</span> <span class="nn">ivy.chars.expokit</span> <span class="kn">import</span> <span class="n">cyexpokit</span>
+<span class="kn">from</span> <span class="nn">ivy.chars.expokit</span> <span class="k">import</span> <span class="n">cyexpokit</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Functions for discrete characters</span>
@@ -74,15 +74,15 @@
 <span class="sd">        float: The likelihood of the node given the data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">likelihoodNode</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pmat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span> <span class="c"># Calculate the likelihood of the node being any one of these states</span>
-        <span class="n">likelihoodStateN</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># Likelihood of node being at state N</span>
+    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pmat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span> <span class="c1"># Calculate the likelihood of the node being any one of these states</span>
+        <span class="n">likelihoodStateN</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Likelihood of node being at state N</span>
         <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
             <span class="n">likelihoodStateN</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">pmat</span><span class="p">[</span><span class="n">state</span><span class="p">,</span> <span class="n">ch</span><span class="o">.</span><span class="n">charstate</span><span class="p">])</span>
         <span class="n">likelihoodNode</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">likelihoodStateN</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">likelihoodNode</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">likelihoodNode</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
 
-</div>
+
 <div class="viewcode-block" id="tip_age_rank_sum"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.discrete.tip_age_rank_sum">[docs]</a><span class="k">def</span> <span class="nf">tip_age_rank_sum</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate tip age rank sums of two traits</span>
@@ -99,9 +99,9 @@
 
     <span class="n">stat</span><span class="p">,</span> <span class="n">pval</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">ranksums</span><span class="p">(</span><span class="n">lens1</span><span class="p">,</span> <span class="n">lens0</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">stat</span><span class="p">,</span> <span class="n">pval</span>
+    <span class="k">return</span> <span class="n">stat</span><span class="p">,</span> <span class="n">pval</span></div>
 
-</div>
+
 <div class="viewcode-block" id="NoTO"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.discrete.NoTO">[docs]</a><span class="k">def</span> <span class="nf">NoTO</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Number of Tips Per Origin</span>
@@ -118,9 +118,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">isleaf</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsimonyStates</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="n">rootState</span> <span class="ow">and</span> <span class="n">parsimonyStates</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">rootState</span><span class="p">:</span>
                 <span class="n">origins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">chars</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span><span class="o">==</span><span class="n">rootState</span><span class="p">])</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">origins</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">chars</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span><span class="o">==</span><span class="n">rootState</span><span class="p">])</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">origins</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="monotypic_clade_size"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.discrete.monotypic_clade_size">[docs]</a><span class="k">def</span> <span class="nf">monotypic_clade_size</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Count diversity contained within subclades having the same character</span>
@@ -132,9 +132,9 @@
         <span class="k">return</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">chars</span><span class="p">)]</span>
     <span class="n">chardict</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span><span class="n">chars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">())}</span>
     <span class="n">subclades</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span><span class="p">]</span>
-    <span class="n">monotypic_clades</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">subclades</span><span class="p">)</span>
+    <span class="n">monotypic_clades</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">subclades</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">sc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">subclades</span><span class="p">):</span>
-        <span class="n">largest_monotypic</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">largest_monotypic</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">cur</span> <span class="o">=</span> <span class="n">sc</span>
         <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">is_monotypic</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">chardict</span><span class="p">):</span>
@@ -143,31 +143,31 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">break</span>
         <span class="n">monotypic_clades</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest_monotypic</span>
-    <span class="n">monotypic_clade_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">monotypic_clades</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">])</span>
+    <span class="n">monotypic_clade_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">monotypic_clades</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span>
     <span class="n">monotypic_clade_descendants</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span><span class="o">.</span><span class="n">leaves</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">monotypic_clade_set</span><span class="p">)]</span>
     <span class="n">monotypic_clade_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">monotypic_clade_descendants</span><span class="p">]</span>
     <span class="n">monotypic_clade_descendants_flat</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">monotypic_clade_descendants</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
 
     <span class="n">singletons</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">monotypic_clade_descendants_flat</span> <span class="p">]</span>
 
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">monotypic_clade_sizes</span><span class="o">+</span><span class="p">[</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">singletons</span><span class="p">])</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">monotypic_clade_sizes</span><span class="o">+</span><span class="p">[</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">singletons</span><span class="p">])</span></div>
 
-</div>
+
 <div class="viewcode-block" id="is_monotypic"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.discrete.is_monotypic">[docs]</a><span class="k">def</span> <span class="nf">is_monotypic</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">chardict</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">chardict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]))</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">chardict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]))</span> <span class="o">==</span> <span class="mi">1</span></div>
 
 
-</div>
+
 <div class="viewcode-block" id="sse_get_lambda"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.discrete.sse_get_lambda">[docs]</a><span class="k">def</span> <span class="nf">sse_get_lambda</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">nstate</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">j</span><span class="o">&gt;</span><span class="n">k</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="nb">sum</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nstate</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="n">j</span><span class="o">*</span><span class="n">nstate</span> <span class="o">+</span> <span class="n">k</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">))])</span>
-</div>
+        <span class="k">return</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="nb">sum</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nstate</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="n">j</span><span class="o">*</span><span class="n">nstate</span> <span class="o">+</span> <span class="n">k</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">))])</span></div>
+
 <div class="viewcode-block" id="sse_get_mu"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.discrete.sse_get_mu">[docs]</a><span class="k">def</span> <span class="nf">sse_get_mu</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">nstate</span><span class="p">):</span>
     <span class="n">start</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nstate</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">nstate</span>
-    <span class="k">return</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">start</span><span class="o">+</span><span class="n">i</span><span class="p">])</span>
-</div>
+    <span class="k">return</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">start</span><span class="o">+</span><span class="n">i</span><span class="p">])</span></div>
+
 <div class="viewcode-block" id="sse_get_qij"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.discrete.sse_get_qij">[docs]</a><span class="k">def</span> <span class="nf">sse_get_qij</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">nstate</span><span class="p">):</span>
     <span class="n">start</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nstate</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">nstate</span><span class="o">+</span><span class="n">nstate</span>
     <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="n">j</span><span class="p">:</span>
@@ -186,14 +186,11 @@
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -215,7 +212,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, RR, CZ.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

@@ -61,10 +61,10 @@
 <h2>3.1. Fetching the study<a class="headerlink" href="#fetching-the-study" title="Permalink to this headline">¶</a></h2>
 <p>If you have an id for a study on treebase, you can fetch the study and
 access the trees contained within the study.</p>
-<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">ivy</span>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">ivy</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.treebase</span> <span class="kn">import</span> <span class="n">fetch_study</span>
-<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">study_id</span> <span class="o">=</span> <span class="s">&quot;1411&quot;</span> <span class="c"># The leafy cactus genus Pereskia</span>
-<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">e</span> <span class="o">=</span> <span class="n">fetch_study</span><span class="p">(</span><span class="n">study_id</span><span class="p">,</span> <span class="s">&#39;nexml&#39;</span><span class="p">)</span> <span class="c"># e is an lxml etree</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">study_id</span> <span class="o">=</span> <span class="s2">&quot;1411&quot;</span> <span class="c1"># The leafy cactus genus Pereskia</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">e</span> <span class="o">=</span> <span class="n">fetch_study</span><span class="p">(</span><span class="n">study_id</span><span class="p">,</span> <span class="s1">&#39;nexml&#39;</span><span class="p">)</span> <span class="c1"># e is an lxml etree</span>
 </pre></div>
 </div>
 </div>
@@ -74,8 +74,8 @@ access the trees contained within the study.</p>
 <dt>You can parse the output of fetch_study using the parse_nexml function,</dt>
 <dd>then access the tree(s) contained within the study.</dd>
 </dl>
-<div class="highlight-ipython"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.treebase</span> <span class="kn">import</span> <span class="n">parse_nexml</span>
-<span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">x</span> <span class="o">=</span> <span class="n">parse_nexml</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="c"># x is an ivy Storage object</span>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.treebase</span> <span class="kn">import</span> <span class="n">parse_nexml</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">x</span> <span class="o">=</span> <span class="n">parse_nexml</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="c1"># x is an ivy Storage object</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="n">r</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">root</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">ivy.interactive</span> <span class="kn">import</span> <span class="n">treefig</span>
 <span class="n">In</span> <span class="p">[</span><span class="mi">9</span><span class="p">]:</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">treefig</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
@@ -115,14 +115,11 @@ access the trees contained within the study.</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -150,7 +147,7 @@ access the trees contained within the study.</p>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, RR, CZ.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

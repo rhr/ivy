@@ -23,10 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
-    <link rel="up" title="ivy.chars package" href="ivy.chars.html" />
-    <link rel="next" title="ivy.chars.recon module" href="ivy.chars.recon.html" />
-    <link rel="prev" title="ivy.chars.mk module" href="ivy.chars.mk.html" /> 
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -38,16 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.recon.html" title="ivy.chars.recon module"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.mk.html" title="ivy.chars.mk module"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
-          <li class="nav-item nav-item-3"><a href="ivy.chars.html" accesskey="U">ivy.chars package</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -174,15 +162,19 @@ array of all node indices in one regime vs the other</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of tree</li>
-<li><strong>switches</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of internal nodes to act as switchpoints.
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of tree</li>
+<li><strong>switches</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of internal nodes to act as switchpoints.
 Switchpoint nodes are part of their own regimes.</li>
 <li><strong>locs</strong> (<em>np.array</em>) &#8211; Optional pre-allocated array to store output.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Array of indices of all nodes associated with each switchpoint, plus
-all nodes &#8220;outside&#8221; the switches in the last list</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>Array of indices of all nodes associated with each switchpoint, plus</dt>
+<dd><p class="first last">all nodes &#8220;outside&#8221; the switches in the last list</p>
+</dd>
+</dl>
+</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.array</p>
@@ -211,9 +203,9 @@ all nodes &#8220;outside&#8221; the switches in the last list</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
 Character states should be coded 0,1,2...</p>
 <p>Can also be a list with tip states in preorder sequence</p>
 </li>
@@ -257,10 +249,10 @@ to use and the Bayesian model finds the switchpoints.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of tree.</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; Dict mapping tip labels to discrete character
+<li><strong>tree</strong> (<a class="reference internal" href="ivy.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of tree.</li>
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; Dict mapping tip labels to discrete character
 states. Character states must be in the form of [0,1,2...]</li>
-<li><strong>regime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of distinct regimes to test. Set to
+<li><strong>regime</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of distinct regimes to test. Set to
 1 for an Mk model, set to greater than 1 for a multi-regime Mk model.</li>
 <li><strong>qidx</strong> (<em>np.array</em>) &#8211; <p>Index specifying the model to test</p>
 <blockquote>
@@ -305,10 +297,10 @@ Equilibrium: Prior equal to stationary distribution</p>
 <dd>explain the data at the tips.</dd>
 </dl>
 </li>
-<li><strong>seglen</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Size of segments to break tree into. The smaller this
+<li><strong>seglen</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Size of segments to break tree into. The smaller this
 value, the more &#8220;fine-grained&#8221; the analysis will be. Optional,
 defaults to 2% of the root-to-tip length.</li>
-<li><strong>stepsize</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Maximum size of steps for switchpoints to take.
+<li><strong>stepsize</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Maximum size of steps for switchpoints to take.
 Optional, defaults to 5% of root-to-tip length.</li>
 </ul>
 </td>
@@ -325,10 +317,13 @@ Optional, defaults to 5% of root-to-tip length.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">node and float, which represents the how far along the branch to
-the parent node the switch occurs on</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>node and float, which represents the how far along the branch to</dt>
+<dd>the parent node the switch occurs on</dd>
+</dl>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)">tuple</a></td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)">tuple</a></td>
 </tr>
 </tbody>
 </table>
@@ -354,12 +349,6 @@ the parent node the switch occurs on</td>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="ivy.chars.mk.html"
-                        title="previous chapter">ivy.chars.mk module</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="ivy.chars.recon.html"
-                        title="next chapter">ivy.chars.recon module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -370,14 +359,11 @@ the parent node the switch occurs on</td>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -393,21 +379,12 @@ the parent node the switch occurs on</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.recon.html" title="ivy.chars.recon module"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.mk.html" title="ivy.chars.mk module"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
-          <li class="nav-item nav-item-3"><a href="ivy.chars.html" >ivy.chars package</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, RR, CZ.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

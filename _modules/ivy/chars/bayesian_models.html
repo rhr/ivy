@@ -47,23 +47,23 @@
           <div class="body" role="main">
             
   <h1>Source code for ivy.chars.bayesian_models</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
-<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">binom</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">special</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">minimize</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">binom</span>
 <span class="kn">import</span> <span class="nn">pymc</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
-<span class="kn">from</span> <span class="nn">ivy.chars.expokit</span> <span class="kn">import</span> <span class="n">cyexpokit</span>
-<span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="kn">import</span> <span class="n">mk</span><span class="p">,</span> <span class="n">hrm</span><span class="p">,</span> <span class="n">mk_mr</span>
+<span class="kn">from</span> <span class="nn">ivy.chars.expokit</span> <span class="k">import</span> <span class="n">cyexpokit</span>
+<span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="k">import</span> <span class="n">mk</span><span class="p">,</span> <span class="n">hrm</span><span class="p">,</span> <span class="n">mk_mr</span>
 
-<span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s">&quot;warn&quot;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="create_mk_model"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.create_mk_model">[docs]</a><span class="k">def</span> <span class="nf">create_mk_model</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="p">):</span>
@@ -75,29 +75,29 @@
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">Qtype</span><span class="o">==</span><span class="s">&quot;ER&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">Qtype</span><span class="o">==</span><span class="s2">&quot;ER&quot;</span><span class="p">:</span>
         <span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">elif</span> <span class="n">Qtype</span><span class="o">==</span><span class="s">&quot;Sym&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">Qtype</span><span class="o">==</span><span class="s2">&quot;Sym&quot;</span><span class="p">:</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">binom</span><span class="p">(</span><span class="n">nchar</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">Qtype</span><span class="o">==</span><span class="s">&quot;ARD&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">Qtype</span><span class="o">==</span><span class="s2">&quot;ARD&quot;</span><span class="p">:</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">nchar</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">nchar</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Qtype must be one of: ER, Sym, ARD&quot;</span><span class="p">)</span>
+        <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Qtype must be one of: ER, Sym, ARD&quot;</span><span class="p">)</span>
 
-    <span class="c"># Setting a Dirichlet prior with Jeffrey&#39;s hyperprior of 1/2</span>
+    <span class="c1"># Setting a Dirichlet prior with Jeffrey&#39;s hyperprior of 1/2</span>
     <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">theta</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">2.0</span><span class="p">]</span><span class="o">*</span><span class="n">N</span>
-        <span class="n">Qparams_init</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s">&quot;Qparams_init&quot;</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">])</span>
-        <span class="n">Qparams_init_full</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">CompletedDirichlet</span><span class="p">(</span><span class="s">&quot;Qparams_init_full&quot;</span><span class="p">,</span> <span class="n">Qparams_init</span><span class="p">)</span>
+        <span class="n">Qparams_init</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s2">&quot;Qparams_init&quot;</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">])</span>
+        <span class="n">Qparams_init_full</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">CompletedDirichlet</span><span class="p">(</span><span class="s2">&quot;Qparams_init_full&quot;</span><span class="p">,</span> <span class="n">Qparams_init</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">Qparams_init_full</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.0</span><span class="p">]]</span>
 
-    <span class="c"># Exponential scaling factor for Qparams</span>
-    <span class="n">scaling_factor</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;scaling_factor&quot;</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="c1"># Exponential scaling factor for Qparams</span>
+    <span class="n">scaling_factor</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;scaling_factor&quot;</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 
-    <span class="c"># Scaled Qparams; we would not expect them to necessarily add</span>
-    <span class="c"># to 1 as would be the case in a Dirichlet distribution</span>
-    <span class="nd">@pymc.deterministic</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="c1"># Scaled Qparams; we would not expect them to necessarily add</span>
+    <span class="c1"># to 1 as would be the case in a Dirichlet distribution</span>
+    <span class="nd">@pymc</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">Qparams</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">Qparams_init_full</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">scaling_factor</span><span class="p">):</span>
         <span class="n">Qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
@@ -105,13 +105,13 @@
         <span class="k">return</span> <span class="n">Qs</span>
 
     <span class="n">l</span> <span class="o">=</span> <span class="n">mk</span><span class="o">.</span><span class="n">create_likelihood_function_mk</span><span class="p">(</span><span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="o">=</span><span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="o">=</span><span class="n">Qtype</span><span class="p">,</span>
-                                  <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="nd">@pymc.potential</span>
-    <span class="k">def</span> <span class="nf">mklik</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;mklik&quot;</span><span class="p">):</span>
+                                  <span class="n">pi</span><span class="o">=</span><span class="s2">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nd">@pymc</span><span class="o">.</span><span class="n">potential</span>
+    <span class="k">def</span> <span class="nf">mklik</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mklik&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">l</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">locals</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">locals</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="fit_mk_bayes"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.fit_mk_bayes">[docs]</a><span class="k">def</span> <span class="nf">fit_mk_bayes</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit an mk model to a given tree and list of characters. Return</span>
@@ -146,24 +146,24 @@
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
     <span class="n">mod</span> <span class="o">=</span> <span class="n">create_mk_model</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="p">)</span>
 
-    <span class="c"># Arguments for MCMC</span>
+    <span class="c1"># Arguments for MCMC</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">iters</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;iters&quot;</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
-    <span class="n">burn</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;burn&quot;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
-    <span class="n">thin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;thin&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">iters</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;iters&quot;</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+    <span class="n">burn</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;burn&quot;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">thin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;thin&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="c"># MCMC samples</span>
+    <span class="c1"># MCMC samples</span>
     <span class="n">mc</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">MCMC</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
     <span class="n">mc</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">iters</span><span class="p">,</span> <span class="n">burn</span><span class="p">,</span> <span class="n">thin</span><span class="p">)</span>
 
-    <span class="c"># MAP estimation</span>
+    <span class="c1"># MAP estimation</span>
     <span class="n">mp</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">MAP</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
     <span class="n">mp</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 
-    <span class="k">return</span> <span class="p">(</span><span class="n">mc</span><span class="p">,</span> <span class="n">mp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">mc</span><span class="p">,</span> <span class="n">mp</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="create_multi_mk_model"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.create_multi_mk_model">[docs]</a><span class="k">def</span> <span class="nf">create_multi_mk_model</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create an mk model with multiple regimes to be sampled from with MCMC.</span>
@@ -173,84 +173,84 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
-    <span class="c"># Preparations</span>
+    <span class="c1"># Preparations</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">Qtype</span><span class="o">==</span><span class="s">&quot;ER&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">Qtype</span><span class="o">==</span><span class="s2">&quot;ER&quot;</span><span class="p">:</span>
         <span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">elif</span> <span class="n">Qtype</span><span class="o">==</span><span class="s">&quot;Sym&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">Qtype</span><span class="o">==</span><span class="s2">&quot;Sym&quot;</span><span class="p">:</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">binom</span><span class="p">(</span><span class="n">nchar</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">Qtype</span><span class="o">==</span><span class="s">&quot;ARD&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">Qtype</span><span class="o">==</span><span class="s2">&quot;ARD&quot;</span><span class="p">:</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">nchar</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">nchar</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Qtype must be one of: ER, Sym, ARD&quot;</span><span class="p">)</span>
-    <span class="c"># This model has 2 components: Q parameters and a switchpoint</span>
-    <span class="c"># They are combined in a custom likelihood function</span>
+        <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Qtype must be one of: ER, Sym, ARD&quot;</span><span class="p">)</span>
+    <span class="c1"># This model has 2 components: Q parameters and a switchpoint</span>
+    <span class="c1"># They are combined in a custom likelihood function</span>
 
-    <span class="c">###########################################################################</span>
-    <span class="c"># Switchpoint:</span>
-    <span class="c">###########################################################################</span>
-    <span class="c"># Modeling the movement of the regime shift(s) is the tricky part</span>
-    <span class="c"># Regime shifts will only be allowed to happen at a node</span>
-    <span class="c"># Regime shift: Uniform categorical distribution</span>
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># Switchpoint:</span>
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># Modeling the movement of the regime shift(s) is the tricky part</span>
+    <span class="c1"># Regime shifts will only be allowed to happen at a node</span>
+    <span class="c1"># Regime shift: Uniform categorical distribution</span>
     <span class="n">valid_switches</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">ni</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tree</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">isleaf</span> <span class="ow">or</span> <span class="n">i</span><span class="o">.</span><span class="n">isroot</span><span class="p">)]</span>
-    <span class="c"># Uniform</span>
-    <span class="n">switch_ind</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">DiscreteUniform</span><span class="p">(</span><span class="s">&quot;switch_ind&quot;</span><span class="p">,</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_switches</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="nd">@pymc.deterministic</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">switch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;switch&quot;</span><span class="p">,</span><span class="n">switch_ind</span><span class="o">=</span><span class="n">switch_ind</span><span class="p">):</span>
+    <span class="c1"># Uniform</span>
+    <span class="n">switch_ind</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">DiscreteUniform</span><span class="p">(</span><span class="s2">&quot;switch_ind&quot;</span><span class="p">,</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_switches</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nd">@pymc</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">switch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;switch&quot;</span><span class="p">,</span><span class="n">switch_ind</span><span class="o">=</span><span class="n">switch_ind</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">valid_switches</span><span class="p">[</span><span class="n">switch_ind</span><span class="p">]</span>
-    <span class="c">###########################################################################</span>
-    <span class="c"># Qparams:</span>
-    <span class="c">###########################################################################</span>
-    <span class="c"># Unscaled Q param: Dirichlet distribution</span>
-    <span class="c"># Setting a Dirichlet prior with Jeffrey&#39;s hyperprior of 1/2</span>
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># Qparams:</span>
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># Unscaled Q param: Dirichlet distribution</span>
+    <span class="c1"># Setting a Dirichlet prior with Jeffrey&#39;s hyperprior of 1/2</span>
     <span class="n">theta</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">2.0</span><span class="p">]</span><span class="o">*</span><span class="n">N</span>
 
-    <span class="c"># One set of Q-parameters per regime</span>
+    <span class="c1"># One set of Q-parameters per regime</span>
     <span class="n">allQparams_init</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
     <span class="n">allQparams_init_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
     <span class="n">allScaling_factors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">allQparams_init</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s">&quot;allQparams_init&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">theta</span><span class="p">)</span>
-            <span class="n">allQparams_init_full</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">CompletedDirichlet</span><span class="p">(</span><span class="s">&quot;allQparams_init_full&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">allQparams_init</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span> <span class="c"># Dirichlet function does not like creating a distribution</span>
-              <span class="c"># with only 1 state. Set it to 1 by hand</span>
+            <span class="n">allQparams_init</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s2">&quot;allQparams_init&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">theta</span><span class="p">)</span>
+            <span class="n">allQparams_init_full</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">CompletedDirichlet</span><span class="p">(</span><span class="s2">&quot;allQparams_init_full&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">allQparams_init</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># Dirichlet function does not like creating a distribution</span>
+              <span class="c1"># with only 1 state. Set it to 1 by hand</span>
             <span class="n">allQparams_init_full</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.0</span><span class="p">]]</span>
-        <span class="c"># Exponential scaling factor for Qparams</span>
-        <span class="n">allScaling_factors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;allScaling_factors&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-        <span class="c"># Scaled Qparams; we would not expect them to necessarily add</span>
-        <span class="c"># to 1 as would be the case in a Dirichlet distribution</span>
+        <span class="c1"># Exponential scaling factor for Qparams</span>
+        <span class="n">allScaling_factors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;allScaling_factors&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="c1"># Scaled Qparams; we would not expect them to necessarily add</span>
+        <span class="c1"># to 1 as would be the case in a Dirichlet distribution</span>
 
-    <span class="c"># Regimes are grouped by rows. Each row is a regime.</span>
-    <span class="nd">@pymc.deterministic</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="c1"># Regimes are grouped by rows. Each row is a regime.</span>
+    <span class="nd">@pymc</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">Qparams</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">allQparams_init_full</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">allScaling_factors</span><span class="p">):</span>
         <span class="n">Qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nregime</span><span class="p">,</span><span class="n">N</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
                 <span class="n">Qs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">n</span><span class="p">]</span><span class="o">*</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">Qs</span>
-    <span class="c">###########################################################################</span>
-    <span class="c"># Likelihood</span>
-    <span class="c">###########################################################################</span>
-    <span class="c"># The likelihood function</span>
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># Likelihood</span>
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># The likelihood function</span>
 
-    <span class="c"># Pre-allocating arrays</span>
+    <span class="c1"># Pre-allocating arrays</span>
     <span class="n">qarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">nregime</span><span class="p">,</span><span class="n">N</span><span class="p">])</span>
     <span class="n">locsarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
     <span class="n">l</span> <span class="o">=</span> <span class="n">mk_mr</span><span class="o">.</span><span class="n">create_likelihood_function_multimk</span><span class="p">(</span><span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="o">=</span><span class="n">chars</span><span class="p">,</span>
         <span class="n">Qtype</span><span class="o">=</span><span class="n">Qtype</span><span class="p">,</span>
-        <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">pi</span><span class="o">=</span><span class="s2">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-    <span class="nd">@pymc.potential</span>
-    <span class="k">def</span> <span class="nf">multi_mklik</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">switch</span><span class="o">=</span><span class="n">switch</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;multi_mklik&quot;</span><span class="p">):</span>
+    <span class="nd">@pymc</span><span class="o">.</span><span class="n">potential</span>
+    <span class="k">def</span> <span class="nf">multi_mklik</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">Qparams</span><span class="p">,</span> <span class="n">switch</span><span class="o">=</span><span class="n">switch</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;multi_mklik&quot;</span><span class="p">):</span>
 
         <span class="n">locs</span> <span class="o">=</span> <span class="n">mk_mr</span><span class="o">.</span><span class="n">locs_from_switchpoint</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">tree</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">switch</span><span class="p">)],</span><span class="n">locsarray</span><span class="p">)</span>
 
         <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">qarray</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">l</span><span class="p">(</span><span class="n">qarray</span><span class="p">,</span> <span class="n">locs</span><span class="o">=</span><span class="n">locs</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">locals</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">locals</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="nshifts"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.nshifts">[docs]</a><span class="k">def</span> <span class="nf">nshifts</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The number of regime shifts, given indices of regimes</span>
@@ -268,9 +268,9 @@
                 <span class="n">n</span> <span class="o">=</span> <span class="n">nshifts</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">n</span> <span class="o">=</span> <span class="n">nshifts</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">inds</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">n</span>
+        <span class="k">return</span> <span class="n">n</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_indices"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.get_indices">[docs]</a><span class="k">def</span> <span class="nf">get_indices</span><span class="p">(</span><span class="n">list_of_lists</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get indices given list of nodes in regimes</span>
@@ -280,9 +280,9 @@
     <span class="k">for</span> <span class="n">listno</span><span class="p">,</span> <span class="n">alist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_of_lists</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">alist</span><span class="p">:</span>
                 <span class="n">indices</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">listno</span>
-    <span class="k">return</span> <span class="n">indices</span>
+    <span class="k">return</span> <span class="n">indices</span></div>
 
-</div>
+
 <div class="viewcode-block" id="mk_results"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.mk_results">[docs]</a><span class="k">def</span> <span class="nf">mk_results</span><span class="p">(</span><span class="n">mcmc_obj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create summary graphs and statistics for an mk model</span>
@@ -292,9 +292,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Trace plots, histograms, and summary statistics</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">varsToPlot</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Qparams&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="s">&quot;switch&quot;</span> <span class="ow">in</span> <span class="p">[</span> <span class="n">i</span><span class="o">.</span><span class="n">__name__</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mcmc_obj</span><span class="o">.</span><span class="n">variables</span> <span class="p">]:</span>
-        <span class="n">varsToPlot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;switch&quot;</span><span class="p">)</span>
+    <span class="n">varsToPlot</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Qparams&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;switch&quot;</span> <span class="ow">in</span> <span class="p">[</span> <span class="n">i</span><span class="o">.</span><span class="n">__name__</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mcmc_obj</span><span class="o">.</span><span class="n">variables</span> <span class="p">]:</span>
+        <span class="n">varsToPlot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;switch&quot;</span><span class="p">)</span>
 
     <span class="n">traces</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">hists</span> <span class="o">=</span> <span class="p">{}</span>
@@ -302,13 +302,13 @@
     <span class="n">summary</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">varsToPlot</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s">&quot;Qparams&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;Qparams&quot;</span><span class="p">:</span>
             <span class="n">traces</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">hists</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">traceplots</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">summary</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mcmc_obj</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">var</span><span class="p">)[:]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-                <span class="k">if</span> <span class="s">&quot;switch&quot;</span> <span class="ow">in</span> <span class="n">varsToPlot</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;switch&quot;</span> <span class="ow">in</span> <span class="n">varsToPlot</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mcmc_obj</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">var</span><span class="p">)[:]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
                         <span class="n">traces</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="nb">str</span><span class="p">([</span><span class="n">i</span><span class="p">,</span><span class="n">k</span><span class="p">])]</span> <span class="o">=</span> <span class="p">[</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mcmc_obj</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">var</span><span class="p">)[:]</span> <span class="p">]</span>
                         <span class="n">hists</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="nb">str</span><span class="p">([</span><span class="n">i</span><span class="p">,</span><span class="n">k</span><span class="p">])]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">traces</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="nb">str</span><span class="p">([</span><span class="n">i</span><span class="p">,</span><span class="n">k</span><span class="p">])])</span>
@@ -324,10 +324,10 @@
             <span class="n">hists</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">traces</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
             <span class="n">traceplots</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">traces</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
             <span class="n">summary</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">traces</span><span class="p">[</span><span class="n">var</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;traces&quot;</span><span class="p">:</span><span class="n">traces</span><span class="p">,</span> <span class="s">&quot;hists&quot;</span><span class="p">:</span><span class="n">hists</span><span class="p">,</span> <span class="s">&quot;traceplots&quot;</span><span class="p">:</span><span class="n">traceplots</span><span class="p">,</span> <span class="s">&quot;summary&quot;</span><span class="p">:</span><span class="n">summary</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;traces&quot;</span><span class="p">:</span><span class="n">traces</span><span class="p">,</span> <span class="s2">&quot;hists&quot;</span><span class="p">:</span><span class="n">hists</span><span class="p">,</span> <span class="s2">&quot;traceplots&quot;</span><span class="p">:</span><span class="n">traceplots</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">:</span><span class="n">summary</span><span class="p">}</span></div>
 
-</div>
-<div class="viewcode-block" id="hrm_bayesian"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.hrm_bayesian">[docs]</a><span class="k">def</span> <span class="nf">hrm_bayesian</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Fitzjohn&quot;</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="s">&quot;Rate&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="hrm_bayesian"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.bayesian_models.hrm_bayesian">[docs]</a><span class="k">def</span> <span class="nf">hrm_bayesian</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Qtype</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s2">&quot;Fitzjohn&quot;</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="s2">&quot;Rate&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a hidden rates model for pymc to be sampled from.</span>
 
@@ -361,121 +361,121 @@
         <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="n">nobschar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="n">nobschar</span> <span class="o">*</span> <span class="n">nregime</span>
-    <span class="k">assert</span> <span class="n">Qtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;Simple&quot;</span><span class="p">,</span> <span class="s">&quot;STD&quot;</span><span class="p">,</span> <span class="s">&quot;RTD&quot;</span><span class="p">,</span> <span class="s">&quot;ARD&quot;</span><span class="p">],</span> <span class="s">&quot;Q type must be one of: simple, STD, RTD, ARD&quot;</span>
-    <span class="c">###########################################################################</span>
-    <span class="c"># Qparams:</span>
-    <span class="c">###########################################################################</span>
-    <span class="c"># The simple model has # of parameters equal to nregime + 1 (One set of</span>
-    <span class="c"># rates for each regime, plus transition rate between regimes)</span>
-    <span class="c"># For now, we will have each be exponentially distributed</span>
+    <span class="k">assert</span> <span class="n">Qtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Simple&quot;</span><span class="p">,</span> <span class="s2">&quot;STD&quot;</span><span class="p">,</span> <span class="s2">&quot;RTD&quot;</span><span class="p">,</span> <span class="s2">&quot;ARD&quot;</span><span class="p">],</span> <span class="s2">&quot;Q type must be one of: simple, STD, RTD, ARD&quot;</span>
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># Qparams:</span>
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># The simple model has # of parameters equal to nregime + 1 (One set of</span>
+    <span class="c1"># rates for each regime, plus transition rate between regimes)</span>
+    <span class="c1"># For now, we will have each be exponentially distributed</span>
 
-    <span class="c"># Simplest model: all transitions between states within a regime are equal.</span>
-    <span class="c"># Each regime has a rate associated with it.</span>
-    <span class="c"># There is one rate between regimes.</span>
-    <span class="c"># Number of parameters = nregime+1</span>
-    <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;Simple&quot;</span><span class="p">:</span>
-        <span class="c"># Wtihin-regime transitions</span>
-        <span class="n">WR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
+    <span class="c1"># Simplest model: all transitions between states within a regime are equal.</span>
+    <span class="c1"># Each regime has a rate associated with it.</span>
+    <span class="c1"># There is one rate between regimes.</span>
+    <span class="c1"># Number of parameters = nregime+1</span>
+    <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s2">&quot;Simple&quot;</span><span class="p">:</span>
+        <span class="c1"># Wtihin-regime transitions</span>
+        <span class="n">WR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
-            <span class="n">WR_Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;wr-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mf">100.0</span><span class="p">))</span>
-        <span class="c"># Between-regime transitions:</span>
-        <span class="n">BR_Qparams</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;br-par&quot;</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">)</span>
-    <span class="c"># State-transitions different. Transitions between states within a</span>
-    <span class="c"># rate regime can differ (ARD). Transitions between rates share one</span>
-    <span class="c"># rate parameter.</span>
-    <span class="c"># Number of parameters = nregime*(nobschar**2-nobschar) + 1</span>
-    <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;STD&quot;</span><span class="p">:</span>
+            <span class="n">WR_Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wr-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mf">100.0</span><span class="p">))</span>
+        <span class="c1"># Between-regime transitions:</span>
+        <span class="n">BR_Qparams</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;br-par&quot;</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># State-transitions different. Transitions between states within a</span>
+    <span class="c1"># rate regime can differ (ARD). Transitions between rates share one</span>
+    <span class="c1"># rate parameter.</span>
+    <span class="c1"># Number of parameters = nregime*(nobschar**2-nobschar) + 1</span>
+    <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s2">&quot;STD&quot;</span><span class="p">:</span>
         <span class="n">theta</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">2.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">nobschar</span>
-        <span class="n">i_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
-        <span class="n">c_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
-        <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
-        <span class="c"># Within-regime transitions</span>
-        <span class="n">WR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">i_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">c_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="c1"># Within-regime transitions</span>
+        <span class="n">WR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
-            <span class="c"># First, create a dirichlet distribution</span>
-            <span class="n">i_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s">&quot;parInit_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="o">/</span><span class="n">nobschar</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nobschar</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-            <span class="n">c_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">CompletedDirichlet</span><span class="p">(</span><span class="s">&quot;parInit&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">i_d</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="n">scale</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;scaling&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">1e-2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mf">100.0</span><span class="p">))</span>
-            <span class="c"># Then, scale dirichlet distribution by overall rate parameter for that regime</span>
-            <span class="nd">@pymc.deterministic</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;wr-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="c1"># First, create a dirichlet distribution</span>
+            <span class="n">i_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s2">&quot;parInit_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="o">/</span><span class="n">nobschar</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nobschar</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">c_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">CompletedDirichlet</span><span class="p">(</span><span class="s2">&quot;parInit&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">i_d</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">scale</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;scaling&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mf">100.0</span><span class="p">))</span>
+            <span class="c1"># Then, scale dirichlet distribution by overall rate parameter for that regime</span>
+            <span class="nd">@pymc</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wr-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
             <span class="k">def</span> <span class="nf">d_scaled</span><span class="p">(</span><span class="n">d</span> <span class="o">=</span> <span class="n">c_d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">s</span> <span class="o">=</span> <span class="n">scale</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
                 <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">s</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">WR_Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">d_scaled</span>
-        <span class="c"># Between-regime transitions</span>
-        <span class="n">BR_Qparams</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;br-par&quot;</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;RTD&quot;</span><span class="p">:</span>
-        <span class="n">WR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
+        <span class="c1"># Between-regime transitions</span>
+        <span class="n">BR_Qparams</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;br-par&quot;</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s2">&quot;RTD&quot;</span><span class="p">:</span>
+        <span class="n">WR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
-            <span class="n">WR_Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;wr-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mf">100.0</span><span class="p">))</span>
+            <span class="n">WR_Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wr-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mf">100.0</span><span class="p">))</span>
 
-        <span class="n">BR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">BR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">BR_Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;br-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;ARD&quot;</span><span class="p">:</span>
+            <span class="n">BR_Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;br-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s2">&quot;ARD&quot;</span><span class="p">:</span>
         <span class="n">theta</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">2.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">nobschar</span>
-        <span class="n">i_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
-        <span class="n">c_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
-        <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
-        <span class="c"># Within-regime transitions</span>
-        <span class="n">WR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">i_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">c_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="c1"># Within-regime transitions</span>
+        <span class="n">WR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">nregime</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
-            <span class="c"># First, create a dirichlet distribution</span>
-            <span class="n">i_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s">&quot;parInit_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="o">/</span><span class="n">nobschar</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nobschar</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-            <span class="n">c_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">CompletedDirichlet</span><span class="p">(</span><span class="s">&quot;parInit&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">i_d</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="c1"># First, create a dirichlet distribution</span>
+            <span class="n">i_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Dirichlet</span><span class="p">(</span><span class="s2">&quot;parInit_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="o">/</span><span class="n">nobschar</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nobschar</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">c_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">CompletedDirichlet</span><span class="p">(</span><span class="s2">&quot;parInit&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">i_d</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
-            <span class="n">scale</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;scaling&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">1e-2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mf">100.0</span><span class="p">))</span>
-            <span class="c"># Then, scale dirichlet distribution by overall rate parameter for that regime</span>
-            <span class="nd">@pymc.deterministic</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;wr-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="n">scale</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;scaling&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mf">100.0</span><span class="p">))</span>
+            <span class="c1"># Then, scale dirichlet distribution by overall rate parameter for that regime</span>
+            <span class="nd">@pymc</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wr-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
             <span class="k">def</span> <span class="nf">d_scaled</span><span class="p">(</span><span class="n">d</span> <span class="o">=</span> <span class="n">c_d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">s</span> <span class="o">=</span> <span class="n">scale</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
                 <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">s</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">WR_Qparams</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">d_scaled</span>
-        <span class="n">BR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">BR_Qparams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
         <span class="n">br_i</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="mi">2</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nobschar</span><span class="p">):</span>
-                <span class="n">BR_Qparams</span><span class="p">[</span><span class="n">br_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;br-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">br_i</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
+                <span class="n">BR_Qparams</span><span class="p">[</span><span class="n">br_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pymc</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;br-par&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">br_i</span><span class="p">),</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
                 <span class="n">br_i</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="c">###########################################################################</span>
-    <span class="c"># Likelihood</span>
-    <span class="c">###########################################################################</span>
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># Likelihood</span>
+    <span class="c1">###########################################################################</span>
     <span class="n">l</span> <span class="o">=</span> <span class="n">hrm</span><span class="o">.</span><span class="n">create_likelihood_function_hrm_mk</span><span class="p">(</span><span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="o">=</span><span class="n">chars</span><span class="p">,</span>
-        <span class="n">nregime</span><span class="o">=</span><span class="n">nregime</span><span class="p">,</span> <span class="n">Qtype</span><span class="o">=</span><span class="s">&quot;ARD&quot;</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="n">pi</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="nd">@pymc.potential</span>
-    <span class="k">def</span> <span class="nf">mklik</span><span class="p">(</span><span class="n">wr</span> <span class="o">=</span> <span class="n">WR_Qparams</span><span class="p">,</span> <span class="n">br</span><span class="o">=</span><span class="n">BR_Qparams</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;mklik&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;Simple&quot;</span><span class="p">:</span>
-            <span class="c"># Getting the locations of each Q parameter to feed</span>
-            <span class="c"># to the likelihood function</span>
+        <span class="n">nregime</span><span class="o">=</span><span class="n">nregime</span><span class="p">,</span> <span class="n">Qtype</span><span class="o">=</span><span class="s2">&quot;ARD&quot;</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="n">pi</span><span class="p">,</span> <span class="n">findmin</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nd">@pymc</span><span class="o">.</span><span class="n">potential</span>
+    <span class="k">def</span> <span class="nf">mklik</span><span class="p">(</span><span class="n">wr</span> <span class="o">=</span> <span class="n">WR_Qparams</span><span class="p">,</span> <span class="n">br</span><span class="o">=</span><span class="n">BR_Qparams</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mklik&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s2">&quot;Simple&quot;</span><span class="p">:</span>
+            <span class="c1"># Getting the locations of each Q parameter to feed</span>
+            <span class="c1"># to the likelihood function</span>
 
-            <span class="c"># Note that the likelihood function takes q parameters</span>
-            <span class="c"># in coumnwise-order, not counting zero and negative values.</span>
-            <span class="c"># Within-regime shifts</span>
+            <span class="c1"># Note that the likelihood function takes q parameters</span>
+            <span class="c1"># in coumnwise-order, not counting zero and negative values.</span>
+            <span class="c1"># Within-regime shifts</span>
             <span class="n">qinds</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">wr</span><span class="p">):</span>
                 <span class="n">qinds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">valid_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
             <span class="n">rshift_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">))[</span><span class="mi">1</span><span class="p">:],</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">))[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-            <span class="n">qinds</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># Between-regime shifts(all share 1 rate)</span>
+            <span class="n">qinds</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Between-regime shifts(all share 1 rate)</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">rshift_pairs</span><span class="p">:</span>
                 <span class="n">qinds</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">valid_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
                 <span class="n">qinds</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">valid_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-            <span class="c"># These are the indices of the values we will give to</span>
-            <span class="c"># the likelihood function, in order</span>
+            <span class="c1"># These are the indices of the values we will give to</span>
+            <span class="c1"># the likelihood function, in order</span>
             <span class="n">param_indices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span> <span class="n">i</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">qinds</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span>
-            <span class="n">qparam_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">wr</span><span class="p">)</span><span class="o">+</span><span class="p">[</span><span class="n">br</span><span class="p">]</span> <span class="c"># Making a single list to get parameters from</span>
-            <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># Empty list for values to feed to lik function</span>
+            <span class="n">qparam_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">wr</span><span class="p">)</span><span class="o">+</span><span class="p">[</span><span class="n">br</span><span class="p">]</span> <span class="c1"># Making a single list to get parameters from</span>
+            <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Empty list for values to feed to lik function</span>
             <span class="k">for</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">param_indices</span><span class="p">:</span>
                 <span class="n">qi</span> <span class="o">=</span> <span class="p">[</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">qinds</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">v</span> <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">Qparams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qparam_list</span><span class="p">[</span><span class="n">qi</span><span class="p">])</span> <span class="c"># Pulling out the correct param</span>
-            <span class="c"># Qparams now contains the parameters needed in the</span>
-            <span class="c"># correct order for the likelihood function.</span>
-            <span class="k">if</span> <span class="n">constraint</span> <span class="o">==</span> <span class="s">&quot;Rate&quot;</span><span class="p">:</span>
+                <span class="n">Qparams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qparam_list</span><span class="p">[</span><span class="n">qi</span><span class="p">])</span> <span class="c1"># Pulling out the correct param</span>
+            <span class="c1"># Qparams now contains the parameters needed in the</span>
+            <span class="c1"># correct order for the likelihood function.</span>
+            <span class="k">if</span> <span class="n">constraint</span> <span class="o">==</span> <span class="s2">&quot;Rate&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="p">((</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">wr</span><span class="p">))</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">wr</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">br</span> <span class="o">&lt;</span> <span class="n">wr</span><span class="p">[</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">])):</span>
                     <span class="k">return</span> <span class="n">l</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Qparams</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">l</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Qparams</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;STD&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s2">&quot;STD&quot;</span><span class="p">:</span>
             <span class="n">qinds</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">n</span><span class="o">=</span><span class="mi">0</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">wr</span><span class="p">):</span>
@@ -483,23 +483,23 @@
                     <span class="n">qinds</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">valid_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">)[</span><span class="n">k</span><span class="p">]]</span>
                     <span class="n">n</span><span class="o">+=</span><span class="mi">1</span>
             <span class="n">rshift_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">))[</span><span class="mi">1</span><span class="p">:],</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">))[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-            <span class="n">qinds</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># Between-regime shifts(all share 1 rate)</span>
+            <span class="n">qinds</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Between-regime shifts(all share 1 rate)</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">rshift_pairs</span><span class="p">:</span>
                 <span class="n">qinds</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">valid_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
                 <span class="n">qinds</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">valid_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
             <span class="n">param_indices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span> <span class="n">i</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">qinds</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span>
-            <span class="n">qparam_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">wr</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="n">br</span><span class="p">]</span> <span class="c"># Making a single list to get parameters from</span>
-            <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># Empty list for values to feed to lik function</span>
+            <span class="n">qparam_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">wr</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="n">br</span><span class="p">]</span> <span class="c1"># Making a single list to get parameters from</span>
+            <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Empty list for values to feed to lik function</span>
             <span class="k">for</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">param_indices</span><span class="p">:</span>
                 <span class="n">qi</span> <span class="o">=</span> <span class="p">[</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">qinds</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">v</span> <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">Qparams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qparam_list</span><span class="p">[</span><span class="n">qi</span><span class="p">])</span> <span class="c"># Pulling out the correct param</span>
-            <span class="c"># Potential constraints are &quot;Rate&quot; and &quot;Symmetry&quot;</span>
-            <span class="k">if</span> <span class="n">constraint</span> <span class="o">==</span> <span class="s">&quot;Rate&quot;</span><span class="p">:</span>
+                <span class="n">Qparams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qparam_list</span><span class="p">[</span><span class="n">qi</span><span class="p">])</span> <span class="c1"># Pulling out the correct param</span>
+            <span class="c1"># Potential constraints are &quot;Rate&quot; and &quot;Symmetry&quot;</span>
+            <span class="k">if</span> <span class="n">constraint</span> <span class="o">==</span> <span class="s2">&quot;Rate&quot;</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
                     <span class="n">n</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">wr</span><span class="p">]</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
                         <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-            <span class="k">if</span> <span class="n">constraint</span> <span class="o">==</span> <span class="s">&quot;Symmetry&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">constraint</span> <span class="o">==</span> <span class="s2">&quot;Symmetry&quot;</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">nchar</span> <span class="o">==</span> <span class="mi">4</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">wr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">wr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">wr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">wr</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
@@ -508,12 +508,12 @@
                 <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
 
             <span class="k">return</span> <span class="n">l</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Qparams</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;RTD&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s2">&quot;RTD&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AssertionError</span>
             <span class="n">qinds</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">wr</span><span class="p">):</span>
                 <span class="n">qinds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">valid_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s">&quot;ARD&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">Qtype</span> <span class="o">==</span> <span class="s2">&quot;ARD&quot;</span><span class="p">:</span>
             <span class="n">qinds</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">n</span><span class="o">=</span><span class="mi">0</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">wr</span><span class="p">):</span>
@@ -529,11 +529,11 @@
                     <span class="n">qinds</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
                     <span class="n">n</span><span class="o">+=</span><span class="mi">1</span>
             <span class="n">param_indices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span> <span class="n">i</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">qinds</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span>
-            <span class="n">qparam_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">wr</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">br</span><span class="p">]</span> <span class="c"># Making a single list to get parameters from</span>
-            <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># Empty list for values to feed to lik function</span>
+            <span class="n">qparam_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">wr</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">br</span><span class="p">]</span> <span class="c1"># Making a single list to get parameters from</span>
+            <span class="n">Qparams</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Empty list for values to feed to lik function</span>
             <span class="k">for</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">param_indices</span><span class="p">:</span>
                 <span class="n">qi</span> <span class="o">=</span> <span class="p">[</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">qinds</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">v</span> <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">Qparams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qparam_list</span><span class="p">[</span><span class="n">qi</span><span class="p">])</span> <span class="c"># Pulling out the correct param</span>
+                <span class="n">Qparams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qparam_list</span><span class="p">[</span><span class="n">qi</span><span class="p">])</span> <span class="c1"># Pulling out the correct param</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
                 <span class="n">n</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">wr</span><span class="p">]</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
@@ -541,9 +541,9 @@
             <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">br</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">wr</span><span class="p">[</span><span class="n">nregime</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
                 <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
             <span class="k">return</span> <span class="n">l</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Qparams</span><span class="p">))</span>
-    <span class="k">return</span> <span class="nb">locals</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">locals</span><span class="p">()</span></div>
 
-</div>
+
 <span class="k">def</span> <span class="nf">_subarray_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For a Q matrix whose elements are to be indexed columnwise,</span>
@@ -558,26 +558,26 @@
 
 
 <span class="k">def</span> <span class="nf">_invalid_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">):</span>
-    <span class="c"># Diagonals have no parameters</span>
+    <span class="c1"># Diagonals have no parameters</span>
     <span class="n">diags</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span> <span class="o">+</span> <span class="n">nobschar</span><span class="o">*</span><span class="n">nregime</span><span class="o">*</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nobschar</span><span class="o">*</span><span class="n">nregime</span><span class="p">)]</span>
     <span class="n">consecs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">))[</span><span class="mi">1</span><span class="p">:],</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">))[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
     <span class="n">revconsecs</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">consecs</span> <span class="p">]</span>
 
     <span class="n">subarrays</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">)),</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="c"># &quot;corner&quot; subarrays have no parameters (no shifts directly from</span>
-    <span class="c"># slow to fast regimes, eg.)</span>
+    <span class="c1"># &quot;corner&quot; subarrays have no parameters (no shifts directly from</span>
+    <span class="c1"># slow to fast regimes, eg.)</span>
     <span class="n">corner_subarrays</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">subarrays</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">consecs</span><span class="o">+</span><span class="n">revconsecs</span> <span class="p">]</span>
     <span class="n">corner_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">corner_subarrays</span><span class="p">)))</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">corner_subarrays</span><span class="p">):</span>
         <span class="n">corner_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">_subarray_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-    <span class="c"># For regime-shift subarrays (non-diagonal and non-corner subarrays)</span>
-    <span class="c"># Only diagonals are allowed. All non-diagonals have no parameters.</span>
+    <span class="c1"># For regime-shift subarrays (non-diagonal and non-corner subarrays)</span>
+    <span class="c1"># Only diagonals are allowed. All non-diagonals have no parameters.</span>
     <span class="n">rshift_subarrays</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">subarrays</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">consecs</span><span class="o">+</span><span class="n">revconsecs</span><span class="p">]</span>
     <span class="n">rshift_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rshift_subarrays</span><span class="p">)))</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rshift_subarrays</span><span class="p">):</span>
         <span class="n">inds</span> <span class="o">=</span> <span class="n">_subarray_indices</span><span class="p">(</span><span class="n">nobschar</span><span class="p">,</span> <span class="n">nregime</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="c"># Remove the diagonals (they are valid)</span>
+        <span class="c1"># Remove the diagonals (they are valid)</span>
         <span class="n">inds</span> <span class="o">=</span> <span class="p">[</span> <span class="n">inds</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inds</span><span class="p">))</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nobschar</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">nobschar</span><span class="p">)]</span>
         <span class="n">rshift_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">inds</span>
     <span class="k">return</span> <span class="p">[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="p">[[</span><span class="n">diags</span><span class="p">]</span> <span class="o">+</span> <span class="n">corner_indices</span> <span class="o">+</span> <span class="n">rshift_indices</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sub</span> <span class="p">]</span>
@@ -601,14 +601,11 @@
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -630,7 +627,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, RR, CZ.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

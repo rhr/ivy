@@ -485,37 +485,8 @@ Classe
 The ClaSSE model is implemented in ``ivy``. Using ``ivy``'s ClaSSE implementation,
 you can fit ClaSSE, along with all of its derivatives like GeoSSE, to your data.
 
-We will demonstrate fitting a fully-parameterized 2-state ClaSSE model to some
-data, then fitting a 3-state ClaSSE model that has been parameterized to be
-identical to GeoSSE.
-
-.. sourcecode:: ipython
-
-    In [*]: import ivy
-    In [*]: from ivy.chars.sse import sse
-    In [*]: from ivy import examples
-    In [*]: root = examples.simtree_600
-    In [*]: data = examples.simdata_600
-
-Maximum likelihood ClaSSE
-~~~~~~~~~~~~~~~~~~~~~~~~
-Fitting a model is relatively straightforward with ``fit_classe``.
-This implementation is reasonably fast but still may take a little while.
-
-.. sourcecode:: ipython
-
-    In [*]: mle_classe = sse.fit_classe(root,data)
-    In [*]: print(mle_classe["lnl"])
-    -1287.64633207
-    In [*]: print(mle_classe["fit"])
-    {'mu': array([  1.23669910e-06,   3.76398510e-05]),
-     'q': array([[ 0.        ,  0.05008601],
-                [ 0.08421281,  0.        ]]),
-     'lambda': array([[[  4.18641344e-01,   1.48737218e-08],
-                      [  0.00000000e+00,   4.33500041e-03]],
-
-                     [[  2.98016896e-08,   0.00000000e+00],
-                      [  0.00000000e+00,   5.08865803e-01]]])}
+When you fit a ClaSSE model, you get an output dictionary containing
+the log-likelihood and all fitted parameters.
 
 The output is a dictionary containing the maximum log-likelihood and a
 dictionary containing the parameters.
@@ -539,6 +510,40 @@ to zero.
 The mu array is a one-dimensional array. It corresponds to the extinction rate
 of each state. mu[0] corresponds to the extinction rate of state 0.
 
+We will demonstrate fitting a fully-parameterized 2-state ClaSSE model to some
+data, then fitting a 3-state ClaSSE model that has been parameterized to be
+identical to GeoSSE.
+
+.. sourcecode:: ipython
+
+    In [*]: import ivy
+    In [*]: from ivy.chars.sse import sse
+    In [*]: from ivy import examples
+    In [*]: root = examples.simtree_600 # This is an ivy Node object
+    In [*]: data = examples.simdata_600 # This is a dictionary mapping tip labels to character states
+
+Maximum likelihood ClaSSE
+~~~~~~~~~~~~~~~~~~~~~~~~
+Fitting a model is relatively straightforward with ``fit_classe``.
+This implementation is reasonably fast but still may take a little while.
+
+.. sourcecode:: ipython
+
+    In [*]: mle_classe = sse.fit_classe(root,data)
+    In [*]: print(mle_classe["lnl"])
+    -1287.64633207
+    In [*]: print(mle_classe["fit"])
+    {'mu': array([  1.23669910e-06,   3.76398510e-05]),
+     'q': array([[ 0.        ,  0.05008601],
+                [ 0.08421281,  0.        ]]),
+     'lambda': array([[[  4.18641344e-01,   1.48737218e-08],
+                      [  0.00000000e+00,   4.33500041e-03]],
+
+                     [[  2.98016896e-08,   0.00000000e+00],
+                      [  0.00000000e+00,   5.08865803e-01]]])}
+
+
+
 Maximum likelihood GeoSSE
 ~~~~~~~~~~~~~~~~~~~~~~~~
 ``ivy``'s implementation of ClaSSE allows for flexible model specification.
@@ -549,9 +554,16 @@ model.
 The ``pidx`` parameter is a dictionary of arrays. It is similar to the parameter
 output of ``fit_classe``. Each cell of each array corresponds to a parameter of the model.
 With the exception of 0, each integer in the array corresponds to a unique
-parameter. In this case, both lambda[0,0,1] and lambda[1,1,1] share the integer 1,
-meaning they are constrained to be identical. The order of the integers has no meaning;
-the parameter denoted by 2 is not enforced to be greater than the parameter denoted
+parameter.
+
+The function will fit an array of parameters to this model. The parameters are stored
+in a one-dimensional array that is indexed by the pidx arrays. The values within
+the pidx arrays are integers that index the parameter array.
+In this case, both lambda[0,0,1] and lambda[1,1,1] share the integer 1, meaning they
+both refer to the first item of the parameter array and therefore will be identical.
+
+The order of the integers has no meaning;
+the parameter denoted by index 2 is not enforced to be greater than the parameter denoted
 by 1. Any cell that has a 0 in it is constrained to be 0. Any parameters
 not used by the model (e.g. lambda[0,1,0] or q[1,1]) are ignored.
 
@@ -596,7 +608,7 @@ function.
     in a Bayesian analysis
 
 Here is a full explanation of the ``fit_classe`` function::
-    
+
     Args:
         root (Node): Root of tree to perform the analysis on. MUST BE BIFURCATING
         data (dict): Dictionary mapping node tip labels to character states.

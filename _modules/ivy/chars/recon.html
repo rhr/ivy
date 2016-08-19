@@ -47,22 +47,22 @@
           <div class="body" role="main">
             
   <h1>Source code for ivy.chars.recon</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">ivy</span>
-<span class="kn">from</span> <span class="nn">ivy.chars.expokit</span> <span class="kn">import</span> <span class="n">cyexpokit</span>
-<span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="kn">import</span> <span class="n">catpars</span>
+<span class="kn">from</span> <span class="nn">ivy.chars.expokit</span> <span class="k">import</span> <span class="n">cyexpokit</span>
+<span class="kn">from</span> <span class="nn">ivy.chars</span> <span class="k">import</span> <span class="n">catpars</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Ancestor state reconstruction</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="anc_recon_cat"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.anc_recon_cat">[docs]</a><span class="k">def</span> <span class="nf">anc_recon_cat</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">ars</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="anc_recon_cat"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.anc_recon_cat">[docs]</a><span class="k">def</span> <span class="nf">anc_recon_cat</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pi</span><span class="o">=</span><span class="s2">&quot;Equal&quot;</span><span class="p">,</span> <span class="n">ars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nregime</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given tree, character states at tips, and transition matrix perform</span>
 <span class="sd">    ancestor reconstruction for a discrete character.</span>
@@ -103,39 +103,39 @@
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">chars</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaves</span><span class="p">()]]</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">ars</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="c"># Creating arrays to be used later</span>
+    <span class="k">if</span> <span class="n">ars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Creating arrays to be used later</span>
         <span class="n">ars</span> <span class="o">=</span> <span class="n">create_ancrecon_ars</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">)</span>
-    <span class="c"># Calculating the likelihoods for each node in post-order sequence</span>
-    <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># Instantiating empty array</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">ars</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">]),</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                     <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;C&quot;</span><span class="p">)</span>
-    <span class="c"># Creating probability matrices from Q matrix and branch lengths</span>
-    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">dexpm_tree_preallocated_p</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">ars</span><span class="p">[</span><span class="s">&quot;t&quot;</span><span class="p">],</span> <span class="n">p</span><span class="p">)</span> <span class="c"># This changes p in place</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">ars</span><span class="p">[</span><span class="s">&quot;down_nl_w&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s">&quot;down_nl_r&quot;</span><span class="p">])</span> <span class="c"># Copy original values if they have been changed</span>
-    <span class="n">ars</span><span class="p">[</span><span class="s">&quot;child_inds&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Calculating the likelihoods for each node in post-order sequence</span>
+    <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># Instantiating empty array</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">ars</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]),</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                     <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">)</span>
+    <span class="c1"># Creating probability matrices from Q matrix and branch lengths</span>
+    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">dexpm_tree_preallocated_p</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">],</span> <span class="n">p</span><span class="p">)</span> <span class="c1"># This changes p in place</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">ars</span><span class="p">[</span><span class="s2">&quot;down_nl_w&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;down_nl_r&quot;</span><span class="p">])</span> <span class="c1"># Copy original values if they have been changed</span>
+    <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;child_inds&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">root_equil</span> <span class="o">=</span> <span class="n">ivy</span><span class="o">.</span><span class="n">chars</span><span class="o">.</span><span class="n">mk</span><span class="o">.</span><span class="n">qsd</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
 
-    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">cy_anc_recon</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ars</span><span class="p">[</span><span class="s">&quot;down_nl_w&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s">&quot;charlist&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s">&quot;childlist&quot;</span><span class="p">],</span>
-                        <span class="n">ars</span><span class="p">[</span><span class="s">&quot;up_nl&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s">&quot;marginal_nl&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s">&quot;partial_parent_nl&quot;</span><span class="p">],</span>
-                        <span class="n">ars</span><span class="p">[</span><span class="s">&quot;partial_nl&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s">&quot;child_inds&quot;</span><span class="p">],</span> <span class="n">root_equil</span><span class="p">,</span><span class="n">ars</span><span class="p">[</span><span class="s">&quot;temp_dotprod&quot;</span><span class="p">],</span>
+    <span class="n">cyexpokit</span><span class="o">.</span><span class="n">cy_anc_recon</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;down_nl_w&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;charlist&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;childlist&quot;</span><span class="p">],</span>
+                        <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;up_nl&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;marginal_nl&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;partial_parent_nl&quot;</span><span class="p">],</span>
+                        <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;partial_nl&quot;</span><span class="p">],</span> <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;child_inds&quot;</span><span class="p">],</span> <span class="n">root_equil</span><span class="p">,</span><span class="n">ars</span><span class="p">[</span><span class="s2">&quot;temp_dotprod&quot;</span><span class="p">],</span>
                         <span class="n">nregime</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">ars</span><span class="p">[</span><span class="s">&quot;marginal_nl&quot;</span><span class="p">]</span>
-</div>
+    <span class="k">return</span> <span class="n">ars</span><span class="p">[</span><span class="s2">&quot;marginal_nl&quot;</span><span class="p">]</span></div>
+
 <div class="viewcode-block" id="anc_recon_mkmr"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.anc_recon_mkmr">[docs]</a><span class="k">def</span> <span class="nf">anc_recon_mkmr</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">chars</span><span class="p">,</span><span class="n">Q</span><span class="p">,</span><span class="n">switchpoint</span><span class="p">):</span>
     <span class="n">nregime</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">root_copy</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root_copy</span><span class="o">.</span><span class="n">descendants</span><span class="p">():</span>
-        <span class="n">node</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s">&quot;cached&quot;</span><span class="p">]</span><span class="o">=</span><span class="bp">False</span>
-        <span class="n">node</span><span class="o">.</span><span class="n">bisect_branch</span><span class="p">(</span><span class="mf">1e-15</span><span class="p">,</span><span class="n">reindex</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;cached&quot;</span><span class="p">]</span><span class="o">=</span><span class="kc">False</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">bisect_branch</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span><span class="n">reindex</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">root_copy</span><span class="o">.</span><span class="n">reindex</span><span class="p">()</span>
     <span class="n">root_copy</span><span class="o">.</span><span class="n">set_iternode_cache</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root_copy</span><span class="o">.</span><span class="n">iternodes</span><span class="p">():</span>
-        <span class="n">node</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s">&quot;cached&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;cached&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">nchar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chars</span><span class="p">))</span>
-    <span class="n">ars</span> <span class="o">=</span> <span class="n">create_ancrecon_ars</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">)</span>
-</div>
+    <span class="n">ars</span> <span class="o">=</span> <span class="n">create_ancrecon_ars</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="create_ancrecon_ars"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.create_ancrecon_ars">[docs]</a><span class="k">def</span> <span class="nf">create_ancrecon_ars</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">nregime</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create nodelists. For use in recon function</span>
@@ -159,54 +159,54 @@
     <span class="n">childlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nnode</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
     <span class="n">leafind</span> <span class="o">=</span> <span class="p">[</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">postiter</span><span class="p">()]</span>
 
-    <span class="c"># --------- Down nodelist(nl), postorder sequence</span>
+    <span class="c1"># --------- Down nodelist(nl), postorder sequence</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">postChars</span><span class="p">):</span>
-        <span class="c"># Setting initial tip likelihoods to 1 or 0</span>
-        <span class="c"># TODO: Switch to log calculations</span>
+        <span class="c1"># Setting initial tip likelihoods to 1 or 0</span>
+        <span class="c1"># TODO: Switch to log calculations</span>
         <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nregime</span><span class="p">):</span>
             <span class="p">[</span> <span class="n">n</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">down_nl</span><span class="p">)</span> <span class="k">if</span> <span class="n">leafind</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="n">ch</span><span class="o">+</span><span class="p">(</span><span class="n">r</span><span class="o">*</span><span class="n">nobschar</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">down_nl</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
         <span class="n">n</span><span class="p">[</span><span class="n">nchar</span><span class="p">]</span> <span class="o">=</span> <span class="n">postnodes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">postnodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
         <span class="n">childlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="n">nod</span><span class="o">.</span><span class="n">pi</span> <span class="k">for</span> <span class="n">nod</span> <span class="ow">in</span> <span class="n">postnodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">children</span> <span class="p">]</span>
     <span class="n">childlist</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="n">nod</span><span class="o">.</span><span class="n">pi</span> <span class="k">for</span> <span class="n">nod</span> <span class="ow">in</span> <span class="n">postnodes</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span> <span class="p">]</span>
-    <span class="c"># Setting initial node likelihoods to one for calculations</span>
+    <span class="c1"># Setting initial node likelihoods to one for calculations</span>
     <span class="n">down_nl</span><span class="p">[[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">leafind</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">b</span><span class="p">],:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
 
-    <span class="c"># -------- Up nl, preorder sequence</span>
+    <span class="c1"># -------- Up nl, preorder sequence</span>
     <span class="n">up_nl</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">up_nl</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
         <span class="n">n</span><span class="p">[</span><span class="n">nchar</span><span class="p">]</span> <span class="o">=</span> <span class="n">postnodes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">prenodes</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
         <span class="n">n</span><span class="p">[</span><span class="n">nchar</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">postnodes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">prenodes</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">i</span><span class="p">])</span>
-    <span class="c"># -------- Marginal nl, also preorder sequence</span>
+    <span class="c1"># -------- Marginal nl, also preorder sequence</span>
     <span class="n">marginal_nl</span> <span class="o">=</span> <span class="n">up_nl</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-    <span class="c"># ------- Partial likelihood vectors</span>
+    <span class="c1"># ------- Partial likelihood vectors</span>
     <span class="n">partial_nl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">nnode</span><span class="p">,</span><span class="nb">max</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">nchildren</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">]),</span><span class="n">nchar</span><span class="p">])</span>
 
-    <span class="c"># ------- Parent partial likelihood vectors</span>
+    <span class="c1"># ------- Parent partial likelihood vectors</span>
     <span class="n">partial_parent_nl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">up_nl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">nchar</span><span class="p">])</span>
 
-    <span class="c"># ------- Child masking arrays</span>
+    <span class="c1"># ------- Child masking arrays</span>
     <span class="n">child_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">partial_nl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
-    <span class="c"># ------- Character list</span>
+    <span class="c1"># ------- Character list</span>
     <span class="n">charlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nchar</span><span class="p">))</span>
 
-    <span class="c"># ------- Empty array to store root priors</span>
+    <span class="c1"># ------- Empty array to store root priors</span>
     <span class="n">root_priors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
 
-    <span class="c"># ------- Temporary array to store dot products</span>
+    <span class="c1"># ------- Temporary array to store dot products</span>
     <span class="n">temp_dotprod</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">nchar</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
 
-    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;down_nl_r&quot;</span><span class="p">,</span><span class="s">&quot;down_nl_w&quot;</span><span class="p">,</span><span class="s">&quot;up_nl&quot;</span><span class="p">,</span><span class="s">&quot;marginal_nl&quot;</span><span class="p">,</span>
-            <span class="s">&quot;partial_nl&quot;</span><span class="p">,</span><span class="s">&quot;partial_parent_nl&quot;</span><span class="p">,</span><span class="s">&quot;child_inds&quot;</span><span class="p">,</span>
-            <span class="s">&quot;childlist&quot;</span><span class="p">,</span><span class="s">&quot;t&quot;</span><span class="p">,</span><span class="s">&quot;charlist&quot;</span><span class="p">,</span><span class="s">&quot;root_priors&quot;</span><span class="p">,</span><span class="s">&quot;temp_dotprod&quot;</span><span class="p">]</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;down_nl_r&quot;</span><span class="p">,</span><span class="s2">&quot;down_nl_w&quot;</span><span class="p">,</span><span class="s2">&quot;up_nl&quot;</span><span class="p">,</span><span class="s2">&quot;marginal_nl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;partial_nl&quot;</span><span class="p">,</span><span class="s2">&quot;partial_parent_nl&quot;</span><span class="p">,</span><span class="s2">&quot;child_inds&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;childlist&quot;</span><span class="p">,</span><span class="s2">&quot;t&quot;</span><span class="p">,</span><span class="s2">&quot;charlist&quot;</span><span class="p">,</span><span class="s2">&quot;root_priors&quot;</span><span class="p">,</span><span class="s2">&quot;temp_dotprod&quot;</span><span class="p">]</span>
     <span class="n">ar_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">down_nl</span><span class="p">,</span><span class="n">down_nl</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span><span class="n">up_nl</span><span class="p">,</span><span class="n">marginal_nl</span><span class="p">,</span><span class="n">partial_nl</span><span class="p">,</span><span class="n">partial_parent_nl</span><span class="p">,</span><span class="n">child_inds</span><span class="p">,</span>
            <span class="n">childlist</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">charlist</span><span class="p">,</span><span class="n">root_priors</span><span class="p">,</span><span class="n">temp_dotprod</span><span class="p">]</span>
     <span class="n">ar_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span><span class="n">ar</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span><span class="n">ar</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">ar_list</span><span class="p">)}</span>
 
-    <span class="k">return</span> <span class="n">ar_dict</span>
-</div>
+    <span class="k">return</span> <span class="n">ar_dict</span></div>
+
 <div class="viewcode-block" id="parsimony_recon"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.parsimony_recon">[docs]</a><span class="k">def</span> <span class="nf">parsimony_recon</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Use parsimony to reconstruct the minimum number of changes needed to observe</span>
@@ -227,9 +227,9 @@
     <span class="n">rec</span> <span class="o">=</span> <span class="n">catpars</span><span class="o">.</span><span class="n">ancstates</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">,</span> <span class="n">stepmatrix</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="n">rec</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">rec</span>
+    <span class="k">return</span> <span class="n">rec</span></div>
 
-</div>
+
 <div class="viewcode-block" id="pscore"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.pscore">[docs]</a><span class="k">def</span> <span class="nf">pscore</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the minimum number of changes needed by parsimony to observe</span>
@@ -250,24 +250,24 @@
             <span class="n">ch</span> <span class="o">=</span> <span class="n">get_childstates</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">precon</span><span class="p">,</span> <span class="n">chars</span><span class="p">)</span>
             <span class="n">pa</span> <span class="o">=</span> <span class="n">precon</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
             <span class="n">minp</span> <span class="o">+=</span> <span class="n">average_nchanges</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">pa</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">minp</span>
+    <span class="k">return</span> <span class="n">minp</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_childstates"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.get_childstates">[docs]</a><span class="k">def</span> <span class="nf">get_childstates</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">precon</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For use in pscore function</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">chstates</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+    <span class="n">chstates</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">isleaf</span><span class="p">:</span>
             <span class="n">chstates</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">chars</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">li</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">chstates</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">precon</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">chstates</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">&quot;__iter__&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">chstates</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
             <span class="n">chstates</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">chstates</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
-    <span class="k">return</span> <span class="n">chstates</span>
+    <span class="k">return</span> <span class="n">chstates</span></div>
 
-</div>
+
 <div class="viewcode-block" id="average_nchanges"><a class="viewcode-back" href="../../../ivy.chars.html#ivy.chars.recon.average_nchanges">[docs]</a><span class="k">def</span> <span class="nf">average_nchanges</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">pa</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For use in pscore function</span>
@@ -291,14 +291,11 @@
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -320,7 +317,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, RR, CZ.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

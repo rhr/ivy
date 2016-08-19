@@ -47,17 +47,17 @@
           <div class="body" role="main">
             
   <h1>Source code for ivy.birthdeath</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Equations from Magallon and Sanderson 2001</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">exp</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">log</span>
-<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">comb</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">exp</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">comb</span>
 
-<span class="c">## def alpha(epsilon, r, t):</span>
-<span class="c">##     return epsilon*beta(epsilon, r, t)</span>
+<span class="c1">## def alpha(epsilon, r, t):</span>
+<span class="c1">##     return epsilon*beta(epsilon, r, t)</span>
 
 <div class="viewcode-block" id="Beta"><a class="viewcode-back" href="../../ivy.html#ivy.birthdeath.Beta">[docs]</a><span class="k">def</span> <span class="nf">Beta</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -71,8 +71,8 @@
 <span class="sd">        Float: Beta</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">exprt</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="n">r</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">exprt</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">exprt</span> <span class="o">-</span> <span class="n">epsilon</span><span class="p">)</span>
-</div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">exprt</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">exprt</span> <span class="o">-</span> <span class="n">epsilon</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Alpha"><a class="viewcode-back" href="../../ivy.html#ivy.birthdeath.Alpha">[docs]</a><span class="k">def</span> <span class="nf">Alpha</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate Alpha</span>
@@ -84,8 +84,8 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Float: Alpha</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">epsilon</span><span class="o">*</span><span class="n">Beta</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
-</div>
+    <span class="k">return</span> <span class="n">epsilon</span><span class="o">*</span><span class="n">Beta</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="prN"><a class="viewcode-back" href="../../ivy.html#ivy.birthdeath.prN">[docs]</a><span class="k">def</span> <span class="nf">prN</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Probability of observing i species after time t</span>
@@ -99,11 +99,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">beta</span> <span class="o">=</span> <span class="n">Beta</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
     <span class="n">alpha</span> <span class="o">=</span> <span class="n">epsilon</span><span class="o">*</span><span class="n">beta</span>
-    <span class="n">v</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span> <span class="n">comb</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span><span class="o">*</span><span class="n">comb</span><span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span><span class="o">*</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span> <span class="n">comb</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span><span class="o">*</span><span class="n">comb</span><span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span><span class="o">*</span>
               <span class="nb">pow</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">a</span><span class="o">-</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span><span class="n">i</span><span class="o">-</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">alpha</span><span class="o">-</span><span class="n">beta</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
               <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">a</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">])</span>
-    <span class="k">return</span> <span class="n">v</span>
-</div>
+    <span class="k">return</span> <span class="n">v</span></div>
+
 <div class="viewcode-block" id="condPrN"><a class="viewcode-back" href="../../ivy.html#ivy.birthdeath.condPrN">[docs]</a><span class="k">def</span> <span class="nf">condPrN</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Conditional probability of i species after time t, given the</span>
@@ -116,8 +116,8 @@
 <span class="sd">        r (float): Net diversification rate (b-d)</span>
 <span class="sd">        epsilon (float):  Relative extinction (d/b)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">prN</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">pow</span><span class="p">(</span><span class="n">Alpha</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">a</span><span class="p">))</span>
-</div>
+    <span class="k">return</span> <span class="n">prN</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">pow</span><span class="p">(</span><span class="n">Alpha</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">a</span><span class="p">))</span></div>
+
 <div class="viewcode-block" id="Nbar"><a class="viewcode-back" href="../../ivy.html#ivy.birthdeath.Nbar">[docs]</a><span class="k">def</span> <span class="nf">Nbar</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Mean clade size conditional on survival of the clade</span>
@@ -128,8 +128,8 @@
 <span class="sd">        r (float): Net diversification rate (b-d)</span>
 <span class="sd">        epsilon (float):  Relative extinction (d/b)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">exp</span><span class="p">(</span><span class="n">r</span><span class="o">*</span><span class="n">t</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">pow</span><span class="p">(</span><span class="n">Alpha</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">a</span><span class="p">))</span>
-</div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">exp</span><span class="p">(</span><span class="n">r</span><span class="o">*</span><span class="n">t</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">pow</span><span class="p">(</span><span class="n">Alpha</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">a</span><span class="p">))</span></div>
+
 <div class="viewcode-block" id="Kendall1948"><a class="viewcode-back" href="../../ivy.html#ivy.birthdeath.Kendall1948">[docs]</a><span class="k">def</span> <span class="nf">Kendall1948</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Probability of observing i species given single ancestor after time t</span>
@@ -142,8 +142,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">beta</span> <span class="o">=</span> <span class="n">Beta</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
     <span class="n">alpha</span> <span class="o">=</span> <span class="n">epsilon</span><span class="o">*</span><span class="n">beta</span>
-    <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">beta</span><span class="p">)</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-</div>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">beta</span><span class="p">)</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="condKendall1948"><a class="viewcode-back" href="../../ivy.html#ivy.birthdeath.condKendall1948">[docs]</a><span class="k">def</span> <span class="nf">condKendall1948</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Probability of observing i species given a single ancestor after time t</span>
@@ -156,19 +156,19 @@
 <span class="sd">        epsilon (float):  Relative extinction (d/b)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">beta</span> <span class="o">=</span> <span class="n">Beta</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">beta</span><span class="p">)</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-</div>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">beta</span><span class="p">)</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="r_hat_stem"><a class="viewcode-back" href="../../ivy.html#ivy.birthdeath.r_hat_stem">[docs]</a><span class="k">def</span> <span class="nf">r_hat_stem</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
     <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">t</span><span class="p">)</span><span class="o">*</span><span class="n">log</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">epsilon</span><span class="p">)</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">v</span>
-</div>
+    <span class="k">return</span> <span class="n">v</span></div>
+
 <div class="viewcode-block" id="r_hat_crown"><a class="viewcode-back" href="../../ivy.html#ivy.birthdeath.r_hat_crown">[docs]</a><span class="k">def</span> <span class="nf">r_hat_crown</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
     <span class="n">ep2</span> <span class="o">=</span> <span class="n">epsilon</span><span class="o">*</span><span class="n">epsilon</span>
     <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">t</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">ep2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">epsilon</span> <span class="o">+</span>
                 <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">epsilon</span><span class="p">)</span><span class="o">*</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">ep2</span> <span class="o">-</span> <span class="mi">8</span><span class="o">*</span><span class="n">ep2</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">epsilon</span> <span class="o">+</span> <span class="n">n</span><span class="p">)))</span>
                 <span class="o">-</span> <span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">v</span>
-</div>
+    <span class="k">return</span> <span class="n">v</span></div>
+
 <div class="viewcode-block" id="logLT"><a class="viewcode-back" href="../../ivy.html#ivy.birthdeath.logLT">[docs]</a><span class="k">def</span> <span class="nf">logLT</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Log-likelihood of terminal taxa</span>
@@ -198,14 +198,11 @@
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -227,7 +224,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, RR, CZ.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

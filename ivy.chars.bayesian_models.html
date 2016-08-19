@@ -23,10 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="ivy 0.1 documentation" href="index.html" />
-    <link rel="up" title="ivy.chars package" href="ivy.chars.html" />
-    <link rel="next" title="ivy.chars.catpars module" href="ivy.chars.catpars.html" />
-    <link rel="prev" title="ivy.chars.expokit.setup module" href="ivy.chars.expokit.setup.html" /> 
+    <link rel="top" title="ivy 0.1 documentation" href="index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -38,16 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.catpars.html" title="ivy.chars.catpars module"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.expokit.setup.html" title="ivy.chars.expokit.setup module"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
-          <li class="nav-item nav-item-3"><a href="ivy.chars.html" accesskey="U">ivy.chars package</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -85,9 +73,9 @@ posterior distributions of Q parameters and MAP estimate of Q matrix</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of character states corresponding to leaf nodes in
 preoder sequence. Character states must be in the form of 0,1,2,...</li>
-<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
 values at root node. Defaults to &#8220;Equal&#8221;
 Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
 <li><strong>Qtype</strong> &#8211; <p>Either a string specifying how to esimate values for Q or a
@@ -102,19 +90,16 @@ numpy array of a pre-specified Q matrix.</p>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
 <tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
-<li><strong>iters</strong> (<em>float</em>) &#8211;
-Number of iterations in MCMC. Defaults to 2000</li>
-<li><strong>burn</strong> (<em>float</em>) &#8211;
-Burnin to discard. Defaults to 200</li>
-<li><strong>thin</strong> (<em>float</em>) &#8211;
-Thinning parameter. Defaults to 1</li>
+<li><strong>iters</strong> (<em>float</em>) &#8211; Number of iterations in MCMC. Defaults to 2000</li>
+<li><strong>burn</strong> (<em>float</em>) &#8211; Burnin to discard. Defaults to 200</li>
+<li><strong>thin</strong> (<em>float</em>) &#8211; Thinning parameter. Defaults to 1</li>
 </ul>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The pymc MCMC object and the pymc MAP object</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)">tuple</a></p>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)">tuple</a></p>
 </td>
 </tr>
 </tbody>
@@ -138,11 +123,11 @@ Thinning parameter. Defaults to 1</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tree</strong> (<a class="reference internal" href="ivy.tree.html#ivy.tree.Node" title="ivy.tree.Node"><em>Node</em></a>) &#8211; Root node of a tree. All branch lengths must be
 greater than 0 (except root)</li>
-<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
+<li><strong>chars</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; <p>Dict mapping character states to tip labels.
 Character states should be coded 0,1,2...</p>
 <p>Can also be a list with tip states in preorder sequence</p>
 </li>
-<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
+<li><strong>pi</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Either &#8220;Equal&#8221;, &#8220;Equilibrium&#8221;, or &#8220;Fitzjohn&#8221;. How to weight
 values at root node. Defaults to &#8220;Equal&#8221;
 Method &#8220;Fitzjohn&#8221; is not thouroughly tested, use with caution</li>
 <li><strong>Qtype</strong> &#8211; <p>Either a string specifying how to esimate values for Q or a
@@ -156,9 +141,9 @@ numpy array of a pre-specified Q matrix.</p>
 </dl>
 </div></blockquote>
 </li>
-<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of hidden states. nstates = 0 is
+<li><strong>nregime</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of hidden states. nstates = 0 is
 equivalent to a vanilla Mk model</li>
-<li><strong>constraint</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <p>Contraints to apply to the parameters of the Q matrix.
+<li><strong>constraint</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <p>Contraints to apply to the parameters of the Q matrix.
 Can be one of the following:</p>
 <blockquote>
 <div><dl class="docutils">
@@ -189,7 +174,7 @@ Can be one of the following:</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Trace plots, histograms, and summary statistics</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
 </tr>
 </tbody>
 </table>
@@ -215,12 +200,6 @@ Can be one of the following:</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="ivy.chars.expokit.setup.html"
-                        title="previous chapter">ivy.chars.expokit.setup module</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="ivy.chars.catpars.html"
-                        title="next chapter">ivy.chars.catpars module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -231,14 +210,11 @@ Can be one of the following:</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -254,21 +230,12 @@ Can be one of the following:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.catpars.html" title="ivy.chars.catpars module"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="ivy.chars.expokit.setup.html" title="ivy.chars.expokit.setup module"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >ivy</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="ivy.html" >ivy package</a> &raquo;</li>
-          <li class="nav-item nav-item-3"><a href="ivy.chars.html" >ivy.chars package</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">ivy 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, RR, CZ.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>
