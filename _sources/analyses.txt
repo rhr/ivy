@@ -593,6 +593,37 @@ fully-parameterized "all-rates-different" model.
 
     In [*]: mle_geosse = sse.fit_classe(root,data,nstate=3,pidx=pidx)
 
+Creating the pidx array
+~~~~~~~~~~~~~~~~~~~~~~~
+When the number of states is large, the number of lambda parameters gets to be
+very high. It can be difficult to manually create the lambdaidx array.
+Fortunately, ``ivy`` has a convenience function for creating the lambda array.
+
+Using the ``make_blank_lambda`` function, you can create a lambda array
+filled with a single "background" parameter. You can then manually fill in the parameters
+that are different from the background parameter. If we wanted to create the
+GeoSSE lambda array, we could do it like this:
+
+.. sourcecode:: ipython
+
+    In [*]: lambdaidx = sse.make_blank_lambda(k=3,fill=0) # Fill can be any integer
+    In [*]: lambdaidx[0,0,1] = lambdaidx[1,1,1] = 1
+    In [*]: lambdaidx[0,0,2] = lambdaidx[2,2,2] = 2
+    In [*]: lambdaidx[0,1,2] = 3
+    In [*]: lambdaidx
+    Out[*]: 
+    array([[[0, 1, 2],
+            [0, 0, 3],
+            [0, 0, 0]],
+
+           [[0, 0, 0],
+            [0, 1, 0],
+            [0, 0, 0]],
+
+           [[0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 2]]])
+
 Creating a likelihood function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If instead of finding the best-fit values for a ClaSSE model, you want

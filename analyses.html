@@ -535,13 +535,42 @@ fully-parameterized &#8220;all-rates-different&#8221; model.</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="creating-the-pidx-array">
+<h3>5.7.3. Creating the pidx array<a class="headerlink" href="#creating-the-pidx-array" title="Permalink to this headline">¶</a></h3>
+<p>When the number of states is large, the number of lambda parameters gets to be
+very high. It can be difficult to manually create the lambdaidx array.
+Fortunately, <code class="docutils literal"><span class="pre">ivy</span></code> has a convenience function for creating the lambda array.</p>
+<p>Using the <code class="docutils literal"><span class="pre">make_blank_lambda</span></code> function, you can create a lambda array
+filled with a single &#8220;background&#8221; parameter. You can then manually fill in the parameters
+that are different from the background parameter. If we wanted to create the
+GeoSSE lambda array, we could do it like this:</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">96</span><span class="p">]:</span> <span class="n">lambdaidx</span> <span class="o">=</span> <span class="n">sse</span><span class="o">.</span><span class="n">make_blank_lambda</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">fill</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Fill can be any integer</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">97</span><span class="p">]:</span> <span class="n">lambdaidx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lambdaidx</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">98</span><span class="p">]:</span> <span class="n">lambdaidx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">lambdaidx</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">99</span><span class="p">]:</span> <span class="n">lambdaidx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">100</span><span class="p">]:</span> <span class="n">lambdaidx</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">100</span><span class="p">]:</span>
+<span class="n">array</span><span class="p">([[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+
+       <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+
+       <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]])</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="creating-a-likelihood-function">
-<h3>5.7.3. Creating a likelihood function<a class="headerlink" href="#creating-a-likelihood-function" title="Permalink to this headline">¶</a></h3>
+<h3>5.7.4. Creating a likelihood function<a class="headerlink" href="#creating-a-likelihood-function" title="Permalink to this headline">¶</a></h3>
 <p>If instead of finding the best-fit values for a ClaSSE model, you want
 to create a likelihood function to find the likelihood values of parameters
 directly, or to use in a Bayesian context, you can use the <code class="docutils literal"><span class="pre">make_classe</span></code>
 function.</p>
-<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">96</span><span class="p">]:</span> <span class="n">f</span> <span class="o">=</span> <span class="n">sse</span><span class="o">.</span><span class="n">make_classe</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">data</span><span class="p">)</span>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">101</span><span class="p">]:</span> <span class="n">f</span> <span class="o">=</span> <span class="n">sse</span><span class="o">.</span><span class="n">make_classe</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">data</span><span class="p">)</span>
 
 <span class="n">Create</span> <span class="n">a</span> <span class="n">classe</span> <span class="n">likelihood</span> <span class="n">function</span> <span class="n">to</span> <span class="n">be</span> <span class="n">optimized</span> <span class="k">with</span> <span class="n">nlopt</span> <span class="ow">or</span> <span class="n">used</span>
 <span class="ow">in</span> <span class="n">a</span> <span class="n">Bayesian</span> <span class="n">analysis</span>
@@ -624,7 +653,8 @@ function.</p>
 <li><a class="reference internal" href="#classe">5.7. Classe</a><ul>
 <li><a class="reference internal" href="#maximum-likelihood-classe">5.7.1. Maximum likelihood ClaSSE</a></li>
 <li><a class="reference internal" href="#maximum-likelihood-geosse">5.7.2. Maximum likelihood GeoSSE</a></li>
-<li><a class="reference internal" href="#creating-a-likelihood-function">5.7.3. Creating a likelihood function</a></li>
+<li><a class="reference internal" href="#creating-the-pidx-array">5.7.3. Creating the pidx array</a></li>
+<li><a class="reference internal" href="#creating-a-likelihood-function">5.7.4. Creating a likelihood function</a></li>
 </ul>
 </li>
 </ul>
