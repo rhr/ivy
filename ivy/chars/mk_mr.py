@@ -842,7 +842,6 @@ def mk_multi_bayes(tree, chars,nregime,qidx, pi="Equal" ,seglen=0.02,stepsize=0.
             return lnl
         else:
             return -np.inf
-
     mod = pymc.MCMC(locals())
     for s in switch:
         mod.use_step_method(SwitchpointMetropolis, s, tree, seg_map,stepsize=stepsize,seglen=seglen)

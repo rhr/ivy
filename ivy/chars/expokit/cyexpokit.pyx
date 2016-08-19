@@ -243,7 +243,6 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         Asymmetric mk2:
             params = [0.2,0.6]; qidx = [[0,0,1,0],[0,1,0,1]]
         """
-
         cdef Py_ssize_t r, a, b, c, d, si
         cdef int nr = len(switches)
         # switches *= 2 # The corresponding ni of a node in the bisected tree
@@ -252,6 +251,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
             switches[r] = switches[r]*2
         switches_copy[:] = switches[:]
         cdef double x = 0
+
         for r in range(qidx.shape[0]):
             a = qidx[r,0]
             b = qidx[r,1]
@@ -265,7 +265,6 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
                     if i != j:
                         x -= q[r,i,j]
                 q[r,i,i] = x
-
         t[:] = t_copy[:] # Reset branch lengths
         for r in range(nq-1): # Branch lengths for switchpoints
             si = switches[r]
@@ -279,7 +278,6 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
         tmask[:]=0
         # q parameters changed?
         qdif[:] = 0
-
         for r in range(nq):
             for a in range(q.shape[1]):
                 for b in range(q.shape[1]):
@@ -333,7 +331,7 @@ def make_mklnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx):
     f.switch_q_tracker = switch_q_tracker
     return f
 
-@cython.boundscheck(False) 
+@cython.boundscheck(False)
 def make_hrmlnl_func(root, data, int k, int nq, Py_ssize_t[:,:] qidx,findmin=False):
     cdef int nobschar = k/nq
     cdef list nodes = list(root.iternodes())

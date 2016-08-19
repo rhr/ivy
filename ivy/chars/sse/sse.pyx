@@ -609,3 +609,19 @@ def make_ard_pidx(k):
                 qidx[i,j] = count
                 count += 1
     return({"lambda":lambdaidx,"mu":muidx,"q":qidx})
+
+def make_blank_lambda(k,fill=1):
+    """
+    Convenience function for generating a blank lambda array.
+
+    Args:
+        k (int): number of character states
+        fill (int): Integer to fill array with
+    """
+    lambdaidx = np.zeros([k,k,k],dtype=np.intp)
+    for i in range(k):
+        for j in range(k):
+            for l in range(k):
+                if j<=l:
+                    lambdaidx[i,j,l] = fill
+    return lambdaidx
