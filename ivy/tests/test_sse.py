@@ -30,12 +30,21 @@ class sse_methods(unittest.TestCase):
     def test_classe_threetip_twostate(self):
         root = self.threetiptree
         data = self.threetipdata
-        f = sse.make_classe(root,data,2,False,pi="Equal")
+        lambdaidx = np.array([[[1,2],
+                               [0,3]],
+                              [[4,5],
+                               [0,6]]])
+        muidx = np.array([7,8])
+        qidx = np.array([[0,9],
+                         [10,0]])
+        pidx = {"lambda":lambdaidx,"mu":muidx,"q":qidx}
+        f = sse.make_classe(root,data,2,pidx,False,pi="Equal")
         params = np.array([0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
+
         calc_lik_ncos = f(params)
         true_lik_ncos = -5.962547
 
-        f = sse.make_classe(root,data,2,True,pi="Equal")
+        f = sse.make_classe(root,data,2,pidx,True,pi="Equal")
         params = np.array([0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
         calc_lik_cos = f(params)
         true_lik_cos = -4.912378
@@ -46,28 +55,28 @@ class sse_methods(unittest.TestCase):
         root = self.threetiptree
         data = self.threetipdata
 
-        f = sse.make_classe(root,data,3,False,pi="Equal")
+        f = sse.make_classe(root,data,nstate=3,condition_on_surv=False,pi="Equal")
         params = np.array([0.3,0.1,0.7,0.01,0.8,0.05,0.01,0.1,0.9,0.2,0.004,0.3,0.3,0.11,0.14,0.15,0.17,0.19,0.01,0.01,0.1,0.2,0.4,0.1,0.01,0.7,0.6])
         calc_lik_ncos = f(params)
         true_lik_ncos = -9.6298
 
-        f = sse.make_classe(root,data,3,True,pi="Equal")
+        f = sse.make_classe(root,data,nstate=3,condition_on_surv=True,pi="Equal")
         calc_lik_cos = f(params)
         true_lik_cos = -10.00689
         self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-3))
         self.assertTrue(np.isclose(calc_lik_cos,true_lik_cos,atol=1e-3))
-#
+# #
     def test_classe_20tip2state(self):
         root = self.twentytiptree
         data = self.twentytipdata
         params = np.array([0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
 
-        f = sse.make_classe(root,data,2,False,pi="Equal")
+        f = sse.make_classe(root,data,2,None,False,pi="Equal")
         calc_lik_ncos = f(params)
         true_lik_ncos = -86.35204
         self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-2))
 
-        f = sse.make_classe(root,data,2,True,pi="Equal")
+        f = sse.make_classe(root,data,2,None,True,pi="Equal")
         calc_lik_cos = f(params)
         true_lik_cos = -85.28472
         self.assertTrue(np.isclose(calc_lik_cos,true_lik_cos,atol=1e-2))
@@ -78,30 +87,54 @@ class sse_methods(unittest.TestCase):
 
         params = np.array([0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
 
-        f = sse.make_classe(root,data,2,False,pi="Equal")
+        f = sse.make_classe(root,data,2,None,False,pi="Equal")
         calc_lik_ncos = f(params)
         true_lik_ncos = -452.8292
 
-        f = sse.make_classe(root,data,2,True,pi="Equal")
+        f = sse.make_classe(root,data,2,None,True,pi="Equal")
         calc_lik_cos = f(params)
         print(calc_lik_cos)
         true_lik_cos = -451.7423
 
         self.assertTrue(np.isclose(calc_lik_ncos,true_lik_ncos,atol=1e-1))
         self.assertTrue(np.isclose(calc_lik_cos,true_lik_cos,atol=1e-1))
-    # def test_classe_100tip_2state_MLE(self):
-    #     root = self.hundredtiptree
-    #     data = self.hundredtipdata
-    #
-    #     params = np.array([0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
-    #     f = sse.make_classe(root,data,2,True,pi="Equal")
-    #     opt = nlopt.opt(nlopt.LN_SBPLX,10)
-    #     opt.set_max_objective(f)
-    #     opt.set_lower_bounds(0)
-    #     optim = opt.optimize(params)
-    #
-    #     r_optim = [1.068944e-01, 2.988239e-08, 7.893486e-02, 9.706393e-06, 3.305960e-07, 6.974496e-02, 4.384240e-02, 3.603397e-08, 5.317747e-06, 1.539999e-01]
-    #     self.assertTrue(np.isclose(optim,r_optim,atol=0.1).all())
+    def test_classe_100tip_geosseequiv(self):
+        root = self.hundredtiptree
+        data = self.hundredtipdata
+
+        lambdaidx = np.array([[[0,1,2],
+                     [0,0,3],
+                     [0,0,0]],
+                    [[0,0,0],
+                     [0,1,0],
+                     [0,0,0]],
+                    [[0,0,0],
+                     [0,0,0],
+                     [0,0,2]]])
+        muidx = np.array([0,4,5])
+        qidx = np.array([[0,5,4],
+                         [6,0,0],
+                         [7,0,0]])
+        pidx = {"lambda":lambdaidx,"mu":muidx,"q":qidx}
+
+        params = np.array([0.157769502155153, 0.157769502155153, 0.157769502155153,
+                           0.0788847510775767, 0.0788847510775767, 0.0788847510775767, 0.0788847510775767])
+
+        f = sse.make_classe(root,data,nstate=3,pidx=pidx)
+        calc_lik = f(params)
+        true_lik = -440.9617
+        self.assertTrue(np.isclose(calc_lik,true_lik,atol=1e-1))
+
+    def test_classe_100tip_2state_MLE(self):
+        root = self.hundredtiptree
+        data = self.hundredtipdata
+
+        startingvals = np.array([0.3,0.1,0.01,0.01,0.1,0.2,0.01,0.01,0.2,0.1])
+        out = sse.fit_classe(root,data)
+        optim = sse.param_dict_to_list(out["fit"])
+
+        r_optim = [1.068944e-01, 2.988239e-08, 7.893486e-02, 9.706393e-06, 3.305960e-07, 6.974496e-02, 4.384240e-02, 3.603397e-08, 5.317747e-06, 1.539999e-01]
+        self.assertTrue(np.isclose(optim,r_optim,atol=0.1).all())
 
 class sse_calculations(unittest.TestCase):
     def setUp(self):

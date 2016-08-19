@@ -1,3 +1,5 @@
+#!python
+#cython: embedsignature=True
 """
 Numerical integration using the GSL: https://goo.gl/ZOF5K3
 Requires CythonGSL: https://github.com/twiecki/CythonGSL
@@ -8,6 +10,8 @@ import numpy as np
 cimport numpy as np
 from libc.math cimport exp, log
 import cython
+import nlopt
+import scipy
 
 cdef int bisse(double t, double y[], double f[], void *params) nogil:
     cdef double * P = <double *>params
@@ -63,6 +67,7 @@ cdef int classe(double t, double y[], double f[], void *params) nogil:
         f[i] = -(lambda_ijk + q_ij + get_mu(P,i,nstate))*y[i] + q_ij_dj + lambda_ijk_dj_ek
         f[nstate+i] = -(lambda_ijk + q_ij + get_mu(P,i,nstate))*y[nstate+i] + q_ij_ej + get_mu(P,i,nstate) + lambda_ijk_ej_ek
     return GSL_SUCCESS
+
 
 
 @cython.boundscheck(False)
@@ -185,7 +190,7 @@ def bisse_odeiv(root,data,params,condition_on_surv=True):
     return log(np.sum(fraclnl[0])/2)
 
 @cython.boundscheck(False)
-def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given=None):
+def make_classe(root,data,nstate=None,pidx=None,condition_on_surv=True,pi="Equal",pi_given=None):
     """
     Create a classe likelihood function to be optimized with nlopt or used
     in a Bayesian analysis
@@ -195,12 +200,39 @@ def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given
         data (dict): Dictionary mapping node tip labels to character states.
           Character states must be represented by ints starting at index 0.
         nstate (int): Number of states. Can be more than the number of
-          states indicated by data. Defaults to number of states in data.
+          states indicated by data. Optional, defaults to number of states in data.
+        pidx (dict): Dictionary of parameter indices. Each integer in the
+          array, with the exception of 0, corresponds to a unique paramter
+          in the parameter array that is given to the likelihood function.
+          0 indicates that the value for that parameter is 0.0.
+          Any indices in the array that are not "legal" (for example, lambda value 010 or
+          q value 00) are ignored.
+
+          Optional. If not given, defaults to an "all-rates-different"
+          configuration.
+          Dictionary items are:
+          "lambda": k x k x k array of indices indicating lambda values.
+                    The first dimension corresponds to the parent state,
+                    the second to the first child's state, and the third
+                    to the second child's state.
+                    Example:
+                    np.array([[[1,2],
+                               [0,3]],
+                              [[4,5],
+                               [0,6]]])
+          "mu": k-length 1-dimensional array containing mu indices.
+                Example:
+                np.array([7,8])
+          "q": k x k array of indices indicating q values. The first
+               dimension corresponds to the rootward state and the second
+               dimension corresponds to the tipward state.
+               Examaple:
+               np.array([[0,9],
+                         [10,0]])
         condition_on_surv (bool): Whether to condition the likelihood on the
           survival of the clades and speciation of subtending clade. See Nee et al. 1994.
         pi (str): Behavior at the root. Defaults to "Equal". Possible values:
           Equal: Flat prior weighting all states equally
-          Equilibrium: Weight by equilibrium distribution of model (Maddison et al. 2007)
           Fitzjohn: Weight states by relative probability of observing data (Fitzjohn et al 2009)
           Given: Weight by given pi values.
         pi_given (np.array): If pi = "Given", use this as the weighting at the root.
@@ -210,7 +242,7 @@ def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given
     """
     cdef int k # Number of states
     if nstate is None:
-        k = len(set(data.values))
+        k = len(set(data.values()))
     else:
         k = int(nstate)
     cdef int nnode = len(root) # Number of nodes
@@ -220,7 +252,6 @@ def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given
     for leaf in root.leaves():
         D_lnl[leaf.ni,data[leaf.label]] = 1.0
     cdef double[:] logcomp = np.zeros([nnode]) # Log-compensation values to prevent underflow
-    cdef double[:,:] D_lnl_copy = D_lnl.copy() # Copy to refresh values between calls
 
     cdef Py_ssize_t [:] postorder = np.array([n.ni for n in root.postiter() if not n.isleaf],dtype=np.intp) # Array of node indices in postorder sequence
     cdef double [:] t = np.array([n.length for n in root],dtype=np.double) # branch lengths
@@ -237,32 +268,71 @@ def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given
     cdef rootp = np.zeros([k])
     if pi == "Given":
         rootp[:] = pi_given[:]
-    elif pi == "Equal":
+    else:
         rootp[:] = 1.0/k
-    # TODO: other root likelihoods
+
     cdef double[:] tmp = np.zeros([k])
     cdef double[:] surv = np.empty(k) # store calculations for conditioning on survival
     cdef double[:] y = np.empty([k*2])
     cdef double[:] DN = np.zeros([k*2])
     cdef double[:] DM = np.zeros([k*2])
-    def f(np.ndarray[dtype=np.double_t,ndim=1] params, grad=None):
-        """
-        params takes on a very specific form: first all lambda values are listed
-        in order of 000, 001, 011, 100, 101, 111 etc, then all mu values are listed,
-        then all q values are listed in the form 01, 10, etc.
+    if pidx is None:
+        pidx = make_ard_pidx(k)
 
+    cdef Py_ssize_t[:,:,:] lidx = pidx["lambda"]
+    cdef Py_ssize_t[:] midx = pidx["mu"]
+    cdef Py_ssize_t[:,:] qidx = pidx["q"]
+    def f(np.ndarray[dtype=np.double_t,ndim=1] params, grad=None,
+          Py_ssize_t[:,:,:] lidx=lidx,
+          Py_ssize_t[:] midx=midx,
+          Py_ssize_t[:,:] qidx=qidx):
+        """
+        params is an array of all unique parameters.
         grad=None exists for compatibility with nlopt.
         """
-        cdef Py_ssize_t i,j
+        cdef Py_ssize_t i,j,l, idx
         cdef int nlam = sum_range_int(k+1)
+        # integration function takes on a very specific form: the first element is the number of states,
+        # then all lambda values are listed in order of 000, 001, 011, 100, 101, 111 etc,
+        # then all mu values are listed,
+        # then all q values are listed in the form 01, 10, etc.
 
-        D_lnl[:] = D_lnl_copy[:]
-        for i in range(1,ode_params.shape[0]):
-            ode_params[i] = params[i-1] # Fill in parameter array
+        # We need to format the param array based on the given parameters
+        # and the pidx arrays
+        ode_params[1:] = 0.0
+
+        # lambda values first
+        count = 1
+        for i in range(k):
+            for j in range(k):
+                for l in range(k):
+                    if j<=l:
+                        idx = lidx[i,j,l]
+                        if idx != 0:
+                            ode_params[count] = params[idx-1]
+                        count += 1
+        # Then mu values
+        for i in range(k):
+            idx = midx[i]
+            if idx != 0:
+                ode_params[count] = params[idx-1]
+            count += 1
+        # then q values
+        for i in range(k):
+            for j in range(k):
+                if i!=j:
+                    idx = qidx[i,j]
+                    if idx != 0:
+                        ode_params[count] = params[idx-1]
+                    count += 1
+
 
         # Perform the likelihood calculation
         classe_likelihood(D_lnl,E_lnl,t,postorder,children,k,logcomp,ode_params,y,DN,DM)
-
+        if pi == "Fitzjohn":
+            for i in range(k):
+                rootp[i] = D_lnl[0,i]/c_sum(D_lnl[0],k)
+        # TODO: implement equilibrium root
 
         if condition_on_surv:
             for i in range(k):
@@ -273,7 +343,6 @@ def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given
         return log(c_sum(D_lnl[0]*rootp,k)) + c_sum(logcomp,nnode)
     f.D_lnl = D_lnl
     f.E_lnl = E_lnl
-    f.D_lnl_copy = D_lnl_copy
     f.postorder = postorder
     f.children = children
     f.t = t
@@ -283,6 +352,11 @@ def make_classe(root,data,nstate=None,condition_on_surv=True,pi="Equal",pi_given
     f.y = y
     f.DN = DN
     f.DM = DM
+    f.lidx = lidx
+    f.midx = midx
+    f.qidx = qidx
+    f.ode_params = ode_params
+    f.rootp = rootp
     return f
 @cython.boundscheck(False)
 cdef double c_sum(double[:] x, Py_ssize_t l) nogil:
@@ -291,6 +365,82 @@ cdef double c_sum(double[:] x, Py_ssize_t l) nogil:
     for i in range(l):
         out += x[i]
     return(out)
+def fit_classe(root,data,nstate=None,pidx=None,condition_on_surv=True,pi="Equal",pi_given=None,startingvals=None):
+    """
+    Create a classe likelihood function to be optimized with nlopt or used
+    in a Bayesian analysis
+
+    Args:
+        root (Node): Root of tree to perform the analysis on. MUST BE BIFURCATING
+        data (dict): Dictionary mapping node tip labels to character states.
+          Character states must be represented by ints starting at index 0.
+        nstate (int): Number of states. Can be more than the number of
+          states indicated by data. Optional, defaults to number of states in data.
+        pidx (dict): Dictionary of parameter indices. Each integer in the
+          array, with the exception of 0, corresponds to a unique paramter
+          in the parameter array that is given to the likelihood function.
+          0 indicates that the value for that parameter is 0.0.
+          Any indices in the array that are not "legal" (for example, lambda value 010 or
+          q value 00) are ignored.
+
+          Optional. If not given, defaults to an "all-rates-different"
+          configuration.
+          Dictionary items are:
+          "lambda": k x k x k array of indices indicating lambda values.
+                    The first dimension corresponds to the parent state,
+                    the second to the first child's state, and the third
+                    to the second child's state.
+                    Example:
+                    np.array([[[1,2],
+                               [0,3]],
+                              [[4,5],
+                               [0,6]]])
+          "mu": k-length 1-dimensional array containing mu indices.
+                Example:
+                np.array([7,8])
+          "q": k x k array of indices indicating q values. The first
+               dimension corresponds to the rootward state and the second
+               dimension corresponds to the tipward state.
+               Examaple:
+               np.array([[0,9],
+                         [10,0]])
+        condition_on_surv (bool): Whether to condition the likelihood on the
+          survival of the clades and speciation of subtending clade. See Nee et al. 1994.
+        pi (str): Behavior at the root. Defaults to "Equal". Possible values:
+          Equal: Flat prior weighting all states equally
+          Fitzjohn: Weight states by relative probability of observing data (Fitzjohn et al 2009)
+          Given: Weight by given pi values.
+        pi_given (np.array): If pi = "Given", use this as the weighting at the root.
+          Must sum to 1.
+        startingvals (np.array): Starting values for the optimization. Optional, defaults to 0.01 for all values.
+    Returns:
+        function: Function that takes an array of parameters as input.
+    """
+
+    f = make_classe(root,data,nstate,pidx,condition_on_surv,pi="Equal",pi_given=pi_given)
+    if nstate is None:
+        nstate = len(set(data.values()))
+    if pidx is None:
+        pidx = make_ard_pidx(nstate)
+    nparam = len(set([y for z in [x.flatten() for x in pidx.values()] for y in z if not y==0]))
+    if startingvals is None:
+        startingvals = np.array([0.01] * nparam)
+
+    opt = nlopt.opt(nlopt.LN_SBPLX,nparam)
+    opt.set_max_objective(f)
+    opt.set_lower_bounds(0)
+    optim = opt.optimize(startingvals)
+
+    pars = np.concatenate([[0],optim])
+    fit = {"lambda":None,"mu":None,"q":None}
+    fit["lambda"] = pars[pidx["lambda"]]
+    fit["mu"] = pars[pidx["mu"]]
+    fit["q"] = pars[pidx["q"]]
+    f = make_classe(root,data,nstate,pidx,condition_on_surv,pi,pi_given)
+    lnl = f(optim)
+    return({"fit":fit,"lnl":lnl})
+
+
 
 @cython.boundscheck(False)
 cdef void classe_likelihood(double[:,:] D_lnl,
@@ -434,3 +584,28 @@ def param_list_to_dict(params,k):
                     q_ar[i,j] = params[count]
                     count += 1
     return({"q":q_ar,"mu":mu_ar,"lambda":lambda_ar})
+
+def make_ard_pidx(k):
+    """
+    Given the number of character states, generate an all-rates-different
+    pidx array for use in make_classe
+    """
+    lambdaidx = np.zeros([k,k,k],dtype=np.intp)
+    muidx = np.zeros([k],dtype=np.intp)
+    qidx = np.zeros([k,k],dtype=np.intp)
+    count = 1
+    for i in range(k):
+        for j in range(k):
+            for l in range(k):
+                if j<=l:
+                    lambdaidx[i,j,l] = count
+                    count += 1
+    for i in range(k):
+        muidx[i] = count
+        count += 1
+    for i in range(k):
+        for j in range(k):
+            if i != j:
+                qidx[i,j] = count
+                count += 1
+    return({"lambda":lambdaidx,"mu":muidx,"q":qidx})
