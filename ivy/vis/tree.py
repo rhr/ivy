@@ -1251,7 +1251,8 @@ class Tree(Axes):
 
         self.highlightpath = Path(verts, codes)
         self.highlightpatch = PathPatch(
-            self.highlightpath, fill=False, linewidth=width, edgecolor=color
+            self.highlightpath, fill=False, linewidth=width, edgecolor=color,
+            capstyle='round', joinstyle='round'
             )
         return self.add_patch(self.highlightpatch)
 

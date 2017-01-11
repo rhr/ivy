@@ -96,7 +96,7 @@ def acsum(aclist, batchsize=100):
     for v in batch(aclist, batchsize):
         v = list(v)
         h = Entrez.esearch(
-            db="nucleotide",
+            db="nucleotide", retmax=len(v),
             term=" OR ".join([ "%s[ACCN]" % x for x in v ]),
             usehistory="y"
             )
@@ -277,8 +277,27 @@ def fetchtax(taxid):
     global email
     assert email, "set email!"
     Entrez.email = email
-    h = Entrez.efetch(db='taxonomy', id=taxid, retmode='xml')
-    r = Entrez.read(h)[0]
+    n = 1
+    if not isinstance(taxid, int):
+        # string, possibly with multiple values?
+        try:
+            taxid = taxid.strip()
+            n = taxid.count(',') + 1
+        except AttributeError:
+            # iterable of values?
+            try:
+                n = len(taxid)
+                taxid = ','.join(map(str, taxid))
+            except TypeError:
+                pass
+    else:
+        taxid = str(taxid)
+    h = Entrez.efetch(db='taxonomy', id=taxid, retmode='xml', retmax=n)
+    if n == 1:
+        r = Entrez.read(h)[0]
+    else:
+        # a list of taxonomy results in same order of taxids
+        r = Entrez.read(h)
     return r
 
 __FIRST = re.compile('[^-]')
