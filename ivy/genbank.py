@@ -84,6 +84,34 @@ def ac2gi(ac):
     h.close()
     return d
 
+def acsum(aclist, batchsize=100):
+    """
+    fetch esummary info for list of accession numbers -- useful for
+    getting gi and taxids
+    """
+    global email
+    assert email, "set email!"
+    Entrez.email = email
+    results = {}
+    for v in batch(aclist, batchsize):
+        v = list(v)
+        h = Entrez.esearch(
+            db="nucleotide",
+            term=" OR ".join([ "%s[ACCN]" % x for x in v ]),
+            usehistory="y"
+            )
+        d = Entrez.read(h)
+        h.close()
+        # gis, but not in order of aclist
+        gis = d['IdList']
+        d = Entrez.read(Entrez.esummary(db='nucleotide', id=','.join(gis)),
+                        validate=False)
+        for x in d:
+            ac = x['Caption']
+            if ac in aclist:
+                results[ac] = x
+    return results
+
 def fetch_aclist(aclist, batchsize=1000):
     global email
     assert email, "set email!"
