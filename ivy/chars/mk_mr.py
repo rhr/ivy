@@ -8,7 +8,7 @@ import itertools
 import types
 from math import ceil
 
-import line_profiler
+# import line_profiler
 import numpy as np
 import scipy
 import pymc

@@ -1,12 +1,12 @@
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
-from Cython.Compiler.Options import directive_defaults
+# from Cython.Compiler.Options import directive_defaults
 from Cython.Build import cythonize
 import numpy
 
-directive_defaults['linetrace'] = True
-directive_defaults['binding'] = True
+# directive_defaults['linetrace'] = True
+# directive_defaults['binding'] = True
 
 ext = Extension(
     "cyexpokit",
