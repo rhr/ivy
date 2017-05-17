@@ -380,7 +380,7 @@ class Node(object):
         self.order_subtrees_by_size(recurse=True, reverse=reverse)
         return self
 
-    def add_child(self, child, reindex=True):
+    def add_child(self, child, reindex=False):
         """
         Mutate function
         Add child as child of self
