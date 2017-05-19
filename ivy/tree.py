@@ -6,11 +6,11 @@ ivy does not have a Tree class per se, as most functions operate
 directly on Node objects.
 """
 import os, types
-from storage import Storage
+# from storage import Storage
 from copy import copy as _copy
-from matrix import vcv
-import newick
-from itertools import izip_longest
+# from matrix import vcv
+from . import newick
+# from itertools import izip_longest
 
 ## class Tree(object):
 ##     """
@@ -1070,9 +1070,9 @@ def read(data, format=None, treename=None, ttable=None):
             if rec: return rec.parse()
     else:
         # implement other tree formats here (nexus, nexml etc.)
-        raise IOError, "format '%s' not implemented yet" % format
+        raise IOError("format '%s' not implemented yet" % format)
 
-    raise IOError, "unable to read tree from '%s'" % data
+    raise IOError("unable to read tree from '%s'" % data)
 
 def readmany(data, format="newick"):
     """Iterate over trees from a source."""
@@ -1089,7 +1089,7 @@ def readmany(data, format="newick"):
         for rec in newick.nexus_iter(data):
             yield rec.parse()
     else:
-        raise Exception, "format '%s' not recognized" % format
+        raise Exception("format '%s' not recognized" % format)
     data.close()
 
 ## def randomly_resolve(n):
