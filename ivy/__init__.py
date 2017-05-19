@@ -21,10 +21,10 @@ Useful: dendropy, biopython, etc.
 ## along with this program. If not, see
 ## <http://www.gnu.org/licenses/>.
 
-import tree, layout, contrasts, ages
-import bipart, genbank, nexus, newick, storage
+from . import tree, layout, contrasts, ages
+from . import bipart, genbank, nexus, newick, storage
 #import nodearray, data
-import treebase
+from . import treebase
 #import db
 #import contrib
 try:
@@ -33,6 +33,6 @@ try:
 except ImportError:
     pass
 
-import chars, align, sequtil
+from . import chars, align, sequtil
 ## try: import vis
 ## except RuntimeError: pass
