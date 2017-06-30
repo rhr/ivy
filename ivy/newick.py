@@ -27,6 +27,9 @@ def add_label_chars(chars):
     global LABELCHARS
     LABELCHARS += chars
 
+class Error(Exception):
+    pass
+
 class Tokenizer(shlex.shlex):
     """Provides tokens for parsing newick strings."""
     def __init__(self, infile):
@@ -132,12 +135,11 @@ def parse(data, ttable=None, treename=None):
 
             if not (token == ''):
                 try: brlen = float(token)
-                except ValueError:
-                    raise ValueError, ("invalid literal for branch length, "
-                                       "'%s'" % token)
+                except ValueError as exc:
+                    raise ValueError(
+                        "invalid literal for branch length, '{}'".format(token))
             else:
-                raise 'NewickError', \
-                      'unexpected end-of-file (expecting branch length)'
+                raise Error('unexpected end-of-file (expecting branch length)')
 
             node.length = brlen
         # comment
@@ -306,7 +308,7 @@ def nexus_iter(infile):
     f = itertools.takewhile(not_end, itertools.dropwhile(not_begin, infile))
     s = f.next().strip().lower()
     if s != "begin trees;":
-        print sys.stderr, "Expecting 'begin trees;', got %s" % s
+        print("Expecting 'begin trees;', got %s" % s, file=sys.stderr)
         raise StopIteration
     ttable = {}
     while True:
@@ -315,7 +317,7 @@ def nexus_iter(infile):
         if not s: continue
         if s.lower() == "translate":
             ttable = parse_ttable(f)
-            print "ttable: %s" % len(ttable)
+            # print "ttable: %s" % len(ttable)
         elif s.split()[0].lower()=='tree':
             match = tree.parseString(s)
             yield nexus.Newick(match, ttable)
@@ -327,12 +329,12 @@ def nexus_iter(infile):
 ##             r = parse(rec.newick, ttable=rec.ttable)
 ##             for x in r: print x, x.comments
 
-def test_parse_comment():
-    v = (("height_median=1.1368683772161603E-13,height=9.188229043880098E-14,"
-          "height_95%_HPD={5.6843418860808015E-14,1.7053025658242404E-13},"
-          "height_range={0.0,2.8421709430404007E-13}"),
-         "R", "lnP=-154.27154502342688,lnP=-24657.14341301901",
-         'states="T-lateral"')
-    for s in v:
-        print "input:", s
-        print dict(parse_ampersand_comment(s))
+# def test_parse_comment():
+#     v = (("height_median=1.1368683772161603E-13,height=9.188229043880098E-14,"
+#           "height_95%_HPD={5.6843418860808015E-14,1.7053025658242404E-13},"
+#           "height_range={0.0,2.8421709430404007E-13}"),
+#          "R", "lnP=-154.27154502342688,lnP=-24657.14341301901",
+#          'states="T-lateral"')
+#     for s in v:
+#         print "input:", s
+#         print dict(parse_ampersand_comment(s))
