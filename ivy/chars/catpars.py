@@ -1,3 +1,4 @@
+from __future__ import print_function
 import scipy, numpy
 
 def default_costmatrix(numstates, dtype=numpy.int):
@@ -121,7 +122,7 @@ if __name__ == "__main__":
         else:
             node.label = "%s (%s)" % (node.label, chardata[node.label])
 
-    print ascii.render(root)
+    print(ascii.render(root))
             
 
 ##     nstates = 2

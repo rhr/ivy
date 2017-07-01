@@ -1,3 +1,4 @@
+from __future__ import print_function
 from array import array
 from layout import depth_length_preorder_traversal
 
@@ -156,7 +157,7 @@ if __name__ == "__main__":
     #t = tree.read("(foo:4.6, (bar:6.5, baz:2.3)X:3.0)Y:3.0;")
 
     i = 1
-    print render(t, scaled=0, show_internal_labels=1)
+    print(render(t, scaled=0, show_internal_labels=1))
     r = t.get("cat").parent
     tree.reroot(t, r)
     tp = t.parent
@@ -164,4 +165,4 @@ if __name__ == "__main__":
     c = t.children[0]
     t.remove_child(c)
     tp.add_child(c)
-    print render(r, scaled=0, show_internal_labels=1)
+    print(render(r, scaled=0, show_internal_labels=1))

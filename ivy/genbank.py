@@ -1,9 +1,12 @@
 import re, sys, logging
 from collections import defaultdict
-from itertools import izip_longest, ifilter
+try:
+    from itertools import izip_longest, ifilter
+except:
+    from itertools import zip_longest as izip_longest
 from Bio import Entrez, SeqIO
 from Bio.Blast import NCBIWWW, NCBIXML
-from ivy.storage import Storage
+from . import storage
 
 email = ""
 
@@ -236,7 +239,7 @@ def blast_closest(fasta, e=10):
     f = NCBIWWW.qblast("blastn", "nr", fasta, expect=e, hitlist_size=1)
     rec = NCBIXML.read(f)
     d = rec.descriptions[0]
-    result = Storage()
+    result = storage.Storage()
     gi = re.findall(r'gi[|]([0-9]+)', d.title) or None
     if gi: result.gi = int(gi[0])
     ac = re.findall(r'gb[|]([^|]+)', d.title) or None

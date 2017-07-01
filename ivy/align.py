@@ -2,7 +2,10 @@ import os
 from subprocess import Popen, PIPE
 from Bio import AlignIO
 from Bio.Alphabet import IUPAC
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 from tempfile import NamedTemporaryFile
 
 MUSCLE = "/usr/bin/muscle"
@@ -70,7 +73,7 @@ def read(data, format=None, name=None):
         treename = strip(getattr(data, "name", None))
         return AlignIO.read(data, format, alphabet=IUPAC.ambiguous_dna)
 
-    raise IOError, "unable to read alignment from '%s'" % data
+    raise IOError("unable to read alignment from '%s'" % data)
 
 def write(data, f, format='fasta'):
     AlignIO.write(data, f, format)

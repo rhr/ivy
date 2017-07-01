@@ -4,11 +4,12 @@ Parse newick strings.
 The function of interest is `parse`, which returns the root node of
 the parsed tree.
 """
+from __future__ import print_function, absolute_import, division, unicode_literals
 import string, sys, re, shlex, types, itertools
-import numpy
-import nexus
-from cStringIO import StringIO
-from pprint import pprint
+try:
+    from cStringIO import StringIO
+except:
+    from io import StringIO
 
 ## def read(s):
 ##     try:
@@ -71,7 +72,7 @@ def parse(data, ttable=None, treename=None):
     Returns:
         Node: The root node.
     """
-    from tree import Node
+    from .tree import Node
 
     if type(data) in types.StringTypes:
         data = StringIO(data)
@@ -261,73 +262,66 @@ def parse_ampersand_comment(s):
         d.append((x.key, v))
     return d
 
-def nexus_iter(infile):
-    import pyparsing
-    pyparsing.ParserElement.enablePackrat()
-    from pyparsing import Word, Literal, QuotedString, CaselessKeyword, \
-         OneOrMore, Group, Optional, Suppress, Regex, Dict
-    ## beginblock = Suppress(CaselessKeyword("begin") +
-    ##                       CaselessKeyword("trees") + ";")
-    ## endblock = Suppress((CaselessKeyword("end") |
-    ##                      CaselessKeyword("endblock")) + ";")
-    comment = Optional(Suppress("[&") + Regex(r'[^]]+') + Suppress("]"))
-    ## translate = CaselessKeyword("translate").suppress()
-    name = Word(string.letters+string.digits+"_.") | QuotedString("'")
-    ## ttrec = Group(Word(string.digits).setResultsName("number") +
-    ##               name.setResultsName("name") +
-    ##               Optional(",").suppress())
-    ## ttable = Group(translate + OneOrMore(ttrec) + Suppress(";"))
-    newick = Regex(r'[^;]+;')
-    tree = (CaselessKeyword("tree").suppress() +
-            Optional("*").suppress() +
-            name.setResultsName("tree_name") +
-            comment.setResultsName("tree_comment") +
-            Suppress("=") +
-            comment.setResultsName("root_comment") +
-            newick.setResultsName("newick"))
-    ## treesblock = Group(beginblock +
-    ##                    Optional(ttable.setResultsName("ttable")) +
-    ##                    Group(OneOrMore(tree)) +
-    ##                    endblock)
+# def nexus_iter(infile):
+#     import pyparsing
+#     pyparsing.ParserElement.enablePackrat()
+#     from pyparsing import Word, Literal, QuotedString, CaselessKeyword, \
+#          OneOrMore, Group, Optional, Suppress, Regex, Dict
+#     ## beginblock = Suppress(CaselessKeyword("begin") +
+#     ##                       CaselessKeyword("trees") + ";")
+#     ## endblock = Suppress((CaselessKeyword("end") |
+#     ##                      CaselessKeyword("endblock")) + ";")
+#     comment = Optional(Suppress("[&") + Regex(r'[^]]+') + Suppress("]"))
+#     ## translate = CaselessKeyword("translate").suppress()
+#     name = Word(string.letters+string.digits+"_.") | QuotedString("'")
+#     ## ttrec = Group(Word(string.digits).setResultsName("number") +
+#     ##               name.setResultsName("name") +
+#     ##               Optional(",").suppress())
+#     ## ttable = Group(translate + OneOrMore(ttrec) + Suppress(";"))
+#     newick = Regex(r'[^;]+;')
+#     tree = (CaselessKeyword("tree").suppress() +
+#             Optional("*").suppress() +
+#             name.setResultsName("tree_name") +
+#             comment.setResultsName("tree_comment") +
+#             Suppress("=") +
+#             comment.setResultsName("root_comment") +
+#             newick.setResultsName("newick"))
+#     ## treesblock = Group(beginblock +
+#     ##                    Optional(ttable.setResultsName("ttable")) +
+#     ##                    Group(OneOrMore(tree)) +
+#     ##                    endblock)
 
-    def not_begin(s): return s.strip().lower() != "begin trees;"
-    def not_end(s): return s.strip().lower() not in ("end;", "endblock;")
-    def parse_ttable(f):
-        ttable = {}
-        while True:
-            s = f.next().strip()
-            if not s: continue
-            if s.lower() == ";": break
-            if s[-1] == ",": s = s[:-1]
-            k, v = s.split()
-            ttable[k] = v
-            if s[-1] == ";": break
-        return ttable
+#     def not_begin(s): return s.strip().lower() != "begin trees;"
+#     def not_end(s): return s.strip().lower() not in ("end;", "endblock;")
+#     def parse_ttable(f):
+#         ttable = {}
+#         while True:
+#             s = f.next().strip()
+#             if not s: continue
+#             if s.lower() == ";": break
+#             if s[-1] == ",": s = s[:-1]
+#             k, v = s.split()
+#             ttable[k] = v
+#             if s[-1] == ";": break
+#         return ttable
 
-    # read lines between "begin trees;" and "end;"
-    f = itertools.takewhile(not_end, itertools.dropwhile(not_begin, infile))
-    s = f.next().strip().lower()
-    if s != "begin trees;":
-        print("Expecting 'begin trees;', got %s" % s, file=sys.stderr)
-        raise StopIteration
-    ttable = {}
-    while True:
-        try: s = f.next().strip()
-        except StopIteration: break
-        if not s: continue
-        if s.lower() == "translate":
-            ttable = parse_ttable(f)
-            # print "ttable: %s" % len(ttable)
-        elif s.split()[0].lower()=='tree':
-            match = tree.parseString(s)
-            yield nexus.Newick(match, ttable)
-
-## def test():
-##     with open("/home/rree/Dropbox/pedic-comm-amnat/phylo/beast-results/"
-##               "simple_stigma.trees.log") as f:
-##         for rec in nexus_iter(f):
-##             r = parse(rec.newick, ttable=rec.ttable)
-##             for x in r: print x, x.comments
+#     # read lines between "begin trees;" and "end;"
+#     f = itertools.takewhile(not_end, itertools.dropwhile(not_begin, infile))
+#     s = f.next().strip().lower()
+#     if s != "begin trees;":
+#         print("Expecting 'begin trees;', got %s" % s, file=sys.stderr)
+#         raise StopIteration
+#     ttable = {}
+#     while True:
+#         try: s = f.next().strip()
+#         except StopIteration: break
+#         if not s: continue
+#         if s.lower() == "translate":
+#             ttable = parse_ttable(f)
+#             # print "ttable: %s" % len(ttable)
+#         elif s.split()[0].lower()=='tree':
+#             match = tree.parseString(s)
+#             yield nexus.Newick(match, ttable)
 
 # def test_parse_comment():
 #     v = (("height_median=1.1368683772161603E-13,height=9.188229043880098E-14,"

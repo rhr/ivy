@@ -1,8 +1,9 @@
+ipython
 numpy
 scipy
 biopython
 matplotlib
-bokeh
+# bokeh
 # used in ivy/nexus.py
 pyparsing 
 # used in ivy/treegraph.py

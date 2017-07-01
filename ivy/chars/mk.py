@@ -1,11 +1,10 @@
 """
 Categorical Markov models with k states.
 """
+from __future__ import print_function
 import numpy, scipy, random
 import scipy.linalg
 import scipy.optimize
-from scipy import array, zeros, ones
-from scipy.linalg import expm#, expm2, expm3
 from math import log, exp
 rand = random.Random()
 uniform = rand.uniform; expovariate = rand.expovariate
@@ -138,7 +137,7 @@ def stmap(root, states, ancstates, Q, condition_on_success):
         sj = ancstates[n]
         v = simulate_on_branch(states, si, sj, Q, n.length,
                                condition_on_success)
-        print n, si, sj
+        print(n, si, sj)
         if v:
             results.append(v)
         else:

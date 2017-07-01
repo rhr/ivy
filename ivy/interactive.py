@@ -4,20 +4,20 @@
 Adds to the interactive IPython/pylab environment
 """
 import sys, os, re
-import ivy
-import ivy.vis
-from ivy.vis import symbols
+from . import tree, align
+from . import vis
 
-def readtree(data, *args, **kwargs): return ivy.tree.read(data, *args, **kwargs)
+def readtree(data, *args, **kwargs):
+    return tree.read(data, *args, **kwargs)
 
-def readaln(data, *args, **kwargs): return ivy.align.read(data, *args, **kwargs)
+def readaln(data, *args, **kwargs):
+    return align.read(data, *args, **kwargs)
 
 def treefig(*args, **kwargs):
-    from ivy.vis import TreeFigure, MultiTreeFigure
     if len(args) == 1:
-        fig = TreeFigure(args[0], **kwargs)
+        fig = vis.TreeFigure(args[0], **kwargs)
     else:
-        fig = MultiTreeFigure(**kwargs)
+        fig = vis.MultiTreeFigure(**kwargs)
         for arg in args:
             print arg
             fig.add(arg)
@@ -25,11 +25,9 @@ def treefig(*args, **kwargs):
     return fig
 
 def alnfig(*args, **kwargs):
-    from ivy.vis import AlignmentFigure
-    return AlignmentFigure(*args, **kwargs)
+    return vis.AlignmentFigure(*args, **kwargs)
 
 def __maketree(self, s):
-    import os#, IPython
     words = s.split()
     treename = "root"
     fname = None
@@ -87,7 +85,7 @@ def __node_completer(self, event):
     ## print '\n'
     ## print 'base', base
     ## print 'obj', obj
-    if obj and isinstance(obj, ivy.tree.Node):
+    if obj and isinstance(obj, tree.Node):
         completions = ["'"]
         if quote:
             completions = sorted([ x.label for x in obj.labeled() ])
@@ -101,7 +99,7 @@ try:
     IP.magic('matplotlib')
     if IP:
         #IP.expose_magic("maketree", __maketree)
-        IP.define_magic("maketree", __maketree)
+        # IP.define_magic("maketree", __maketree)
         ## IP.set_hook(
         ##     "complete_command", __node_completer, re_key=r'\[*'
         ##     )
