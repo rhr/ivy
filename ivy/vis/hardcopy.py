@@ -1,8 +1,7 @@
 import os, matplotlib
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
-import tree
-from axes_utils import adjust_limits
+from . import tree
 import tempfile
 
 ## class TreeFigure:

@@ -22,17 +22,19 @@ Useful: dendropy, biopython, etc.
 ## <http://www.gnu.org/licenses/>.
 
 from . import tree, layout, contrasts, ages
-from . import bipart, genbank, nexus, newick, storage
-#import nodearray, data
-from . import treebase
-#import db
-#import contrib
+from . import genbank, nexus, newick, storage
+# from . import bipart
+# import nodearray, data
+# from . import treebase
+# import db
+# import contrib
 try:
     import ltt as _ltt
     ltt = _ltt.ltt
 except ImportError:
     pass
 
-from . import chars, align, sequtil
+from . import align, sequtil
+# from . import chars, align, sequtil
 ## try: import vis
 ## except RuntimeError: pass

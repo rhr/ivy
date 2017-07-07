@@ -41,9 +41,9 @@ def test():
     import newick, ascii
     n = newick.parse("(((a:1,b:2):3,(c:3,d:1):1,(e:0.5,f:3):2.5):1,g:4);")
     v = ltt(n)
-    print ascii.render(n, scaled=1)
+    print(ascii.render(n, scaled=1))
     for t, n in v:
-        print t, n
+        print(t, n)
 
 if __name__ == "__main__":
     test()

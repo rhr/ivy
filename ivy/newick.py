@@ -5,7 +5,7 @@ The function of interest is `parse`, which returns the root node of
 the parsed tree.
 """
 from __future__ import print_function, absolute_import, division, unicode_literals
-import string, sys, re, shlex, types, itertools
+import string, sys, re, shlex, itertools
 try:
     from cStringIO import StringIO
 except:
@@ -74,7 +74,7 @@ def parse(data, ttable=None, treename=None):
     """
     from .tree import Node
 
-    if type(data) in types.StringTypes:
+    if isinstance(data, str):
         data = StringIO(data)
 
     start_pos = data.tell()
@@ -85,10 +85,10 @@ def parse(data, ttable=None, treename=None):
 
     previous = None
 
-    ni = 0 # node id counter (preorder) - zero-based indexing
-    li = 0 # leaf index counter
-    ii = 0 # internal node index counter
-    pi = 0 # postorder sequence
+    ni = 0  # node id counter (preorder) - zero-based indexing
+    li = 0  # leaf index counter
+    ii = 0  # internal node index counter
+    pi = 0  # postorder sequence
     while 1:
         token = tokens.get_token()
         #print token,
@@ -253,7 +253,7 @@ def parse_ampersand_comment(s):
     d = []
     for x in g.searchString(s):
         v = x.value
-        if type(v) == str:
+        if isinstance(v, str):
             try: v = float(v)
             except ValueError: pass
         else:

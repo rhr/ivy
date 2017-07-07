@@ -3,10 +3,11 @@ numpy
 scipy
 biopython
 matplotlib
+pillow
 # bokeh
 # used in ivy/nexus.py
 pyparsing 
 # used in ivy/treegraph.py
-graph_tool
+# graph_tool
 # used in ivy/treebase.py and ivy/ubio.py
 lxml
