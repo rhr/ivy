@@ -334,7 +334,7 @@ class Node(object):
         if n2s is None:
             n2s = clade_sizes(self)
         if not self.isleaf:
-            v = [ (n2s[c], c.label, c) for c in self.children ]
+            v = [ (n2s[c], c.label or '', c.id, c) for c in self.children ]
             v.sort()
             if reverse:
                 v.reverse()
