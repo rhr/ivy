@@ -58,7 +58,7 @@ def parse_treesblock(infile):
     from pyparsing import Optional, Word, Regex, CaselessKeyword, Suppress
     from pyparsing import QuotedString
     comment = Optional(Suppress("[&") + Regex(r'[^]]+') + Suppress("]"))
-    name = Word(string.letters+string.digits+"_") | QuotedString("'")
+    name = Word(alphanums+"_") | QuotedString("'")
     newick = Regex(r'[^;]+;')
     tree = (CaselessKeyword("tree").suppress() +
             Optional("*").suppress() +
@@ -94,22 +94,15 @@ def parse_treesblock(infile):
             match = tree.parseString(s)
             yield Newick(match, ttable)
 
-def iter_newick(infile):
+def iter_trees(infile):
     import pyparsing
     pyparsing.ParserElement.enablePackrat()
-    from pyparsing import Word, Literal, QuotedString, CaselessKeyword, \
-         OneOrMore, Group, Optional, Suppress, Regex, Dict
-    ## beginblock = Suppress(CaselessKeyword("begin") +
-    ##                       CaselessKeyword("trees") + ";")
-    ## endblock = Suppress((CaselessKeyword("end") |
-    ##                      CaselessKeyword("endblock")) + ";")
+    from pyparsing import (
+        Word, Literal, QuotedString, CaselessKeyword, CharsNotIn,
+        OneOrMore, Group, Optional, Suppress, Regex, Dict, ZeroOrMore,
+        alphanums, nums)
     comment = Optional(Suppress("[&") + Regex(r'[^]]+') + Suppress("]"))
-    ## translate = CaselessKeyword("translate").suppress()
-    name = Word(string.letters+string.digits+"_.") | QuotedString("'")
-    ## ttrec = Group(Word(string.digits).setResultsName("number") +
-    ##               name.setResultsName("name") +
-    ##               Optional(",").suppress())
-    ## ttable = Group(translate + OneOrMore(ttrec) + Suppress(";"))
+    name = Word(alphanums+"_.") | QuotedString("'")
     newick = Regex(r'[^;]+;')
     tree = (CaselessKeyword("tree").suppress() +
             Optional("*").suppress() +
@@ -118,39 +111,50 @@ def iter_newick(infile):
             Suppress("=") +
             comment.setResultsName("root_comment") +
             newick.setResultsName("newick"))
-    ## treesblock = Group(beginblock +
-    ##                    Optional(ttable.setResultsName("ttable")) +
-    ##                    Group(OneOrMore(tree)) +
-    ##                    endblock)
 
-    def not_begin(s): return s.strip().lower() != "begin trees;"
-    def not_end(s): return s.strip().lower() not in ("end;", "endblock;")
+    def not_begin(s):
+        # print('not_begin', s)
+        return s.strip().lower() != "begin trees;"
+    def not_end(s):
+        # print('not_end', s)
+        return s.strip().lower() not in ("end;", "endblock;")
     def parse_ttable(f):
         ttable = {}
+        # com = Suppress('[') + ZeroOrMore(CharsNotIn(']')) + Suppress(']')
+        com = Suppress('[' + ZeroOrMore(CharsNotIn(']') + ']'))
         while True:
-            s = f.next().strip()
-            if not s: continue
-            if s.lower() == ";": break
-            if s[-1] == ",": s = s[:-1]
+            s = next(f).strip()
+            if not s:
+                continue
+            s = com.transformString(s)
+            if s.lower() == ";":
+                break
+            if s[-1] == ",":
+                s = s[:-1]
+            print(s)
             k, v = s.split()
             ttable[k] = v
-            if s[-1] == ";": break
+            if s[-1] == ";":
+                break
         return ttable
 
     # read lines between "begin trees;" and "end;"
     f = itertools.takewhile(not_end, itertools.dropwhile(not_begin, infile))
-    s = f.next().strip().lower()
+    s = next(f).strip().lower()
     if s != "begin trees;":
         print("Expecting 'begin trees;', got %s" % s, file=sys.stderr)
         raise StopIteration
     ttable = {}
     while True:
-        try: s = f.next().strip()
-        except StopIteration: break
-        if not s: continue
+        try:
+            s = next(f).strip()
+        except StopIteration:
+            break
+        if not s:
+            continue
         if s.lower() == "translate":
             ttable = parse_ttable(f)
-            print("ttable: %s" % len(ttable))
+            # print "ttable: %s" % len(ttable)
         elif s.split()[0].lower()=='tree':
             match = tree.parseString(s)
             yield Newick(match, ttable)

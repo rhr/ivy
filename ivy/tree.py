@@ -9,7 +9,7 @@ import os
 # from storage import Storage
 from copy import copy as _copy
 # from matrix import vcv
-from . import newick
+from . import newick, nexus
 # from itertools import izip_longest
 
 ## class Tree(object):
@@ -1059,14 +1059,17 @@ def read(data, format=None, treename=None, ttable=None):
         if isinstance(data, str):
             if os.path.isfile(data):
                 with open(data) as infile:
-                    rec = newick.nexus_iter(infile).next()
-                    if rec: return rec.parse()
+                    nexiter = nexus.iter_trees(infile)
+                    rec = next(nexiter)
+                    if rec:
+                        return rec.parse()
             else:
-                rec = newick.nexus_iter(StringIO(data)).next()
-                if rec: return rec.parse()
+                nexiter = nexus.iter_trees(StringIO(data))
         else:
-            rec = newick.nexus_iter(data).next()
-            if rec: return rec.parse()
+            nexiter = nexus.iter_trees(data)
+        rec = next(nexiter)
+        if rec:
+            return rec.parse()
     else:
         # implement other tree formats here (nexus, nexml etc.)
         raise IOError("format '%s' not implemented yet" % format)
