@@ -9,7 +9,7 @@ packages = [
 #packages=find_packages(exclude=["contrib","db"])
 
 install_requires = [
-    'ipython,'
+    'ipython'
     'numpy',
     'scipy',
     'matplotlib',
