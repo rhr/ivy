@@ -2,10 +2,12 @@
 Functions to get trees and character data from treebase
 """
 
-from urllib2 import urlopen
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
 from lxml import etree
-from collections import defaultdict
-from storage import Storage
+from . import storage
 import sys, re
 
 # "http://purl.org/phylo/treebase/phylows/study/TB2:S11152"
@@ -55,9 +57,9 @@ def fetch_study(study_id, format="nexml"):
 def parse_chars(e, otus):
     v = []
     for chars in e.findall(NEXML+"characters"):
-        c = Storage(chars.attrib)
+        c = storage.Storage(chars.attrib)
         c.states = parse_states(chars)
-        c.meta = Storage()
+        c.meta = storage.Storage()
         for meta in chars.findall(NEXML+"meta"):
             a = meta.attrib
             if a.get("content"):
@@ -65,10 +67,10 @@ def parse_chars(e, otus):
                 c.meta[a["property"]] = value
         c.matrices = []
         for matrix in chars.findall(NEXML+"matrix"):
-            m = Storage()
+            m = storage.Storage()
             m.rows = []
             for row in matrix.findall(NEXML+"row"):
-                r = Storage(row.attrib)
+                r = storage.Storage(row.attrib)
                 r.otu = otus[r.otu]
                 s = row.findall(NEXML+"seq")[0].text
                 substrs = []
@@ -103,8 +105,8 @@ def parse_trees(e, otus):
     v = []
     for tb in e.findall(NEXML+"trees"):
         for te in tb.findall(NEXML+"tree"):
-            t = Storage()
-            t.attrib = Storage(te.attrib)
+            t = storage.Storage()
+            t.attrib = storage.Storage(te.attrib)
             t.nodes = {}
             for n in te.findall(NEXML+"node"):
                 node = Node()
@@ -142,7 +144,7 @@ def parse_otus(e):
     v = {}
     for otus in e.findall(NEXML+"otus"):
         for x in otus.findall(NEXML+"otu"):
-            otu = Storage()
+            otu = storage.Storage()
             otu.id = x.attrib["id"]
             otu.label = x.attrib["label"]
             for meta in x.iterchildren():

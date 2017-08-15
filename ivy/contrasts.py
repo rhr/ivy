@@ -3,6 +3,8 @@ Calculate independent contrasts
 
 TODO: include utilities for transforming data, etc.
 """
+from __future__ import print_function
+
 def PIC(node, data, results={}):
     """
     Phylogenetic independent contrasts.
@@ -60,4 +62,4 @@ if __name__ == "__main__":
         }
 
     for k, v in PIC(n, char1).items():
-        print k.label or k.id, v
+        print(k.label or k.id, v)

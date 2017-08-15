@@ -3,6 +3,7 @@ Calculate node ages from branch lengths.
 
 The function of interest is `ages2lengths`
 """
+from __future__ import print_function
 
 def ages2lengths(node, node_ages, results={}):
     """
@@ -88,4 +89,4 @@ if __name__ == "__main__":
         d = smooth(root, d)
     for node, val in ages2lengths(root, d).items():
         node.length = val
-    print ascii.render(root, scaled=1)
+    print(ascii.render(root, scaled=1))

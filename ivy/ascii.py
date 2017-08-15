@@ -1,19 +1,22 @@
+from __future__ import print_function
+import math
 from array import array
-from layout import depth_length_preorder_traversal
+from .layout import depth_length_preorder_traversal
 
 class AsciiBuffer:
     def __init__(self, width, height):
-        self.width = width
-        self.height = height
-        self._b = [ array('c', ' '*width) for line in range(height) ]
+        self.width = int(width)
+        self.height = int(height)
+        self._b = [ array('u', ' '*self.width) for line in range(self.height) ]
 
     def putstr(self, r, c, s):
         assert r < self.height
         assert c+len(s) <= self.width, "%s %s %s '%s'" % (self.width, r, c, s)
-        self._b[r][c:c+len(s)] = array('c', s)
+        c = int(c)
+        self._b[r][c:c+len(s)+1] = array('u', s)
 
     def __str__(self):
-        return "\n".join([ b.tostring() for b in self._b ])
+        return "\n".join([ ''.join(b) for b in self._b ])
 
 def sum_to_root(node, internodes=True, length=False):
     """
@@ -55,11 +58,11 @@ def smooth_cpos(node, n2c):
         cx = min([ n2c[ch].c for ch in node.children ])
         dxp = n2c[node].c - px
         cxp = cx - n2c[node].c
-        node.c = int(px + (cx - px)*0.5)
+        n2c[node].c = px + (cx - px)*0.5
 
 def scale_cpos(node, n2c, scalef, root_offset):
     if node.parent:
-        n2c[node].c = n2c[node.parent].c + int(node.length * scalef)
+        n2c[node].c = n2c[node.parent].c + (node.length * scalef)
     else:
         n2c[node].c = root_offset
 
@@ -75,7 +78,7 @@ def set_rpos(node, n2c):
             c0 = n2c[children[0]]
             c1 = n2c[children[-1]]
             rmin = c0.r; rmax = c1.r
-            nc.r = int(rmin + (rmax-rmin)/2.0)
+            nc.r = math.ceil(rmin + (rmax-rmin)/2.0)
 
 def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
            show_internal_labels=True):
@@ -95,9 +98,10 @@ def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
     height = 2*nleaves - 1
 
     if width < minwidth:
-        unitlen = (minwidth - max_labelwidth - 2 - root_offset)/maxdepth
+        unitlen = math.ceil((minwidth - max_labelwidth - 2 - root_offset)/maxdepth)
         width = maxdepth*unitlen + max_labelwidth + 2 + root_offset
 
+    print(width, height)
     buf = AsciiBuffer(width, height)
 
     for i, lf in enumerate(leaves):
@@ -112,8 +116,9 @@ def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
             c0 = n2c[children[0]]
             c1 = n2c[children[-1]]
             rmin = c0.r; rmax = c1.r
-            nc.r = int(rmin + (rmax-rmin)/2.0)
+            nc.r = math.ceil(rmin + (rmax-rmin)/2.0)
             nc.c = min([ n2c[ch].c for ch in children ]) - unitlen
+
 
     if not scaled:
         smooth_cpos(root, n2c)
@@ -131,8 +136,8 @@ def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
                 buf.putstr(r, pc.c, ":")
 
             sym = getattr(nc, "hchar", "-")
-            vbar = sym*(nc.c-pc.c)
-            buf.putstr(nc.r, pc.c, vbar)
+            vbar = sym*math.floor(nc.c-pc.c)
+            buf.putstr(nc.r, math.ceil(pc.c), vbar)
 
         if node.isleaf:
             buf.putstr(nc.r, nc.c+1, " "+node.label)
@@ -145,9 +150,7 @@ def render(root, unitlen=3, minwidth=50, maxwidth=None, scaled=False,
     return str(buf)
 
 if __name__ == "__main__":
-    import random, tree
-    rand = random.Random()
-
+    from . import tree
     t = tree.read(
         "(foo,((bar,(dog,cat)dc)dcb,(shoe,(fly,(cow, bowwow)cowb)cbf)X)Y)Z;"
         )
@@ -156,7 +159,7 @@ if __name__ == "__main__":
     #t = tree.read("(foo:4.6, (bar:6.5, baz:2.3)X:3.0)Y:3.0;")
 
     i = 1
-    print render(t, scaled=0, show_internal_labels=1)
+    print(render(t, scaled=0, show_internal_labels=1))
     r = t.get("cat").parent
     tree.reroot(t, r)
     tp = t.parent
@@ -164,4 +167,4 @@ if __name__ == "__main__":
     c = t.children[0]
     t.remove_child(c)
     tp.add_child(c)
-    print render(r, scaled=0, show_internal_labels=1)
+    print(render(r, scaled=0, show_internal_labels=1))

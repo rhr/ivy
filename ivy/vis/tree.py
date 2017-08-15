@@ -1,46 +1,37 @@
 """
 interactive viewers for trees, etc. using matplotlib
 """
-import sys, time, bisect, math, types, os, operator
-from collections import defaultdict
+import sys, math, types, os, operator
 from itertools import chain
-from pprint import pprint
-from .. import tree, bipart
+from .. import tree
 from ..layout import cartesian
 from ..storage import Storage
 from .. import pyperclip as clipboard
-#from ..nodecache import NodeCache
-import matplotlib, numpy
+# from ..nodecache import NodeCache
 import matplotlib.pyplot as pyplot
-from matplotlib.figure import SubplotParams, Figure
 from matplotlib.axes import Axes, subplot_class_factory
+from matplotlib.figure import SubplotParams
 from matplotlib.patches import PathPatch, Rectangle, Arc
 from matplotlib.path import Path
 from matplotlib.widgets import RectangleSelector
-from matplotlib.transforms import Bbox, offset_copy, IdentityTransform, \
-     Affine2D
 from matplotlib import cm as mpl_colormap
 from matplotlib import colors as mpl_colors
-from matplotlib.colorbar import Colorbar
-from matplotlib.collections import RegularPolyCollection, LineCollection, \
-     PatchCollection
-from matplotlib.lines import Line2D
+from matplotlib.collections import LineCollection
 try:
     from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 except ImportError:
     pass
-from matplotlib._png import read_png
-from matplotlib.ticker import MaxNLocator, FuncFormatter, NullLocator
+from matplotlib.ticker import NullLocator
 from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-import symbols, colors
-import hardcopy as HC
+from . import symbols, colors
+from . import hardcopy as HC
 try:
     import Image
 except ImportError:
     from PIL import Image
 
-#matplotlib.rcParams['path.simplify'] = False
+# matplotlib.rcParams['path.simplify'] = False
 
 _tango = colors.tango()
 class TreeFigure(object):
@@ -54,7 +45,7 @@ class TreeFigure(object):
     of mouse interaction with the figure.  When neither of these
     buttons are checked, the default mouse bindings are as follows:
 
-    * button 1 drag: select nodes - retrieve by calling fig.selected
+    * button 1 drag: select nodes - retrieve by calling fig.selected_nodes
     * button 3 drag: pan view
     * scroll up/down: zoom in/out
     * scroll up/down with Control key: zoom y-axis
@@ -105,7 +96,7 @@ class TreeFigure(object):
             root = tree.read(data)
         self.root = root
         if not self.root:
-            raise IOError, "cannot coerce data into tree.Node"
+            raise IOError("cannot coerce data into tree.Node")
         self.name = self.name or root.treename
         pars = SubplotParams(
             left=0, right=1, bottom=0.05, top=1, wspace=0.01
@@ -254,7 +245,7 @@ class TreeFigure(object):
             if e.mouseevent.button==1:
                 s = e.artist.get_text()
                 clipboard.copy(s)
-                print s
+                print(s)
                 sys.stdout.flush()
         except:
             pass
@@ -593,7 +584,7 @@ class MultiTreeFigure(object):
     def picked(self, e):
         try:
             if e.mouseevent.button==1:
-                print e.artist.get_text()
+                print(e.artist.get_text())
                 sys.stdout.flush()
         except:
             pass
@@ -614,7 +605,7 @@ class MultiTreeFigure(object):
         else:
             root = tree.read(data)
         if not root:
-            raise IOError, "cannot coerce data into tree.Node"
+            raise IOError("cannot coerce data into tree.Node")
 
         name = name or root.treename
         self.root.append(root)
@@ -984,7 +975,7 @@ class Tree(Axes):
         xlim = self.get_xlim()
         ylim = self.get_ylim()
         get = self.n2c.get
-        coords = filter(None, [ get(n) for n in self.selected_nodes ])
+        coords = list(filter(None, [ get(n) for n in self.selected_nodes ]))
         x = [ c.x for c in coords ]
         y = [ c.y for c in coords ]
         if x and y:

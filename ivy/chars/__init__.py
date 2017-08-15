@@ -1,1 +1,1 @@
-import mk, catpars, evolve
+from . import mk, catpars, evolve

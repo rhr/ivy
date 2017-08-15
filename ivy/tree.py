@@ -5,12 +5,12 @@ etc.
 ivy does not have a Tree class per se, as most functions operate
 directly on Node objects.
 """
-import os, types
-from storage import Storage
+import os
+# from storage import Storage
 from copy import copy as _copy
-from matrix import vcv
-import newick
-from itertools import izip_longest
+# from matrix import vcv
+from . import newick, nexus
+# from itertools import izip_longest
 
 ## class Tree(object):
 ##     """
@@ -63,8 +63,8 @@ class Node(object):
     """
     def __init__(self, **kwargs):
         self.id = None
-        self.ni = None # node index
-        self.li = None # leaf index
+        self.ni = None  # node index
+        self.li = None  # leaf index
         self.isroot = False
         self.isleaf = False
         self.label = None
@@ -84,7 +84,8 @@ class Node(object):
         if kwargs:
             for k, v in kwargs.items():
                 setattr(self, k, v)
-        if self.id is None: self.id = id(self)
+        if self.id is None:
+            self.id = id(self)
 
     def __copy__(self):
         return self.copy()
@@ -101,8 +102,8 @@ class Node(object):
 
         s = ", ".join(v)
 
-        nid = ((self.id if (self.id is not None) else self.ni) or
-               '<%s>' % id(self))
+        nid = self.ni if (self.ni is not None) else self.id
+
         if s:
             s = "Node(%s, %s)" % (nid, s)
         else:
@@ -119,14 +120,13 @@ class Node(object):
         Returns:
             bool: Whether or not the other node is a descendant of self
         """
-        otype = type(other)
-        if other and otype in types.StringTypes:
+        if other and isinstance(other, str):
             for x in self:
                 if other == x.label:
                     return True
             return False
         else:
-            assert otype == type(self)
+            assert isinstance(self, Node)
             for x in self.iternodes():
                 if other == x:
                     return True
@@ -180,8 +180,8 @@ class Node(object):
         Returns:
             str: Ascii tree to be shown with print().
         """
-        from ascii import render
-        return render(self, *args, **kwargs)
+        from . import ascii as _ascii
+        return _ascii.render(self, *args, **kwargs)
 
     def collapse(self, add=False):
         """
@@ -334,7 +334,7 @@ class Node(object):
         if n2s is None:
             n2s = clade_sizes(self)
         if not self.isleaf:
-            v = [ (n2s[c], c.label, c) for c in self.children ]
+            v = [ (n2s[c], c.label or '', c.id, c) for c in self.children ]
             v.sort()
             if reverse:
                 v.reverse()
@@ -595,8 +595,9 @@ class Node(object):
             Node: Found nodes in preorder sequence.
 
         """
-        if not f: return
-        if type(f) in types.StringTypes:
+        if not f:
+            return
+        if isinstance(f, str):
             func = lambda x: (f or None) in (x.label or "")
         else:
             func = f
@@ -945,9 +946,9 @@ def clade_sizes(node, results={}):
 
 def write(node, outfile=None, format="newick", length_fmt=":%g",
           clobber=False):
-    if format=="newick" or ((type(outfile) in types.StringTypes) and
-                            (outfile.endswith(".newick") or
-                             outfile.endswith(".new"))):
+    if format=="newick" or (isinstance(outfile, str) and
+                            outfile.endswith(".newick") or
+                            outfile.endswith(".new")):
         s = write_newick(node, outfile, length_fmt, True, clobber)
         if not outfile:
             return s
@@ -975,11 +976,11 @@ def write_newick(node, outfile=None, length_fmt=":%g", end=False,
     s = "%s%s%s" % (node_str, length_str, semicolon)
     if end and outfile:
         flag = False
-        if type(outfile) in types.StringTypes:
+        if isinstance(outfile, str):
             if not clobber:
                 assert not os.path.isfile(outfile), "File '%s' exists! (Set clobber=True to overwrite)" % outfile
             flag = True
-            outfile = file(outfile, "w")
+            outfile = open(outfile, "w")
         outfile.write(s)
         if flag:
             outfile.close()
@@ -998,8 +999,6 @@ def read(data, format=None, treename=None, ttable=None):
     Returns:
         Node: The root node.
     """
-    import newick
-    StringTypes = types.StringTypes
 
     def strip(s):
         fname = os.path.split(s)[-1]
@@ -1011,7 +1010,7 @@ def read(data, format=None, treename=None, ttable=None):
             return fname
 
     if (not format):
-        if (type(data) in StringTypes) and os.path.isfile(data):
+        if isinstance(data, str) and os.path.isfile(data):
             s = data.lower()
             for tail in ".nex", ".nexus", ".tre":
                 if s.endswith(tail):
@@ -1022,10 +1021,10 @@ def read(data, format=None, treename=None, ttable=None):
         format = "newick"
 
     if format == "newick":
-        if type(data) in StringTypes:
+        if isinstance(data, str):
             if os.path.isfile(data):
                 treename = strip(data)
-                return newick.parse(file(data), treename=treename,
+                return newick.parse(open(data), treename=treename,
                                     ttable=ttable)
             else:
                 return newick.parse(data, ttable=ttable)
@@ -1035,7 +1034,7 @@ def read(data, format=None, treename=None, ttable=None):
             return newick.parse(data, treename=treename, ttable=ttable)
     elif format == "nexus-dendropy":
         import dendropy
-        if type(data) in StringTypes:
+        if isinstance(data, str):
             if os.path.isfile(data):
                 treename = strip(data)
                 return newick.parse(
@@ -1057,26 +1056,29 @@ def read(data, format=None, treename=None, ttable=None):
             pass
 
     elif format == "nexus":
-        if type(data) in StringTypes:
+        if isinstance(data, str):
             if os.path.isfile(data):
                 with open(data) as infile:
-                    rec = newick.nexus_iter(infile).next()
-                    if rec: return rec.parse()
+                    nexiter = nexus.iter_trees(infile)
+                    rec = next(nexiter)
+                    if rec:
+                        return rec.parse()
             else:
-                rec = newick.nexus_iter(StringIO(data)).next()
-                if rec: return rec.parse()
+                nexiter = nexus.iter_trees(StringIO(data))
         else:
-            rec = newick.nexus_iter(data).next()
-            if rec: return rec.parse()
+            nexiter = nexus.iter_trees(data)
+        rec = next(nexiter)
+        if rec:
+            return rec.parse()
     else:
         # implement other tree formats here (nexus, nexml etc.)
-        raise IOError, "format '%s' not implemented yet" % format
+        raise IOError("format '%s' not implemented yet" % format)
 
-    raise IOError, "unable to read tree from '%s'" % data
+    raise IOError("unable to read tree from '%s'" % data)
 
 def readmany(data, format="newick"):
     """Iterate over trees from a source."""
-    if type(data) in types.StringTypes:
+    if isinstance(data, str):
         if os.path.isfile(data):
             data = open(data)
         else:
@@ -1089,7 +1091,7 @@ def readmany(data, format="newick"):
         for rec in newick.nexus_iter(data):
             yield rec.parse()
     else:
-        raise Exception, "format '%s' not recognized" % format
+        raise Exception("format '%s' not recognized" % format)
     data.close()
 
 ## def randomly_resolve(n):

@@ -10,18 +10,15 @@ from matplotlib.collections import RegularPolyCollection, CircleCollection
 from matplotlib.transforms import offset_copy
 from matplotlib.patches import Rectangle, Wedge, Circle, PathPatch
 from matplotlib.offsetbox import DrawingArea
-from itertools import izip_longest
 from matplotlib.axes import Axes
-from numpy import array
 from matplotlib.path import Path
-
 
 try:
     from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 except ImportError:
     pass
 from ..tree import Node
-import colors as _colors
+from . import colors as _colors
 
 def _xy(plot, p):
     if isinstance(p, Node):

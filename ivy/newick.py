@@ -4,11 +4,12 @@ Parse newick strings.
 The function of interest is `parse`, which returns the root node of
 the parsed tree.
 """
-import string, sys, re, shlex, types, itertools
-import numpy
-import nexus
-from cStringIO import StringIO
-from pprint import pprint
+from __future__ import print_function, absolute_import, division, unicode_literals
+import string, sys, re, shlex, itertools
+try:
+    from cStringIO import StringIO
+except:
+    from io import StringIO
 
 ## def read(s):
 ##     try:
@@ -26,6 +27,9 @@ META = re.compile(r'([^,=\s]+)\s*=\s*(\{[^=}]*\}|"[^"]*"|[^,]+)?')
 def add_label_chars(chars):
     global LABELCHARS
     LABELCHARS += chars
+
+class Error(Exception):
+    pass
 
 class Tokenizer(shlex.shlex):
     """Provides tokens for parsing newick strings."""
@@ -68,9 +72,9 @@ def parse(data, ttable=None, treename=None):
     Returns:
         Node: The root node.
     """
-    from tree import Node
+    from .tree import Node
 
-    if type(data) in types.StringTypes:
+    if isinstance(data, str):
         data = StringIO(data)
 
     start_pos = data.tell()
@@ -81,10 +85,10 @@ def parse(data, ttable=None, treename=None):
 
     previous = None
 
-    ni = 0 # node id counter (preorder) - zero-based indexing
-    li = 0 # leaf index counter
-    ii = 0 # internal node index counter
-    pi = 0 # postorder sequence
+    ni = 0  # node id counter (preorder) - zero-based indexing
+    li = 0  # leaf index counter
+    ii = 0  # internal node index counter
+    pi = 0  # postorder sequence
     while 1:
         token = tokens.get_token()
         #print token,
@@ -132,12 +136,11 @@ def parse(data, ttable=None, treename=None):
 
             if not (token == ''):
                 try: brlen = float(token)
-                except ValueError:
-                    raise ValueError, ("invalid literal for branch length, "
-                                       "'%s'" % token)
+                except ValueError as exc:
+                    raise ValueError(
+                        "invalid literal for branch length, '{}'".format(token))
             else:
-                raise 'NewickError', \
-                      'unexpected end-of-file (expecting branch length)'
+                raise Error('unexpected end-of-file (expecting branch length)')
 
             node.length = brlen
         # comment
@@ -235,9 +238,9 @@ def parse_ampersand_comment(s):
     pyparsing.ParserElement.enablePackrat()
     from pyparsing import Word, Literal, QuotedString, CaselessKeyword, \
          OneOrMore, Group, Optional, Suppress, Regex, Dict
-    word = Word(string.letters+string.digits+"%_")
+    word = Word(string.ascii_letters+string.digits+"%_")
     key = word.setResultsName("key") + Suppress("=")
-    single_value = (Word(string.letters+string.digits+"-.") |
+    single_value = (Word(string.ascii_letters+string.digits+"-.") |
                     QuotedString("'") |
                     QuotedString('"'))
     range_value = Group(Suppress("{") +
@@ -250,7 +253,7 @@ def parse_ampersand_comment(s):
     d = []
     for x in g.searchString(s):
         v = x.value
-        if type(v) == str:
+        if isinstance(v, str):
             try: v = float(v)
             except ValueError: pass
         else:
@@ -259,80 +262,12 @@ def parse_ampersand_comment(s):
         d.append((x.key, v))
     return d
 
-def nexus_iter(infile):
-    import pyparsing
-    pyparsing.ParserElement.enablePackrat()
-    from pyparsing import Word, Literal, QuotedString, CaselessKeyword, \
-         OneOrMore, Group, Optional, Suppress, Regex, Dict
-    ## beginblock = Suppress(CaselessKeyword("begin") +
-    ##                       CaselessKeyword("trees") + ";")
-    ## endblock = Suppress((CaselessKeyword("end") |
-    ##                      CaselessKeyword("endblock")) + ";")
-    comment = Optional(Suppress("[&") + Regex(r'[^]]+') + Suppress("]"))
-    ## translate = CaselessKeyword("translate").suppress()
-    name = Word(string.letters+string.digits+"_.") | QuotedString("'")
-    ## ttrec = Group(Word(string.digits).setResultsName("number") +
-    ##               name.setResultsName("name") +
-    ##               Optional(",").suppress())
-    ## ttable = Group(translate + OneOrMore(ttrec) + Suppress(";"))
-    newick = Regex(r'[^;]+;')
-    tree = (CaselessKeyword("tree").suppress() +
-            Optional("*").suppress() +
-            name.setResultsName("tree_name") +
-            comment.setResultsName("tree_comment") +
-            Suppress("=") +
-            comment.setResultsName("root_comment") +
-            newick.setResultsName("newick"))
-    ## treesblock = Group(beginblock +
-    ##                    Optional(ttable.setResultsName("ttable")) +
-    ##                    Group(OneOrMore(tree)) +
-    ##                    endblock)
-
-    def not_begin(s): return s.strip().lower() != "begin trees;"
-    def not_end(s): return s.strip().lower() not in ("end;", "endblock;")
-    def parse_ttable(f):
-        ttable = {}
-        while True:
-            s = f.next().strip()
-            if not s: continue
-            if s.lower() == ";": break
-            if s[-1] == ",": s = s[:-1]
-            k, v = s.split()
-            ttable[k] = v
-            if s[-1] == ";": break
-        return ttable
-
-    # read lines between "begin trees;" and "end;"
-    f = itertools.takewhile(not_end, itertools.dropwhile(not_begin, infile))
-    s = f.next().strip().lower()
-    if s != "begin trees;":
-        print sys.stderr, "Expecting 'begin trees;', got %s" % s
-        raise StopIteration
-    ttable = {}
-    while True:
-        try: s = f.next().strip()
-        except StopIteration: break
-        if not s: continue
-        if s.lower() == "translate":
-            ttable = parse_ttable(f)
-            print "ttable: %s" % len(ttable)
-        elif s.split()[0].lower()=='tree':
-            match = tree.parseString(s)
-            yield nexus.Newick(match, ttable)
-
-## def test():
-##     with open("/home/rree/Dropbox/pedic-comm-amnat/phylo/beast-results/"
-##               "simple_stigma.trees.log") as f:
-##         for rec in nexus_iter(f):
-##             r = parse(rec.newick, ttable=rec.ttable)
-##             for x in r: print x, x.comments
-
-def test_parse_comment():
-    v = (("height_median=1.1368683772161603E-13,height=9.188229043880098E-14,"
-          "height_95%_HPD={5.6843418860808015E-14,1.7053025658242404E-13},"
-          "height_range={0.0,2.8421709430404007E-13}"),
-         "R", "lnP=-154.27154502342688,lnP=-24657.14341301901",
-         'states="T-lateral"')
-    for s in v:
-        print "input:", s
-        print dict(parse_ampersand_comment(s))
+# def test_parse_comment():
+#     v = (("height_median=1.1368683772161603E-13,height=9.188229043880098E-14,"
+#           "height_95%_HPD={5.6843418860808015E-14,1.7053025658242404E-13},"
+#           "height_range={0.0,2.8421709430404007E-13}"),
+#          "R", "lnP=-154.27154502342688,lnP=-24657.14341301901",
+#          'states="T-lateral"')
+#     for s in v:
+#         print "input:", s
+#         print dict(parse_ampersand_comment(s))

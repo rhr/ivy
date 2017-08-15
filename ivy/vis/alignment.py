@@ -2,16 +2,14 @@
 interactive viewers for trees, etc. using matplotlib
 """
 from collections import defaultdict
-from ..storage import Storage
 from .. import align, sequtil
-import matplotlib, numpy, types
+import matplotlib, numpy
 import matplotlib.pyplot as pyplot
-from matplotlib.figure import SubplotParams, Figure
+from matplotlib.figure import SubplotParams
 from matplotlib.axes import Axes, subplot_class_factory
 from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
 from matplotlib.widgets import RectangleSelector
-from matplotlib.transforms import Bbox, offset_copy, IdentityTransform
 from matplotlib import colors as mpl_colors
 from matplotlib.ticker import MaxNLocator, FuncFormatter, NullLocator
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -214,10 +212,10 @@ class AlignmentFigure:
                 if char not in '-?':
                     v = sequtil.gapidx(seq)
                     i = (v[1]==x).nonzero()[0][0]
-                    print ("%s: row %s, site %s: '%s', seqpos %s"
+                    print("%s: row %s, site %s: '%s', seqpos %s"
                            % (seq.id, y, x, char, i))
                 else:
-                    print "%s: row %s, site %s: '%s'" % (seq.id, y, x, char)
+                    print("%s: row %s, site %s: '%s'" % (seq.id, y, x, char))
 
     def zoom(self, factor=0.1):
         "Zoom both axes by *factor* (relative display size)."

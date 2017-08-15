@@ -1,12 +1,13 @@
-import scipy, numpy
+from __future__ import print_function
+import numpy as np
 
-def default_costmatrix(numstates, dtype=numpy.int):
+def default_costmatrix(numstates, dtype=np.int):
     "a square array with zeroes along the diagonal, ones elsewhere"
-    return scipy.logical_not(scipy.identity(numstates)).astype(float)
+    return np.logical_not(np.identity(numstates)).astype(float)
 
 def minstates(v):
     "return the indices of v that equal the minimum"
-    return scipy.nonzero(scipy.equal(v, min(v)))
+    return np.nonzero(np.equal(v, min(v)))
 
 def downpass(node, states, stepmatrix, chardata, node2dpv=None):
     if node2dpv is None:
@@ -16,7 +17,7 @@ def downpass(node, states, stepmatrix, chardata, node2dpv=None):
         for child in node.children:
             downpass(child, states, stepmatrix, chardata, node2dpv)
 
-        dpv = scipy.zeros([len(states)])
+        dpv = np.zeros([len(states)])
         node2dpv[node] = dpv
         for i in states:
             for child in node.children:
@@ -45,7 +46,7 @@ def uppass(node, states, stepmatrix, node2dpv, node2upm={},
             node2ancstates = {node: minstates(dpv)}
             
         else:
-            M = scipy.zeros(stepmatrix.shape)
+            M = np.zeros(stepmatrix.shape)
             for i in states:
                 sibs = [ c for c in parent.children if c is not node ]
                 for j in states:
@@ -121,7 +122,7 @@ if __name__ == "__main__":
         else:
             node.label = "%s (%s)" % (node.label, chardata[node.label])
 
-    print ascii.render(root)
+    print(ascii.render(root))
             
 
 ##     nstates = 2

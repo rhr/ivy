@@ -1,4 +1,8 @@
-from itertools import izip, imap
+try:
+    from itertools import izip, imap
+except ImportError:
+    izip = zip
+    imap = map
 import numpy
 
 def finditer(seq, substr, start=0):

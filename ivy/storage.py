@@ -1,6 +1,11 @@
+from __future__ import print_function
 from operator import itemgetter
 from heapq import nlargest
-from itertools import repeat, ifilter
+from itertools import repeat
+try:
+    from itertools import ifilter
+except:
+    ifilter = filter
 
 class Storage(dict):
     """
@@ -19,10 +24,7 @@ class Storage(dict):
         self[key] = value
 
     def __delattr__(self, key):
-        try:
-            del self[key]
-        except KeyError, k:
-            raise AttributeError, k
+        del self[key]
 
     def __repr__(self):
         return '<Storage ' + dict.__repr__(self) + '>'
@@ -234,4 +236,4 @@ def convert(d):
 
 if __name__ == '__main__':
     import doctest
-    print doctest.testmod()
+    print(doctest.testmod())

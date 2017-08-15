@@ -80,7 +80,7 @@ def autocollapse(root, collapsed=None, keep_visible=None, max_visible=1000):
         v.sort(); v.reverse()
         for w, node, s in v:
             if node not in keep_visible and s.nvisible < (nvisible-1):
-                print node
+                print(node)
                 collapsed.add(node)
                 nvisible -= s.nvisible
             if nvisible <= max_visible:

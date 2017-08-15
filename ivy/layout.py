@@ -3,6 +3,7 @@ layout nodes in 2d space
 
 The function of interest is `calc_node_positions` (aka nodepos)
 """
+from __future__ import print_function
 import numpy
 
 class Coordinates:
@@ -57,7 +58,7 @@ def depth_length_preorder_traversal(node, n2coords=None, isroot=False):
             coords.depth = p.depth + 1
             coords.length_to_root = p.length_to_root + (node.length or 0.0)
         except KeyError:
-            print node.label, node.parent.label
+            print(node.label, node.parent.label)
         except AttributeError:
             coords.depth = 0
             coords.length_to_root = 0
