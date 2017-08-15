@@ -76,20 +76,25 @@ def parse_treesblock(infile):
         ttable = {}
         while True:
             s = f.next().strip()
-            if s.lower() == ";": break
-            if s[-1] in ",;": s = s[:-1]
+            if s.lower() == ";":
+                break
+            if s[-1] in ",;":
+                s = s[:-1]
             k, v = s.split()
             ttable[k] = v
-            if s[-1] == ";": break
+            if s[-1] == ";":
+                break
         return ttable
 
     ttable = {}
     while True:
-        try: s = infile.next().strip()
-        except StopIteration: break
+        try:
+            s = infile.next().strip()
+        except StopIteration:
+            break
         if s.lower() == "translate":
             ttable = parse_ttable(infile)
-            print("ttable: %s" % len(ttable))
+            # print("ttable: %s" % len(ttable))
         else:
             match = tree.parseString(s)
             yield Newick(match, ttable)
@@ -126,15 +131,18 @@ def iter_trees(infile):
             s = next(f).strip()
             if not s:
                 continue
-            s = com.transformString(s)
+            s = com.transformString(s).strip()
             if s.lower() == ";":
                 break
-            if s[-1] == ",":
+            b = False
+            if s[-1] in ",;":
+                if s[-1] == ';':
+                    b = True
                 s = s[:-1]
-            print(s)
+            # print(s)
             k, v = s.split()
             ttable[k] = v
-            if s[-1] == ";":
+            if b:
                 break
         return ttable
 
