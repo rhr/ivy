@@ -8,7 +8,16 @@ packages = [
     ]
 #packages=find_packages(exclude=["contrib","db"])
 
-#install_requires = ["numpy","scipy"]
+install_requires = [
+    'ipython,'
+    'numpy',
+    'scipy',
+    'matplotlib',
+    'pillow',
+    'biopython',
+    'pyparsing',
+    'lxml'
+]
 
 desc = "An interactive visual shell for phylogenetics"
 
@@ -26,5 +35,6 @@ setup(name="ivy-phylo",
       license="GPL",
       platforms="All",
       packages=packages,
-      package_data=package_data)
+      package_data=package_data,
+      install_requires=install_requires)
 
