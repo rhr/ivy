@@ -693,7 +693,36 @@ class MultiTreeFigure(object):
     def home(self):
         for p in self.plot: p.home()
 
+class JuxtaposerFigure(MultiTreeFigure):
+    def match(self, node1, node2):
+        return node1.label == node2.label
 
+    def on_nodes_selected(self, treeplot):
+        for p in self.plot:
+            p.highlight()
+        nodes = treeplot.selected_nodes
+        if not nodes:
+            return
+        if len(nodes) == 1:
+            anc = list(nodes)[0]
+        else:
+            anc = treeplot.root.mrca(nodes)
+
+        if not anc.isleaf:
+            leaves = anc.leaves()
+        else:
+            leaves = [anc]
+
+        other_plots = [ x for x in self.plot if x != treeplot ]
+        for p in other_plots:
+            other_leaves = p.root.leaves()
+            hits = []
+            for lf in leaves:
+                hits.extend([ x for x in other_leaves if self.match(lf, x) ])
+            if hits:
+                p.highlight(hits, 4, "green")
+                p.figure.canvas.draw_idle()
+                
 def connect_events(canvas):
     mpl_connect = canvas.mpl_connect
     mpl_connect("button_press_event", onclick)
