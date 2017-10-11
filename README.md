@@ -36,7 +36,9 @@ http://www.reelab.net/ivy
 
 Recommended for non-developers: use [conda](https://conda.io/miniconda.html) for Python 3.
 
-1. Download and install Miniconda 3 for Python 3
+1. Download and install Miniconda for **Python 3**
+
+    https://conda.io/miniconda.html
 
 2. Create an environment for `ivy`:
 
