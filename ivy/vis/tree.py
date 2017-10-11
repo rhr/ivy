@@ -694,10 +694,13 @@ class MultiTreeFigure(object):
         for p in self.plot: p.home()
 
 class JuxtaposerFigure(MultiTreeFigure):
-    def match(self, node1, node2):
+    @classmethod
+    def _match(cls, node1, node2):
         return node1.label == node2.label
 
     def on_nodes_selected(self, treeplot):
+        match = self.match if hasattr(self, 'match') else self._match
+
         for p in self.plot:
             p.highlight()
         nodes = treeplot.selected_nodes
@@ -718,7 +721,7 @@ class JuxtaposerFigure(MultiTreeFigure):
             other_leaves = p.root.leaves()
             hits = []
             for lf in leaves:
-                hits.extend([ x for x in other_leaves if self.match(lf, x) ])
+                hits.extend([ x for x in other_leaves if match(lf, x) ])
             if hits:
                 p.highlight(hits, 4, "green")
                 p.figure.canvas.draw_idle()
