@@ -40,24 +40,24 @@ Recommended for non-developers: use [conda](https://conda.io/miniconda.html) for
 
 2. Create an environment for `ivy`:
 
-  ```bash
-  conda create -n ivy ipython jupyter numpy scipy matplotlib biopython pillow pyparsing lxml
-  ```
+    ```bash
+    conda create -n ivy ipython jupyter numpy scipy matplotlib biopython pillow pyparsing lxml
+    ```
   
 3. Activate the environment:
 
-  ```bash
-  source activate ivy
-  ```
+    ```bash
+    source activate ivy
+    ```
 
 3. Install `ivy`:
 
-  ```bash
-  pip install https://github.com/rhr/ivy/zipball/master
-  ```
+    ```bash
+    pip install https://github.com/rhr/ivy/zipball/master
+    ```
   
 4. To update, uninstall it first:
-  ```bash
-  pip uninstall ivy-phylo
-  ```
-  then re-run `pip` as above.
+    ```bash
+    pip uninstall ivy-phylo
+    ```
+   then re-run `pip` as above.
