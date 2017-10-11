@@ -4,6 +4,7 @@ try:
     from itertools import izip_longest, ifilter
 except:
     from itertools import zip_longest as izip_longest
+    ifilter = filter
 from Bio import Entrez, SeqIO
 from Bio.Blast import NCBIWWW, NCBIXML
 from . import storage
