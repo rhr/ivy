@@ -39,6 +39,7 @@ Recommended for non-developers: use [conda](https://conda.io/miniconda.html) for
 1. Download and install Miniconda for **Python 3**
 
     https://conda.io/miniconda.html
+	
     The following assumes `conda` is now in your `$PATH`.
 
 2. Create an environment for `ivy`:
