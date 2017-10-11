@@ -44,6 +44,12 @@ Recommended for non-developers: use [conda](https://conda.io/miniconda.html) for
   conda create -n ivy ipython jupyter numpy scipy matplotlib biopython pillow pyparsing lxml
   ```
   
+3. Activate the environment:
+
+  ```bash
+  source activate ivy
+  ```
+
 3. Install `ivy`:
 
   ```bash
