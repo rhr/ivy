@@ -258,20 +258,43 @@ class Node(object):
         Returns:
             Node: The MRCA of *nodes*
         """
-        if len(nodes) == 1:
-            nodes = tuple(nodes[0])
-        if len(nodes) == 1:
-            return nodes[0]
-        nodes = set([ self[n] for n in nodes ])
-        anc = []
-        def f(n):
-            seen = set()
-            for c in n.children: seen.update(f(c))
-            if n in nodes: seen.add(n)
-            if seen == nodes and (not anc): anc.append(n)
-            return seen
-        f(self)
-        return anc[0]
+        from collections import Counter
+        c = Counter()
+        N = len(nodes)-1
+        print(N)
+        for n in nodes:
+            for p in n.rootpath():
+                c[p] += 1
+                print(p, c[p])
+                if c[p] == N:
+                    return p
+
+    ## def mrca(self, *nodes):
+    ##     """
+    ##     Find most recent common ancestor of *nodes*
+
+    ##     Args:
+    ##         *nodes (Node): Node objects
+    ##     Returns:
+    ##         Node: The MRCA of *nodes*
+    ##     """
+    ##     if len(nodes) == 1:
+    ##         nodes = tuple(nodes[0])
+    ##     if len(nodes) == 1:
+    ##         return nodes[0]
+    ##     nodes = set([ self[n] for n in nodes ])
+    ##     anc = []
+    ##     def f(n):
+    ##         seen = set()
+    ##         for c in n.children:
+    ##             seen.update(f(c))
+    ##         if n in nodes:
+    ##             seen.add(n)
+    ##         if seen == nodes and (not anc):
+    ##             anc.append(n)
+    ##         return seen
+    ##     f(self)
+    ##     return anc[0]
 
     ## def mrca(self, *nodes):
     ##     """
@@ -609,7 +632,7 @@ class Node(object):
         """Return a list of found nodes."""
         return list(self.find(f, *args, **kwargs))
 
-    def prune(self):
+    def prune(self, remove_knees=False):
         """
         Remove self if self is not root.
 
@@ -621,6 +644,9 @@ class Node(object):
         p = self.parent
         if p:
             p.remove_child(self)
+            if remove_knees:
+                while len(p.children)<=1 and p.parent:
+                    p = p.excise()
         return p
 
     def excise(self):
