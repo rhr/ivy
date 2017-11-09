@@ -3,21 +3,6 @@ Compute lineages through time
 """
 import numpy
 
-# RR: Should results be set to None and then defined in the function to avoid
-# problems with mutable defaults in functions? -CZ
-def traverse(node, t=0, results=[]):
-    """
-    Recursively traverse the tree and collect information about when
-    nodes split and how many lineages are added by its splitting.
-    """
-    if node.children:
-        ## if not node.label:
-        ##     node.label = str(node.id)
-        results.append((t, len(node.children)-1))
-        for child in node.children:
-            traverse(child, t+child.length, results)
-    return results
-
 def ltt(node):
     """
     Calculate lineages through time.  The tree is assumed to be an
@@ -30,12 +15,19 @@ def ltt(node):
     Returns:
         tuple: (times, diversity) - 1D-arrays containing the results.
     """
-    v = traverse(node) # v is a list of (time, diversity) values
-    v.sort()
-    # for plotting, it is easiest if x and y values are in separate
-    # sequences, so we create a transposed array from v
-    times, diversity = numpy.array(v).transpose()
-    return times, diversity.cumsum()
+    t = 0.0
+    def it():
+        yield t
+        v = [ (t+x.length, x) for x in node.children if x.children ]
+        while v:
+            w = []
+            for ct, c in v:
+                yield ct
+                w.extend([ (ct+x.length, x) for x in c.children if x.children ])
+            v = w
+    times = sorted(it())
+    return times, list(range(2, len(times)+2))
+            
 
 def test():
     import newick, ascii
