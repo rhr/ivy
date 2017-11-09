@@ -1,33 +1,34 @@
 """
 Compute lineages through time
 """
-import numpy
+import pandas as pd
 
 def ltt(node):
     """
-    Calculate lineages through time.  The tree is assumed to be an
+    Calculate lineages through time. The tree is assumed to be an
     ultrametric chronogram (extant leaves, with branch lengths
     proportional to time).
 
-    Args:
-        node (Node): A node object. All nodes should have branch lengths.
+    Args: node (Node): The root node object. All descendants should
+        have branch lengths.
 
     Returns:
-        tuple: (times, diversity) - 1D-arrays containing the results.
+        pandas data frame with columns for time (t) and diversity (n)
+
     """
     t = 0.0
     def it():
-        yield t
+        yield t, len(node.children)
         v = [ (t+x.length, x) for x in node.children if x.children ]
         while v:
             w = []
             for ct, c in v:
-                yield ct
+                yield ct, len(c.children)-1
                 w.extend([ (ct+x.length, x) for x in c.children if x.children ])
             v = w
-    times = sorted(it())
-    return times, list(range(2, len(times)+2))
-            
+    data = pd.DataFrame.from_records(sorted(it()), columns=('t','n'))
+    data.n = data.n.cumsum()
+    return data
 
 def test():
     import newick, ascii

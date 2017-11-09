@@ -28,11 +28,12 @@ from . import genbank, nexus, newick, storage
 # from . import treebase
 # import db
 # import contrib
-try:
-    import ltt as _ltt
-    ltt = _ltt.ltt
-except ImportError:
-    pass
+## try:
+##     import ltt as _ltt
+##     ltt = _ltt.ltt
+## except ImportError:
+##     pass
+from .ltt import ltt
 
 from . import align, sequtil
 # from . import chars, align, sequtil
