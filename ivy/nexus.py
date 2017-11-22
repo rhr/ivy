@@ -166,3 +166,22 @@ def iter_trees(infile):
         elif s.split()[0].lower()=='tree':
             match = tree.parseString(s)
             yield Newick(match, ttable)
+
+def expand_idxstr(s):
+    """
+    convert a string of NEXUS-formatted character indices (1-based) to
+    a list of 0-based indices, e.g.
+
+    expand_idx('3 6-9 12 15')
+    [2, 5, 6, 7, 8, 11, 14]
+    """
+    w = s.replace(';','').replace(',','').split()
+    v = []
+    for x in w:
+        try:
+            i = int(x)
+            v.append(i-1)
+        except ValueError:
+            i, j = map(int, x.split('-'))
+            v.extend(range(i-1,j))
+    return v
