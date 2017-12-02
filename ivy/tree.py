@@ -715,6 +715,27 @@ class Node(object):
                 x += (n.length or 0)
         return store
 
+    def prune_subtree(self, leaves):
+        """
+        find the mrca of leaves, prune all branches from that node that do
+        not lead to leaves, prune the mrca, and return it
+        """
+        anc = self.mrca(*leaves)
+        seen = set([anc])
+        for lf in leaves:
+            n = lf
+            while n != anc:
+                if n in seen or n is None:
+                    break
+                seen.add(n)
+                n = n.parent
+        for n in seen:
+            for c in n.children:
+                if c not in seen:
+                    c.prune()
+        anc.prune()
+        return anc
+
     def rootpath(self, end=None, stop=None):
         """
         Iterate over parent nodes toward the root, or node *end* if
