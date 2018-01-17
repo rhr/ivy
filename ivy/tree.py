@@ -261,11 +261,11 @@ class Node(object):
         from collections import Counter
         c = Counter()
         N = len(nodes)
-        print(N)
+        ## print(N)
         for n in nodes:
             for p in n.rootpath():
                 c[p] += 1
-                print(p, c[p])
+                ## print(p, c[p])
                 if c[p] == N:
                     return p
 
