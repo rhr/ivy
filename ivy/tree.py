@@ -260,7 +260,7 @@ class Node(object):
         """
         from collections import Counter
         c = Counter()
-        N = len(nodes)-1
+        N = len(nodes)
         print(N)
         for n in nodes:
             for p in n.rootpath():
