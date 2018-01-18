@@ -18,12 +18,8 @@ from matplotlib import cm as mpl_colormap
 from matplotlib import colors as mpl_colors
 from matplotlib.collections import LineCollection
 from matplotlib.transforms import Bbox
-try:
-    from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-except ImportError:
-    pass
-from matplotlib.ticker import NullLocator
-from mpl_toolkits.axes_grid1.anchored_artists import AnchoredText
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox, AnchoredText
+from matplotlib.ticker import NullLocator, FixedLocator
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from . import symbols, colors
 from . import hardcopy as HC
@@ -1529,6 +1525,9 @@ class Tree(Axes):
         ##         v.append((px,y))
         ##         v.append((px,py))
         ##         self.node2linesegs[node] = v
+        locs = [ self.n2c[n].y for n in self.root.leaves() ]
+        self.yaxis.set_major_locator(FixedLocator(locs))
+
 
     def set_root(self, root):
         self.root = root
