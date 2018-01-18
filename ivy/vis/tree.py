@@ -23,7 +23,7 @@ try:
 except ImportError:
     pass
 from matplotlib.ticker import NullLocator
-from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredText
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from . import symbols, colors
 from . import hardcopy as HC
@@ -359,13 +359,13 @@ class TreeFigure(object):
         """
         if x:
             nodes = set()
-            if type(x) in types.StringTypes:
+            if isinstance(x, str):
                 nodes = self.root.findall(x)
             elif isinstance(x, tree.Node):
                 nodes = set(x)
             else:
                 for n in x:
-                    if type(n) in types.StringTypes:
+                    if isinstance(n, str):
                         found = self.root.findall(n)
                         if found:
                             nodes |= set(found)
@@ -710,7 +710,7 @@ class JuxtaposerFigure(MultiTreeFigure):
         if len(nodes) == 1:
             anc = list(nodes)[0]
         else:
-            anc = treeplot.root.mrca(nodes)
+            anc = treeplot.root.mrca(*nodes)
 
         if not anc.isleaf:
             leaves = anc.leaves()
@@ -911,10 +911,10 @@ class Tree(Axes):
         if mrca:
             if isinstance(nodes, tree.Node):
                 spec = nodes
-            elif type(nodes) in types.StringTypes:
+            elif isinstance(nodes, str):
                 spec = self.root.get(nodes)
             else:
-                spec = self.root.mrca(nodes)
+                spec = self.root.mrca(*nodes)
 
             assert spec in self.root
             label = label or spec.label
@@ -1243,7 +1243,7 @@ class Tree(Axes):
             return
 
         if len(nodes)>1:
-            mrca = self.root.mrca(nodes)
+            mrca = self.root.mrca(*nodes)
             if not mrca:
                 return
         else:
@@ -1924,7 +1924,7 @@ class RadialTree(Tree):
             return
 
         if len(nodes)>1:
-            mrca = self.root.mrca(nodes)
+            mrca = self.root.mrca(*nodes)
             if not mrca:
                 return
         else:

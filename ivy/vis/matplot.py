@@ -29,7 +29,7 @@ try:
 except ImportError:
     pass
 from matplotlib._png import read_png
-from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredText
 import symbols, colors
 import hardcopy as HC
 import Image
