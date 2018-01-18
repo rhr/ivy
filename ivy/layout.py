@@ -164,8 +164,10 @@ def cartesian(node, xscale=1.0, leafspace=None, scaled=True, n2coords=None,
 
     # leafspace is a vector that should sum to nleaves
     if leafspace is None:
-        try: leafspace = [ float(x.leafspace) for x in leaves ]
-        except: leafspace = numpy.zeros((nleaves,))
+        try:
+            leafspace = [ float(x.leafspace) for x in leaves ]
+        except:
+            leafspace = numpy.zeros((nleaves,))
     assert len(leafspace) == nleaves
     #leafspace = array(leafspace)/(sum(leafspace)/float(nleaves))
 
