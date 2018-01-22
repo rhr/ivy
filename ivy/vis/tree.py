@@ -19,7 +19,8 @@ from matplotlib import colors as mpl_colors
 from matplotlib.collections import LineCollection
 from matplotlib.transforms import Bbox
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox, AnchoredText
-from matplotlib.ticker import NullLocator, FixedLocator
+from matplotlib.ticker import NullLocator, FixedLocator, FuncFormatter
+from .treeticker import TreeTicker
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from . import symbols, colors
 from . import hardcopy as HC
@@ -193,6 +194,8 @@ class TreeFigure(object):
         self.leaflabels = not self.leaflabels
         self.detail.leaflabels = self.leaflabels
         self.redraw()
+
+    toggle_tiplabels = toggle_leaflabels
 
     def toggle_branchlabels(self):
         """
@@ -798,6 +801,16 @@ class Tree(Axes):
         self.spines["left"].set_visible(False)
         self.spines["right"].set_visible(False)
         self.xaxis.set_ticks_position("bottom")
+
+    def __get_width(self):
+        return self.get_position().width
+
+    def __set_width(self, w):
+        v = list(self.get_position().bounds)
+        v[2] = w
+        self.set_position(v)
+
+    width = property(__get_width, __set_width)
 
     def p2y(self):
         "Convert a single display point to y-units"
@@ -1525,9 +1538,20 @@ class Tree(Axes):
         ##         v.append((px,y))
         ##         v.append((px,py))
         ##         self.node2linesegs[node] = v
-        locs = [ self.n2c[n].y for n in self.root.leaves() ]
-        self.yaxis.set_major_locator(FixedLocator(locs))
-
+        yax = self.yaxis
+        leaves = self.root.leaves()
+        ## locator = FixedLocator([ self.n2c[n].y for n in leaves ])
+        locator = TreeTicker(self)
+        yax.set_major_locator(locator)
+        n2c = self.n2c
+        d = dict([ (n2c[n].y, n.label) for n in leaves ])
+        def format(x, pos, d=d):
+            try:
+                return d[x]
+            except KeyError:
+                pass
+        yax.set_major_formatter(FuncFormatter(format))
+        yax.tick_right()
 
     def set_root(self, root):
         self.root = root
