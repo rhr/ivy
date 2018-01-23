@@ -20,7 +20,7 @@ from matplotlib.collections import LineCollection
 from matplotlib.transforms import Bbox
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox, AnchoredText
 from matplotlib.ticker import NullLocator, FixedLocator, FuncFormatter
-from .treeticker import TreeTicker
+from .treeticker import TreeTicker, LeafLocator
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from . import symbols, colors
 from . import hardcopy as HC
@@ -287,22 +287,20 @@ class TreeFigure(object):
     ##     self.set_positions()
     ##     self.figure.canvas.draw_idle()
 
-    def add_dataplot(self, width=0.25):
+    def add_dataplot(self):
         """
         Add new plot to the side of existing plot
         """
         np = 3 if self.overview else 2
         if self.dataplot:
             self.figure.delaxes(self.dataplot)
-        self.dataplot = self.figure.add_subplot(1, np, np, sharey=self.detail)
+        width = self.dataplot_width
+        dleft, dbottom, dwidth, dheight = self.detail.bounds
+        self.detail.bounds = (dleft, dbottom, dwidth-width, dheight)
+        dp = DataPlot(self.figure, 1, np, np, app=self)
+        self.dataplot = self.figure.add_subplot(dp)#, 1, np, np)
         # left, bottom, width, height (proportions)
-        dleft, dbottom, dwidth, dheight = self.detail.get_position().bounds
-        self.detail.set_position([dleft, dbottom, dwidth-width, dheight])
-        self.dataplot.set_position([1-w, dbottom, w, dheight])
-        self.dataplot.xaxis.set_visible(False)
-        self.dataplot.yaxis.set_visible(False)
-        for x in self.dataplot.spines.values():
-            x.set_visible(False)
+        self.dataplot.bounds = (1-width, dbottom, width, dheight)
         self.figure.canvas.draw_idle()
         return self.dataplot
 
@@ -343,7 +341,7 @@ class TreeFigure(object):
         self.detail.hlines(nodes, width=width, color=color,
                            xoff=xoff, yoff=yoff)
 
-    def highlight(self, x=None, width=5, color="red"):
+    def highlight(self, x=None, width=5, color="red", store=None):
         """
         Highlight nodes
 
@@ -371,8 +369,10 @@ class TreeFigure(object):
         else:
             self.highlighted = set()
         if self.overview:
-            self.overview.highlight(self.highlighted, width=width, color=color)
-        self.detail.highlight(self.highlighted, width=width, color=color)
+            self.overview.highlight(
+                self.highlighted, width=width, color=color, store=store)
+        self.detail.highlight(
+            self.highlighted, width=width, color=color, store=store)
         self.figure.canvas.draw_idle()
 
     def home(self):
@@ -476,8 +476,8 @@ class TreeFigure(object):
         """
         self.detail.select_nodes(nodes)
 
-    def decorate(self, func, *args, **kwargs): # RR: is this repeated from above? -CZ
-        self.detail.decorate(func, *args, **kwargs)
+    ## def decorate(self, func, *args, **kwargs): # RR: is this repeated from above? -CZ
+    ##     self.detail.decorate(func, *args, **kwargs)
 
     ## def dataplot(self):
     ##     ax = self.figure.add_subplot(133, sharey=self.detail)
@@ -876,7 +876,7 @@ class Tree(Axes):
         the key-value pair ('store', *name*), the decorator function
         is stored in self.decorators and called upon every redraw.
         """
-        name = kwargs.pop("store", None)
+        name = kwargs.pop('store', None)
         if name:
             if name in self.name2dec:
                 i = self.name2dec[name]
@@ -1290,15 +1290,7 @@ class Tree(Axes):
                           ylim=self.get_ylim())
         return p
 
-    def highlight(self, nodes=None, width=5, color="red"):
-        if self.highlightpatch:
-            try:
-                self.highlightpatch.remove()
-            except:
-                pass
-        if not nodes:
-            return
-
+    def _make_highlight_patch(self, nodes, width, color):
         if len(nodes)>1:
             mrca = self.root.mrca(*nodes)
             if not mrca:
@@ -1330,12 +1322,28 @@ class Tree(Axes):
         px, py = verts[-1]
         verts.append((px, py)); codes.append(M)
 
-        self.highlightpath = Path(verts, codes)
-        self.highlightpatch = PathPatch(
-            self.highlightpath, fill=False, linewidth=width, edgecolor=color,
-            capstyle='round', joinstyle='round'
-            )
-        return self.add_patch(self.highlightpatch)
+        highlightpath = Path(verts, codes)
+        highlightpatch = PathPatch(
+            highlightpath, fill=False, linewidth=width, edgecolor=color,
+            capstyle='round', joinstyle='round')
+        return self.add_patch(highlightpatch)
+
+    def highlight(self, nodes=None, width=5, color="red", store=None):
+        if self.highlightpatch:
+            try:
+                self.highlightpatch.remove()
+            except:
+                pass
+        if not nodes:
+            return
+
+        if not store:
+            self.highlightpatch = self._make_highlight_patch(
+                nodes, width, color)
+        else:
+            self.decorate(
+                self.__class__._make_highlight_patch, nodes, width, color,
+                store=store)
 
     def find(self, s):
         """
@@ -1567,19 +1575,23 @@ class Tree(Axes):
 
 
     @property
+    def axis_leaflabels(self):
+        return self._axis_leaflabels
+
+    @axis_leaflabels.setter
+    def axis_leaflabels(self, x):
+        self._axis_leaflabels = bool(x)
+        self.yaxis.set_tick_params(labelright=True)
+        self.yaxis.get_major_locator()()
+
+    @property
     def axis_leaflines(self):
-        return _axis_leaflines
+        return self._axis_leaflines
 
     @axis_leaflines.setter
     def axis_leaflines(self, x):
         self._axis_leaflines = bool(x)
-        if not x:
-            for c in self.n2c.values():
-                try:
-                    hl = getattr(c, 'hline')
-                    hl.set_visible(False)
-                except AttributeError:
-                    continue
+        self.yaxis.get_major_locator()()
 
     def layout(self):
         self.n2c = cartesian(self.root, scaled=self.scaled, yunit=1.0,
@@ -1590,22 +1602,6 @@ class Tree(Axes):
             [c.y, c.x, n] for n, c in self.n2c.items()
             ])
         self.coords = sv#numpy.array(sv)
-
-        # custom tick locator and formatter
-        yax = self.yaxis
-        leaves = self.root.leaves()
-        locator = TreeTicker(self)
-        self._axis_leaflines = True
-        yax.set_major_locator(locator)
-        n2c = self.n2c
-        d = dict([ (n2c[n].y, n.label) for n in leaves ])
-        def format(x, pos, d=d):
-            try:
-                return d[x]
-            except KeyError:
-                pass
-        yax.set_major_formatter(FuncFormatter(format))
-        yax.tick_right()
 
     def set_root(self, root):
         self.root = root
@@ -1632,6 +1628,26 @@ class Tree(Axes):
         if "leaflabels" in kwargs:
             self.leaflabels = kwargs["leaflabels"]
         ## self.yaxis.set_visible(self.axis_leaflabels)
+
+        # custom tick locator and formatter
+        yax = self.yaxis
+        leaves = self.root.leaves()
+        locator = TreeTicker(self)
+        yax.set_major_locator(locator)
+        n2c = self.n2c
+        d = dict([ (n2c[n].y, n.label) for n in leaves ])
+        def format(x, pos, d=d):
+            try:
+                return d[x]
+            except KeyError:
+                pass
+        yax.set_major_formatter(FuncFormatter(format))
+        yax.tick_right()
+        yax.set_tick_params(
+            right=False,
+            labelright=self._axis_leaflabels
+            )
+
         self.create_branch_artists()
         self.create_label_artists()
         if self.highlight_support:
@@ -2083,6 +2099,10 @@ class OverviewTree(Tree):
         self.add_overview_rect()
         self.figure.canvas.draw_idle()
 
+    ## def plot_tree(self, root=None, **kwargs):
+    ##     super().plot_tree(root, **kwargs)
+    ##     self.yaxis.set_visible(False)
+
 def axes_enter(e):
     ax = e.inaxes
     ax._active = True
@@ -2255,7 +2275,91 @@ TreePlot = subplot_class_factory(Tree)
 RadialTreePlot = subplot_class_factory(RadialTree)
 OverviewTreePlot = subplot_class_factory(OverviewTree)
 
-if __name__ == "__main__":
-    import evolve
-    root, data = evolve.test_brownian()
-    plot_continuous(root, data, name="Brownian", mid=0.0)
+class Data(Axes):
+    def __init__(self, fig, rect, *args, **kwargs):
+        self.app = kwargs.pop('app')
+        self._labels = kwargs.pop('labels', False)
+        Axes.__init__(
+            self, fig, rect, *args, sharey=self.app.detail, **kwargs)
+        self.set_fc('lightyellow')
+        yax = self.yaxis
+        yax.set_major_locator(LeafLocator(self.app.detail))
+        n2c = self.app.detail.n2c
+        d = dict([ (n2c[n].y, n.label) for n in self.app.root.leaves() ])
+        def format(x, pos, d=d):
+            try:
+                return d[x]
+            except KeyError:
+                pass
+        yax.set_major_formatter(FuncFormatter(format))
+        yax.tick_right()
+        yax.set_visible(self._labels)
+        self.xaxis.set_visible(False)
+        for x in self.spines.values():
+            x.set_visible(False)
+
+    @property
+    def labels(self):
+        return self._labels
+    @labels.setter
+    def labels(self, x):
+        self._labels = bool(x)
+        self.yaxis.set_visible(self._labels)
+
+    bounds = property(
+        lambda self: list(self.get_position().bounds),
+        lambda self, v: self.set_position(v),
+    )
+
+    @property
+    def left(self):
+        return self.bounds[0]
+
+    @property
+    def right(self):
+        b = self.bounds
+        return b[0]+b[2]
+
+    @property
+    def bottom(self):
+        return self.bounds[1]
+
+    @property
+    def top(self):
+        b = self.bounds
+        return b[1]+b[3]
+
+    @property
+    def width(self):
+        return self.bounds[2]
+
+    @property
+    def height(self):
+        return self.bounds[3]
+
+    @left.setter
+    def left(self, x):
+        left, bottom, w, h = self.bounds
+        assert x < (left+w)
+        delta = x-left
+        dp = self.app.detail
+        dpl, dpb, dpw, dph = dp.bounds
+        dp.bounds = (dpl, dpb, dpw+delta, dph)
+        self.app.detail_width = dpw+delta
+        self.bounds = (x, bottom, w-delta, h)
+        self.app.dataplot_width = w-delta
+
+    @right.setter
+    def right(self, x):
+        left, bottom, w, h = self.bounds
+        assert x > left
+        right = left+w
+        delta = x-right
+        self.bounds = (left, bottom, w+delta, h)
+        self.app.dataplot_width = w+delta
+
+DataPlot = subplot_class_factory(Data)
+## if __name__ == "__main__":
+##     import evolve
+##     root, data = evolve.test_brownian()
+##     plot_continuous(root, data, name="Brownian", mid=0.0)

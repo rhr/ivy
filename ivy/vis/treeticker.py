@@ -1,7 +1,7 @@
 from matplotlib.ticker import FixedLocator
 import numpy as np
 
-class TreeTicker(FixedLocator):
+class LeafLocator(FixedLocator):
     def __init__(self, treeplot, nbins=100):
         leaves = treeplot.root.leaves()
         cv = [ treeplot.n2c[n] for n in leaves ]
@@ -9,6 +9,25 @@ class TreeTicker(FixedLocator):
         self.y2c = dict(zip(locs, cv))
         super().__init__(locs, nbins=nbins)
 
+    def __call__(self):
+        vmin, vmax = self.axis.get_view_interval()
+        ticks = self.tick_values(vmin, vmax)
+        return ticks
+        
+    def tick_values(self, vmin, vmax):
+        if self.nbins is None:
+            return self.locs
+        locs = self.locs[self.locs>=vmin]
+        locs = locs[locs<=vmax]
+        step = max(int(0.99 + len(locs) / float(self.nbins)), 1)
+        ticks = locs[::step]
+        for i in range(1, step):
+            ticks1 = locs[i::step]
+            if np.abs(ticks1).min() < np.abs(ticks).min():
+                ticks = ticks1
+        return self.raise_if_exceeds(ticks)
+
+class TreeTicker(LeafLocator):
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
         ticks = self.tick_values(vmin, vmax)
@@ -39,17 +58,4 @@ class TreeTicker(FixedLocator):
                     c.hline = hl
                 hl.set_visible(True)
         return ticks
-        
-    def tick_values(self, vmin, vmax):
-        if self.nbins is None:
-            return self.locs
-        locs = self.locs[self.locs>=vmin]
-        locs = locs[locs<=vmax]
-        step = max(int(0.99 + len(locs) / float(self.nbins)), 1)
-        ticks = locs[::step]
-        for i in range(1, step):
-            ticks1 = locs[i::step]
-            if np.abs(ticks1).min() < np.abs(ticks).min():
-                ticks = ticks1
-        return self.raise_if_exceeds(ticks)
         
