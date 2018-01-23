@@ -72,6 +72,7 @@ class TreeFigure(object):
                  branchlabels=True, leaflabels=True, mark_named=True,
                  highlight_support=True, xoff=0, yoff=0,
                  overview=True, radial=False):
+        self.detail_width = 1.0-div
         self.overview = None
         self.overview_width = div
         self.dataplot = None
@@ -267,18 +268,15 @@ class TreeFigure(object):
         ov = self.overview
         p = self.detail
         dp = self.dataplot
-        height = 1.0-p.xoffset()
+        xoff = p.xoffset()
+        height = 1.0-xoff
         if ov:
-            box = [0, p.xoffset(), self.overview_width, height]
+            box = [0, xoff, self.overview_width, height]
             ov.set_position(box)
-        w = 1.0
-        if ov:
-            w -= self.overview_width
+        p.set_position(
+            [self.overview_width, xoff, self.detail_width, height])
         if dp:
-            w -= self.dataplot_width
-        p.set_position([self.overview_width, p.xoffset(), w, height])
-        if dp:
-            box = [1.0-self.dataplot_width, p.xoffset(),
+            box = [1.0-self.dataplot_width, xoff,
                    self.dataplot_width, height]
             dp.set_position(box)
         self.figure.canvas.draw_idle()
@@ -289,7 +287,7 @@ class TreeFigure(object):
     ##     self.set_positions()
     ##     self.figure.canvas.draw_idle()
 
-    def add_dataplot(self):
+    def add_dataplot(self, width=0.25):
         """
         Add new plot to the side of existing plot
         """
@@ -299,9 +297,7 @@ class TreeFigure(object):
         self.dataplot = self.figure.add_subplot(1, np, np, sharey=self.detail)
         # left, bottom, width, height (proportions)
         dleft, dbottom, dwidth, dheight = self.detail.get_position().bounds
-        # give the dataplot one-quarter the width of the detail axes
-        w = dwidth * 0.25
-        self.detail.set_position([dleft, dbottom, dwidth-w, dheight])
+        self.detail.set_position([dleft, dbottom, dwidth-width, dheight])
         self.dataplot.set_position([1-w, dbottom, w, dheight])
         self.dataplot.xaxis.set_visible(False)
         self.dataplot.yaxis.set_visible(False)
@@ -767,6 +763,8 @@ class Tree(Axes):
         self.yoff = kwargs.pop("yoff", 0)
         self.highlight_support = kwargs.pop("highlight_support", True)
         self.smooth_xpos = kwargs.pop("smooth_xpos", 0)
+        self.axis_leaflines = kwargs.pop("axis_leaflines", False)
+        self.axis_leaflabels = kwargs.pop("axis_leaflabels", False)
         Axes.__init__(self, fig, rect, *args, **kwargs)
         self.nleaves = 0
         self.highlighted = None
@@ -802,16 +800,66 @@ class Tree(Axes):
         self.spines["right"].set_visible(False)
         self.xaxis.set_ticks_position("bottom")
 
-    def __get_width(self):
-        return self.get_position().width
+    bounds = property(
+        lambda self: list(self.get_position().bounds),
+        lambda self, v: self.set_position(v),
+    )
 
-    def __set_width(self, w):
-        v = list(self.get_position().bounds)
-        v[2] = w
-        self.set_position(v)
+    @property
+    def left(self):
+        return self.bounds[0]
 
-    width = property(__get_width, __set_width)
+    @property
+    def right(self):
+        b = self.bounds
+        return b[0]+b[2]
 
+    @property
+    def bottom(self):
+        return self.bounds[1]
+
+    @property
+    def top(self):
+        b = self.bounds
+        return b[1]+b[3]
+
+    @property
+    def width(self):
+        return self.bounds[2]
+
+    @property
+    def height(self):
+        return self.bounds[3]
+
+    @left.setter
+    def left(self, x):
+        left, bottom, w, h = self.bounds
+        assert x < (left+w)
+        delta = x-left
+        ov = self.app.overview
+        if ov:
+            ovl, ovb, ovw, ovh = ov.bounds
+            if ovb==bottom:
+                ov.bounds = (ovl, ovb, ovw+delta, ovh)
+                self.app.overview_width = ovw+delta
+        self.bounds = (x, bottom, w-delta, h)
+        self.app.detail_width = w-delta
+
+    @right.setter
+    def right(self, x):
+        left, bottom, w, h = self.bounds
+        assert x > left
+        right = left+w
+        delta = x-right
+        dp = self.app.dataplot
+        if dp:
+            dpl, dpb, dpw, dph = dp.bounds
+            if dpb==bottom:
+                dp.bounds = (dpl+delta, dpb, dpw-delta, dph)
+                self.app.dataplot_width = dpw-delta
+        self.bounds = (left, bottom, w+delta, h)
+        self.app.detail_width = w+delta
+    
     def p2y(self):
         "Convert a single display point to y-units"
         transform = self.transData.inverted().transform
@@ -1994,6 +2042,28 @@ class OverviewTree(Tree):
         self.xaxis.set_visible(False)
         self.spines["bottom"].set_visible(False)
         self.add_overview_rect()
+
+    @Tree.left.setter
+    def left(self, x):
+        left, bottom, w, h = self.bounds
+        assert x < (left+w)
+        delta = x-left
+        self.bounds = (x, bottom, w-delta, h)
+        self.app.overview_width = w-delta
+
+    @Tree.right.setter
+    def right(self, x):
+        left, bottom, w, h = self.bounds
+        assert x > left
+        right = left+w
+        delta = x-right
+        dp = self.app.detail
+        dpl, dpb, dpw, dph = dp.bounds
+        if dpb==bottom:
+            dp.bounds = (dpl+delta, dpb, dpw-delta, dph)
+            self.app.dataplot_width = dpw-delta
+        self.bounds = (left, bottom, w+delta, h)
+        self.app.overview_width = w+delta
 
     def set_target(self, target):
         self.target = target
