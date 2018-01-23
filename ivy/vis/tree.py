@@ -763,8 +763,8 @@ class Tree(Axes):
         self.yoff = kwargs.pop("yoff", 0)
         self.highlight_support = kwargs.pop("highlight_support", True)
         self.smooth_xpos = kwargs.pop("smooth_xpos", 0)
-        self.axis_leaflines = kwargs.pop("axis_leaflines", False)
-        self.axis_leaflabels = kwargs.pop("axis_leaflabels", False)
+        self._axis_leaflines = kwargs.pop("axis_leaflines", False)
+        self._axis_leaflabels = kwargs.pop("axis_leaflabels", False)
         Axes.__init__(self, fig, rect, *args, **kwargs)
         self.nleaves = 0
         self.highlighted = None
@@ -1566,6 +1566,21 @@ class Tree(Axes):
         ##                   edgecolor=color or self.branch_color)]
 
 
+    @property
+    def axis_leaflines(self):
+        return _axis_leaflines
+
+    @axis_leaflines.setter
+    def axis_leaflines(self, x):
+        self._axis_leaflines = bool(x)
+        if not x:
+            for c in self.n2c.values():
+                try:
+                    hl = getattr(c, 'hline')
+                    hl.set_visible(False)
+                except AttributeError:
+                    continue
+
     def layout(self):
         self.n2c = cartesian(self.root, scaled=self.scaled, yunit=1.0,
                              smooth=self.smooth_xpos)
@@ -1575,21 +1590,12 @@ class Tree(Axes):
             [c.y, c.x, n] for n, c in self.n2c.items()
             ])
         self.coords = sv#numpy.array(sv)
-        ## n2c = self.n2c
-        ## self.node2linesegs = {}
-        ## for node, coords in n2c.items():
-        ##     x = coords.x; y = coords.y
-        ##     v = [(x,y)]
-        ##     if node.parent:
-        ##         pcoords = n2c[node.parent]
-        ##         px = pcoords.x; py = pcoords.y
-        ##         v.append((px,y))
-        ##         v.append((px,py))
-        ##         self.node2linesegs[node] = v
+
+        # custom tick locator and formatter
         yax = self.yaxis
         leaves = self.root.leaves()
-        ## locator = FixedLocator([ self.n2c[n].y for n in leaves ])
         locator = TreeTicker(self)
+        self._axis_leaflines = True
         yax.set_major_locator(locator)
         n2c = self.n2c
         d = dict([ (n2c[n].y, n.label) for n in leaves ])
@@ -1625,7 +1631,7 @@ class Tree(Axes):
             self.branchlabels = kwargs["branchlabels"]
         if "leaflabels" in kwargs:
             self.leaflabels = kwargs["leaflabels"]
-        self.yaxis.set_visible(False)
+        ## self.yaxis.set_visible(self.axis_leaflabels)
         self.create_branch_artists()
         self.create_label_artists()
         if self.highlight_support:
@@ -1640,15 +1646,8 @@ class Tree(Axes):
         self.set_name(self.name)
         self.adjust_xspine()
 
-        if self.interactive: pyplot.ion()
-
-        labels = [ x.label for x in self.root.leaves() ]
-        def fmt(x, pos=None):
-            if x<0: return ""
-            try: return labels[int(round(x))]
-            except: pass
-            return ""
-        #self.yaxis.set_major_formatter(FuncFormatter(fmt))
+        if self.interactive:
+            pyplot.ion()
 
         return self
 

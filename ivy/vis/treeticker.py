@@ -19,24 +19,25 @@ class TreeTicker(FixedLocator):
                 hl.set_visible(False)
             except AttributeError:
                 continue
-        for y in ticks:
-            c = y2c[y]
-            try:
-                hl = getattr(c, 'hline')
-            except AttributeError:
-                ax = self.axis.axes
-                hl = ax.annotate(
-                    '', xy=(c.x, c.y), xycoords='data',
-                    xytext=(1, c.y), textcoords=('axes fraction', 'data'),
-                    arrowprops=dict(
-                        arrowstyle='-',
-                        connectionstyle='arc3',
-                        lw=0.5,
-                        color='gray',
-                        fc='gray',
-                        ls='dashed'))
-                c.hline = hl
-            hl.set_visible(True)
+        if self.axis.axes._axis_leaflines:
+            for y in ticks:
+                c = y2c[y]
+                try:
+                    hl = getattr(c, 'hline')
+                except AttributeError:
+                    ax = self.axis.axes
+                    hl = ax.annotate(
+                        '', xy=(c.x, c.y), xycoords='data',
+                        xytext=(1, c.y), textcoords=('axes fraction', 'data'),
+                        arrowprops=dict(
+                            arrowstyle='-',
+                            connectionstyle='arc3',
+                            lw=0.5,
+                            color='gray',
+                            fc='gray',
+                            ls='dashed'))
+                    c.hline = hl
+                hl.set_visible(True)
         return ticks
         
     def tick_values(self, vmin, vmax):
