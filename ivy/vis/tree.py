@@ -2,7 +2,7 @@
 interactive viewers for trees, etc. using matplotlib
 """
 import sys, math, types, os, operator
-from itertools import chain
+from itertools import chain, cycle
 from .. import tree
 from ..layout import cartesian
 from ..storage import Storage
@@ -22,7 +22,8 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox, AnchoredText
 from matplotlib.ticker import NullLocator, FixedLocator, FuncFormatter
 from .treeticker import TreeTicker, LeafLocator
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from . import symbols, colors
+from . import symbols
+from . import colors as _colors
 from . import hardcopy as HC
 try:
     import Image
@@ -1581,8 +1582,8 @@ class Tree(Axes):
     @axis_leaflabels.setter
     def axis_leaflabels(self, x):
         self._axis_leaflabels = bool(x)
-        self.yaxis.set_tick_params(labelright=True)
-        self.yaxis.get_major_locator()()
+        self.yaxis.set_tick_params(labelright=self._axis_leaflabels)
+        ## self.yaxis.get_major_locator()()
 
     @property
     def axis_leaflines(self):
@@ -2278,6 +2279,7 @@ OverviewTreePlot = subplot_class_factory(OverviewTree)
 class Data(Axes):
     def __init__(self, fig, rect, *args, **kwargs):
         self.app = kwargs.pop('app')
+        self.root = self.app.detai.root
         self._labels = kwargs.pop('labels', False)
         Axes.__init__(
             self, fig, rect, *args, sharey=self.app.detail, **kwargs)
@@ -2285,7 +2287,7 @@ class Data(Axes):
         yax = self.yaxis
         yax.set_major_locator(LeafLocator(self.app.detail))
         n2c = self.app.detail.n2c
-        d = dict([ (n2c[n].y, n.label) for n in self.app.root.leaves() ])
+        d = dict([ (n2c[n].y, n.label) for n in self.root.leaves() ])
         def format(x, pos, d=d):
             try:
                 return d[x]
@@ -2297,6 +2299,10 @@ class Data(Axes):
         self.xaxis.set_visible(False)
         for x in self.spines.values():
             x.set_visible(False)
+
+        self._s2n = dict([ (n.label, n) for n in self.root.leaves() ])
+        for k,v in self._s2n.items():
+            self._s2n[k.replace(' ','_')] = v
 
     @property
     def labels(self):
@@ -2357,6 +2363,17 @@ class Data(Axes):
         delta = x-right
         self.bounds = (left, bottom, w+delta, h)
         self.app.dataplot_width = w+delta
+
+    ## def plot_binary_multistate(
+    ##         self, df, present=1, absent=0, missing=pd.np.nan):
+    ##     colors = cycle(_colors.table.medium[:-1])
+    ##     mc = _colors.table.medium.loc['lightgray']
+    ##     for x, col in enumerate(df):
+    ##         color = next(colors)
+    ##         d = {present:color, missing:mc}
+    ##         char = df[col]
+            
+        
 
 DataPlot = subplot_class_factory(Data)
 ## if __name__ == "__main__":

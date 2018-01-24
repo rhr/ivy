@@ -1,6 +1,8 @@
 ## from matplotlib import cm as mpl_colormap
 ## from matplotlib import colors as mpl_colors
+import pandas as pd
 from itertools import cycle
+from io import StringIO
 
 tango_colors = {
     'Aluminium1': (0.933, 0.933, 0.925, 1),
@@ -39,3 +41,16 @@ def tango():
                    "ScarletRed1", "SkyBlue1", "Chameleon1", "Plum1",
                    "Orange1", "Butter1", "Chocolate1", "Aluminium4")))
     return c
+
+table = pd.read_csv(StringIO("""
+name,light,medium,dark
+blue,#729fcf,#3465a4,#204a87
+orange,#fcaf3e,#f57900,#ce5c00
+green,#8ae234,#73d216,#4e9a06
+purple,#ad7fa8,#75507b,#5c3566
+brown,#e9b96e,#c17d11,#8f5902
+red,#ef2929,#cc0000,#a40000
+yellow,#fce94f,#edd400,#c4a000
+darkgray,#888a85,#555753,#2e3436
+lightgray,#eeeeec,#d3d7cf,#babdb6
+"""),index_col='name')
