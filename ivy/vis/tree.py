@@ -11,12 +11,12 @@ from .. import pyperclip as clipboard
 import matplotlib.pyplot as pyplot
 from matplotlib.axes import Axes, subplot_class_factory
 from matplotlib.figure import SubplotParams
-from matplotlib.patches import PathPatch, Rectangle, Arc
+from matplotlib.patches import Rectangle, Wedge, Circle, PathPatch, Arc
 from matplotlib.path import Path
 from matplotlib.widgets import RectangleSelector
 from matplotlib import cm as mpl_colormap
 from matplotlib import colors as mpl_colors
-from matplotlib.collections import LineCollection
+from matplotlib.collections import LineCollection, PatchCollection
 from matplotlib.transforms import Bbox
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox, AnchoredText
 from matplotlib.ticker import NullLocator, FixedLocator, FuncFormatter
@@ -29,10 +29,13 @@ try:
     import Image
 except ImportError:
     from PIL import Image
+import pandas as pd
+np = pd.np
+nan = np.nan
 
 # matplotlib.rcParams['path.simplify'] = False
 
-_tango = colors.tango()
+_tango = _colors.tango()
 class TreeFigure(object):
     """
     Window for showing a single tree, optionally with split overview
@@ -1870,7 +1873,7 @@ class Tree(Axes):
 
     def plot_labelcolor(self, nodemap, state2color=None):
         if state2color is None:
-            c = colors.tango()
+            c = _colors.tango()
             states = sorted(set(nodemap.values()))
             state2color = dict(zip(states, c))
 
@@ -1904,7 +1907,7 @@ class Tree(Axes):
         root = self.root
         if cmap is None:
             import ivy
-            c = colors.tango()
+            c = _colors.tango()
             states = sorted(set(data.values()))
             cmap = dict(zip(states, c))
         n2c = self.n2c
@@ -2279,15 +2282,15 @@ OverviewTreePlot = subplot_class_factory(OverviewTree)
 class Data(Axes):
     def __init__(self, fig, rect, *args, **kwargs):
         self.app = kwargs.pop('app')
-        self.root = self.app.detai.root
+        self.root = self.app.detail.root
         self._labels = kwargs.pop('labels', False)
         Axes.__init__(
             self, fig, rect, *args, sharey=self.app.detail, **kwargs)
         self.set_fc('lightyellow')
         yax = self.yaxis
         yax.set_major_locator(LeafLocator(self.app.detail))
-        n2c = self.app.detail.n2c
-        d = dict([ (n2c[n].y, n.label) for n in self.root.leaves() ])
+        self.n2c = self.app.detail.n2c
+        d = dict([ (self.n2c[n].y, n.label) for n in self.root.leaves() ])
         def format(x, pos, d=d):
             try:
                 return d[x]
@@ -2299,10 +2302,6 @@ class Data(Axes):
         self.xaxis.set_visible(False)
         for x in self.spines.values():
             x.set_visible(False)
-
-        self._s2n = dict([ (n.label, n) for n in self.root.leaves() ])
-        for k,v in self._s2n.items():
-            self._s2n[k.replace(' ','_')] = v
 
     @property
     def labels(self):
@@ -2364,16 +2363,43 @@ class Data(Axes):
         self.bounds = (left, bottom, w+delta, h)
         self.app.dataplot_width = w+delta
 
-    ## def plot_binary_multistate(
-    ##         self, df, present=1, absent=0, missing=pd.np.nan):
-    ##     colors = cycle(_colors.table.medium[:-1])
-    ##     mc = _colors.table.medium.loc['lightgray']
-    ##     for x, col in enumerate(df):
-    ##         color = next(colors)
-    ##         d = {present:color, missing:mc}
-    ##         char = df[col]
+    def plot_binary_multistate(self, df, colors=None, missing=nan,
+                               missing_color=None):
+        """
+        *df* is a pandas DataFrame indexed by leaf labels where
+        states are columns
+        """
+
+        if not colors:
+            v = _colors.table.medium[:-1].values
+            colors = dict([ (c, v[i]) for i, c in enumerate(df.columns) ])
             
+            
+        if not missing_color:
+            # light gray
+            missing_color = _colors.table.medium.values[-1]
+
+        if missing is not nan:
+            df = df.replace(missing, nan)
+
+        import pdb; pdb.set_trace()
+
+        leaflabels = pd.Index([ lf.label for lf in self.root.leaves() ])
+        d = pd.DataFrame(columns=df.columns, index=leaflabels)
+        d['_loc_'] = pd.Series()
+        for lf in self.root.leaves():
+            idx = lf.label
+            try:
+                vals = dict(df.loc[idx])
+            except KeyError:
+                try:
+                    vals = dict(df.loc[idx.replace('_',' ')])
+                except KeyError:
+                    continue
+            vals['_loc_'] = self.n2c[lf].y
+            d.loc[idx] = vals
         
+                        
 
 DataPlot = subplot_class_factory(Data)
 ## if __name__ == "__main__":
