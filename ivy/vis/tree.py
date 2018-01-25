@@ -2372,8 +2372,7 @@ class Data(Axes):
 
         if not colors:
             v = _colors.table.medium[:-1].values
-            colors = dict([ (c, v[i]) for i, c in enumerate(df.columns) ])
-            
+            colors = v[:len(df.columns)]
             
         if not missing_color:
             # light gray
@@ -2382,24 +2381,27 @@ class Data(Axes):
         if missing is not nan:
             df = df.replace(missing, nan)
 
-        import pdb; pdb.set_trace()
+        ## import pdb; pdb.set_trace()
 
-        leaflabels = pd.Index([ lf.label for lf in self.root.leaves() ])
-        d = pd.DataFrame(columns=df.columns, index=leaflabels)
-        d['_loc_'] = pd.Series()
+        rv = []
+        m = pd.Series(index=df.columns)
         for lf in self.root.leaves():
-            idx = lf.label
             try:
-                vals = dict(df.loc[idx])
+                vals = df.loc[lf.label]
             except KeyError:
-                try:
-                    vals = dict(df.loc[idx.replace('_',' ')])
-                except KeyError:
+                vals = m
+            y = self.n2c[lf].y
+            for x, c in enumerate(df.columns):
+                val = vals[c]
+                if np.isnan(val):
+                    color = missing_color
+                elif val:
+                    color = colors[x]
+                else:
                     continue
-            vals['_loc_'] = self.n2c[lf].y
-            d.loc[idx] = vals
-        
-                        
+                r = Rectangle((x-0.5, y-0.5), 1, 1, fc=color, ec='none')
+                rv.append(r)
+        return self.add_collection(PatchCollection(rv, match_original=True))
 
 DataPlot = subplot_class_factory(Data)
 ## if __name__ == "__main__":
