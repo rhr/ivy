@@ -13,6 +13,7 @@ install_requires = [
     'numpy',
     'scipy',
     'matplotlib',
+    'pandas',
     'pillow',
     'biopython',
     'pyparsing',
