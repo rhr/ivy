@@ -1,6 +1,7 @@
 ipython
 numpy
 scipy
+pandas
 biopython
 matplotlib
 pillow
