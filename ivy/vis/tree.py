@@ -105,7 +105,7 @@ class TreeFigure(object):
             left=0, right=1, bottom=0.05, top=1, wspace=0.01
             )
         fig = pyplot.figure(subplotpars=pars, facecolor="white")
-        connect_events(fig.canvas)
+        self.event_cids = connect_events(fig.canvas)
         self.figure = fig
         self.initialize_subplots(overview)
         self.home()
@@ -726,16 +726,21 @@ class JuxtaposerFigure(MultiTreeFigure):
                 p.highlight(hits, 4, "green")
                 p.figure.canvas.draw_idle()
                 
-def connect_events(canvas):
+def connect_events(canvas, exclude=[]):
     mpl_connect = canvas.mpl_connect
-    mpl_connect("button_press_event", onclick)
-    mpl_connect("button_release_event", onbuttonrelease)
-    mpl_connect("scroll_event", onscroll)
-    mpl_connect("pick_event", onpick)
-    mpl_connect("motion_notify_event", ondrag)
-    mpl_connect("key_press_event", onkeypress)
-    mpl_connect("axes_enter_event", axes_enter)
-    mpl_connect("axes_leave_event", axes_leave)
+    d = {}
+    for event, func in (
+            ("button_press_event", onclick),
+            ("button_release_event", onbuttonrelease),
+            ("scroll_event", onscroll),
+            ("pick_event", onpick),
+            ("motion_notify_event", ondrag),
+            ("key_press_event", onkeypress),
+            ("axes_enter_event", axes_enter),
+            ("axes_leave_event", axes_leave)):
+        if event not in exclude:
+            d[event] = mpl_connect(event, func)
+    return d
 
 class UpdatingRect(Rectangle):
     def __call__(self, p):
@@ -2175,7 +2180,7 @@ def onpick(e):
 
 def onscroll(e):
     ax = e.inaxes
-    if ax:
+    if ax and not isinstance(ax, OverviewTreePlot):
         b = e.button
         ## print b
         k = e.key
