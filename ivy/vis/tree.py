@@ -11,7 +11,8 @@ from .. import pyperclip as clipboard
 import matplotlib.pyplot as pyplot
 from matplotlib.axes import Axes, subplot_class_factory
 from matplotlib.figure import SubplotParams
-from matplotlib.patches import Rectangle, Wedge, Circle, PathPatch, Arc
+from matplotlib.patches import Rectangle, Wedge, Circle, PathPatch, Arc, Patch
+from matplotlib.lines import Line2D
 from matplotlib.path import Path
 from matplotlib.widgets import RectangleSelector
 from matplotlib import cm as mpl_colormap
@@ -564,7 +565,7 @@ class MultiTreeFigure(object):
             left=0, right=1, bottom=0.05, top=1, wspace=0.04
             )
         fig = pyplot.figure(subplotpars=pars)
-        connect_events(fig.canvas)
+        self.event_cids = connect_events(fig.canvas)
         self.figure = fig
 
         for x in trees or []:
@@ -1961,6 +1962,20 @@ class Tree(Axes):
                 cbar.ax.set_xlabel(name)
 
         self.figure.canvas.draw_idle()
+
+    def make_legend(self, entries, marker='rect', **kwargs):
+        if marker == 'rect':
+            m = Patch
+        elif marker == 'line':
+            m = Line2D
+            kwargs['xdata'] = []
+            kwargs['ydata'] = []
+        else:
+            raise ValueError('unknown marker {}'.format(marker))
+
+        handles = [m(color=color, label=label, **kwargs)
+                   for color, label in entries]
+        return self.legend(handles=handles)
 
 class RadialTree(Tree):
     def layout(self):
