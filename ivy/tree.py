@@ -1105,11 +1105,14 @@ def read(data, format=None, treename=None, ttable=None):
     elif format == "nexus":
         if isinstance(data, str):
             if os.path.isfile(data):
+                treename = strip(data)
                 with open(data) as infile:
                     nexiter = nexus.iter_trees(infile)
                     rec = next(nexiter)
                     if rec:
-                        return rec.parse()
+                        r = rec.parse()
+                        r.treename = treename or ''
+                        return r
             else:
                 nexiter = nexus.iter_trees(StringIO(data))
         else:
