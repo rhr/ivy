@@ -2303,6 +2303,7 @@ class Data(Axes):
     def __init__(self, fig, rect, *args, **kwargs):
         self.app = kwargs.pop('app')
         self.root = self.app.detail.root
+        self.leaves = self.root.leaves()
         self._labels = kwargs.pop('labels', False)
         Axes.__init__(
             self, fig, rect, *args, sharey=self.app.detail, **kwargs)
@@ -2310,8 +2311,9 @@ class Data(Axes):
         yax = self.yaxis
         yax.set_major_locator(LeafLocator(self.app.detail))
         self.n2c = self.app.detail.n2c
-        d = dict([ (self.n2c[n].y, n.label) for n in self.root.leaves() ])
-        def format(x, pos, d=d):
+        self.s2n = dict([ (lf.label, lf) for lf in self.leaves ])
+        self.y2s = dict([ (self.n2c[n].y, s) for s, n in self.s2n.items() ])
+        def format(x, pos, d=self.y2s):
             try:
                 return d[x]
             except KeyError:
@@ -2322,6 +2324,15 @@ class Data(Axes):
         self.xaxis.set_visible(False)
         for x in self.spines.values():
             x.set_visible(False)
+
+    def yvals(self, labels):
+        v = []
+        for s in labels:
+            try:
+                v.append(self.n2c[self.s2n[s]].y)
+            except KeyError:
+                v.append(nan)
+        return v
 
     @property
     def labels(self):
