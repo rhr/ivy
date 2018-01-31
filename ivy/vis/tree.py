@@ -2394,6 +2394,16 @@ class Data(Axes):
         self.bounds = (left, bottom, w+delta, h)
         self.app.dataplot_width = w+delta
 
+    def plot_continuous_range(self, labels, xmin, xmax, x=None, **kwargs):
+        'horizontal lines between xmin and xmax'
+        y = list(self.yvals(labels))
+        x = x or np.add(xmin, xmax)/2.0
+        fmt = kwargs.pop('fmt', ('o' if x is not None else 'none'))
+        xerr = (np.subtract(x, xmin), np.abs(np.subtract(x, xmax)))
+        plotitems = self.errorbar(x, y, xerr=xerr, fmt=fmt, **kwargs)
+        self.xaxis.set_visible(True)
+        return plotitems
+
     def plot_binary_multistate(self, df, colors=None, missing=nan,
                                missing_color=None):
         """
