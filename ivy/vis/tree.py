@@ -291,6 +291,27 @@ class TreeFigure(object):
             dp.set_position(box)
         self.figure.canvas.draw_idle()
 
+    def set_widths(self, *widths):
+        widths = iter(widths)
+        for s in 'overview detail dataplot'.split():
+            try:
+                ax = getattr(self, s)
+            except AttributeError:
+                continue
+            w = next(widths)
+            setattr(self, '{}_width'.format(s), w)
+        self.set_positions()
+
+    def get_widths(self):
+        w = []
+        for s in 'overview detail dataplot'.split():
+            try:
+                ax = getattr(self, s)
+            except AttributeError:
+                continue
+            w.append(getattr(self, '{}_width'.format(s)))
+        return w
+
     ## def div(self, v=0.3):
     ##     assert 0 <= v < 1
     ##     self.overview_width = v
@@ -862,7 +883,8 @@ class Tree(Axes):
                 self.app.overview_width = ovw+delta
         self.bounds = (x, bottom, w-delta, h)
         self.app.detail_width = w-delta
-
+        self.app.figure.canvas.draw_idle()
+        
     @right.setter
     def right(self, x):
         left, bottom, w, h = self.bounds
@@ -877,6 +899,7 @@ class Tree(Axes):
                 self.app.dataplot_width = dpw-delta
         self.bounds = (left, bottom, w+delta, h)
         self.app.detail_width = w+delta
+        self.app.figure.canvas.draw_idle()
     
     def p2y(self):
         "Convert a single display point to y-units"
@@ -2093,6 +2116,7 @@ class OverviewTree(Tree):
         delta = x-left
         self.bounds = (x, bottom, w-delta, h)
         self.app.overview_width = w-delta
+        self.app.figure.canvas.draw_idle()
 
     @Tree.right.setter
     def right(self, x):
@@ -2107,6 +2131,7 @@ class OverviewTree(Tree):
             self.app.dataplot_width = dpw-delta
         self.bounds = (left, bottom, w+delta, h)
         self.app.overview_width = w+delta
+        self.app.figure.canvas.draw_idle()
 
     def set_target(self, target):
         self.target = target
