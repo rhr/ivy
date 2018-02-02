@@ -37,6 +37,7 @@ nan = np.nan
 # matplotlib.rcParams['path.simplify'] = False
 
 _tango = _colors.tango()
+
 class TreeFigure(object):
     """
     Window for showing a single tree, optionally with split overview
@@ -269,19 +270,23 @@ class TreeFigure(object):
         """
         self.figure.show()
 
-    def set_positions(self):
+    def set_positions(self, height=None):
         ov = self.overview
         p = self.detail
         dp = self.dataplot
         xoff = p.xoffset()
-        height = 1.0-xoff
+        if height is None:
+            height = 1.0-xoff
+        x = 0
         if ov:
-            box = [0, xoff, self.overview_width, height]
+            box = [x, xoff, self.overview_width, height]
             ov.set_position(box)
+            x += self.overview_width
         p.set_position(
             [self.overview_width, xoff, self.detail_width, height])
+        x += self.detail_width
         if dp:
-            box = [1.0-self.dataplot_width, xoff,
+            box = [x, xoff,
                    self.dataplot_width, height]
             dp.set_position(box)
         self.figure.canvas.draw_idle()
@@ -314,7 +319,8 @@ class TreeFigure(object):
         Replot the figure and overview
         """
         self.detail.redraw()
-        if self.overview: self.overview.redraw()
+        if self.overview:
+            self.overview.redraw()
         self.highlight()
         self.set_positions()
         self.figure.canvas.draw_idle()
@@ -539,6 +545,8 @@ class TreeFigure(object):
         self.detail.set_position([0, xoff, 0.3, 1.0-xoff])
         p.set_position([0.3, xoff, 0.7, 1.0-xoff])
 
+    def set_size_inches(self, *args):
+        self.figure.set_size_inches(*args)
 
 class MultiTreeFigure(object):
     """
@@ -1277,10 +1285,6 @@ class Tree(Axes):
         lc = LineCollection(segs, linewidths=w, transOffset=offset, offsets=o)
         lc.set_color(color)
         Axes.add_collection(self, lc)
-        ## self.drawstack.append(("hlines", [nodes], dict(width=width,
-        ##                                                color=color,
-        ##                                                xoff=xoff,
-        ##                                                yoff=yoff)))
         self.figure.canvas.draw_idle()
         return lc
 
@@ -1494,48 +1498,48 @@ class Tree(Axes):
         p0, p1 = self.transData.transform(((0, y0), (0, y1)))[:,1]
         return (y1-y0)/float(p1-p0)
 
-    def draw_labels_old(self, *args):
-        if self.nleaves:
-            y0, y1 = self.get_ylim()
-            y0 = max(0, y0); y1 = min(1, y1)
+    ## def draw_labels_old(self, *args):
+    ##     if self.nleaves:
+    ##         y0, y1 = self.get_ylim()
+    ##         y0 = max(0, y0); y1 = min(1, y1)
 
-            display_points = self.transData.transform(((0, y0), (0, y1)))
-            # height in pixels (visible y data extent)
-            height = operator.sub(*reversed(display_points[:,1]))
-            pixelsep = height/((y1-y0)/self.leaf_hsep)
-            fontsize = min(max(pixelsep-2, 8), 12)
+    ##         display_points = self.transData.transform(((0, y0), (0, y1)))
+    ##         # height in pixels (visible y data extent)
+    ##         height = operator.sub(*reversed(display_points[:,1]))
+    ##         pixelsep = height/((y1-y0)/self.leaf_hsep)
+    ##         fontsize = min(max(pixelsep-2, 8), 12)
 
-            if pixelsep >= 8:
-                for node, txt in self.node2label.items():
-                    if node.isleaf:
-                        if self.leaflabels:
-                            c = self.n2c[node]
-                            x = c.x; y = c.y
-                            if (y0 < y < y1):
-                                txt.set_size(fontsize)
-                                txt.set_visible(True)
-                    else:
-                        if self.branchlabels:
-                            c = self.n2c[node]
-                            x = c.x; y = c.y
-                            if (y0 < y < y1):
-                                txt.set_size(fontsize)
-                                txt.set_visible(True)
-            elif pixelsep >= 4:
-                for node, txt in self.node2label.items():
-                    if node.isleaf:
-                        txt.set_visible(False)
-                    else:
-                        if self.branchlabels:
-                            c = self.n2c[node]
-                            x = c.x; y = c.y
-                            if (y0 < y < y1):
-                                txt.set_size(fontsize)
-                                txt.set_visible(True)
-            else:
-                for node, txt in self.node2label.items():
-                    txt.set_visible(False)
-            self.figure.canvas.draw_idle()
+    ##         if pixelsep >= 8:
+    ##             for node, txt in self.node2label.items():
+    ##                 if node.isleaf:
+    ##                     if self.leaflabels:
+    ##                         c = self.n2c[node]
+    ##                         x = c.x; y = c.y
+    ##                         if (y0 < y < y1):
+    ##                             txt.set_size(fontsize)
+    ##                             txt.set_visible(True)
+    ##                 else:
+    ##                     if self.branchlabels:
+    ##                         c = self.n2c[node]
+    ##                         x = c.x; y = c.y
+    ##                         if (y0 < y < y1):
+    ##                             txt.set_size(fontsize)
+    ##                             txt.set_visible(True)
+    ##         elif pixelsep >= 4:
+    ##             for node, txt in self.node2label.items():
+    ##                 if node.isleaf:
+    ##                     txt.set_visible(False)
+    ##                 else:
+    ##                     if self.branchlabels:
+    ##                         c = self.n2c[node]
+    ##                         x = c.x; y = c.y
+    ##                         if (y0 < y < y1):
+    ##                             txt.set_size(fontsize)
+    ##                             txt.set_visible(True)
+    ##         else:
+    ##             for node, txt in self.node2label.items():
+    ##                 txt.set_visible(False)
+    ##         self.figure.canvas.draw_idle()
 
     def redraw(self, home=False, layout=True):
         """
@@ -2123,6 +2127,10 @@ class OverviewTree(Tree):
         self.add_overview_rect()
         self.figure.canvas.draw_idle()
 
+    def remove(self):
+        self.app.overview = None
+        super().remove()
+
     ## def plot_tree(self, root=None, **kwargs):
     ##     super().plot_tree(root, **kwargs)
     ##     self.yaxis.set_visible(False)
@@ -2442,7 +2450,9 @@ class Data(Axes):
                     continue
                 r = Rectangle((x-0.5, y-0.5), 1, 1, fc=color, ec='none')
                 rv.append(r)
-        return self.add_collection(PatchCollection(rv, match_original=True))
+        artists = self.add_collection(PatchCollection(rv, match_original=True))
+        self.autoscale_view()
+        return artists
 
 DataPlot = subplot_class_factory(Data)
 ## if __name__ == "__main__":
