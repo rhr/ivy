@@ -1,60 +1,76 @@
 .. _getting-ivy
 
-**************************
-Downloading and Installing
-**************************
+************
+Installation
+************
 
-Ivy is a Python package, and can be as simple to install as:
+``Ivy`` is a module for Python 3. You probably want to install it into
+a virtual environment. A convenient way to do this is via `miniconda
+<https://conda.io/miniconda.html>`_.
 
-.. code-block:: bash
+Miniconda
+=========
 
-  $ pip install git+git://github.com/rhr/ivy.git
-
-However, ``ivy`` requires quite a bit of third-party open source
-software to work.  The following instructions assume a Debian-based
-Linux system like Ubuntu.  On a Mac, you can `use Anaconda <http://docs.continuum.io/anaconda/install>`_ to install
-dependencies.
-
-More detailed instructions for Mac and Windows are in the works.
-
-Dependencies
-============
-
-``ivy`` depends on several Python libraries for numerical and other
-kinds of specialized functions.
-
-* `matplotlib <http://matplotlib.sf.net>`_ (>=1.0) - cross-platform,
-  toolkit-independent graphics for interactive visualization
-* `scipy <http://www.scipy.org>`_ - high-level scientific modules for
-  statistics, optimization, etc.
-* `numpy <http://numpy.scipy.org>`_ - fast numerical functions for
-  N-dimensional arrays
-* `biopython <http://www.biopython.org>`_ - for handling molecular
-  sequences: converting between formats, querying and retrieving data
-  from GenBank, etc.
-* `pyparsing <http://pyparsing.wikispaces.com>`_ - convenience
-  functions for parsing text
-* `bokeh <http://bokeh.pydata.org/en/latest/>`_ - visualization
-
-These are easily installed by:
+Once ``miniconda`` is installed, you can create a new conda
+environment for ``ivy`` like so:
 
 .. code-block:: bash
 
-  $ sudo apt-get install python-matplotlib python-scipy python-numpy python-biopython python-pyparsing
+  $ conda create -n ivy
 
-However, the precompiled packages available for your system may not be
-up to date - in particular, your distribution may not provide
-matplotlib 1.0 or higher.  In which case you are better off compiling
-your own in a virtual Python environment using `virtualenv
-<http://pypi.python.org/pypi/virtualenv>`_ and `pip
-<http://www.pip-installer.org>`_.
-
-Before proceeding, let's make sure we have everything we need to
-compile the modules:
+Activate the environment:
 
 .. code-block:: bash
 
-  $ sudo apt-get build-dep python-matplotlib python-scipy python-numpy python-biopython python-pyparsing
+  $ source activate ivy
+  (ivy) $
+
+Next, install the dependencies:
+
+* `numpy <http://numpy.scipy.org>`_
+* `scipy <http://www.scipy.org>`_
+* `matplotlib <http://matplotlib.org>`_
+* `pandas <http://pandas.pydata.org>`_
+* `biopython <http://www.biopython.org>`_
+* `pyparsing <http://pyparsing.wikispaces.com>`_
+* `lxml <http://lxml.de>`_
+
+And, for interactive use:
+
+* `jupyter <http://jupyter.org>`_
+
+.. code-block:: bash
+
+  (ivy) $ conda install numpy scipy matplotlib pandas biopython pyparsing lxml jupyter
+
+This will pull in many other dependencies, and may take several
+minutes to complete.
+
+Finally install ``ivy``:
+
+.. code-block:: bash
+
+  (ivy) $ pip install git+http://github.com/rhr/ivy.git
+		
+
+Ubuntu + virtualenv
+===================
+
+On Ubuntu you can install ``ivy``'s dependencies via system
+packages. (If Python 3 is your system's default, replace python3 with
+python below.)
+
+.. code-block:: bash
+
+  $ sudo apt install python3-matplotlib python3-scipy python3-numpy python3-biopython python3-pyparsing python3-pillow python3-lxml python3-pandas
+
+System packages are often out of date, but not to worry, you can
+install everything you need to compile new versions for installation
+into a virtual environment.
+
+.. code-block:: bash
+
+  $ sudo apt build-dep python3-matplotlib python3-scipy python3-numpy python3-biopython python3-pyparsing python3-pillow python3-lxml python3-pandas
 
 Preparing a virtual Python environment
 ======================================
@@ -66,26 +82,7 @@ files.
 
 .. code-block:: bash
 
-  $ sudo apt-get install python-virtualenv
-
-or
-
-.. code-block:: bash
-
-  $ sudo easy_install virtualenv
-
-`pip <http://www.pip-installer.org>`_ is an improved replacement of
-``easy_install``, and can be installed by:
-
-.. code-block:: bash
-
-  $ sudo apt-get install python-pip
-
-or
-
-.. code-block:: bash
-
-  $ sudo easy_install pip
+  $ sudo apt install python3-virtualenv python3-pip
 
 The next step is to create a virtual Python environment:
 
@@ -111,18 +108,18 @@ Once the environment is active, we can install the modules themselves:
 
 .. code-block:: bash
 
-  $ for module in matplotlib scipy numpy biopython pyparsing ; do
+  $ for module in matplotlib scipy numpy pandas biopython pyparsing lxml ; do
   $    pip install $module ;
   $ done
 
-IPython
+Jupyter
 -------
 
-You will also want to install IPython in your virtual environment:
+You will also want to install Jupyter in your virtual environment:
 
 .. code-block:: bash
 
-  $ pip install ipython
+  $ pip install jupyter
 
 Installing ``ivy``
 ==================
@@ -131,7 +128,7 @@ Finally, once the dependencies have been satisfied, we can install ``ivy``:
 
 .. code-block:: bash
 
-  $ pip install git+git://github.com/rhr/ivy.git
+  $ pip install git+http://github.com/rhr/ivy
 
 
 Source code
