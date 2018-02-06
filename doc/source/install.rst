@@ -1,43 +1,68 @@
-.. _getting-ivy
-
 ************
 Installation
 ************
 
 ``Ivy`` is a module for Python 3. You probably want to install it into
-a virtual environment. A convenient way to do this is via `miniconda
-<https://conda.io/miniconda.html>`_.
+a `virtual environment`_. A convenient way to do this is using conda_,
+the package/environment manager provided by the Anaconda_ Python
+distribution and its minimalist cousin, Miniconda_.
 
-Miniconda
-=========
+.. _virtual environment: https://docs.python.org/3/tutorial/venv.html
+.. _conda: https://conda.io/docs
+.. _Anaconda: https://www.anaconda.com/distribution
+.. _Miniconda: https://conda.io/miniconda.html
 
-Once ``miniconda`` is installed, you can create a new conda
-environment for ``ivy`` like so:
+Installation using conda_
+=========================
+
+This is the recommended way, unless you prefer another system of
+managing your environments, in which case adapting the instructions
+below should be straightforward.
+
+Install Anaconda_ or Miniconda_
+-------------------------------
+
+Install the **Python 3** version of either Anaconda_ (large, slow to
+download, includes most dependencies of ``ivy``) or Miniconda_ (small,
+fast to download, includes no dependencies).
+
+The following assumes you now have ``conda`` in your ``$PATH`` and
+you're using a Mac or Linux terminal. The same tasks can be done using
+the Anaconda Navigator's graphical interface.
+
+Create a new environment for `ivy`
+----------------------------------
+
+This is optional, but probably a good idea.
 
 .. code-block:: bash
 
-  $ conda create -n ivy
+  $ conda create -n ivy  # here 'ivy' is just the environment name
 
-Activate the environment:
+Activate the environment. The environment's name should appear in the
+shell prompt.
 
 .. code-block:: bash
 
   $ source activate ivy
   (ivy) $
 
-Next, install the dependencies:
+Install dependencies
+--------------------
 
-* `numpy <http://numpy.scipy.org>`_
-* `scipy <http://www.scipy.org>`_
-* `matplotlib <http://matplotlib.org>`_
-* `pandas <http://pandas.pydata.org>`_
-* `biopython <http://www.biopython.org>`_
-* `pyparsing <http://pyparsing.wikispaces.com>`_
-* `lxml <http://lxml.de>`_
+``Ivy`` liberally draws from the amazing ecosystem of Python data
+science libraries, such as scipy_, pandas_, and especially matplotlib_.
 
-And, for interactive use:
+.. _scipy: https://scipy.org
+.. _pandas: https://pandas.pydata.org
+.. _matplotlib: https://matplotlib.org
 
-* `jupyter <http://jupyter.org>`_
+The advantage of using ``conda`` here is that it pulls in compiled
+versions of the packages needed by ``ivy``, and all their
+dependencies; you could use ``pip`` instead, but depending on your
+setup, it may require compiling things that you're not prepared to
+compile. (With the exception of ``biopython``, all of ``ivy``'s
+dependencies are already included in Anaconda.)
 
 .. code-block:: bash
 
@@ -51,88 +76,21 @@ Finally install ``ivy``:
 .. code-block:: bash
 
   (ivy) $ pip install git+http://github.com/rhr/ivy.git
-		
 
-Ubuntu + virtualenv
-===================
+This pulls the latest source code from the `github repository
+<https://github.com/rhr/ivy>`_.
 
-On Ubuntu you can install ``ivy``'s dependencies via system
-packages. (If Python 3 is your system's default, replace python3 with
-python below.)
+Updating ``ivy``
+================
 
-.. code-block:: bash
-
-  $ sudo apt install python3-matplotlib python3-scipy python3-numpy python3-biopython python3-pyparsing python3-pillow python3-lxml python3-pandas
-
-System packages are often out of date, but not to worry, you can
-install everything you need to compile new versions for installation
-into a virtual environment.
+First remove the existing installation:
 
 .. code-block:: bash
 
-  $ sudo apt build-dep python3-matplotlib python3-scipy python3-numpy python3-biopython python3-pyparsing python3-pillow python3-lxml python3-pandas
+  (ivy) $ pip uninstall ivy-phylo
 
-Preparing a virtual Python environment
-======================================
-
-`virtualenv <http://pypi.python.org/pypi/virtualenv>`_ allows you to
-create sandboxed Python environments in which it is safe to install
-bleeding-edge third-party modules without touching any system
-files.
+Then re-install it:
 
 .. code-block:: bash
 
-  $ sudo apt install python3-virtualenv python3-pip
-
-The next step is to create a virtual Python environment:
-
-.. code-block:: bash
-
-  $ virtualenv mypy
-
-where ``mypy`` is an arbitrary name.  The environment can be activated
-by 'sourcing' the ``activate`` script:
-
-.. code-block:: bash
-
-  $ . mypy/bin/activate
-
-To make it your default Python environment, simply prepend
-``$HOME/mypy/bin`` to your ``PATH``, e.g., in your ``.bashrc`` file:
-
-.. code-block:: bash
-
-  $ export PATH=$HOME/mypy/bin:$PATH
-
-Once the environment is active, we can install the modules themselves:
-
-.. code-block:: bash
-
-  $ for module in matplotlib scipy numpy pandas biopython pyparsing lxml ; do
-  $    pip install $module ;
-  $ done
-
-Jupyter
--------
-
-You will also want to install Jupyter in your virtual environment:
-
-.. code-block:: bash
-
-  $ pip install jupyter
-
-Installing ``ivy``
-==================
-
-Finally, once the dependencies have been satisfied, we can install ``ivy``:
-
-.. code-block:: bash
-
-  $ pip install git+http://github.com/rhr/ivy
-
-
-Source code
-===========
-
-Ivy source code is hosted at https://github.com/rhr/ivy
-
+  (ivy) $ pip install git+http://github.com/rhr/ivy.git
