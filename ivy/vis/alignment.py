@@ -270,7 +270,7 @@ class Alignment(Axes):
                           for x in self.aln ])
         self.array = a
         self.imshow(a, interpolation='nearest', aspect='auto', origin='lower')
-        y = [ i+0.5 for i in xrange(self.ntax) ]
+        y = [ i+0.5 for i in range(self.ntax) ]
         labels = [ x.id for x in self.aln ]
         ## locator.bin_boundaries(1,ntax)
         ## locator.view_limits(1,ntax)

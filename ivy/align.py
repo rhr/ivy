@@ -16,9 +16,10 @@ def muscle(seqs, cmd=None):
     p = Popen([cmd], stdin=PIPE, stdout=PIPE)
     write = p.stdin.write
     for x in seqs:
-        write(">%s\n%s\n" % (x.id, x.seq))
+        write(">{}\n{}\n".format(x.id, x.seq).encode('utf8'))
     out = p.communicate()[0]
-    aln = AlignIO.read(StringIO(out), 'fasta', alphabet=IUPAC.ambiguous_dna)
+    aln = AlignIO.read(
+        StringIO(out.decode('utf8')), 'fasta', alphabet=IUPAC.ambiguous_dna)
     return aln
 
 def musclep(seqs1, seqs2, cmd="/usr/bin/muscle"):
@@ -26,17 +27,20 @@ def musclep(seqs1, seqs2, cmd="/usr/bin/muscle"):
     f1 = NamedTemporaryFile(); f2 = NamedTemporaryFile()
     for s, f in ((seqs1, f1), (seqs2, f2)):
         write = f.file.write
-        for x in s: write(">%s\n%s\n" % (x.id, x.seq))
+        for x in s:
+            write(">{}\n{}\n".format(x.id, x.seq).encode('utf8'))
     f1.file.flush(); f2.file.flush()
     cmd += " -profile -in1 %s -in2 %s" % (f1.name, f2.name)
     p = Popen(cmd.split(), stdout=PIPE)
     out = p.communicate()[0]
-    aln = AlignIO.read(StringIO(out), 'fasta', alphabet=IUPAC.ambiguous_dna)
+    aln = AlignIO.read(
+        StringIO(out.decode('utf8')), 'fasta', alphabet=IUPAC.ambiguous_dna)
     f1.file.close(); f2.file.close()
     return aln
     
 def read(data, format=None, name=None):
-    from types import StringTypes
+    # from types import StringTypes
+    isstr = lambda x: isinstance(x, (''.__class__, u''.__class__))
     
     def strip(s):
         fname = os.path.split(s)[-1]
@@ -48,7 +52,7 @@ def read(data, format=None, name=None):
             return fname
 
     if (not format):
-        if (type(data) in StringTypes) and os.path.isfile(data):
+        if isstr(data) and os.path.isfile(data):
             s = data.lower()
             if s.endswith("fasta"):
                 format="fasta"
@@ -60,7 +64,7 @@ def read(data, format=None, name=None):
     if (not format):
         format = "fasta"
 
-    if type(data) in StringTypes:
+    if isstr(data):
         if os.path.isfile(data):
             name = strip(data)
             with open(data) as f:
