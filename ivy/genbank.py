@@ -69,8 +69,7 @@ def gi2tax(gi):
     global email
     assert email, "set email!"
     Entrez.email = email
-    h = Entrez.elink(dbfrom='taxonomy', db='nucleotide', from_uid=gi,
-                     LinkName='nucleotide_taxonomy')
+    h = Entrez.elink(dbfrom='nucleotide', db='taxonomy', id=gi)
     r = Entrez.read(h)[0]
     h.close()
     i = r['LinkSetDb'][0]['Link'][0]['Id']
@@ -78,6 +77,19 @@ def gi2tax(gi):
     r = Entrez.read(h)[0]
     h.close()
     return r
+
+def acs2tax(acs):
+    '''
+    given a list of nucleotide accession numbers, return a list of
+    dictionaries containing their taxonomic information
+    '''
+    h = Entrez.elink(dbfrom='nucleotide', db='taxonomy', id=','.join(acs))
+    d = Entrez.read(h)
+    taxids = [ x['LinkSetDb'][0]['Link'][0]['Id'] for x in d ]
+    h = Entrez.efetch(db='taxonomy', id=taxids)
+    r = dict([ (x['TaxId'], x) for x in Entrez.read(h) ])
+    v = [ r[tid] for tid in taxids ]
+    return v
 
 def ac2gi(ac):
     global email
