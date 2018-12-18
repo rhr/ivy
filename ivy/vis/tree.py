@@ -1,7 +1,7 @@
 """
 interactive viewers for trees, etc. using matplotlib
 """
-import sys, math, types, os, operator
+import sys, math, types, os, operator, pdb
 from itertools import chain, cycle
 from .. import tree
 from ..layout import cartesian
@@ -1177,10 +1177,10 @@ class Tree(Axes):
         #print "visible_nodes points", x0, x1, y0, y1
 
         if labeled_only:
-            def f(v): return (y0 < v[0] < y1) and (v[2] in self.node2label)
+            def f(v): return (y0 < v[0] < y1) and (v[-1] in self.node2label)
         else:
             def f(v): return (y0 < v[0] < y1)
-        for y, x, n in filter(f, self.coords):
+        for y, x, ni, n in filter(f, self.coords):
             yield (n, x, y)
 
     def zoom_cxy(self, x=0.1, y=0.1, cx=None, cy=None):
@@ -1636,7 +1636,7 @@ class Tree(Axes):
         for c in self.n2c.values():
             c.x += self.xoff; c.y += self.yoff
         sv = sorted([
-            [c.y, c.x, n] for n, c in self.n2c.items()
+            [c.y, c.x, n.ni, n] for n, c in self.n2c.items()
             ])
         self.coords = sv#numpy.array(sv)
 
@@ -2012,7 +2012,7 @@ class RadialTree(Tree):
         self.n2c = calc_node_positions(self.root, scaled=self.scaled,
                                        start=start, end=end)
         sv = sorted([
-            [c.y, c.x, n] for n, c in self.n2c.items()
+            [c.y, c.x, n.ni, n] for n, c in self.n2c.items()
             ])
         self.coords = sv
 

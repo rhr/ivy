@@ -4,8 +4,8 @@ Parse newick strings.
 The function of interest is `parse`, which returns the root node of
 the parsed tree.
 """
-from __future__ import print_function, absolute_import, division, unicode_literals
-import string, sys, re, shlex, itertools
+# from __future__ import print_function, absolute_import, division, unicode_literals
+import string, sys, re, shlex, logging, pdb
 try:
     from cStringIO import StringIO
 except:
@@ -46,6 +46,7 @@ class Tokenizer(shlex.shlex):
         v = []
         while 1:
             token = self.get_token()
+            logging.debug('[embed] token = {}'.format(token))
             if token == '':
                 sys.stdout.write('EOF encountered mid-comment!\n')
                 break
@@ -91,7 +92,7 @@ def parse(data, ttable=None, treename=None):
     pi = 0  # postorder sequence
     while 1:
         token = tokens.get_token()
-        #print token,
+        logging.debug('node = {}, token = {}'.format(node, token))
         if token == ';' or token == tokens.eof:
             assert lp == rp, \
                    "unbalanced parentheses in tree description: (%s, %s)" \
@@ -116,6 +117,22 @@ def parse(data, ttable=None, treename=None):
             node = newnode
 
         elif token == ')':
+            if previous == '(':
+                # edge case - unlabeled tip
+                newnode = Node()
+                newnode.ni = ni; ni += 1
+                newnode.pi = pi; pi += 1
+                newnode.label = ''
+                newnode.isleaf = True
+                newnode.li = li; li += 1
+                if node.children:
+                    newnode.left = node.children[-1].right+1
+                else:
+                    newnode.left = node.left+1
+                newnode.right = newnode.left+1
+                newnode.treename = treename
+                node.add_child(newnode)
+                node = newnode
             rp = rp+1
             node = node.parent
             node.pi = pi; pi += 1
@@ -123,6 +140,7 @@ def parse(data, ttable=None, treename=None):
                 node.right = node.children[-1].right + 1
 
         elif token == ',':
+            _n = node
             node = node.parent
             if node.children:
                 node.right = node.children[-1].right + 1
@@ -130,9 +148,11 @@ def parse(data, ttable=None, treename=None):
         # branch length
         elif token == ':':
             token = tokens.get_token()
+            logging.debug('node = {}, token = {}'.format(node, token))
             if token == '[':
                 node.length_comment = tokens.parse_embedded_comment()
                 token = tokens.get_token()
+                logging.debug('node = {}, token = {}'.format(node, token))
 
             if not (token == ''):
                 try: brlen = float(token)
@@ -156,11 +176,10 @@ def parse(data, ttable=None, treename=None):
 
         # leaf node or internal node label
         else:
-            if previous != ')': # leaf node
+            if previous != ')':  # leaf node
                 if ttable:
                     try:
-                        ttoken = (ttable.get(int(token)) or
-                                  ttable.get(token))
+                        ttoken = (ttable.get(int(token)) or ttable.get(token))
                     except ValueError:
                         ttoken = ttable.get(token)
                     if ttoken:
@@ -171,13 +190,15 @@ def parse(data, ttable=None, treename=None):
                 newnode.label = "_".join(token.split()).replace("'", "")
                 newnode.isleaf = True
                 newnode.li = li; li += 1
-                if node.children: newnode.left = node.children[-1].right+1
-                else: newnode.left = node.left+1
+                if node.children:
+                    newnode.left = node.children[-1].right+1
+                else:
+                    newnode.left = node.left+1
                 newnode.right = newnode.left+1
                 newnode.treename = treename
                 node.add_child(newnode)
                 node = newnode
-            else: # label
+            else:  # label
                 if ttable:
                     node.label = ttable.get(token, token)
                 else:
