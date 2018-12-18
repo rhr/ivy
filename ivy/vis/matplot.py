@@ -739,10 +739,10 @@ class Tree(Axes):
         #print "visible_nodes points", x0, x1, y0, y1
 
         if labeled_only:
-            def f(v): return (y0 < v[0] < y1) and (v[2] in self.node2label)
+            def f(v): return (y0 < v[0] < y1) and (v[-1] in self.node2label)
         else:
             def f(v): return (y0 < v[0] < y1)
-        for y, x, n in filter(f, self.coords):
+        for y, x, ni, n in filter(f, self.coords):
             yield (n, x, y)
 
     def zoom_cxy(self, x=0.1, y=0.1, cx=None, cy=None):
@@ -1133,7 +1133,7 @@ class Tree(Axes):
     def layout(self):
         self.n2c = cartesian(self.root, scaled=self.scaled)
         sv = sorted([
-            [c.y, c.x, n] for n, c in self.n2c.items()
+            [c.y, c.x, n.ni, n] for n, c in self.n2c.items()
             ])
         self.coords = sv#numpy.array(sv)
         ## n2c = self.n2c

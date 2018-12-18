@@ -117,7 +117,22 @@ def parse(data, ttable=None, treename=None):
             node = newnode
 
         elif token == ')':
-            pdb.set_trace()
+            if previous == '(':
+                # edge case - unlabeled tip
+                newnode = Node()
+                newnode.ni = ni; ni += 1
+                newnode.pi = pi; pi += 1
+                newnode.label = ''
+                newnode.isleaf = True
+                newnode.li = li; li += 1
+                if node.children:
+                    newnode.left = node.children[-1].right+1
+                else:
+                    newnode.left = node.left+1
+                newnode.right = newnode.left+1
+                newnode.treename = treename
+                node.add_child(newnode)
+                node = newnode
             rp = rp+1
             node = node.parent
             node.pi = pi; pi += 1
@@ -125,7 +140,7 @@ def parse(data, ttable=None, treename=None):
                 node.right = node.children[-1].right + 1
 
         elif token == ',':
-            pdb.set_trace()
+            _n = node
             node = node.parent
             if node.children:
                 node.right = node.children[-1].right + 1
