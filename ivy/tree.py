@@ -752,11 +752,12 @@ class Node(object):
 
         """
         n = self.parent
-        while 1:
-            if n is None: raise StopIteration
+        while n:
             yield n
-            if n.isroot or (end and n == end) or (stop and stop(n)):
-                raise StopIteration
+            if (n.isroot or
+                (end and n == end) or
+                (stop and stop(n))):
+                break
             n = n.parent
 
     def rootpath_length(self, end=None):
@@ -890,7 +891,6 @@ class Node(object):
         """
         newroot = self[newroot]
         assert newroot in self
-        self.isroot = False
         n = newroot
         v = list(n.rootpath())
         v.reverse()
@@ -902,6 +902,7 @@ class Node(object):
             cp.length = node.length
             cp.label = node.label
         newroot.isroot = True
+        self.isroot = False
         return newroot
 
     def makeroot(self, shift_labels=False):
