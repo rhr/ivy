@@ -159,19 +159,18 @@ def parse(data, ttable=None, treename=None):
                     brlen = float(token)
                 except ValueError as exc:
                     brlen = None
-                    v = []
-                    if token == '{':
+                    if token == '{':  # simmap history
+                        v = []
                         while 1:
                             state = tokens.get_token()
                             comma = tokens.get_token()
                             assert comma == ',', comma
                             seg = float(tokens.get_token())
                             token = tokens.get_token()
-                            print(state, comma, seg, token)
+                            v.append((state, seg))
                             if token == '}':
                                 break
-                        v.append((state, seg))
-                    node.simmap = v
+                        node.simmap = v
                     else:
                         raise ValueError(
                             "invalid literal for branch length, '{}'".format(token))
