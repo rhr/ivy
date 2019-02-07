@@ -155,10 +155,26 @@ def parse(data, ttable=None, treename=None):
                 logging.debug('node = {}, token = {}'.format(node, token))
 
             if not (token == ''):
-                try: brlen = float(token)
+                try:
+                    brlen = float(token)
                 except ValueError as exc:
-                    raise ValueError(
-                        "invalid literal for branch length, '{}'".format(token))
+                    brlen = None
+                    v = []
+                    if token == '{':
+                        while 1:
+                            state = tokens.get_token()
+                            comma = tokens.get_token()
+                            assert comma == ',', comma
+                            seg = float(tokens.get_token())
+                            token = tokens.get_token()
+                            print(state, comma, seg, token)
+                            if token == '}':
+                                break
+                        v.append((state, seg))
+                    node.simmap = v
+                    else:
+                        raise ValueError(
+                            "invalid literal for branch length, '{}'".format(token))
             else:
                 raise Error('unexpected end-of-file (expecting branch length)')
 
