@@ -27,7 +27,7 @@ fig.toggle_leaflabels()
 
 ## Documentation and other resources
 
-(Woefully out of date and incomplete)
+(Out of date and incomplete)
 
 http://www.reelab.net/ivy
 
@@ -45,7 +45,7 @@ Recommended for non-developers: use [conda](https://conda.io/miniconda.html) for
 2. Create an environment for `ivy`:
 
     ```bash
-    conda create -n ivy ipython jupyter numpy scipy matplotlib biopython pillow pyparsing lxml
+    conda create -n ivy ipython jupyter numpy scipy matplotlib biopython pillow pyparsing pytz pandas lxml
     ```
   
 3. Activate the environment:
