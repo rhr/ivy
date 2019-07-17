@@ -11,7 +11,8 @@ from tempfile import NamedTemporaryFile
 MUSCLE = "/usr/bin/muscle"
 
 def muscle(seqs, cmd=None):
-    if not cmd: cmd = MUSCLE
+    if not cmd:
+        cmd = MUSCLE
     assert os.path.exists(cmd)
     p = Popen([cmd], stdin=PIPE, stdout=PIPE)
     write = p.stdin.write
@@ -37,11 +38,11 @@ def musclep(seqs1, seqs2, cmd="/usr/bin/muscle"):
         StringIO(out.decode('utf8')), 'fasta', alphabet=IUPAC.ambiguous_dna)
     f1.file.close(); f2.file.close()
     return aln
-    
+
 def read(data, format=None, name=None):
     # from types import StringTypes
     isstr = lambda x: isinstance(x, (''.__class__, u''.__class__))
-    
+
     def strip(s):
         fname = os.path.split(s)[-1]
         head, tail = os.path.splitext(fname)
@@ -81,7 +82,7 @@ def read(data, format=None, name=None):
 
 def write(data, f, format='fasta'):
     AlignIO.write(data, f, format)
-    
+
 def find(aln, substr):
     """
     generator that yields (seqnum, pos) tuples for every position of
@@ -92,11 +93,11 @@ def find(aln, substr):
     for i, rec in enumerate(aln):
         for j in finditer(rec.seq, substr):
             yield (i,j)
-            
+
 def find_id(aln, regexp):
     import re
     return [ (i,s) for i, s in enumerate(aln) if re.search(regexp, s.id) ]
-    
+
 def gapcols(aln, c='-'):
     from numpy import array
     a = array([ list(x.seq) for x in aln ])

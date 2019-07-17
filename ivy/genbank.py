@@ -115,7 +115,7 @@ def acsum(aclist, batchsize=100):
             db="nucleotide", retmax=len(v),
             term=" OR ".join([ "%s[ACCN]" % x for x in v ]),
             usehistory="y"
-            )
+        )
         d = Entrez.read(h)
         h.close()
         # gis, but not in order of aclist
@@ -196,7 +196,7 @@ def fetchseq(gi):
     return s
 
 def create_fastas(data, genes):
-    fastas = dict([ (g, file(g+".fasta", "w")) for g in genes ])
+    fastas = dict([ (g, open(g+".fasta", "w")) for g in genes ])
     for label, seqs in data.items():
         for gene, s in zip(genes, seqs):
             if s and type(s) != str:
@@ -211,7 +211,8 @@ def create_fastas(data, genes):
                 sys.stderr.write(("error: not an accession number? "
                                   "%s (%s %s)\n" % (s, label, gene)))
 
-    for f in fastas.values(): f.close()
+    for f in fastas.values():
+        f.close()
 
 def merge_fastas(fnames, name="merged"):
     outfile = file(name+".phy", "w")
