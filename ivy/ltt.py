@@ -32,7 +32,7 @@ def ltt(node):
     return data
 
 def lttbd(root):
-    n2t = dict()
+    n2t = {root:0.0}
     def traverse(n, t=0.0):
         u = t + n.length
         if n.parent:
