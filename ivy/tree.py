@@ -161,7 +161,7 @@ class Node(object):
 
         """
         for n in self:
-            if n==x or n.id==x or n.ni == x or (n.label and n.label==x):
+            if n is x or n.id==x or n.ni == x or (n.label and n.label==x):
                 return n
         raise IndexError(str(x))
 

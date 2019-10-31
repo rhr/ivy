@@ -2,6 +2,7 @@
 Compute lineages through time
 """
 import pandas as pd
+from math import isclose
 
 def ltt(node):
     """
@@ -29,6 +30,30 @@ def ltt(node):
     data = pd.DataFrame.from_records(sorted(it()), columns=('t','n'))
     data.n = data.n.cumsum()
     return data
+
+def lttbd(root):
+    n2t = dict()
+    def traverse(n, t=0.0):
+        u = t + n.length
+        if n.parent:
+            n2t[n] = u
+        for c in n.children:
+            traverse(c, u)
+
+    traverse(root)
+    T = max(n2t.values())
+    v = []
+    for n in root.preiter():
+        nc = len(n.children) - 1
+        t = n2t[n]
+        if nc >= 1:  # internal node
+            v.append((t, nc))
+        else:  # tip
+            if not isclose(t, T, rel_tol=1e-3):  # not extant
+                v.append((t, -1))
+    df = pd.DataFrame.from_records(sorted(v), columns=('t','n'))
+    df.n = df.n.cumsum()
+    return df
 
 def test():
     import newick, ascii
