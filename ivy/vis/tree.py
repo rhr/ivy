@@ -1857,9 +1857,9 @@ class Tree(Axes):
             self.spines["bottom"].set_bounds(v[0],v[-1])
         except AttributeError:
             pass
-        for t,n,s in self.xaxis.iter_ticks():
-            if (n > v[-1]) or (n < v[0]):
-                t.set_visible(False)
+        ## for t,n,s in self.xaxis.iter_ticks():
+        ##     if (n > v[-1]) or (n < v[0]):
+        ##         t.set_visible(False)
 
     def mark_named(self):
         if self._mark_named:
@@ -2051,7 +2051,7 @@ class RadialTree(Tree):
         codes.extend(ac.tolist())
         return verts, codes
 
-    def highlight(self, nodes=None, width=5, color="red"):
+    def highlight(self, nodes=None, width=5, color="red", mrca=True):
         if self.highlightpatch:
             try:
                 self.highlightpatch.remove()
@@ -2060,41 +2060,41 @@ class RadialTree(Tree):
         if not nodes:
             return
 
-        if len(nodes)>1:
-            mrca = self.root.mrca(*nodes)
-            if not mrca:
+        if len(nodes)>1 and mrca:
+            anc = self.root.mrca(*nodes)
+            if not anc:
                 return
         else:
-            mrca = list(nodes)[0]
+            anc = list(nodes)[0]
 
-        M = Path.MOVETO; L = Path.LINETO
         verts = []
         codes = []
         seen = set()
-        patches = []
         for node, coords in [ x for x in self.n2c.items() if x[0] in nodes ]:
-            x = coords.x; y = coords.y
+            ## x = coords.x; y = coords.y
             p = node.parent
             while p:
-                pcoords = self.n2c[p]
-                px = pcoords.x; py = pcoords.y
+                ## pcoords = self.n2c[p]
+                ## px = pcoords.x; py = pcoords.y
                 if node not in seen:
                     v, c = self._path_to_parent(node)
                     verts.extend(v)
                     codes.extend(c)
                     seen.add(node)
-                if p == mrca or node == mrca:
+                if p is anc or node is anc:
                     break
                 node = p
-                coords = self.n2c[node]
-                x = coords.x; y = coords.y
+                ## coords = self.n2c[node]
+                ## x = coords.x; y = coords.y
                 p = node.parent
+
+        ## M = Path.MOVETO; L = Path.LINETO
+        ## patches = []
         ## px, py = verts[-1]
         ## verts.append((px, py)); codes.append(M)
         self.highlightpath = Path(verts, codes)
         self.highlightpatch = PathPatch(
-            self.highlightpath, fill=False, linewidth=width, edgecolor=color
-            )
+            self.highlightpath, fill=False, linewidth=width, edgecolor=color)
         self.add_patch(self.highlightpatch)
         ## self.highlight_patches = PatchCollection(patches, match_original=True)
         ## self.add_collection(self.highlight_patches)

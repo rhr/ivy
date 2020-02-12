@@ -160,7 +160,7 @@ class Node(object):
             Node: Found node(s)
 
         """
-        for n in self:
+        for n in self.iternodes():
             if n is x or n.id==x or n.ni == x or (n.label and n.label==x):
                 return n
         raise IndexError(str(x))
