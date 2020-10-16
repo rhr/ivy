@@ -1,7 +1,7 @@
 import os
 from subprocess import Popen, PIPE
 from Bio import AlignIO
-from Bio.Alphabet import IUPAC
+#from Bio.Alphabet import IUPAC
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -20,7 +20,7 @@ def muscle(seqs, cmd=None):
         write(">{}\n{}\n".format(x.id, x.seq).encode('utf8'))
     out = p.communicate()[0]
     aln = AlignIO.read(
-        StringIO(out.decode('utf8')), 'fasta', alphabet=IUPAC.ambiguous_dna)
+        StringIO(out.decode('utf8')), 'fasta')#, alphabet=IUPAC.ambiguous_dna)
     return aln
 
 def musclep(seqs1, seqs2, cmd="/usr/bin/muscle"):
@@ -69,14 +69,14 @@ def read(data, format=None, name=None):
         if os.path.isfile(data):
             name = strip(data)
             with open(data) as f:
-                return AlignIO.read(f, format, alphabet=IUPAC.ambiguous_dna)
+                return AlignIO.read(f, format)#, alphabet=IUPAC.ambiguous_dna)
         else:
             f = StringIO(data)
-            return AlignIO.read(f, format, alphabet=IUPAC.ambiguous_dna)
+            return AlignIO.read(f, format)#, alphabet=IUPAC.ambiguous_dna)
 
     elif (hasattr(data, "tell") and hasattr(data, "read")):
         treename = strip(getattr(data, "name", None))
-        return AlignIO.read(data, format, alphabet=IUPAC.ambiguous_dna)
+        return AlignIO.read(data, format)#, alphabet=IUPAC.ambiguous_dna)
 
     raise IOError("unable to read alignment from '%s'" % data)
 
