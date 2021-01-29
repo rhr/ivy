@@ -31,7 +31,7 @@ try:
 except ImportError:
     from PIL import Image
 import pandas as pd
-np = pd.np
+import numpy as np
 nan = np.nan
 
 # matplotlib.rcParams['path.simplify'] = False
