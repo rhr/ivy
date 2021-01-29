@@ -186,7 +186,10 @@ def parse(data, ttable=None, treename=None):
                 meta = META.findall(node.comment[1:])
                 if meta:
                     for k, v in meta:
-                        v = eval(v.replace('{','(').replace('}',')'))
+                        try:
+                            v = eval(v.replace('{','(').replace('}',')'))
+                        except NameError:
+                            v = str(v)
                         node.meta[k] = v
 
         # leaf node or internal node label
