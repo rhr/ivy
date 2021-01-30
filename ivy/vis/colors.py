@@ -54,3 +54,7 @@ yellow,#fce94f,#edd400,#c4a000
 darkgray,#888a85,#555753,#2e3436
 lightgray,#eeeeec,#d3d7cf,#babdb6
 """),index_col='name')
+
+light = table.light
+medium = table.medium
+dark = table.dark
