@@ -932,6 +932,28 @@ class Node(object):
             if not outfile:
                 return s
 
+    def set_rbi(self):
+        "set RevBayes index as `node.rbi`"
+        def f(n, i):
+            if not n.children:
+                n.rbi = i[0]
+                # print(n.meta['index'], i)
+                i[0] += 1
+            for c in reversed(n.children):
+                f(c, i)
+
+        def f2(n, i):
+            for c in n.children:
+                f2(c, i)
+            if n.children:
+                n.rbi = i[0]
+                # print(n.meta['index'], i)
+                i[0] += 1
+        i = [1]
+        f(self, i)
+        f2(self, i)
+
+
 
 reroot = Node.reroot
 
