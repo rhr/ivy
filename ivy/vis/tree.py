@@ -1406,7 +1406,7 @@ class Tree(Axes):
         transform = self.transData.transform
         disp_bb = [Bbox(transform(bb))]
         for n in nodes:
-            if n.isleaf:
+            if n.isleaf and n in self.node2label:
                 txt = self.node2label[n]
                 if txt.get_visible():
                     disp_bb.append(txt.get_window_extent())
