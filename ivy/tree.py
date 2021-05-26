@@ -11,6 +11,7 @@ from copy import copy as _copy
 # from matrix import vcv
 from . import newick, nexus
 # from itertools import izip_longest
+from io import StringIO
 
 ## class Tree(object):
 ##     """
