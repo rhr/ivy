@@ -346,7 +346,7 @@ class Node(object):
         assert len(leaves) > 1, (
             "Need more than one leaf for ismono(), got %s" % leaves
             )
-        anc = self.mrca(leaves)
+        anc = self.mrca(*leaves)
         if anc:
             return bool(len(anc.leaves())==len(leaves))
 
@@ -1098,7 +1098,7 @@ def read(data, format=None, treename=None, ttable=None):
                 return newick.parse(open(data), treename=treename,
                                     ttable=ttable)
             else:
-                return newick.parse(data, ttable=ttable)
+                return newick.parse(data, ttable=ttable, treename=treename)
 
         elif (hasattr(data, "tell") and hasattr(data, "read")):
             treename = strip(getattr(data, "name", None))

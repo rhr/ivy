@@ -118,7 +118,8 @@ class TreeFigure(object):
                           scaled=self.scaled, branchlabels=self.branchlabels,
                           highlight_support=self.highlight_support,
                           leaflabels=self.leaflabels,
-                          mark_named=self.mark_named)
+                          mark_named=self.mark_named,
+                          xoff=self.xoff, yoff=self.yoff)
             detail = self.figure.add_subplot(tp)
             detail.set_root(self.root)
             detail.plot_tree()
