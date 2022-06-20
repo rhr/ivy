@@ -6,7 +6,7 @@ from itertools import chain, cycle
 from .. import tree
 from ..layout import cartesian
 from ..storage import Storage
-from .. import pyperclip as clipboard
+import pyperclip as clipboard
 # from ..nodecache import NodeCache
 import matplotlib.pyplot as pyplot
 from matplotlib.axes import Axes, subplot_class_factory
