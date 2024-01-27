@@ -21,6 +21,7 @@ from matplotlib.collections import LineCollection, PatchCollection
 from matplotlib.transforms import Bbox
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox, AnchoredText
 from matplotlib.ticker import NullLocator, FixedLocator, FuncFormatter
+from matplotlib.gridspec import GridSpec
 from .treeticker import TreeTicker, LeafLocator
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from . import symbols
@@ -594,7 +595,10 @@ class MultiTreeFigure(object):
         pars = SubplotParams(
             left=0, right=1, bottom=0.05, top=1, wspace=0.04
             )
-        fig = pyplot.figure(subplotpars=pars)
+        # fig = pyplot.figure(subplotpars=pars)
+        fig = pyplot.figure()
+        self.gridspec = fig.add_gridspec(
+            1, len(trees), left=0, right=1, bottom=0.05, top=1, wspace=0.04)
         self.event_cids = connect_events(fig.canvas)
         self.figure = fig
 
@@ -643,8 +647,8 @@ class MultiTreeFigure(object):
 
         fig = self.figure
         N = len(self.plot)+1
-        for i, p in enumerate(self.plot):
-            p.change_geometry(1, N, i+1)
+        # for i, p in enumerate(self.plot):
+        #     p.change_geometry(1, N, i+1)
         plt = TreePlot(fig, 1, N, N, app=self, name=name, support=support,
                        scaled=scaled, branchlabels=branchlabels,
                        leaflabels=leaflabels, mark_named=mark_named)
