@@ -12,6 +12,9 @@ from copy import copy as _copy
 from . import newick, nexus
 # from itertools import izip_longest
 from io import StringIO
+from pathlib import Path
+from collections import defaultdict
+import numpy as np
 
 ## class Tree(object):
 ##     """
@@ -1080,67 +1083,68 @@ def read(data, format=None, treename=None, ttable=None):
         else:
             return fname
 
+    ISFILE = ((isinstance(data, str) and Path(data).is_file()) or
+              (isinstance(data, Path) and data.is_file()))
+
     if (not format):
-        if isinstance(data, str) and os.path.isfile(data):
-            s = data.lower()
-            for tail in ".nex", ".nexus", ".tre":
-                if s.endswith(tail):
-                    format="nexus"
-                    break
+        if ISFILE:
+            p = Path(data)
+            s = p.suffix.lower()
+            if s in (".nex", ".nexus", ".tre"):
+                format="nexus"
 
     if (not format):
         format = "newick"
 
     if format == "newick":
-        if isinstance(data, str):
-            if os.path.isfile(data):
-                treename = strip(data)
-                return newick.parse(open(data), treename=treename,
+        if ISFILE:
+            p = Path(data)
+            treename = strip(p.name)
+            return newick.parse(open(p), treename=treename,
                                     ttable=ttable)
-            else:
-                return newick.parse(data, ttable=ttable, treename=treename)
+        elif isinstance(data, str):
+            return newick.parse(data, ttable=ttable, treename=treename)
 
         elif (hasattr(data, "tell") and hasattr(data, "read")):
             treename = strip(getattr(data, "name", None))
             return newick.parse(data, treename=treename, ttable=ttable)
+        else:
+            pass
     elif format == "nexus-dendropy":
         import dendropy
-        if isinstance(data, str):
-            if os.path.isfile(data):
-                treename = strip(data)
-                return newick.parse(
-                    str(dendropy.Tree.get_from_path(data, "nexus")),
-                    treename=treename
-                    )
-            else:
-                return newick.parse(
-                    str(dendropy.Tree.get_from_string(data, "nexus"))
-                    )
+        if ISFILE:
+            treename = strip(data.name)
+            return newick.parse(
+                str(dendropy.Tree.get_from_path(data, "nexus")),
+                treename=treename)
+
+        elif isinstance(data, str):
+            return newick.parse(
+                str(dendropy.Tree.get_from_string(data, "nexus")))
 
         elif (hasattr(data, "tell") and hasattr(data, "read")):
             treename = strip(getattr(data, "name", None))
             return newick.parse(
                 str(dendropy.Tree.get_from_stream(data, "nexus")),
-                treename=treename
-                )
+                treename=treename)
         else:
             pass
 
     elif format == "nexus":
-        if isinstance(data, str):
-            if os.path.isfile(data):
-                treename = strip(data)
-                with open(data) as infile:
-                    nexiter = nexus.iter_trees(infile)
-                    rec = next(nexiter)
-                    if rec:
-                        r = rec.parse()
-                        r.treename = treename or ''
-                        return r
-            else:
-                nexiter = nexus.iter_trees(StringIO(data))
+        if ISFILE:
+            treename = strip(data)
+            with open(data) as infile:
+                nexiter = nexus.iter_trees(infile)
+                rec = next(nexiter)
+                if rec:
+                    r = rec.parse()
+                    r.treename = treename or ''
+                    return r
+        elif isinstance(data, str):
+            nexiter = nexus.iter_trees(StringIO(data))
         else:
             nexiter = nexus.iter_trees(data)
+
         rec = next(nexiter)
         if rec:
             return rec.parse()
@@ -1204,3 +1208,31 @@ def C(leaves, internals):
             m[n.ii,lf.li] = v
             v += n.length if n.length is not None else 1
     return m.tocsc()
+
+def dm(r):
+    leaves = r.leaves()
+    nl = len(leaves)
+    m = defaultdict(lambda:defaultdict(float))
+    for lf in leaves:
+        v = lf.length
+        for n in lf.rootpath():
+            m[n][lf] = v
+            if n.parent:
+                v += n.length
+    a = np.full((nl, nl), np.nan)
+    for lf in leaves:
+        for n in lf.rootpath():
+            d = m[n]
+            for k in d.keys():
+                if k is lf:
+                    a[k.li, k.li] = 0
+                    continue
+                row, col = (lf.li, k.li) if lf.li < k.li else (k.li, lf.li)
+                x = a[row, col]
+                if np.isnan(x):
+                    v = d[k]
+                    w = d[lf]
+                    val = v+w
+                    a[row, col] = val
+                    a[col, row] = val
+    return a
