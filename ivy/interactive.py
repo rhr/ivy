@@ -105,7 +105,7 @@ try:
         ##     )
         IP.set_hook(
             "complete_command", __node_completer,
-            re_key='.+[[]([\']|["])*\w*$'
+            re_key=r'.+[[]([\']|["])*\w*$'
             )
 
 except:
