@@ -1083,8 +1083,12 @@ def read(data, format=None, treename=None, ttable=None):
         else:
             return fname
 
-    ISFILE = ((isinstance(data, str) and Path(data).is_file()) or
-              (isinstance(data, Path) and data.is_file()))
+    ISFILE = False
+    try:
+        ISFILE = ((isinstance(data, str) and Path(data).is_file()) or
+                  (isinstance(data, Path) and data.is_file()))
+    except OSError:
+        pass
 
     if (not format):
         if ISFILE:
