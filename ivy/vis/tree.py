@@ -18,7 +18,7 @@ from matplotlib.widgets import RectangleSelector
 from matplotlib import cm as mpl_colormap
 from matplotlib import colors as mpl_colors
 from matplotlib.collections import LineCollection, PatchCollection
-from matplotlib.transforms import Bbox
+from matplotlib.transforms import Bbox, IdentityTransform
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox, AnchoredText
 from matplotlib.ticker import NullLocator, FixedLocator, FuncFormatter
 from matplotlib.gridspec import GridSpec
