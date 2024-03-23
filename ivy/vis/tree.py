@@ -825,6 +825,7 @@ class Tree(Axes):
         if self.interactive:
             self.callbacks.connect("ylim_changed", self.draw_labels)
         self.selector = RectangleSelector(self, self.rectselect,
+                                          state_modifier_keys={},
                                           useblit=True)
         def f(e):
             if e.button != 1: return True
