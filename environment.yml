@@ -1,0 +1,10 @@
+name: ivy
+dependencies:
+  - ipython
+  - matplotlib
+  - pandas
+  - biopython
+  - pillow
+  - pyparsing
+  - lxml
+  
