@@ -8,6 +8,7 @@ from ..layout import cartesian
 from ..storage import Storage
 import pyperclip as clipboard
 # from ..nodecache import NodeCache
+import matplotlib as mpl
 import matplotlib.pyplot as pyplot
 from matplotlib.axes import Axes, subplot_class_factory
 from matplotlib.figure import SubplotParams
@@ -824,9 +825,12 @@ class Tree(Axes):
 
         if self.interactive:
             self.callbacks.connect("ylim_changed", self.draw_labels)
+        useblit = True
+        if mpl.get_backend().endswith('nbagg'):
+            useblit = False
         self.selector = RectangleSelector(self, self.rectselect,
                                           state_modifier_keys={'square':None},
-                                          useblit=True)
+                                          useblit=useblit)
         def f(e):
             if e.button != 1: return True
             else: return RectangleSelector.ignore(self.selector, e)
@@ -844,6 +848,7 @@ class Tree(Axes):
         self.spines["left"].set_visible(False)
         self.spines["right"].set_visible(False)
         self.xaxis.set_ticks_position("bottom")
+        self.selector.mode = 'replace'
 
     bounds = property(
         lambda self: list(self.get_position().bounds),
@@ -881,7 +886,10 @@ class Tree(Axes):
         left, bottom, w, h = self.bounds
         assert x < (left+w)
         delta = x-left
-        ov = self.app.overview
+        try:
+            ov = self.app.overview
+        except AttributeError:
+            ov = None
         if ov:
             ovl, ovb, ovw, ovh = ov.bounds
             if ovb==bottom:
@@ -897,7 +905,10 @@ class Tree(Axes):
         assert x > left
         right = left+w
         delta = x-right
-        dp = self.app.dataplot
+        try:
+            dp = self.app.dataplot
+        except AttributeError:
+            dp = None
         if dp:
             dpl, dpb, dpw, dph = dp.bounds
             if dpb==bottom:
@@ -1130,7 +1141,7 @@ class Tree(Axes):
             pass
         if add:
             if nodes:
-                self.selected_nodes = self.selected_nodes | nodes
+                self.selected_nodes = self.selected_nodes ^ nodes
             if hasattr(self, "app") and self.app:
                 self.app.on_nodes_selected(self)
             self.highlight_selected_nodes()
@@ -1153,6 +1164,8 @@ class Tree(Axes):
         for n, c in self.n2c.items():
             if (x0 < c.x < x1) and (y0 < c.y < y1):
                 s.add(n)
+        if mpl.get_backend().endswith('nbagg'):
+            add = self.selector.mode == 'add'
         self.select_nodes(nodes = s, add = add)
         self.set_xlim(xlim)
         self.set_ylim(ylim)
