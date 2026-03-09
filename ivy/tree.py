@@ -891,9 +891,8 @@ class Node(object):
 
     def reroot(self, newroot):
         """
-        RR: I can't get this to work properly -CZ
         """
-        newroot = self[newroot]
+        # newroot = self[newroot]
         assert newroot in self
         n = newroot
         v = list(n.rootpath())
