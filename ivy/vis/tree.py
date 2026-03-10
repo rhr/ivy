@@ -881,6 +881,21 @@ class Tree(Axes):
     def height(self):
         return self.bounds[3]
 
+    @top.setter
+    def top(self, x):
+        left, bottom, w, h = self.bounds
+        top = bottom + h
+        delta = x-top
+        self.bounds = (left, bottom, w, h+delta)
+        self.app.figure.canvas.draw_idle()
+
+    @bottom.setter
+    def bottom(self, x):
+        left, bottom, w, h = self.bounds
+        delta = x-bottom
+        self.bounds = (left, x, w, h+delta)
+        self.app.figure.canvas.draw_idle()
+
     @left.setter
     def left(self, x):
         left, bottom, w, h = self.bounds
