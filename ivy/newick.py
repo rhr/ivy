@@ -21,7 +21,7 @@ except:
 ##             pass
 ##     return parse(s)
 
-LABELCHARS = '-.|/?#&'
+LABELCHARS = '-.|/?#&+'
 META = re.compile(r'([^,=\s]+)\s*=\s*(\{[^=}]*\}|"[^"]*"|[^,]+)?')
 
 def add_label_chars(chars):
