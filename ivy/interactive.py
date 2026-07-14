@@ -94,23 +94,19 @@ def __node_completer(self, event):
     raise IPython.core.error.TryNext()
 
 try:
-    ## import IPython
-    IP = get_ipython() #IPython.ipapi.get()
-    IP.magic('matplotlib')
+    IP = get_ipython()
     if IP:
-        #IP.expose_magic("maketree", __maketree)
-        # IP.define_magic("maketree", __maketree)
-        ## IP.set_hook(
-        ##     "complete_command", __node_completer, re_key=r'\[*'
-        ##     )
+        try:
+            IP.run_line_magic('matplotlib', '')
+        except Exception as e:
+            sys.stderr.write("Could not enable matplotlib interactive mode: %s\n" % e)
         IP.set_hook(
             "complete_command", __node_completer,
             re_key=r'.+[[]([\']|["])*\w*$'
             )
 
-except:
-    print(sys.exc_info()[0])
-    sys.stderr.write("Magic commands and completers requires IPython >= 0.11\n")
+except Exception as e:
+    sys.stderr.write("IPython setup failed: %s\n" % e)
 
 ## if __name__ == "__main__":
 ##     if len(sys.argv) > 1:
